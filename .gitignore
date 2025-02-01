@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/HealthDemo/lib/InterSystems.Data.IRISClient.dll
+/HealthDemo/lib/InterSystems.Data.IRISClient.xml
