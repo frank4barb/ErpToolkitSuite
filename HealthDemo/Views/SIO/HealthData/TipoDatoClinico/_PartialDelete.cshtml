@@ -1,0 +1,70 @@
+﻿@model HealthDemo.Models.SIO.HealthData.TipoDatoClinico
+@{
+    ViewData["Title"] = "TipoDatoClinico Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "TipoDatoClinico", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="TcCodice" class="control-label"></label>
+                        <input asp-for="TcCodice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcDescrizione" class="control-label"></label>
+                        <input asp-for="TcDescrizione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcNote" class="control-label"></label>
+                        <input asp-for="TcNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcIdCategoriaDatoClinico" class="control-label"></label>
+                        <input asp-for="TcIdCategoriaDatoClinico" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcUnitaDiMisura" class="control-label"></label>
+                        <input asp-for="TcUnitaDiMisura" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcIdGruppo" class="control-label"></label>
+                        <input asp-for="TcIdGruppo" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcSequenza" class="control-label"></label>
+                        <input asp-for="TcSequenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcAttributi1" class="control-label"></label>
+                        <input asp-for="TcAttributi1" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TcAttributi2" class="control-label"></label>
+                        <input asp-for="TcAttributi2" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>

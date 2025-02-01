@@ -1,0 +1,48 @@
+﻿@model HealthDemo.Models.SIO.Act.SelTipoCampione
+@{
+    ViewData["Title"] = "TipoCampione Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "TipoCampione", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelTpCodice" class="control-label"></label>
+                    <input asp-for="SelTpCodice" class="form-control" />
+                    <span asp-validation-for="SelTpCodice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTpDescrizione" class="control-label"></label>
+                    <input asp-for="SelTpDescrizione" class="form-control" />
+                    <span asp-validation-for="SelTpDescrizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTpNote" class="control-label"></label>
+                    <input asp-for="SelTpNote" class="form-control" />
+                    <span asp-validation-for="SelTpNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTpContesto" class="control-label"></label>
+                    <input asp-for="SelTpContesto" class="form-control" />
+                    <span asp-validation-for="SelTpContesto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTpContenitore" class="control-label"></label>
+                    <input asp-for="SelTpContenitore" class="form-control" />
+                    <span asp-validation-for="SelTpContenitore" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTpAttributi" class="control-label"></label>
+                    <input asp-for="SelTpAttributi" class="form-control" />
+                    <span asp-validation-for="SelTpAttributi" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

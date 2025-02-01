@@ -1,0 +1,93 @@
+﻿@model HealthDemo.Models.SIO.Act.SelCampione
+@{
+    ViewData["Title"] = "Campione Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "Campione", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelCpIdTipoCampione" class="control-label"></label>
+                    <input asp-for="SelCpIdTipoCampione" class="form-control" />
+                    <span asp-validation-for="SelCpIdTipoCampione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpDescrizione" class="control-label"></label>
+                    <input asp-for="SelCpDescrizione" class="form-control" />
+                    <span asp-validation-for="SelCpDescrizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpCodiceUnivoco" class="control-label"></label>
+                    <input asp-for="SelCpCodiceUnivoco" class="form-control" />
+                    <span asp-validation-for="SelCpCodiceUnivoco" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpDataPrelievo" class="control-label"></label>
+                    <input asp-for="SelCpDataPrelievo" class="form-control" />
+                    <span asp-validation-for="SelCpDataPrelievo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpOraPrelievo" class="control-label"></label>
+                    <input asp-for="SelCpOraPrelievo" class="form-control" />
+                    <span asp-validation-for="SelCpOraPrelievo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpNote" class="control-label"></label>
+                    <input asp-for="SelCpNote" class="form-control" />
+                    <span asp-validation-for="SelCpNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpIdEpisodio" class="control-label"></label>
+                    <input asp-for="SelCpIdEpisodio" class="form-control" />
+                    <span asp-validation-for="SelCpIdEpisodio" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpIdPaziente" class="control-label"></label>
+                    <input asp-for="SelCpIdPaziente" class="form-control" />
+                    <span asp-validation-for="SelCpIdPaziente" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpCodiceAssoluto" class="control-label"></label>
+                    <input asp-for="SelCpCodiceAssoluto" class="form-control" />
+                    <span asp-validation-for="SelCpCodiceAssoluto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpStatoCampione" class="control-label"></label>
+                    <input asp-for="SelCpStatoCampione" class="form-control" />
+                    <span asp-validation-for="SelCpStatoCampione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpIdPosizioneAttuale" class="control-label"></label>
+                    <input asp-for="SelCpIdPosizioneAttuale" class="form-control" />
+                    <span asp-validation-for="SelCpIdPosizioneAttuale" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpDescPosizioneAttuale" class="control-label"></label>
+                    <input asp-for="SelCpDescPosizioneAttuale" class="form-control" />
+                    <span asp-validation-for="SelCpDescPosizioneAttuale" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpDataCambiamentoStato" class="control-label"></label>
+                    <input asp-for="SelCpDataCambiamentoStato" class="form-control" />
+                    <span asp-validation-for="SelCpDataCambiamentoStato" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpOraCambiamentoStato" class="control-label"></label>
+                    <input asp-for="SelCpOraCambiamentoStato" class="form-control" />
+                    <span asp-validation-for="SelCpOraCambiamentoStato" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelCpNoteCambiamentoStato" class="control-label"></label>
+                    <input asp-for="SelCpNoteCambiamentoStato" class="form-control" />
+                    <span asp-validation-for="SelCpNoteCambiamentoStato" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

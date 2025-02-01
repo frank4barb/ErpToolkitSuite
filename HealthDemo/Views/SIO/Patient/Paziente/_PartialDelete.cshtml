@@ -1,0 +1,146 @@
+﻿@model HealthDemo.Models.SIO.Patient.Paziente
+@{
+    ViewData["Title"] = "Paziente Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "Paziente", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="PaCodFiscale" class="control-label"></label>
+                        <input asp-for="PaCodFiscale" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaCodSanitario" class="control-label"></label>
+                        <input asp-for="PaCodSanitario" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaNome" class="control-label"></label>
+                        <input asp-for="PaNome" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaCognome" class="control-label"></label>
+                        <input asp-for="PaCognome" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaSesso" class="control-label"></label>
+                        <input asp-for="PaSesso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaDataNascita" class="control-label"></label>
+                        <input asp-for="PaDataNascita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaOraNascita" class="control-label"></label>
+                        <input asp-for="PaOraNascita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdComuneNascita" class="control-label"></label>
+                        <input asp-for="PaIdComuneNascita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdNazioneNascita" class="control-label"></label>
+                        <input asp-for="PaIdNazioneNascita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdCittadinanza" class="control-label"></label>
+                        <input asp-for="PaIdCittadinanza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIndirizzoRes" class="control-label"></label>
+                        <input asp-for="PaIndirizzoRes" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaNumCivicoRes" class="control-label"></label>
+                        <input asp-for="PaNumCivicoRes" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaCapRes" class="control-label"></label>
+                        <input asp-for="PaCapRes" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdComuneRes" class="control-label"></label>
+                        <input asp-for="PaIdComuneRes" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdDistrettoRes" class="control-label"></label>
+                        <input asp-for="PaIdDistrettoRes" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdNazioneDom" class="control-label"></label>
+                        <input asp-for="PaIdNazioneDom" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaMail" class="control-label"></label>
+                        <input asp-for="PaMail" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIndirizzoDom" class="control-label"></label>
+                        <input asp-for="PaIndirizzoDom" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaNumCivicoDom" class="control-label"></label>
+                        <input asp-for="PaNumCivicoDom" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaCapDom" class="control-label"></label>
+                        <input asp-for="PaCapDom" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdComuneDom" class="control-label"></label>
+                        <input asp-for="PaIdComuneDom" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaTelefono" class="control-label"></label>
+                        <input asp-for="PaTelefono" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaCellulare" class="control-label"></label>
+                        <input asp-for="PaCellulare" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdDistrettoDom" class="control-label"></label>
+                        <input asp-for="PaIdDistrettoDom" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaNote" class="control-label"></label>
+                        <input asp-for="PaNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaDataDecesso" class="control-label"></label>
+                        <input asp-for="PaDataDecesso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaOraDecesso" class="control-label"></label>
+                        <input asp-for="PaOraDecesso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PaIdNazioneRes" class="control-label"></label>
+                        <input asp-for="PaIdNazioneRes" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>

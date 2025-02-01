@@ -1,0 +1,93 @@
+﻿@model HealthDemo.Models.SIO.Resource.SelAttrezzatura
+@{
+    ViewData["Title"] = "Attrezzatura Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "Attrezzatura", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelAtCodice" class="control-label"></label>
+                    <input asp-for="SelAtCodice" class="form-control" />
+                    <span asp-validation-for="SelAtCodice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtDescrizione" class="control-label"></label>
+                    <input asp-for="SelAtDescrizione" class="form-control" />
+                    <span asp-validation-for="SelAtDescrizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtIdTipoRisorsa" class="control-label"></label>
+                    <input asp-for="SelAtIdTipoRisorsa" class="form-control" />
+                    <span asp-validation-for="SelAtIdTipoRisorsa" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtCostoUnitarioUso" class="control-label"></label>
+                    <input asp-for="SelAtCostoUnitarioUso" class="form-control" />
+                    <span asp-validation-for="SelAtCostoUnitarioUso" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtMisuraUnitariaUso" class="control-label"></label>
+                    <input asp-for="SelAtMisuraUnitariaUso" class="form-control" />
+                    <span asp-validation-for="SelAtMisuraUnitariaUso" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtNote" class="control-label"></label>
+                    <input asp-for="SelAtNote" class="form-control" />
+                    <span asp-validation-for="SelAtNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtDisponibilita" class="control-label"></label>
+                    <input asp-for="SelAtDisponibilita" class="form-control" />
+                    <span asp-validation-for="SelAtDisponibilita" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtTelefonoFornitore" class="control-label"></label>
+                    <input asp-for="SelAtTelefonoFornitore" class="form-control" />
+                    <span asp-validation-for="SelAtTelefonoFornitore" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtNumeroSeriale" class="control-label"></label>
+                    <input asp-for="SelAtNumeroSeriale" class="form-control" />
+                    <span asp-validation-for="SelAtNumeroSeriale" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtRiferimentiAssistenza" class="control-label"></label>
+                    <input asp-for="SelAtRiferimentiAssistenza" class="form-control" />
+                    <span asp-validation-for="SelAtRiferimentiAssistenza" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtTelefonoAssistenza" class="control-label"></label>
+                    <input asp-for="SelAtTelefonoAssistenza" class="form-control" />
+                    <span asp-validation-for="SelAtTelefonoAssistenza" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtDataUltimaManutenzione" class="control-label"></label>
+                    <input asp-for="SelAtDataUltimaManutenzione" class="form-control" />
+                    <span asp-validation-for="SelAtDataUltimaManutenzione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtFrequenzaManutenzione" class="control-label"></label>
+                    <input asp-for="SelAtFrequenzaManutenzione" class="form-control" />
+                    <span asp-validation-for="SelAtFrequenzaManutenzione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtUsoMedioGiornaliero" class="control-label"></label>
+                    <input asp-for="SelAtUsoMedioGiornaliero" class="form-control" />
+                    <span asp-validation-for="SelAtUsoMedioGiornaliero" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelAtDataProssimaManutenzione" class="control-label"></label>
+                    <input asp-for="SelAtDataProssimaManutenzione" class="form-control" />
+                    <span asp-validation-for="SelAtDataProssimaManutenzione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

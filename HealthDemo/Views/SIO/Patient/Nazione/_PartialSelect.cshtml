@@ -1,0 +1,38 @@
+﻿@model HealthDemo.Models.SIO.Patient.SelNazione
+@{
+    ViewData["Title"] = "Nazione Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "Nazione", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelNzCodice" class="control-label"></label>
+                    <input asp-for="SelNzCodice" class="form-control" />
+                    <span asp-validation-for="SelNzCodice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelNzNome" class="control-label"></label>
+                    <input asp-for="SelNzNome" class="form-control" />
+                    <span asp-validation-for="SelNzNome" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelNzCodIstat" class="control-label"></label>
+                    <input asp-for="SelNzCodIstat" class="form-control" />
+                    <span asp-validation-for="SelNzCodIstat" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelNzNote" class="control-label"></label>
+                    <input asp-for="SelNzNote" class="form-control" />
+                    <span asp-validation-for="SelNzNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

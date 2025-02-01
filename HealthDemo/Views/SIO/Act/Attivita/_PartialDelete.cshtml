@@ -1,0 +1,94 @@
+﻿@model HealthDemo.Models.SIO.Act.Attivita
+@{
+    ViewData["Title"] = "Attivita Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "Attivita", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="AvCodice" class="control-label"></label>
+                        <input asp-for="AvCodice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvDescrizione" class="control-label"></label>
+                        <input asp-for="AvDescrizione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvNote" class="control-label"></label>
+                        <input asp-for="AvNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvFiltroRegimeErogazione" class="control-label"></label>
+                        <input asp-for="AvFiltroRegimeErogazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvCostoMedio" class="control-label"></label>
+                        <input asp-for="AvCostoMedio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvIdGruppo" class="control-label"></label>
+                        <input asp-for="AvIdGruppo" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvAttivitaPreferenziale" class="control-label"></label>
+                        <input asp-for="AvAttivitaPreferenziale" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvDurataValidita" class="control-label"></label>
+                        <input asp-for="AvDurataValidita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvDurataMedia" class="control-label"></label>
+                        <input asp-for="AvDurataMedia" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvInEvidenza" class="control-label"></label>
+                        <input asp-for="AvInEvidenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvIdTipoAttivita" class="control-label"></label>
+                        <input asp-for="AvIdTipoAttivita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvRoutine" class="control-label"></label>
+                        <input asp-for="AvRoutine" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvNoteEstese" class="control-label"></label>
+                        <input asp-for="AvNoteEstese" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvAttributi1" class="control-label"></label>
+                        <input asp-for="AvAttributi1" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AvAttributi2" class="control-label"></label>
+                        <input asp-for="AvAttributi2" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>

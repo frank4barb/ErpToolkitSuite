@@ -1,0 +1,43 @@
+﻿@model HealthDemo.Models.SIO.Act.SelTipoOrganizzazione
+@{
+    ViewData["Title"] = "TipoOrganizzazione Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "TipoOrganizzazione", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelTzCodice" class="control-label"></label>
+                    <input asp-for="SelTzCodice" class="form-control" />
+                    <span asp-validation-for="SelTzCodice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTzDescrizione" class="control-label"></label>
+                    <input asp-for="SelTzDescrizione" class="form-control" />
+                    <span asp-validation-for="SelTzDescrizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTzNote" class="control-label"></label>
+                    <input asp-for="SelTzNote" class="form-control" />
+                    <span asp-validation-for="SelTzNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTzGruppo" class="control-label"></label>
+                    <input asp-for="SelTzGruppo" class="form-control" />
+                    <span asp-validation-for="SelTzGruppo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelTzSequenza" class="control-label"></label>
+                    <input asp-for="SelTzSequenza" class="form-control" />
+                    <span asp-validation-for="SelTzSequenza" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,92 @@
+@using ErpToolkit.Extensions
+
+@model ErpToolkit.Controllers.ControllerErp
+
+@{
+    //ErpToolkit.Models.InputLogin? _login = ViewData["_Login"] as ErpToolkit.Models.InputLogin;
+    ErpToolkit.Models.InputLogin _login = new ErpToolkit.Models.InputLogin();
+    if (Model != null) _login = @Model.Input2;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ErpToolkit</title>
+    <link rel="stylesheet" href="/wwwroot/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/wwwroot/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="/wwwroot/lib/quill/quill.snow.css" asp-append-version="true" />
+
+<!--link rel="stylesheet" href="/wwwroot/lib/jquery-ui/jquery-ui.min.css" asp-append-version="true" /-->
+<!--link rel="stylesheet" href="/wwwroot/lib/jquery-ui/styles.css" asp-append-version="true" /-->
+    <link rel="stylesheet" href="/wwwroot/css/ErpToolkit_site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/wwwroot/ErpToolkit.styles.css" asp-append-version="true" />
+
+    <script src="/wwwroot/lib/jquery/jquery.min.js"></script>
+    <script src="/wwwroot/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!--script src="/wwwroot/lib/jquery-validate/jquery.validate.min.js"></script-->
+<!--script src="/wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script-->
+
+
+    <script src="/wwwroot/lib/quill/quill.js"></script>
+
+<!--script src="/wwwroot/lib/jquery-ui/jquery-ui.min.js"></script-->
+    <script src="/wwwroot/js/ErpToolkit_site.js" asp-append-version="true"></script>
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@Model.AppName2</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    <!-- if User.Identity.IsAuthenticated -->
+                    @if (Context.IsUserIdentityAuthenticatedAndSessionValid())
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            @foreach (var item in Model.ListMenu2)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="@item.Controller" asp-action="@item.Action">@item.Name</a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                        </ul>
+
+                    }
+                    @{
+                        await Html.RenderPartialAsync("_PartialLogout", _login);
+                    }
+
+
+
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - ErpToolkit - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    @await RenderSectionAsync("Scripts", required: false)
+    @Html.RenderPartialViewScripts()
+</body>
+</html>

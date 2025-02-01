@@ -1,0 +1,94 @@
+﻿@model HealthDemo.Models.SIO.Resource.Attrezzatura
+@{
+    ViewData["Title"] = "Attrezzatura Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "Attrezzatura", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="AtCodice" class="control-label"></label>
+                        <input asp-for="AtCodice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtDescrizione" class="control-label"></label>
+                        <input asp-for="AtDescrizione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtIdTipoRisorsa" class="control-label"></label>
+                        <input asp-for="AtIdTipoRisorsa" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtCostoUnitarioUso" class="control-label"></label>
+                        <input asp-for="AtCostoUnitarioUso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtMisuraUnitariaUso" class="control-label"></label>
+                        <input asp-for="AtMisuraUnitariaUso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtNote" class="control-label"></label>
+                        <input asp-for="AtNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtDisponibilita" class="control-label"></label>
+                        <input asp-for="AtDisponibilita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtTelefonoFornitore" class="control-label"></label>
+                        <input asp-for="AtTelefonoFornitore" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtNumeroSeriale" class="control-label"></label>
+                        <input asp-for="AtNumeroSeriale" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtRiferimentiAssistenza" class="control-label"></label>
+                        <input asp-for="AtRiferimentiAssistenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtTelefonoAssistenza" class="control-label"></label>
+                        <input asp-for="AtTelefonoAssistenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtDataUltimaManutenzione" class="control-label"></label>
+                        <input asp-for="AtDataUltimaManutenzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtFrequenzaManutenzione" class="control-label"></label>
+                        <input asp-for="AtFrequenzaManutenzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtUsoMedioGiornaliero" class="control-label"></label>
+                        <input asp-for="AtUsoMedioGiornaliero" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AtDataProssimaManutenzione" class="control-label"></label>
+                        <input asp-for="AtDataProssimaManutenzione" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>

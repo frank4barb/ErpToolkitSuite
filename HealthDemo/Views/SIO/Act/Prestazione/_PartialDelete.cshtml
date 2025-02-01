@@ -1,0 +1,190 @@
+﻿@model HealthDemo.Models.SIO.Act.Prestazione
+@{
+    ViewData["Title"] = "Prestazione Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "Prestazione", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="PrIdAttivitaRichiesta" class="control-label"></label>
+                        <input asp-for="PrIdAttivitaRichiesta" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdAttivitaEseguita" class="control-label"></label>
+                        <input asp-for="PrIdAttivitaEseguita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdGruppo" class="control-label"></label>
+                        <input asp-for="PrIdGruppo" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrInEvidenza" class="control-label"></label>
+                        <input asp-for="PrInEvidenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdPaziente" class="control-label"></label>
+                        <input asp-for="PrIdPaziente" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdEpisodio" class="control-label"></label>
+                        <input asp-for="PrIdEpisodio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrStatoPrestazione" class="control-label"></label>
+                        <input asp-for="PrStatoPrestazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdOperatoreRichiedente" class="control-label"></label>
+                        <input asp-for="PrIdOperatoreRichiedente" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdUnitaRichiedente" class="control-label"></label>
+                        <input asp-for="PrIdUnitaRichiedente" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdPostazioneRichiedente" class="control-label"></label>
+                        <input asp-for="PrIdPostazioneRichiedente" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataRichiesta" class="control-label"></label>
+                        <input asp-for="PrDataRichiesta" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraRichiesta" class="control-label"></label>
+                        <input asp-for="PrOraRichiesta" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdRichiesta" class="control-label"></label>
+                        <input asp-for="PrIdRichiesta" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataPropostaEsecuzione" class="control-label"></label>
+                        <input asp-for="PrDataPropostaEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraPropostaEsecuzione" class="control-label"></label>
+                        <input asp-for="PrOraPropostaEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDurataPrevista" class="control-label"></label>
+                        <input asp-for="PrDurataPrevista" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrUrgenza" class="control-label"></label>
+                        <input asp-for="PrUrgenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNoteRichiesta" class="control-label"></label>
+                        <input asp-for="PrNoteRichiesta" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrRoutine" class="control-label"></label>
+                        <input asp-for="PrRoutine" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataAppuntamento" class="control-label"></label>
+                        <input asp-for="PrDataAppuntamento" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraAppuntamento" class="control-label"></label>
+                        <input asp-for="PrOraAppuntamento" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNotePianificazione" class="control-label"></label>
+                        <input asp-for="PrNotePianificazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataInizioEsecuzione" class="control-label"></label>
+                        <input asp-for="PrDataInizioEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraInizioEsecuzione" class="control-label"></label>
+                        <input asp-for="PrOraInizioEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataFineEsecuzione" class="control-label"></label>
+                        <input asp-for="PrDataFineEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraFineEsecuzione" class="control-label"></label>
+                        <input asp-for="PrOraFineEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataRefertazione" class="control-label"></label>
+                        <input asp-for="PrDataRefertazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraRefertazione" class="control-label"></label>
+                        <input asp-for="PrOraRefertazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdOperatoreEsecutore" class="control-label"></label>
+                        <input asp-for="PrIdOperatoreEsecutore" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdUnitaEsecutrice" class="control-label"></label>
+                        <input asp-for="PrIdUnitaEsecutrice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdPostazioneEsecutrice" class="control-label"></label>
+                        <input asp-for="PrIdPostazioneEsecutrice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDurataEffettiva" class="control-label"></label>
+                        <input asp-for="PrDurataEffettiva" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrCostoPrestazione" class="control-label"></label>
+                        <input asp-for="PrCostoPrestazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNoteEsecuzione" class="control-label"></label>
+                        <input asp-for="PrNoteEsecuzione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdOperatorePianificatore" class="control-label"></label>
+                        <input asp-for="PrIdOperatorePianificatore" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataPianificazione" class="control-label"></label>
+                        <input asp-for="PrDataPianificazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraPianificazione" class="control-label"></label>
+                        <input asp-for="PrOraPianificazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNote" class="control-label"></label>
+                        <input asp-for="PrNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrMobilita" class="control-label"></label>
+                        <input asp-for="PrMobilita" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>

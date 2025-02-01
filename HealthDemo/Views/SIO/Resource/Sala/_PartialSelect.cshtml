@@ -1,0 +1,78 @@
+﻿@model HealthDemo.Models.SIO.Resource.SelSala
+@{
+    ViewData["Title"] = "Sala Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "Sala", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelSaCodice" class="control-label"></label>
+                    <input asp-for="SelSaCodice" class="form-control" />
+                    <span asp-validation-for="SelSaCodice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaIdTipoRisorsa" class="control-label"></label>
+                    <input asp-for="SelSaIdTipoRisorsa" class="form-control" />
+                    <span asp-validation-for="SelSaIdTipoRisorsa" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaDescrizione" class="control-label"></label>
+                    <input asp-for="SelSaDescrizione" class="form-control" />
+                    <span asp-validation-for="SelSaDescrizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaCostoUnitarioUso" class="control-label"></label>
+                    <input asp-for="SelSaCostoUnitarioUso" class="form-control" />
+                    <span asp-validation-for="SelSaCostoUnitarioUso" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaMisuraUnitariaUso" class="control-label"></label>
+                    <input asp-for="SelSaMisuraUnitariaUso" class="form-control" />
+                    <span asp-validation-for="SelSaMisuraUnitariaUso" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaNote" class="control-label"></label>
+                    <input asp-for="SelSaNote" class="form-control" />
+                    <span asp-validation-for="SelSaNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaDisponibilita" class="control-label"></label>
+                    <input asp-for="SelSaDisponibilita" class="form-control" />
+                    <span asp-validation-for="SelSaDisponibilita" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaTelefonoFornitore" class="control-label"></label>
+                    <input asp-for="SelSaTelefonoFornitore" class="form-control" />
+                    <span asp-validation-for="SelSaTelefonoFornitore" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaDataUltimaManutenzione" class="control-label"></label>
+                    <input asp-for="SelSaDataUltimaManutenzione" class="form-control" />
+                    <span asp-validation-for="SelSaDataUltimaManutenzione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaFrequenzaManutenzione" class="control-label"></label>
+                    <input asp-for="SelSaFrequenzaManutenzione" class="form-control" />
+                    <span asp-validation-for="SelSaFrequenzaManutenzione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaUsoMedioGiornaliero" class="control-label"></label>
+                    <input asp-for="SelSaUsoMedioGiornaliero" class="form-control" />
+                    <span asp-validation-for="SelSaUsoMedioGiornaliero" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSaDataProssimaManutenzione" class="control-label"></label>
+                    <input asp-for="SelSaDataProssimaManutenzione" class="form-control" />
+                    <span asp-validation-for="SelSaDataProssimaManutenzione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

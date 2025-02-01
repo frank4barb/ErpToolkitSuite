@@ -1,0 +1,98 @@
+﻿@model HealthDemo.Models.SIO.HealthData.SelStatoSalute
+@{
+    ViewData["Title"] = "StatoSalute Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "StatoSalute", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelSsClasse" class="control-label"></label>
+                    <input asp-for="SelSsClasse" class="form-control" />
+                    <span asp-validation-for="SelSsClasse" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsIdPaziente" class="control-label"></label>
+                    <input asp-for="SelSsIdPaziente" class="form-control" />
+                    <span asp-validation-for="SelSsIdPaziente" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsIdEpisodio" class="control-label"></label>
+                    <input asp-for="SelSsIdEpisodio" class="form-control" />
+                    <span asp-validation-for="SelSsIdEpisodio" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsIdTipoDatoClinico" class="control-label"></label>
+                    <input asp-for="SelSsIdTipoDatoClinico" class="form-control" />
+                    <span asp-validation-for="SelSsIdTipoDatoClinico" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsValoreMinimo" class="control-label"></label>
+                    <input asp-for="SelSsValoreMinimo" class="form-control" />
+                    <span asp-validation-for="SelSsValoreMinimo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsValoreMassimo" class="control-label"></label>
+                    <input asp-for="SelSsValoreMassimo" class="form-control" />
+                    <span asp-validation-for="SelSsValoreMassimo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsValoreScelta" class="control-label"></label>
+                    <input asp-for="SelSsValoreScelta" class="form-control" />
+                    <span asp-validation-for="SelSsValoreScelta" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsValoreTesto" class="control-label"></label>
+                    <input asp-for="SelSsValoreTesto" class="form-control" />
+                    <span asp-validation-for="SelSsValoreTesto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsNote" class="control-label"></label>
+                    <input asp-for="SelSsNote" class="form-control" />
+                    <span asp-validation-for="SelSsNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsCodiceReferto" class="control-label"></label>
+                    <input asp-for="SelSsCodiceReferto" class="form-control" />
+                    <span asp-validation-for="SelSsCodiceReferto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsDataAcquisizione" class="control-label"></label>
+                    <input asp-for="SelSsDataAcquisizione" class="form-control" />
+                    <span asp-validation-for="SelSsDataAcquisizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsOraAcquisizione" class="control-label"></label>
+                    <input asp-for="SelSsOraAcquisizione" class="form-control" />
+                    <span asp-validation-for="SelSsOraAcquisizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsStatoDatoClinico" class="control-label"></label>
+                    <input asp-for="SelSsStatoDatoClinico" class="form-control" />
+                    <span asp-validation-for="SelSsStatoDatoClinico" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsDataValidazione" class="control-label"></label>
+                    <input asp-for="SelSsDataValidazione" class="form-control" />
+                    <span asp-validation-for="SelSsDataValidazione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsOraValidazione" class="control-label"></label>
+                    <input asp-for="SelSsOraValidazione" class="form-control" />
+                    <span asp-validation-for="SelSsOraValidazione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelSsSequenza" class="control-label"></label>
+                    <input asp-for="SelSsSequenza" class="form-control" />
+                    <span asp-validation-for="SelSsSequenza" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

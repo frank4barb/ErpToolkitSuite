@@ -1,0 +1,98 @@
+﻿@model HealthDemo.Models.SIO.Resource.SelMateriale
+@{
+    ViewData["Title"] = "Materiale Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "Materiale", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelMtCodice" class="control-label"></label>
+                    <input asp-for="SelMtCodice" class="form-control" />
+                    <span asp-validation-for="SelMtCodice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtDescrizione" class="control-label"></label>
+                    <input asp-for="SelMtDescrizione" class="form-control" />
+                    <span asp-validation-for="SelMtDescrizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtIdTipoRisorsa" class="control-label"></label>
+                    <input asp-for="SelMtIdTipoRisorsa" class="form-control" />
+                    <span asp-validation-for="SelMtIdTipoRisorsa" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtCostoUnitarioUso" class="control-label"></label>
+                    <input asp-for="SelMtCostoUnitarioUso" class="form-control" />
+                    <span asp-validation-for="SelMtCostoUnitarioUso" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtMisuraUnitariaUso" class="control-label"></label>
+                    <input asp-for="SelMtMisuraUnitariaUso" class="form-control" />
+                    <span asp-validation-for="SelMtMisuraUnitariaUso" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtNote" class="control-label"></label>
+                    <input asp-for="SelMtNote" class="form-control" />
+                    <span asp-validation-for="SelMtNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtDisponibilita" class="control-label"></label>
+                    <input asp-for="SelMtDisponibilita" class="form-control" />
+                    <span asp-validation-for="SelMtDisponibilita" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtTelefonoFornitore" class="control-label"></label>
+                    <input asp-for="SelMtTelefonoFornitore" class="form-control" />
+                    <span asp-validation-for="SelMtTelefonoFornitore" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtQuantitaDisponibile" class="control-label"></label>
+                    <input asp-for="SelMtQuantitaDisponibile" class="form-control" />
+                    <span asp-validation-for="SelMtQuantitaDisponibile" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtQuantitaMinimaMagazzino" class="control-label"></label>
+                    <input asp-for="SelMtQuantitaMinimaMagazzino" class="form-control" />
+                    <span asp-validation-for="SelMtQuantitaMinimaMagazzino" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtUsoMedioGiornaliero" class="control-label"></label>
+                    <input asp-for="SelMtUsoMedioGiornaliero" class="form-control" />
+                    <span asp-validation-for="SelMtUsoMedioGiornaliero" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtDataUltimoOrdine" class="control-label"></label>
+                    <input asp-for="SelMtDataUltimoOrdine" class="form-control" />
+                    <span asp-validation-for="SelMtDataUltimoOrdine" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtQuantitaUltimoOrdine" class="control-label"></label>
+                    <input asp-for="SelMtQuantitaUltimoOrdine" class="form-control" />
+                    <span asp-validation-for="SelMtQuantitaUltimoOrdine" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtDataProssimoOrdine" class="control-label"></label>
+                    <input asp-for="SelMtDataProssimoOrdine" class="form-control" />
+                    <span asp-validation-for="SelMtDataProssimoOrdine" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtQuantitaMediaOrdine" class="control-label"></label>
+                    <input asp-for="SelMtQuantitaMediaOrdine" class="form-control" />
+                    <span asp-validation-for="SelMtQuantitaMediaOrdine" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelMtCodiceNazionale" class="control-label"></label>
+                    <input asp-for="SelMtCodiceNazionale" class="form-control" />
+                    <span asp-validation-for="SelMtCodiceNazionale" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

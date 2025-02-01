@@ -1,0 +1,98 @@
+﻿@model HealthDemo.Models.SIO.HealthData.SelDocumentoClinico
+@{
+    ViewData["Title"] = "DocumentoClinico Select";
+}
+<div class="row justify-content-start align-items-end">
+    @using (Html.BeginForm("Index", "DocumentoClinico", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row justify-content-between align-items-end">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label asp-for="SelDcClasse" class="control-label"></label>
+                    <input asp-for="SelDcClasse" class="form-control" />
+                    <span asp-validation-for="SelDcClasse" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcIdPaziente" class="control-label"></label>
+                    <input asp-for="SelDcIdPaziente" class="form-control" />
+                    <span asp-validation-for="SelDcIdPaziente" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcIdEpisodio" class="control-label"></label>
+                    <input asp-for="SelDcIdEpisodio" class="form-control" />
+                    <span asp-validation-for="SelDcIdEpisodio" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcIdTipoDatoClinico" class="control-label"></label>
+                    <input asp-for="SelDcIdTipoDatoClinico" class="form-control" />
+                    <span asp-validation-for="SelDcIdTipoDatoClinico" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcValoreMinimo" class="control-label"></label>
+                    <input asp-for="SelDcValoreMinimo" class="form-control" />
+                    <span asp-validation-for="SelDcValoreMinimo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcValoreMassimo" class="control-label"></label>
+                    <input asp-for="SelDcValoreMassimo" class="form-control" />
+                    <span asp-validation-for="SelDcValoreMassimo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcValoreScelta" class="control-label"></label>
+                    <input asp-for="SelDcValoreScelta" class="form-control" />
+                    <span asp-validation-for="SelDcValoreScelta" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcValoreTesto" class="control-label"></label>
+                    <input asp-for="SelDcValoreTesto" class="form-control" />
+                    <span asp-validation-for="SelDcValoreTesto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcNote" class="control-label"></label>
+                    <input asp-for="SelDcNote" class="form-control" />
+                    <span asp-validation-for="SelDcNote" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcCodiceReferto" class="control-label"></label>
+                    <input asp-for="SelDcCodiceReferto" class="form-control" />
+                    <span asp-validation-for="SelDcCodiceReferto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcDataAcquisizione" class="control-label"></label>
+                    <input asp-for="SelDcDataAcquisizione" class="form-control" />
+                    <span asp-validation-for="SelDcDataAcquisizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcOraAcquisizione" class="control-label"></label>
+                    <input asp-for="SelDcOraAcquisizione" class="form-control" />
+                    <span asp-validation-for="SelDcOraAcquisizione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcStatoDatoClinico" class="control-label"></label>
+                    <input asp-for="SelDcStatoDatoClinico" class="form-control" />
+                    <span asp-validation-for="SelDcStatoDatoClinico" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcDataValidazione" class="control-label"></label>
+                    <input asp-for="SelDcDataValidazione" class="form-control" />
+                    <span asp-validation-for="SelDcDataValidazione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcOraValidazione" class="control-label"></label>
+                    <input asp-for="SelDcOraValidazione" class="form-control" />
+                    <span asp-validation-for="SelDcOraValidazione" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SelDcSequenza" class="control-label"></label>
+                    <input asp-for="SelDcSequenza" class="form-control" />
+                    <span asp-validation-for="SelDcSequenza" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p></p><input type="submit" value="Ricarica" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,90 @@
+﻿@model HealthDemo.Models.SIO.Common.Organizzazione
+@{
+    ViewData["Title"] = "Organizzazione Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "Organizzazione", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="OrClasseAssistenza" class="control-label"></label>
+                        <input asp-for="OrClasseAssistenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrCodice" class="control-label"></label>
+                        <input asp-for="OrCodice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrDescrizione" class="control-label"></label>
+                        <input asp-for="OrDescrizione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrNote" class="control-label"></label>
+                        <input asp-for="OrNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrEmail" class="control-label"></label>
+                        <input asp-for="OrEmail" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrTipoAssistenza" class="control-label"></label>
+                        <input asp-for="OrTipoAssistenza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrTelefono" class="control-label"></label>
+                        <input asp-for="OrTelefono" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrIdPersonale" class="control-label"></label>
+                        <input asp-for="OrIdPersonale" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrIdIstituto" class="control-label"></label>
+                        <input asp-for="OrIdIstituto" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrIdUnita" class="control-label"></label>
+                        <input asp-for="OrIdUnita" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrIdPostazione" class="control-label"></label>
+                        <input asp-for="OrIdPostazione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrPwdCrypt" class="control-label"></label>
+                        <input asp-for="OrPwdCrypt" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrAttivo" class="control-label"></label>
+                        <input asp-for="OrAttivo" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OrIdentificativo" class="control-label"></label>
+                        <input asp-for="OrIdentificativo" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>

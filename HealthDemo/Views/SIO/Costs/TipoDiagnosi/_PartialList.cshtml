@@ -1,0 +1,80 @@
+﻿@using ErpToolkit.Extensions
+@model IEnumerable<HealthDemo.Models.SIO.Costs.TipoDiagnosi>
+@{
+    ViewData["Title"] = "TipoDiagnosi List";
+}
+@Html.AntiForgeryToken()
+<br />
+<table id="example" class="table" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TdCodice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TdDescrizione)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TdNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TdIdGruppo)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.TdCodice, "RedirectToNextPage", "Home", null, null, null, new { provenienzaPagina = "TipoDiagnosi", Td1Icode = item.Td1Icode}, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TdDescrizione)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TdNote)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TdIdGruppo)
+                </td>
+                <td>
+                    <a href="#" class="btn btn-primary" onclick="loadModalWithContent('EditModale','/TipoDiagnosi/ReadForEdit','@Html.DisplayFor(modelItem => item.Td1Icode)')">Edit</a>
+                </td>
+                <td>
+                    <a href="#" class="btn btn-primary" onclick="loadModalWithContent('DeleteModale','/TipoDiagnosi/ReadForDelete','@Html.DisplayFor(modelItem => item.Td1Icode)')">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p>&shy;</p>
+<p>&shy;</p>
+
+@Html.Script(@<link href="~/lib/datatables/datatables.css" rel="stylesheet">)
+@Html.Script(@<script src="~/lib/datatables/datatables.js"></script>)
+@Html.Script(
+    @<script>
+        $(document).ready(function () {
+            $("#example").DataTable({
+
+                "responsive": false, // disabilita funzione che adatta tabella a pagina e visualizza rimanenti colonne sotto
+                "processing": true, // for show progress bar
+                "serverSide": false, // for process server side
+                "filter": true, // this is for disable filter (search box)
+                "orderMulti": false, // for disable multiple column at once
+                "pageLength": 10,
+
+                "columns": [
+                    { "visible": true, "data": "TdCodice", "name": "TdCodice", "title": "Codice", "defaultContent": ".", "autoWidth": true },
+                    { "visible": true, "data": "TdDescrizione", "name": "TdDescrizione", "title": "Descrizione", "defaultContent": ".", "autoWidth": true },
+                    { "visible": true, "data": "TdNote", "name": "TdNote", "title": "Note", "defaultContent": ".", "autoWidth": true },
+                    { "visible": true, "data": "TdIdGruppo", "name": "TdIdGruppo", "title": "Id Gruppo", "defaultContent": ".", "autoWidth": true },
+                    { "visible": true, "data": "edit", "name": ".", "title": "<a href=\"#\"  class=\"btn btn-primary\" onclick=\"loadModalWithContent(\'EditModale\',\'/TipoDiagnosi/ReadForEdit\',\'\')\">Add</a>", "defaultContent": ".", "autoWidth": true, "searchable": false, "orderable": false },
+                    { "visible": true, "data": "delete", "name": ".", "title": "", "defaultContent": ".", "autoWidth": true, "searchable": false, "orderable": false },
+                ]
+
+            });
+        });
+    </script>
+)

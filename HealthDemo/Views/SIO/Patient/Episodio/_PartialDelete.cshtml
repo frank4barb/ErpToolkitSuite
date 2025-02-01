@@ -1,0 +1,138 @@
+﻿@model HealthDemo.Models.SIO.Patient.Episodio
+@{
+    ViewData["Title"] = "Episodio Delete [" + (Model?.action ?? ' ') + "]";
+    ViewData["TagHelper__READONLY_PAGE"] = "Y";
+}
+<div class="modal-dialog" role="document">
+    @using (Html.BeginForm("Delete", "Episodio", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    Sei proprio sicuro di voler cancellare il seguente record?
+                    <div class="form-group">
+                        <label asp-for="EpCodEpisodio" class="control-label"></label>
+                        <input asp-for="EpCodEpisodio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdPaziente" class="control-label"></label>
+                        <input asp-for="EpIdPaziente" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpSesso" class="control-label"></label>
+                        <input asp-for="EpSesso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdTipoEpisodio" class="control-label"></label>
+                        <input asp-for="EpIdTipoEpisodio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpStatoEpisodio" class="control-label"></label>
+                        <input asp-for="EpStatoEpisodio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdUnitaIngresso" class="control-label"></label>
+                        <input asp-for="EpIdUnitaIngresso" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpDataInizio" class="control-label"></label>
+                        <input asp-for="EpDataInizio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpOraInizio" class="control-label"></label>
+                        <input asp-for="EpOraInizio" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpDataFine" class="control-label"></label>
+                        <input asp-for="EpDataFine" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpOraFine" class="control-label"></label>
+                        <input asp-for="EpOraFine" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpCartellaPs" class="control-label"></label>
+                        <input asp-for="EpCartellaPs" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdCorsia" class="control-label"></label>
+                        <input asp-for="EpIdCorsia" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdReparto" class="control-label"></label>
+                        <input asp-for="EpIdReparto" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpLetto" class="control-label"></label>
+                        <input asp-for="EpLetto" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpStanza" class="control-label"></label>
+                        <input asp-for="EpStanza" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdDiagnosiAmmissione" class="control-label"></label>
+                        <input asp-for="EpIdDiagnosiAmmissione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdDiagnosiDimissione" class="control-label"></label>
+                        <input asp-for="EpIdDiagnosiDimissione" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpNote" class="control-label"></label>
+                        <input asp-for="EpNote" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdAttoAmministrativo" class="control-label"></label>
+                        <input asp-for="EpIdAttoAmministrativo" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpDataInizioLa" class="control-label"></label>
+                        <input asp-for="EpDataInizioLa" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpOraInizioLa" class="control-label"></label>
+                        <input asp-for="EpOraInizioLa" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdRepartoLa" class="control-label"></label>
+                        <input asp-for="EpIdRepartoLa" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpDataInizioPreh" class="control-label"></label>
+                        <input asp-for="EpDataInizioPreh" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpOraInizioPreh" class="control-label"></label>
+                        <input asp-for="EpOraInizioPreh" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpIdRepartoPreh" class="control-label"></label>
+                        <input asp-for="EpIdRepartoPreh" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EpFaseEpisodio" class="control-label"></label>
+                        <input asp-for="EpFaseEpisodio" class="form-control" />
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Elimina</button>
+            </div>
+        </div>
+    }
+</div>
