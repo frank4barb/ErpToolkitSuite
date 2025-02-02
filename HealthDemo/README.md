@@ -1,20 +1,21 @@
 # HealthDemo
 
-L'obiettivo del progetto è costruire una piattaforma di supporto per la creazione, gestione e monitoraggio di semplici ERP (Enterprise Resource Planning). La struttura del modulo NuGet **ErpToolkit** si compone di:
+L'obiettivo del progetto è costruire una piattaforma di supporto per la creazione, gestione e monitoraggio di semplici ERP (Enterprise Resource Planning). Il progetto di test **HealthDemo** sfruttala la libreria NuGet [**ErpToolkit**](../ErpToolkit/) per le componenti di:
 
-1. **Server Web** (ASP.NET Core 8) per la visualizzazione dell'interfaccia grafica basata su architettura MVC (Model-View-Controller), che separa logicamente struttura, visualizzazione e gestione dei dati.
-2. **Scheduler programmabile** per l'esecuzione temporizzata di attività.
-3. **Listener** per l'esposizione di servizi SOAP, REST, ecc.
+1. **Server Web** (ASP.NET Core 8) per la visualizzazione dell'interfaccia grafica;
+2. **Scheduler programmabile** per l'esecuzione temporizzata di attività;
+3. **Listener** per l'esposizione di servizi SOAP, REST, ecc.;
 
-I tre moduli condividono una libreria che espone le seguenti funzionalità.
+e le seguenti funzionalità comuni:
 
-- `COMP`: Componenti grafici per facilitare la creazione delle pagine web: Autocomplete, Calendario, Tabella, ecc.
-- `DB`: Moduli di accesso a diversi database e normalizzazione dei dati: SQL Server, ORACLE, IRIS, MongoDB, PostgreSQL, ecc.
-- `DOG`: Funzionalità di archiviazione controllata dei dati per la generazione dei contatori, la gestione delle transazioni, l'audit delle attività e i processi di allineamento asincrono da DB.
-- `BO`: Business Objects per la verifica dei dati e la governance delle transazioni complesse su DB.
-- `ENV`: Sistema di autenticazione e profilazione utente, con gestione delle variabili di sessione.
+1. `COMP`: Componenti grafici comuni (Autocomplete, Calendario, Tabella, ecc.);
+2. `DB`: Moduli di accesso ao DB (SQL Server, ORACLE, IRIS, MongoDB, PostgreSQL, ecc.);
+3. `DOG`: Funzionalità di Middleware transazionale.
+4. `BO`: Business Objects per la gestione di transazioni complesse.
+5. `ENV`: Sistema di autenticazione e profilazione utente, con gestione delle variabili di sessione.
 
-La logica di programmazione del progetto risiede nei file:
+
+La logica di programmazione del progetto **HealthDemo** risiede nei file:
 
 - `Model`: struttura dati e proprietà dei campi del modello,
 - `Controller`: accesso alla base di dati ed elaborazioni funzionali,
@@ -22,7 +23,6 @@ La logica di programmazione del progetto risiede nei file:
 
 che usano la libreria **ErpToolkit** per implementare il progetto specifico.  
 
-![](./wwwroot/images/ERPtoolkit-Architettura.png)
 
 # Storyboard
 
@@ -43,7 +43,7 @@ Le stesse form possono essere incluse in diversi percorsi, con diversi vincoli d
 Si può prevedere l'uso di **form più complesse** che operano contemporaneamente su diversi oggetti, appoggiandosi eventualmente alle funzionalità di un Business Object.
 
 
-#  Model
+###  Model
 
 Attributi usati a corredo di una proprietà del Model
 
@@ -62,7 +62,7 @@ public class Attivita {
 **ErpDogField**: contiene i riferimenti ai campi del DB.<br>
 **AutocompleteClient**: indica che in visualizzazione la textbox avrà funzionalità di _autocomplete_ acquisendo i valori dal controller _AttivitaController_.<br>
 
-#  Controller
+###  Controller
 
 Funzioni condivise dal Controller
 
@@ -130,7 +130,7 @@ Funzioni condivise dal Controller
 **AutocompleteGetAll**, **AutocompleteGetSelect** e **AutocompletePreLoad**: sono funzioni a supporto del _**Componente Autocomplete**_ con valori in _Attivita_.<br>
 L'attrbuto **Authorize** indica che la pagina può essere visualizzata solo se è stata effettuata la _Login_.<br>
 
-#  View
+###  View
 
 Tag usati nel View e per visualizzare una proprietà del model. 
 
@@ -150,9 +150,10 @@ Tag usati nel View e per visualizzare una proprietà del model.
 
 Il formato grafico è deciso nel Model. Nel View si dispongono semplicemente i tag nella pagina. 
 
-# Use Case
 
-Come Use Case consideriamo il modello dati di un **ERP sanitario**, di cui proponiamo una semplice rappresentazione a puro titolo esemplificativo.
+# Architettura
+
+Consideriamo il modello dati di un **ERP sanitario**, di cui proponiamo una semplice rappresentazione a puro titolo esemplificativo.
 
 ![](../images/ERPtoolkit-Modello-sanitario.png)
 

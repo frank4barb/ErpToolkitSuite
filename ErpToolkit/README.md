@@ -148,7 +148,7 @@ Il modello tecnologico prevede l'uso di un servizio Windows o di un processo in 
 
 # Installazione
 
-## Dal pacchetto NuGet
+### Dal pacchetto NuGet
 
 Puoi installare **ErpToolkit** direttamente dalla [NuGet Gallery](https://www.nuget.org/packages/ErpToolkit):
 
@@ -166,7 +166,7 @@ Oppure, se utilizzi Visual Studio:
 Inoltre, per interagire con la piattaforma InterSystems IRIS, copia nella directory di esecuzione la Libreria **InterSystems.Data.IRISClient.dll**. Maggiori informazioni sul sito ufficiale di [InterSystems IRIS](https://community.intersystems.com/).
 
 
-## Dal repository GitHub
+### Dal repository GitHub
 
 Il codice sorgente è disponibile su GitHub [ErpToolkitSuite](https://github.com/frank4barb/ErpToolkitSuite) per studiare il codice o contribuire al progetto.
 
