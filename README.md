@@ -276,7 +276,6 @@ Consulta la documentazione interna al repository per ulteriori dettagli su confi
 Questo progetto è distribuito sotto la licenza AGPL-3.0. Vedi il file `LICENSE` per maggiori dettagli.
 
 
-------------------------------------
 
 
 
