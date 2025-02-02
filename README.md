@@ -238,7 +238,7 @@ Consulta la documentazione interna al repository per ulteriori dettagli su confi
 
 # Librerie esterne usate
 
-## Database e Connettività
+### Database e Connettività
 - [AdoNetCore.AseClient](https://github.com/DataAction/AdoNetCore.AseClient) (v0.19.2) - Client SAP ASE per .NET Core
 - [Microsoft.Data.SqlClient](https://github.com/dotnet/SqlClient) (v5.2.0) - Client SQL Server
 - [MongoDB.Driver](https://github.com/mongodb/mongo-csharp-driver) (v2.28.0) - Driver MongoDB
@@ -247,23 +247,23 @@ Consulta la documentazione interna al repository per ulteriori dettagli su confi
 - [Oracle.ManagedDataAccess](https://github.com/oracle/dotnet-db-samples) (v23.5.1) - Provider Oracle
 - [System.Data.SQLite](https://system.data.sqlite.org) (v1.0.118) - Provider SQLite
 
-## Framework e Runtime
+### Framework e Runtime
 - [Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation](https://github.com/dotnet/aspnetcore) (v8.0.12) - Compilazione runtime Razor
 - [Microsoft.Extensions.FileProviders.Embedded](https://github.com/dotnet/runtime) (v8.0.12) - Gestione file embedded
 - [Microsoft.Extensions.Hosting](https://github.com/dotnet/runtime) (v8.0.0) - Hosting .NET
 - [Microsoft.Windows.Compatibility](https://github.com/dotnet/runtime) (v8.0.6) - Compatibilità Windows
 
-## Utility e Strumenti
+### Utility e Strumenti
 - [CsvHelper](https://github.com/JoshClose/CsvHelper) (v33.0.1) - Elaborazione CSV
 - [MemoryPack](https://github.com/Cysharp/MemoryPack) (v1.21.1) - Serializzazione ad alte prestazioni
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) (v13.0.3) - Elaborazione JSON
 - [NLog](https://github.com/NLog/NLog) (v5.3.2) - Logging
 - [Quartz](https://github.com/quartznet/quartznet) (v3.9.0) - Scheduling
 
-## API e Swagger
+### API e Swagger
 - [Microsoft.AspNetCore.Grpc.Swagger](https://github.com/dotnet/aspnetcore) (v0.8.5) - Supporto Swagger per gRPC
 
-## Librerie JavaScript
+### Librerie JavaScript
 - [jQuery](https://jquery.com) (v3.6.0) - Libreria JavaScript per manipolazione DOM e AJAX
 - [jQuery Validation](https://jqueryvalidation.org) (v1.19.5) - Plugin jQuery per validazione form
 - [jQuery Validation Unobtrusive](https://github.com/aspnet/jquery-validation-unobtrusive) (v4.0.0) - Integrazione ASP.NET con jQuery Validation
