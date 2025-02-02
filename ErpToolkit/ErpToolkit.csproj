@@ -7,14 +7,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>ErpToolkit</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>frank4barb</Authors>
     <Company>frank4barb</Company>
     <Description>Core functionalities for the ErpToolkit application.</Description>
     <PackageTags>ERP, Toolkit, Core</PackageTags>
-    <RepositoryUrl>https://github.com/frank4barb/ErpToolkitSuite</RepositoryUrl>
-	<RepositoryType>git</RepositoryType>  
-    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>	
+	<PackageProjectUrl>https://github.com/frank4barb/ErpToolkitSuite</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/frank4barb/ErpToolkitSuite</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>	
   </PropertyGroup>
 
 
