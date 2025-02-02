@@ -1,7 +1,7 @@
 # ErpToolkitSuite
 
 L'obiettivo del progetto è costruire una piattaforma di supporto per la creazione, gestione e monitoraggio di semplici ERP (Enterprise Resource Planning). 
-La Suite si compone da una libreria NuGet **ErpToolkit** che contiene le funzionalità core, da un progetto Listener **HealthDemo** dimostrativo di un Erp Sanitario e da un progetto Scheduler **PublisherDemo** dimostrativo di un allineatore tra DB. 
+La Suite si compone da una libreria NuGet [**ErpToolkit**](./ErpToolkit/) che contiene le funzionalità core, da un progetto Listener [**HealthDemo**](./HealthDemo/) dimostrativo di un Erp Sanitario e da un progetto Scheduler **PublisherDemo** dimostrativo di un allineatore tra DB. 
 
 # ErpToolkit
 
@@ -30,16 +30,13 @@ che usano la libreria **ErpToolkit** per implementare il progetto specifico.
 
 ![](./images/ERPtoolkit-Architettura.png)
 
-
-Il modello tecnologico prevede l'uso di un servizio Windows o di un processo in background Linux con scalabilità su più macchine in load-balancing, collaborazione tra i processi e monitoraggio centralizzato.
-
 Ognuna delle seguenti parti dell'architettura MVC può sfruttare le funzionalità esposte dalla libreria comune per facilitare lo sviluppo di interfacce e/o allineatori. 
 E' necessario descrivere il modello usando specifici attributi riconosciuti dalla libreria (es: `[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]`).
 Gli attributi fanno riferimento a funzionalità programmate nelle classi del controller (es: `public JsonResult AutocompleteGetAll()`).
 La classe Views serve a collocare nella pagina il controllo (es: `<input asp-for="AvIdGruppo" class="form-control" />`).
 Le proprietà del modello consentono anche alla libreria di acquisire le relazini tra i vari campi delle tabelle, per l'impementazione di funzioni di pubblicazione e/o la realizzazione di componenti specifici (es: `[ErpDogField("AV_ID_GRUPPO", SqlFieldNameExt="AV_ID_GRUPPO",  ...  xref(ATTIVITA.AV__ICODE)")]`).
 
-## Model
+### Model
 
 Attributi usati a corredo di una proprietà del Model
 
@@ -58,7 +55,7 @@ public class Attivita {
 **ErpDogField**: contiene i riferimenti ai campi del DB.<br>
 **AutocompleteClient**: indica che in visualizzazione la textbox avrà funzionalità di _autocomplete_ acquisendo i valori dal controller _AttivitaController_.<br>
 
-## Controller
+### Controller
 
 Funzioni condivise dal Controller
 
@@ -126,7 +123,7 @@ Funzioni condivise dal Controller
 **AutocompleteGetAll**, **AutocompleteGetSelect** e **AutocompletePreLoad**: sono funzioni a supporto del _**Componente Autocomplete**_ con valori in _Attivita_.<br>
 L'attrbuto **Authorize** indica che la pagina può essere visualizzata solo se è stata effettuata la _Login_.<br>
 
-## View
+### View
 
 Tag usati nel View e per visualizzare una proprietà del model. 
 
@@ -156,7 +153,7 @@ Come Use Case consideriamo,
 
 # Installazione
 
-## Dal pacchetto NuGet
+### Dal pacchetto NuGet
 
 Puoi installare **ErpToolkit** direttamente dalla [NuGet Gallery](https://www.nuget.org/packages/ErpToolkit):
 
@@ -174,7 +171,7 @@ Oppure, se utilizzi Visual Studio:
 Inoltre, per interagire con la piattaforma InterSystems IRIS, copia nella directory di esecuzione la Libreria **InterSystems.Data.IRISClient.dll**. Maggiori informazioni sul sito ufficiale di [InterSystems IRIS](https://community.intersystems.com/).
 
 
-## Dal repository GitHub
+### Dal repository GitHub
 
 Il codice sorgente è disponibile su GitHub [ErpToolkitSuite](https://github.com/frank4barb/ErpToolkitSuite) per studiare il codice o contribuire al progetto.
 

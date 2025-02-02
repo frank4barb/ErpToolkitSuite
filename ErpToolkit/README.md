@@ -1,6 +1,7 @@
 # ErpToolkit
 
-L'obiettivo del progetto è costruire una piattaforma di supporto per la creazione, gestione e monitoraggio di semplici ERP (Enterprise Resource Planning). La struttura del modulo NuGet **ErpToolkit** si compone di:
+L'obiettivo del progetto è costruire una piattaforma di supporto per la creazione, gestione e monitoraggio di semplici ERP (Enterprise Resource Planning). 
+Il modulo NuGet **ErpToolkit** con funzionalità di Listener e Scheduler si compone di:
 
 1. **Server Web** (ASP.NET Core 8) per la visualizzazione dell'interfaccia grafica basata su architettura MVC (Model-View-Controller), che separa logicamente struttura, visualizzazione e gestione dei dati.
 2. **Scheduler programmabile** per l'esecuzione temporizzata di attività.
@@ -30,7 +31,7 @@ Gli attributi fanno riferimento a funzionalità programmate nelle classi del cont
 La classe Views serve a collocare nella pagina il controllo (es: `<input asp-for="AvIdGruppo" class="form-control" />`).
 Le proprietà del modello consentono anche alla libreria di acquisire le relazini tra i vari campi delle tabelle, per l'impementazione di funzioni di pubblicazione e/o la realizzazione di componenti specifici (es: `[ErpDogField("AV_ID_GRUPPO", SqlFieldNameExt="AV_ID_GRUPPO",  ...  xref(ATTIVITA.AV__ICODE)")]`).
 
-## Model
+### Model
 
 Attributi usati a corredo di una proprietà del Model
 
@@ -49,7 +50,7 @@ public class Attivita {
 **ErpDogField**: contiene i riferimenti ai campi del DB.<br>
 **AutocompleteClient**: indica che in visualizzazione la textbox avrà funzionalità di _autocomplete_ acquisendo i valori dal controller _AttivitaController_.<br>
 
-## Controller
+### Controller
 
 Funzioni condivise dal Controller
 
@@ -117,7 +118,7 @@ Funzioni condivise dal Controller
 **AutocompleteGetAll**, **AutocompleteGetSelect** e **AutocompletePreLoad**: sono funzioni a supporto del _**Componente Autocomplete**_ con valori in _Attivita_.<br>
 L'attrbuto **Authorize** indica che la pagina può essere visualizzata solo se è stata effettuata la _Login_.<br>
 
-## View
+### View
 
 Tag usati nel View e per visualizzare una proprietà del model. 
 
