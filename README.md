@@ -154,25 +154,132 @@ Come Use Case consideriamo,
 - **PublisherDemo**: un semplice allineatore tra DB che, tenendo conto dell'integrità referenziale del modello, trasferisce anche i record relazionati. 
 
 
-# Librerie esterne usate
-
-
-- `DataTables`: Add advanced interaction controls to your HTML tables [https://datatables.net/].
-- `Mermaid`: Diagramming and charting tool [https://mermaid.js.org/].
-- `Quill`: Your powerful rich text editor [https://quilljs.com/].
-
-
-
 # Installazione
 
-. . . 
+## Dal pacchetto NuGet
+
+Puoi installare **ErpToolkit** direttamente dalla [NuGet Gallery](https://www.nuget.org/packages/ErpToolkit):
+
+```bash
+dotnet add package ErpToolkit --version 1.0.4
+```
+
+Oppure, se utilizzi Visual Studio:
+
+1. Apri il tuo progetto.
+2. Fai clic con il tasto destro sul progetto in Solution Explorer e seleziona **Manage NuGet Packages....**
+3. Cerca il pacchetto ErpToolkit, seleziona la versione desiderata (es. 1.0.4) e installalo.
+
+
+Inoltre, per interagire con la piattaforma InterSystems IRIS, copia nella directory di esecuzione la Libreria **InterSystems.Data.IRISClient.dll**. Maggiori informazioni sul sito ufficiale di [InterSystems IRIS](https://community.intersystems.com/).
+
+
+## Dal repository GitHub
+
+Il codice sorgente è disponibile su GitHub [ErpToolkitSuite](https://github.com/frank4barb/ErpToolkitSuite) per studiare il codice o contribuire al progetto.
+
+1. Assicurarsi di avere .NET 8.0 SDK installato nel sistema
+2. Clonare il repository:
+   ```bash
+   git clone https://github.com/frank4barb/ErpToolkitSuite
+   ```
+3. Copiare il file `ERPdesktop.ini.sample` in `ERPdesktop.ini` e configurarlo secondo le proprie necessità
+4. Eseguire il restore dei pacchetti NuGet:
+   ```bash
+   dotnet restore
+   ```
+5. Compilare il progetto:
+   ```bash
+   dotnet build
+   ```
 
 # Utilizzo
 
-. . . 
+Il progetto è strutturato in due parti principali:
+
+1. **ErpToolkit**: La libreria core che contiene tutte le funzionalità base dell'ERP
+   - Supporta molteplici database (SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB)
+   - Include funzionalità per la gestione dei file e risorse embedded
+   - Fornisce supporto per elaborazione CSV e JSON
+   - Implementa funzionalità di logging e scheduling
+
+2. **HealthDemo**: Un'applicazione web di esempio che dimostra l'utilizzo della libreria ErpToolkit
+
+Per utilizzare ErpToolkit nel tuo progetto, aggiungi il riferimento al pacchetto NuGet:
+
+```xml
+<PackageReference Include="ErpToolkit" Version="1.0.4" />
+```
+
+Una volta installato il pacchetto, potrai utilizzare le funzionalità messe a disposizione da ErpToolkit nel tuo progetto. Ad esempio, se stai utilizzando il progetto HealthDemo (che include un riferimento al progetto ErpToolkit), assicurati di:
+
+1. Avere il pacchetto aggiornato (tramite NuGet o compilando direttamente la solution).
+2. Utilizzare gli spazi dei nomi e le classi esposte da ErpToolkit per integrare le funzionalità ERP nel tuo progetto.
+3. Esempio di utilizzo (l'implementazione effettiva dipende dalle funzionalità esposte dal pacchetto):
+
+```csharp
+using ErpToolkit;
+
+public class Program
+{
+    public static void Main()
+    {
+        // Inizializza e utilizza le funzionalità di ErpToolkit
+        var erp = new ErpCore();
+        erp.Initialize();
+
+        // Altre logiche applicative
+    }
+}
+```
+
+Consulta la documentazione interna al repository per ulteriori dettagli su configurazione e personalizzazione.
+
+
+# Librerie esterne usate
+
+## Database e Connettività
+- [AdoNetCore.AseClient](https://github.com/DataAction/AdoNetCore.AseClient) (v0.19.2) - Client SAP ASE per .NET Core
+- [Microsoft.Data.SqlClient](https://github.com/dotnet/SqlClient) (v5.2.0) - Client SQL Server
+- [MongoDB.Driver](https://github.com/mongodb/mongo-csharp-driver) (v2.28.0) - Driver MongoDB
+- [MySql.Data](https://github.com/mysql/mysql-connector-net) (v9.0.0) - Connector MySQL
+- [Npgsql](https://github.com/npgsql/npgsql) (v8.0.3) - Provider PostgreSQL
+- [Oracle.ManagedDataAccess](https://github.com/oracle/dotnet-db-samples) (v23.5.1) - Provider Oracle
+- [System.Data.SQLite](https://system.data.sqlite.org) (v1.0.118) - Provider SQLite
+
+## Framework e Runtime
+- [Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation](https://github.com/dotnet/aspnetcore) (v8.0.12) - Compilazione runtime Razor
+- [Microsoft.Extensions.FileProviders.Embedded](https://github.com/dotnet/runtime) (v8.0.12) - Gestione file embedded
+- [Microsoft.Extensions.Hosting](https://github.com/dotnet/runtime) (v8.0.0) - Hosting .NET
+- [Microsoft.Windows.Compatibility](https://github.com/dotnet/runtime) (v8.0.6) - Compatibilità Windows
+
+## Utility e Strumenti
+- [CsvHelper](https://github.com/JoshClose/CsvHelper) (v33.0.1) - Elaborazione CSV
+- [MemoryPack](https://github.com/Cysharp/MemoryPack) (v1.21.1) - Serializzazione ad alte prestazioni
+- [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) (v13.0.3) - Elaborazione JSON
+- [NLog](https://github.com/NLog/NLog) (v5.3.2) - Logging
+- [Quartz](https://github.com/quartznet/quartznet) (v3.9.0) - Scheduling
+
+## API e Swagger
+- [Microsoft.AspNetCore.Grpc.Swagger](https://github.com/dotnet/aspnetcore) (v0.8.5) - Supporto Swagger per gRPC
+
+## Librerie JavaScript
+- [jQuery](https://jquery.com) (v3.6.0) - Libreria JavaScript per manipolazione DOM e AJAX
+- [jQuery Validation](https://jqueryvalidation.org) (v1.19.5) - Plugin jQuery per validazione form
+- [jQuery Validation Unobtrusive](https://github.com/aspnet/jquery-validation-unobtrusive) (v4.0.0) - Integrazione ASP.NET con jQuery Validation
+- [DataTables](https://datatables.net) (v1.10.15) - Plugin jQuery per tabelle interattive
+- [Bootstrap](https://getbootstrap.com) (v5.1.0) - Framework CSS per UI responsive
+- [Bootstrap Icons](https://icons.getbootstrap.com) (v1.11.3) - Set di icone per Bootstrap
+- [Quill](https://quilljs.com) (v2.0.2) - Editor di testo ricco
+- [Mermaid](https://mermaid.js.org) (v10.0.0) - Libreria per diagrammi e visualizzazioni
+
 
 # Licenza
 
 Questo progetto è distribuito sotto la licenza AGPL-3.0. Vedi il file `LICENSE` per maggiori dettagli.
+
+
+------------------------------------
+
 
 
