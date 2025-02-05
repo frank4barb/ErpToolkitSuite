@@ -1,0 +1,47 @@
+@using ErpToolkit.Extensions
+
+@model ErpToolkit.Models.InputLogin
+@{
+    //ErpToolkit.Models.InputLogin? _login = ViewData["_Login"] as ErpToolkit.Models.InputLogin;
+    //ErpToolkit.Models.InputLogin _login = new ErpToolkit.Models.InputLogin();
+}
+
+
+<!-- if User.Identity.IsAuthenticated -->
+@if (Context.IsUserIdentityAuthenticatedAndSessionValid())
+{
+    <!-- LOGOUT -->
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <!--input type="submit" value="Login" class="btn btn-default" /-->
+        <button type="submit" class="btn btn-primary">Logout @User.Identity?.Name</button>
+    }
+}
+else {
+    <!-- LOGIN -->
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <div class="container text-left">
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class='row'>
+
+                <div class="form-group col-md-4"> 
+                    @Html.LabelFor(model => model.Matricola, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.Matricola, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Matricola, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group col-md-4">
+                    @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group col-md-4">
+                    <p></p>
+                    <!--input type="submit" value="Login" class="btn btn-default" /-->
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </div>
+        </div>
+    }
+}

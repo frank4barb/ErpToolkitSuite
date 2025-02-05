@@ -29,9 +29,8 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Views\**\*.cshtml" />
-	</ItemGroup>	
+	</ItemGroup>
 
-	
   <ItemGroup>
     <PackageReference Include="AdoNetCore.AseClient" Version="0.19.2" />
     <PackageReference Include="CsvHelper" Version="33.0.1" />
