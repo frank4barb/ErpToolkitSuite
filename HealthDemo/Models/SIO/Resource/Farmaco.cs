@@ -11,7 +11,7 @@ public class Farmaco : ModelErp {
 public const string Description = "Risorse: farmaci";
 public const string SqlTableName = "FARMACO";
 public const string SqlTableNameExt = "FARMACO";
-public const string SqlRowIdName = "FM__ID";
+public const string SqlRowIdName = "FM__ICODE";
 public const string SqlRowIdNameExt = "FM__ICODE";
 public const string SqlPrefix = "FM_";
 public const string SqlPrefixExt = "FM_";

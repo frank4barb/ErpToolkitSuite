@@ -11,7 +11,7 @@ public class SelCampione : ModelErp {
 public const string Description = "Campione effettivo raccolto durante le attività quotidiane";
 public const string SqlTableName = "CAMPIONE";
 public const string SqlTableNameExt = "CAMPIONE";
-public const string SqlRowIdName = "CP__ID";
+public const string SqlRowIdName = "CP__ICODE";
 public const string SqlRowIdNameExt = "CP__ICODE";
 public const string SqlPrefix = "CP_";
 public const string SqlPrefixExt = "CP_";

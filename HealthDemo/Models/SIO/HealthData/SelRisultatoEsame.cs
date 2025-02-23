@@ -11,7 +11,7 @@ public class SelRisultatoEsame : ModelErp {
 public const string Description = "Dati sanitari - Risultato degli esami";
 public const string SqlTableName = "RISULTATO_ESAME";
 public const string SqlTableNameExt = "RISULTATO_ESAME";
-public const string SqlRowIdName = "RE__ID";
+public const string SqlRowIdName = "RE__ICODE";
 public const string SqlRowIdNameExt = "RE__ICODE";
 public const string SqlPrefix = "RE_";
 public const string SqlPrefixExt = "RE_";

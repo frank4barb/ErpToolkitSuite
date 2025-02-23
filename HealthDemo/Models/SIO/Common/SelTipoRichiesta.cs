@@ -11,7 +11,7 @@ public class SelTipoRichiesta : ModelErp {
 public const string Description = "Tipo di richieste";
 public const string SqlTableName = "TIPO_RICHIESTA";
 public const string SqlTableNameExt = "TIPO_RICHIESTA";
-public const string SqlRowIdName = "TI__ID";
+public const string SqlRowIdName = "TI__ICODE";
 public const string SqlRowIdNameExt = "TI__ICODE";
 public const string SqlPrefix = "TI_";
 public const string SqlPrefixExt = "TI_";

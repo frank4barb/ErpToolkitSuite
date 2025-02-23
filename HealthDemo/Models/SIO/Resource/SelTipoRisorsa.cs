@@ -11,7 +11,7 @@ public class SelTipoRisorsa : ModelErp {
 public const string Description = "Tipi di risorse disponibili/utilizzate nell'organizzazione sanitaria";
 public const string SqlTableName = "TIPO_RISORSA";
 public const string SqlTableNameExt = "TIPO_RISORSA";
-public const string SqlRowIdName = "TS__ID";
+public const string SqlRowIdName = "TS__ICODE";
 public const string SqlRowIdNameExt = "TS__ICODE";
 public const string SqlPrefix = "TS_";
 public const string SqlPrefixExt = "TS_";

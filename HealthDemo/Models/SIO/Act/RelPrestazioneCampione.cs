@@ -11,7 +11,7 @@ public class RelPrestazioneCampione : ModelErp {
 public const string Description = "Campioni utilizzati e/o generati da una prestazione";
 public const string SqlTableName = "REL_PRESTAZIONE_CAMPIONE";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_CAMPIONE";
-public const string SqlRowIdName = "PC__ID";
+public const string SqlRowIdName = "PC__ICODE";
 public const string SqlRowIdNameExt = "PC__ICODE";
 public const string SqlPrefix = "PC_";
 public const string SqlPrefixExt = "PC_";

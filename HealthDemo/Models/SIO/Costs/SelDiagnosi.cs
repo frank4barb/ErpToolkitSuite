@@ -11,7 +11,7 @@ public class SelDiagnosi : ModelErp {
 public const string Description = "Classificazioni diagnostiche adottate nelle organizzazioni sanitarie (ad esempio, DRG, AVG, ICD9, ecc.)";
 public const string SqlTableName = "DIAGNOSI";
 public const string SqlTableNameExt = "DIAGNOSI";
-public const string SqlRowIdName = "DG__ID";
+public const string SqlRowIdName = "DG__ICODE";
 public const string SqlRowIdNameExt = "DG__ICODE";
 public const string SqlPrefix = "DG_";
 public const string SqlPrefixExt = "DG_";

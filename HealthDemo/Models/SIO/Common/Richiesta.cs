@@ -11,7 +11,7 @@ public class Richiesta : ModelErp {
 public const string Description = "Comunicazione e/o richiesta di prestazioni";
 public const string SqlTableName = "RICHIESTA";
 public const string SqlTableNameExt = "RICHIESTA";
-public const string SqlRowIdName = "RI__ID";
+public const string SqlRowIdName = "RI__ICODE";
 public const string SqlRowIdNameExt = "RI__ICODE";
 public const string SqlPrefix = "RI_";
 public const string SqlPrefixExt = "RI_";

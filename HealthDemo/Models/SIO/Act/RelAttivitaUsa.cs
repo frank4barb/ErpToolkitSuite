@@ -11,7 +11,7 @@ public class RelAttivitaUsa : ModelErp {
 public const string Description = "Tipi e/o risorse individuali generalmente necessari per l'esecuzione di un'attività";
 public const string SqlTableName = "REL_ATTIVITA_USA";
 public const string SqlTableNameExt = "REL_ATTIVITA_USA";
-public const string SqlRowIdName = "AU__ID";
+public const string SqlRowIdName = "AU__ICODE";
 public const string SqlRowIdNameExt = "AU__ICODE";
 public const string SqlPrefix = "AU_";
 public const string SqlPrefixExt = "AU_";

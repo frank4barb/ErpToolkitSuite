@@ -11,7 +11,7 @@ public class RelAttivitaTipoCampione : ModelErp {
 public const string Description = "Tipo di campione rilevante per un certo tipo di attività";
 public const string SqlTableName = "REL_ATTIVITA_TIPO_CAMPIONE";
 public const string SqlTableNameExt = "REL_ATTIVITA_TIPO_CAMPIONE";
-public const string SqlRowIdName = "AC__ID";
+public const string SqlRowIdName = "AC__ICODE";
 public const string SqlRowIdNameExt = "AC__ICODE";
 public const string SqlPrefix = "AC_";
 public const string SqlPrefixExt = "AC_";

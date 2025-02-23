@@ -11,7 +11,7 @@ public class RelPrestazioneDatoClinico : ModelErp {
 public const string Description = "Dettaglio delle relazioni tra prestazioni e dati sanitari (generazione, utilizzo)";
 public const string SqlTableName = "REL_PRESTAZIONE_DATO_CLINICO";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_DATO_CLINICO";
-public const string SqlRowIdName = "PD__ID";
+public const string SqlRowIdName = "PD__ICODE";
 public const string SqlRowIdNameExt = "PD__ICODE";
 public const string SqlPrefix = "PD_";
 public const string SqlPrefixExt = "PD_";

@@ -11,7 +11,7 @@ public class DocumentoClinico : ModelErp {
 public const string Description = "Dati sanitari - Altri tipi di dati";
 public const string SqlTableName = "DOCUMENTO_CLINICO";
 public const string SqlTableNameExt = "DOCUMENTO_CLINICO";
-public const string SqlRowIdName = "DC__ID";
+public const string SqlRowIdName = "DC__ICODE";
 public const string SqlRowIdNameExt = "DC__ICODE";
 public const string SqlPrefix = "DC_";
 public const string SqlPrefixExt = "DC_";

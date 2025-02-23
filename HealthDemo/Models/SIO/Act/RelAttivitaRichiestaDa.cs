@@ -11,7 +11,7 @@ public class RelAttivitaRichiestaDa : ModelErp {
 public const string Description = "Tipi di attività che possono essere richiesti da un certo operatore/struttura sanitaria";
 public const string SqlTableName = "REL_ATTIVITA_RICHIESTA_DA";
 public const string SqlTableNameExt = "REL_ATTIVITA_RICHIESTA_DA";
-public const string SqlRowIdName = "AR__ID";
+public const string SqlRowIdName = "AR__ICODE";
 public const string SqlRowIdNameExt = "AR__ICODE";
 public const string SqlPrefix = "AR_";
 public const string SqlPrefixExt = "AR_";

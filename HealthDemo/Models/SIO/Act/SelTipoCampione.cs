@@ -11,7 +11,7 @@ public class SelTipoCampione : ModelErp {
 public const string Description = "Tipo di campione";
 public const string SqlTableName = "TIPO_CAMPIONE";
 public const string SqlTableNameExt = "TIPO_CAMPIONE";
-public const string SqlRowIdName = "TP__ID";
+public const string SqlRowIdName = "TP__ICODE";
 public const string SqlRowIdNameExt = "TP__ICODE";
 public const string SqlPrefix = "TP_";
 public const string SqlPrefixExt = "TP_";

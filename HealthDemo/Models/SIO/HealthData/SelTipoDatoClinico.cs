@@ -11,7 +11,7 @@ public class SelTipoDatoClinico : ModelErp {
 public const string Description = "Classificazioni generali dei tipi di dati sanitari";
 public const string SqlTableName = "TIPO_DATO_CLINICO";
 public const string SqlTableNameExt = "TIPO_DATO_CLINICO";
-public const string SqlRowIdName = "TC__ID";
+public const string SqlRowIdName = "TC__ICODE";
 public const string SqlRowIdNameExt = "TC__ICODE";
 public const string SqlPrefix = "TC_";
 public const string SqlPrefixExt = "TC_";

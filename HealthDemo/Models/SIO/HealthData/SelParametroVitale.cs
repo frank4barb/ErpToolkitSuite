@@ -11,7 +11,7 @@ public class SelParametroVitale : ModelErp {
 public const string Description = "Dati sanitari - Parametri vitali";
 public const string SqlTableName = "PARAMETRO_VITALE";
 public const string SqlTableNameExt = "PARAMETRO_VITALE";
-public const string SqlRowIdName = "PV__ID";
+public const string SqlRowIdName = "PV__ICODE";
 public const string SqlRowIdNameExt = "PV__ICODE";
 public const string SqlPrefix = "PV_";
 public const string SqlPrefixExt = "PV_";

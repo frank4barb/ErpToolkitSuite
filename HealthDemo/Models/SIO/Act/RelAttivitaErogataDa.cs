@@ -11,7 +11,7 @@ public class RelAttivitaErogataDa : ModelErp {
 public const string Description = "Strutture che possono eseguire un certo tipo di attività";
 public const string SqlTableName = "REL_ATTIVITA_EROGATA_DA";
 public const string SqlTableNameExt = "REL_ATTIVITA_EROGATA_DA";
-public const string SqlRowIdName = "AE__ID";
+public const string SqlRowIdName = "AE__ICODE";
 public const string SqlRowIdNameExt = "AE__ICODE";
 public const string SqlPrefix = "AE_";
 public const string SqlPrefixExt = "AE_";

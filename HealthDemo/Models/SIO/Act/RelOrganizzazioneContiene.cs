@@ -11,7 +11,7 @@ public class RelOrganizzazioneContiene : ModelErp {
 public const string Description = "Relazioni generiche esistenti tra diverse strutture";
 public const string SqlTableName = "REL_ORGANIZZAZIONE_CONTIENE";
 public const string SqlTableNameExt = "REL_ORGANIZZAZIONE_CONTIENE";
-public const string SqlRowIdName = "OO__ID";
+public const string SqlRowIdName = "OO__ICODE";
 public const string SqlRowIdNameExt = "OO__ICODE";
 public const string SqlPrefix = "OO_";
 public const string SqlPrefixExt = "OO_";

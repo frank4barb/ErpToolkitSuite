@@ -11,7 +11,7 @@ public class Organizzazione : ModelErp {
 public const string Description = "Struttura sanitaria: centro sanitario, unità organizzativa, individuo, componente software, ecc.";
 public const string SqlTableName = "ORGANIZZAZIONE";
 public const string SqlTableNameExt = "ORGANIZZAZIONE";
-public const string SqlRowIdName = "OR__ID";
+public const string SqlRowIdName = "OR__ICODE";
 public const string SqlRowIdNameExt = "OR__ICODE";
 public const string SqlPrefix = "OR_";
 public const string SqlPrefixExt = "OR_";

@@ -11,7 +11,7 @@ public class SelMateriale : ModelErp {
 public const string Description = "Risorse: materiali";
 public const string SqlTableName = "MATERIALE";
 public const string SqlTableNameExt = "MATERIALE";
-public const string SqlRowIdName = "MT__ID";
+public const string SqlRowIdName = "MT__ICODE";
 public const string SqlRowIdNameExt = "MT__ICODE";
 public const string SqlPrefix = "MT_";
 public const string SqlPrefixExt = "MT_";

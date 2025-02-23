@@ -11,7 +11,7 @@ public class SelPaziente : ModelErp {
 public const string Description = "Pazienti rilevanti per l'organizzazione sanitaria";
 public const string SqlTableName = "PAZIENTE";
 public const string SqlTableNameExt = "PAZIENTE";
-public const string SqlRowIdName = "PA__ID";
+public const string SqlRowIdName = "PA__ICODE";
 public const string SqlRowIdNameExt = "PA__ICODE";
 public const string SqlPrefix = "PA_";
 public const string SqlPrefixExt = "PA_";

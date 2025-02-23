@@ -11,7 +11,7 @@ public class SelAttivita : ModelErp {
 public const string Description = "Tipi di attività che possono essere richieste e/o eseguite";
 public const string SqlTableName = "ATTIVITA";
 public const string SqlTableNameExt = "ATTIVITA";
-public const string SqlRowIdName = "AV__ID";
+public const string SqlRowIdName = "AV__ICODE";
 public const string SqlRowIdNameExt = "AV__ICODE";
 public const string SqlPrefix = "AV_";
 public const string SqlPrefixExt = "AV_";

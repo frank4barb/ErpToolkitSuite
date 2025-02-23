@@ -11,7 +11,7 @@ public class SelPrestazione : ModelErp {
 public const string Description = "Prestazione effettuata: dettaglio delle attività effettivamente eseguite durante il lavoro quotidiano nell'organizzazione";
 public const string SqlTableName = "PRESTAZIONE";
 public const string SqlTableNameExt = "PRESTAZIONE";
-public const string SqlRowIdName = "PR__ID";
+public const string SqlRowIdName = "PR__ICODE";
 public const string SqlRowIdNameExt = "PR__ICODE";
 public const string SqlPrefix = "PR_";
 public const string SqlPrefixExt = "PR_";

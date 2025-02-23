@@ -11,7 +11,7 @@ public class Attrezzatura : ModelErp {
 public const string Description = "Risorse: attrezzature";
 public const string SqlTableName = "ATTREZZATURA";
 public const string SqlTableNameExt = "ATTREZZATURA";
-public const string SqlRowIdName = "AT__ID";
+public const string SqlRowIdName = "AT__ICODE";
 public const string SqlRowIdNameExt = "AT__ICODE";
 public const string SqlPrefix = "AT_";
 public const string SqlPrefixExt = "AT_";

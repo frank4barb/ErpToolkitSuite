@@ -785,14 +785,16 @@ namespace ErpToolkit.Helpers
     public class MultipleChoicesAttribute : Attribute
     {
         public string[] Choices { get; }
+        public string[]? LabelChoices { get; set; } = null;
         public int MaxSelections { get; set; } = 1;  // disable controll if MaxSelections < 1
         public string LabelContoller { get; set; } = "Home";
         public string LabelAction { get; set; } = "GetLabels";
         public string LabelClassName { get; set; } = "";
 
-        public MultipleChoicesAttribute(string[] choices, int maxSelections = 1, string labelContoller = "Home", string labelAction = "GetLabels", string labelClassName = "")
+        public MultipleChoicesAttribute(string[] choices, string[]? labelChoices = null, int maxSelections = 1, string labelContoller = "Home", string labelAction = "GetLabels", string labelClassName = "")
         {
             Choices = choices;
+            LabelChoices = labelChoices;
             MaxSelections = maxSelections; 
             LabelContoller = labelContoller;
             LabelAction = labelAction;
@@ -852,6 +854,7 @@ namespace ErpToolkit.Helpers
                 //var name = For.Name;
                 var readonlyAttr = attrField.Readonly == 'Y' ? "disabled" : "";
                 var labels = choices;
+                if (multipleChoicesAttribute.LabelChoices != null) labels = multipleChoicesAttribute.LabelChoices;
 
                 // Se è specificata l'azione per ottenere le label, esegue la chiamata al controller
                 if (!string.IsNullOrEmpty(multipleChoicesAttribute.LabelClassName))

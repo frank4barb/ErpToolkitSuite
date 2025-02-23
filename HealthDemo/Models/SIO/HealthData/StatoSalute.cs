@@ -11,7 +11,7 @@ public class StatoSalute : ModelErp {
 public const string Description = "Dati sanitari - Condizioni di salute generiche";
 public const string SqlTableName = "STATO_SALUTE";
 public const string SqlTableNameExt = "STATO_SALUTE";
-public const string SqlRowIdName = "SS__ID";
+public const string SqlRowIdName = "SS__ICODE";
 public const string SqlRowIdNameExt = "SS__ICODE";
 public const string SqlPrefix = "SS_";
 public const string SqlPrefixExt = "SS_";

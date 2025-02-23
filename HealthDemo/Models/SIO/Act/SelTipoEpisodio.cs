@@ -11,7 +11,7 @@ public class SelTipoEpisodio : ModelErp {
 public const string Description = "Classe di episodi";
 public const string SqlTableName = "TIPO_EPISODIO";
 public const string SqlTableNameExt = "TIPO_EPISODIO";
-public const string SqlRowIdName = "TE__ID";
+public const string SqlRowIdName = "TE__ICODE";
 public const string SqlRowIdNameExt = "TE__ICODE";
 public const string SqlPrefix = "TE_";
 public const string SqlPrefixExt = "TE_";
