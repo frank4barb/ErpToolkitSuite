@@ -11,6 +11,7 @@ public class RelAttivitaUsa : ModelErp {
 public const string Description = "Tipi e/o risorse individuali generalmente necessari per l'esecuzione di un'attività";
 public const string SqlTableName = "REL_ATTIVITA_USA";
 public const string SqlTableNameExt = "REL_ATTIVITA_USA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AU__ICODE";
 public const string SqlRowIdNameExt = "AU__ICODE";
 public const string SqlPrefix = "AU_";
@@ -82,7 +83,7 @@ public HealthDemo.Models.SIO.Act.Attivita? AuIdAttivitaObj  { get; set; }
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "E", "L", "M", "D", "S" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "E", "L", "M", "D", "S" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AuClasseRisorsa  { get; set; }
 
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di risorsa", Prompt="")]

@@ -11,6 +11,7 @@ public class Prestazione : ModelErp {
 public const string Description = "Prestazione effettuata: dettaglio delle attività effettivamente eseguite durante il lavoro quotidiano nell'organizzazione";
 public const string SqlTableName = "PRESTAZIONE";
 public const string SqlTableNameExt = "PRESTAZIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PR__ICODE";
 public const string SqlRowIdNameExt = "PR__ICODE";
 public const string SqlPrefix = "PR_";
@@ -128,7 +129,7 @@ public HealthDemo.Models.SIO.Patient.Episodio? PrIdEpisodioObj  { get; set; }
 [ErpDogField("PR_CLASSE_EPISODIO", SqlFieldNameExt="PR_CLASSE_EPISODIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(EPISODIO.EP_CLASSE_EPISODIO[PRESTAZIONE.PR_ID_EPISODIO]) multbxref()")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "1", "2", "3" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "1", "2", "3" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PrClasseEpisodio  { get; set; }
 
 [Display(Name = "Tipo Episodio", ShortName="", Description = "Codice del tipo di contatto", Prompt="")]
@@ -143,7 +144,7 @@ public HealthDemo.Models.SIO.Act.TipoEpisodio? PrTipoEpisodioObj  { get; set; }
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PrStatoPrestazione  { get; set; }
 
 [Display(Name = "Id Operatore Richiedente", ShortName="", Description = "Codice dell'agente che ha richiesto l'atto", Prompt="")]

@@ -11,6 +11,7 @@ public class RelAttivitaRichiestaDa : ModelErp {
 public const string Description = "Tipi di attività che possono essere richiesti da un certo operatore/struttura sanitaria";
 public const string SqlTableName = "REL_ATTIVITA_RICHIESTA_DA";
 public const string SqlTableNameExt = "REL_ATTIVITA_RICHIESTA_DA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AR__ICODE";
 public const string SqlRowIdNameExt = "AR__ICODE";
 public const string SqlPrefix = "AR_";
@@ -113,7 +114,7 @@ public string? ArNote  { get; set; }
 [ErpDogField("AR_RICHIESTA_FREQUENTE", SqlFieldNameExt="AR_RICHIESTA_FREQUENTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? ArRichiestaFrequente  { get; set; }
 
 public override bool TryValidateInt(ModelStateDictionary modelState, string? prefix = null) 

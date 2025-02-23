@@ -11,6 +11,7 @@ public class SelDistretto : ModelErp {
 public const string Description = "Distretto territoriale (circoscrizione)";
 public const string SqlTableName = "DISTRETTO";
 public const string SqlTableNameExt = "DISTRETTO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "DI__ICODE";
 public const string SqlRowIdNameExt = "DI__ICODE";
 public const string SqlPrefix = "DI_";

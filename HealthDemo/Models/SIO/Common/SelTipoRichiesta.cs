@@ -11,6 +11,7 @@ public class SelTipoRichiesta : ModelErp {
 public const string Description = "Tipo di richieste";
 public const string SqlTableName = "TIPO_RICHIESTA";
 public const string SqlTableNameExt = "TIPO_RICHIESTA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TI__ICODE";
 public const string SqlRowIdNameExt = "TI__ICODE";
 public const string SqlPrefix = "TI_";
@@ -33,7 +34,7 @@ public string? SelTiCodice  { get; set; }
 [Display(Name = "Gruppo", ShortName="", Description = "Classe di comunicazione: 0 = Comunicazioni di sistema 1 = Messaggi utente - 2 = Relativi agli atti - Z = Utente-d", Prompt="")]
 [ErpDogField("TI_GRUPPO", SqlFieldNameExt="TI_GRUPPO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "0", "1", "2", "Z" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "Z" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelTiGruppo  { get; set; } = new List<string>();
 

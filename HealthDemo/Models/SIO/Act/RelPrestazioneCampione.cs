@@ -11,6 +11,7 @@ public class RelPrestazioneCampione : ModelErp {
 public const string Description = "Campioni utilizzati e/o generati da una prestazione";
 public const string SqlTableName = "REL_PRESTAZIONE_CAMPIONE";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_CAMPIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PC__ICODE";
 public const string SqlRowIdNameExt = "PC__ICODE";
 public const string SqlPrefix = "PC_";
@@ -87,7 +88,7 @@ public HealthDemo.Models.SIO.Act.Prestazione? PcIdPrestazioneObj  { get; set; }
 [ErpDogField("PC_TIPO", SqlFieldNameExt="PC_TIPO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("E")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "G", "E" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "G", "E" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PcTipo  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note", Prompt="")]

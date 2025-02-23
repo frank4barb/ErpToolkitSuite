@@ -11,6 +11,7 @@ public class Campione : ModelErp {
 public const string Description = "Campione effettivo raccolto durante le attività quotidiane";
 public const string SqlTableName = "CAMPIONE";
 public const string SqlTableNameExt = "CAMPIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "CP__ICODE";
 public const string SqlRowIdNameExt = "CP__ICODE";
 public const string SqlPrefix = "CP_";
@@ -138,7 +139,7 @@ public string? CpCodiceAssoluto  { get; set; }
 [ErpDogField("CP_STATO_CAMPIONE", SqlFieldNameExt="CP_STATO_CAMPIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("0")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? CpStatoCampione  { get; set; }
 
 [Display(Name = "Id Posizione Attuale", ShortName="", Description = "Posizione del campione nell'organizzazione", Prompt="")]

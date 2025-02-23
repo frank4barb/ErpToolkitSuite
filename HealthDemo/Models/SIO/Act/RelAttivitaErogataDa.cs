@@ -11,6 +11,7 @@ public class RelAttivitaErogataDa : ModelErp {
 public const string Description = "Strutture che possono eseguire un certo tipo di attività";
 public const string SqlTableName = "REL_ATTIVITA_EROGATA_DA";
 public const string SqlTableNameExt = "REL_ATTIVITA_EROGATA_DA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AE__ICODE";
 public const string SqlRowIdNameExt = "AE__ICODE";
 public const string SqlPrefix = "AE_";
@@ -94,14 +95,14 @@ public string? AeNote  { get; set; }
 [ErpDogField("AE_MODALITA_DI_PIANIFICAZIONE", SqlFieldNameExt="AE_MODALITA_DI_PIANIFICAZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "P", "R" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "R" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AeModalitaDiPianificazione  { get; set; }
 
 [Display(Name = "Erogazione Frequente", ShortName="", Description = "Attività frequentemente richiesta (Sì - No)", Prompt="")]
 [ErpDogField("AE_EROGAZIONE_FREQUENTE", SqlFieldNameExt="AE_EROGAZIONE_FREQUENTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AeErogazioneFrequente  { get; set; }
 
 [Display(Name = "Attributi", ShortName="", Description = "Flag operativi autonomamente gestiti dall'applicazione", Prompt="")]

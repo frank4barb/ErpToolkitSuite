@@ -11,6 +11,7 @@ public class SelAttivita : ModelErp {
 public const string Description = "Tipi di attività che possono essere richieste e/o eseguite";
 public const string SqlTableName = "ATTIVITA";
 public const string SqlTableNameExt = "ATTIVITA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AV__ICODE";
 public const string SqlRowIdNameExt = "AV__ICODE";
 public const string SqlPrefix = "AV_";
@@ -72,7 +73,7 @@ public List<string> SelAvIdGruppo  { get; set; } = new List<string>();
 [Display(Name = "Attivita Preferenziale", ShortName="", Description = "Attività preferenziale eseguita quando il servizio viene richiesto Sì [Y] / No [N]", Prompt="")]
 [ErpDogField("AV_ATTIVITA_PREFERENZIALE", SqlFieldNameExt="AV_ATTIVITA_PREFERENZIALE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelAvAttivitaPreferenziale  { get; set; } = new List<string>();
 
@@ -89,7 +90,7 @@ public short? SelAvDurataMedia  { get; set; }
 [Display(Name = "In Evidenza", ShortName="", Description = "Evidenziare gli atti effettivi per scopi di ricerca o speciali Sì [Y] - No [N]", Prompt="")]
 [ErpDogField("AV_IN_EVIDENZA", SqlFieldNameExt="AV_IN_EVIDENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelAvInEvidenza  { get; set; } = new List<string>();
 
@@ -103,7 +104,7 @@ public List<string> SelAvIdTipoAttivita  { get; set; } = new List<string>();
 [Display(Name = "Routine", ShortName="", Description = "Pianificazione routinaria (cioè automatica) Sì [Y] - No [N]", Prompt="")]
 [ErpDogField("AV_ROUTINE", SqlFieldNameExt="AV_ROUTINE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("Y")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelAvRoutine  { get; set; } = new List<string>();
 

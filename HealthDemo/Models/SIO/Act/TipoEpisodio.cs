@@ -11,6 +11,7 @@ public class TipoEpisodio : ModelErp {
 public const string Description = "Classe di episodi";
 public const string SqlTableName = "TIPO_EPISODIO";
 public const string SqlTableNameExt = "TIPO_EPISODIO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TE__ICODE";
 public const string SqlRowIdNameExt = "TE__ICODE";
 public const string SqlPrefix = "TE_";
@@ -79,7 +80,7 @@ public string? TeCodice  { get; set; }
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? TeClasse  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]

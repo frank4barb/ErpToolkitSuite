@@ -11,6 +11,7 @@ public class SelRisultatoEsame : ModelErp {
 public const string Description = "Dati sanitari - Risultato degli esami";
 public const string SqlTableName = "RISULTATO_ESAME";
 public const string SqlTableNameExt = "RISULTATO_ESAME";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "RE__ICODE";
 public const string SqlRowIdNameExt = "RE__ICODE";
 public const string SqlPrefix = "RE_";
@@ -106,7 +107,7 @@ public TimeOnly? SelReOraAcquisizione  { get; set; }
 [Display(Name = "Stato Dato Clinico", ShortName="", Description = "Stato del dato: P[reliminare] - C[onfermato] - A[nnullato]", Prompt="")]
 [ErpDogField("RE_STATO_DATO_CLINICO", SqlFieldNameExt="RE_STATO_DATO_CLINICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
-[MultipleChoices(new[] { "P", "C", "A" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "C", "A" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelReStatoDatoClinico  { get; set; } = new List<string>();
 

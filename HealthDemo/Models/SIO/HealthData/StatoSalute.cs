@@ -11,6 +11,7 @@ public class StatoSalute : ModelErp {
 public const string Description = "Dati sanitari - Condizioni di salute generiche";
 public const string SqlTableName = "STATO_SALUTE";
 public const string SqlTableNameExt = "STATO_SALUTE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "SS__ICODE";
 public const string SqlRowIdNameExt = "SS__ICODE";
 public const string SqlPrefix = "SS_";
@@ -160,7 +161,7 @@ public TimeOnly? SsOraAcquisizione  { get; set; }
 [ErpDogField("SS_STATO_DATO_CLINICO", SqlFieldNameExt="SS_STATO_DATO_CLINICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "P", "C", "A" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "C", "A" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? SsStatoDatoClinico  { get; set; }
 
 [Display(Name = "Data Validazione", ShortName="", Description = "Data di convalida del dato sanitario", Prompt="")]

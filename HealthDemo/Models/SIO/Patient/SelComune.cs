@@ -11,6 +11,7 @@ public class SelComune : ModelErp {
 public const string Description = "Comuni";
 public const string SqlTableName = "COMUNE";
 public const string SqlTableNameExt = "COMUNE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "CM__ICODE";
 public const string SqlRowIdNameExt = "CM__ICODE";
 public const string SqlPrefix = "CM_";

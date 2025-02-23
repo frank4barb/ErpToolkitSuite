@@ -11,6 +11,7 @@ public class RelPrestazioneDatoClinico : ModelErp {
 public const string Description = "Dettaglio delle relazioni tra prestazioni e dati sanitari (generazione, utilizzo)";
 public const string SqlTableName = "REL_PRESTAZIONE_DATO_CLINICO";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_DATO_CLINICO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PD__ICODE";
 public const string SqlRowIdNameExt = "PD__ICODE";
 public const string SqlPrefix = "PD_";
@@ -72,7 +73,7 @@ public string? Pd1Extatt { get; set; }
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "1", "2", "3", "4" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "1", "2", "3", "4" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PdClasseDatoClinico  { get; set; }
 
 [Display(Name = "Id Dato Clinico", ShortName="", Description = "Identificativo del singolo dato sanitario", Prompt="")]
@@ -115,7 +116,7 @@ public HealthDemo.Models.SIO.Act.Prestazione? PdIdPrestazioneObj  { get; set; }
 [ErpDogField("PD_TIPO_RELAZIONE", SqlFieldNameExt="PD_TIPO_RELAZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("R")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "R", "G" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "R", "G" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PdTipoRelazione  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Ulteriori note testuali, relative al collegamento specifico", Prompt="")]

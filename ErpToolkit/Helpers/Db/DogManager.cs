@@ -166,6 +166,7 @@ namespace ErpToolkit.Helpers.Db
             public string Description = "";
             public string SqlTableName = "";
             public string SqlTableNameExt = "";
+            public string SqlTableProperties = "";
             public string SqlRowIdName = "";
             public string SqlRowIdNameExt = "";
             public string SqlPrefix = "";
@@ -254,6 +255,7 @@ namespace ErpToolkit.Helpers.Db
                         tab.Description = objType.GetField("Description")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableName = objType.GetField("SqlTableName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableNameExt = objType.GetField("SqlTableNameExt")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlTableProperties = objType.GetField("SqlTableProperties")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlRowIdName = objType.GetField("SqlRowIdName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlRowIdNameExt = objType.GetField("SqlRowIdNameExt")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlPrefix = objType.GetField("SqlPrefix")?.GetRawConstantValue()?.ToString() ?? "";

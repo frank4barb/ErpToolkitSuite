@@ -11,6 +11,7 @@ public class SelDiagnosi : ModelErp {
 public const string Description = "Classificazioni diagnostiche adottate nelle organizzazioni sanitarie (ad esempio, DRG, AVG, ICD9, ecc.)";
 public const string SqlTableName = "DIAGNOSI";
 public const string SqlTableNameExt = "DIAGNOSI";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "DG__ICODE";
 public const string SqlRowIdNameExt = "DG__ICODE";
 public const string SqlPrefix = "DG_";
@@ -62,14 +63,14 @@ public List<string> SelDgIdGruppo  { get; set; } = new List<string>();
 [Display(Name = "Tipo Drg", ShortName="", Description = "Tipo di DRG [M]edico - [C]hirurgico", Prompt="")]
 [ErpDogField("DG_TIPO_DRG", SqlFieldNameExt="DG_TIPO_DRG", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("M")]
-[MultipleChoices(new[] { "M", "S" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "M", "S" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelDgTipoDrg  { get; set; } = new List<string>();
 
 [Display(Name = "Tipo Icd9", ShortName="", Description = "Tipo di ICD9-CM [D]iagnostico - [O]perativo (se applicabile)", Prompt="")]
 [ErpDogField("DG_TIPO_ICD9", SqlFieldNameExt="DG_TIPO_ICD9", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "D", "O", " " }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "D", "O", " " }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelDgTipoIcd9  { get; set; } = new List<string>();
 

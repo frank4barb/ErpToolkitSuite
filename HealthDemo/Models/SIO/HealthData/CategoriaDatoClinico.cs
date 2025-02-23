@@ -11,6 +11,7 @@ public class CategoriaDatoClinico : ModelErp {
 public const string Description = "Classificazione dei tipi di dati sanitari";
 public const string SqlTableName = "CATEGORIA_DATO_CLINICO";
 public const string SqlTableNameExt = "CATEGORIA_DATO_CLINICO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "CC__ICODE";
 public const string SqlRowIdNameExt = "CC__ICODE";
 public const string SqlPrefix = "CC_";

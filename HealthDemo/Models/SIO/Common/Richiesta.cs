@@ -11,6 +11,7 @@ public class Richiesta : ModelErp {
 public const string Description = "Comunicazione e/o richiesta di prestazioni";
 public const string SqlTableName = "RICHIESTA";
 public const string SqlTableNameExt = "RICHIESTA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "RI__ICODE";
 public const string SqlRowIdNameExt = "RI__ICODE";
 public const string SqlPrefix = "RI_";
@@ -127,14 +128,14 @@ public string? RiOggetto  { get; set; }
 [ErpDogField("RI_STATO_RICHIESTA", SqlFieldNameExt="RI_STATO_RICHIESTA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "P", "C", "X", "H", "A" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "C", "X", "H", "A" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? RiStatoRichiesta  { get; set; }
 
 [Display(Name = "Classe Richiesta", ShortName="", Description = "Classe della comunicazione: Da 0 a 9 riservata al sistema A a Z riservata agli utenti", Prompt="")]
 [ErpDogField("RI_CLASSE_RICHIESTA", SqlFieldNameExt="RI_CLASSE_RICHIESTA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RICHIESTA.TI_GRUPPO[RICHIESTA.RI_ID_TIPO_RICHIESTA]) multbxref()")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Z" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Z" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? RiClasseRichiesta  { get; set; }
 
 [Display(Name = "Id Tipo Richiesta", ShortName="", Description = "Codice del tipo specifico di comunicazione", Prompt="")]

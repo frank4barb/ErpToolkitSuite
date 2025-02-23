@@ -11,6 +11,7 @@ public class RelPrestazioneUsa : ModelErp {
 public const string Description = "Risorse pianificate ed effettive utilizzate per l'esecuzione di una singola prestazione individuale";
 public const string SqlTableName = "REL_PRESTAZIONE_USA";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_USA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PU__ICODE";
 public const string SqlRowIdNameExt = "PU__ICODE";
 public const string SqlPrefix = "PU_";
@@ -79,7 +80,7 @@ public HealthDemo.Models.SIO.Act.Prestazione? PuIdPrestazioneObj  { get; set; }
 [ErpDogField("PU_CLASSE_RISORSA", SqlFieldNameExt="PU_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA] {PU_CLASSE_RISORSA=' '}) multbxref()")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "E", "L", "M", "D", "S" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "E", "L", "M", "D", "S" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PuClasseRisorsa  { get; set; }
 
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di risorsa", Prompt="")]
@@ -132,7 +133,7 @@ public short? PuSequenza  { get; set; }
 [ErpDogField("PU_IN_EVIDENZA", SqlFieldNameExt="PU_IN_EVIDENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N", " " }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N", " " }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PuInEvidenza  { get; set; }
 
 [Display(Name = "Data Inizio Uso", ShortName="", Description = "Data di inizio dell'utilizzo", Prompt="")]

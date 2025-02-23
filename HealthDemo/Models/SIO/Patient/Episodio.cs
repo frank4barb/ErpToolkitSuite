@@ -11,6 +11,7 @@ public class Episodio : ModelErp {
 public const string Description = "Episodi";
 public const string SqlTableName = "EPISODIO";
 public const string SqlTableNameExt = "EPISODIO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "EP__ICODE";
 public const string SqlRowIdNameExt = "EP__ICODE";
 public const string SqlPrefix = "EP_";
@@ -86,14 +87,14 @@ public HealthDemo.Models.SIO.Patient.Paziente? EpIdPazienteObj  { get; set; }
 [ErpDogField("EP_SESSO", SqlFieldNameExt="EP_SESSO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(PAZIENTE.PA_SESSO[EPISODIO.EP_ID_PAZIENTE] {EP_SESSO=' '}) multbxref()")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "M", "F", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "M", "F", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? EpSesso  { get; set; }
 
 [Display(Name = "Classe Episodio", ShortName="", Description = "Classe di contatto 1=Permanenza 2=Day-hospital 3=Ambulatoriale 4-=definito dall'utente", Prompt="")]
 [ErpDogField("EP_CLASSE_EPISODIO", SqlFieldNameExt="EP_CLASSE_EPISODIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_EPISODIO.TE_CLASSE[EPISODIO.EP_ID_TIPO_EPISODIO]) multbxref()")]
 [DefaultValue("1")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? EpClasseEpisodio  { get; set; }
 
 [Display(Name = "Id Tipo Episodio", ShortName="", Description = "Codice del tipo di contatto", Prompt="")]
@@ -109,7 +110,7 @@ public HealthDemo.Models.SIO.Act.TipoEpisodio? EpIdTipoEpisodioObj  { get; set; 
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "F", "A", "C", "D", "S" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "F", "A", "C", "D", "S" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? EpStatoEpisodio  { get; set; }
 
 [Display(Name = "Id Unita Ingresso", ShortName="", Description = "Identificativo dell'unità di assistenza che ha avviato il contatto", Prompt="")]

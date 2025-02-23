@@ -11,6 +11,7 @@ public class SelEpisodio : ModelErp {
 public const string Description = "Episodi";
 public const string SqlTableName = "EPISODIO";
 public const string SqlTableNameExt = "EPISODIO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "EP__ICODE";
 public const string SqlRowIdNameExt = "EP__ICODE";
 public const string SqlPrefix = "EP_";
@@ -40,14 +41,14 @@ public List<string> SelEpIdPaziente  { get; set; } = new List<string>();
 [Display(Name = "Sesso", ShortName="", Description = "Sesso del paziente al momento dell'ammissione", Prompt="")]
 [ErpDogField("EP_SESSO", SqlFieldNameExt="EP_SESSO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(PAZIENTE.PA_SESSO[EPISODIO.EP_ID_PAZIENTE] {EP_SESSO=' '}) multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "M", "F", "N" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "M", "F", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelEpSesso  { get; set; } = new List<string>();
 
 [Display(Name = "Classe Episodio", ShortName="", Description = "Classe di contatto 1=Permanenza 2=Day-hospital 3=Ambulatoriale 4-=definito dall'utente", Prompt="")]
 [ErpDogField("EP_CLASSE_EPISODIO", SqlFieldNameExt="EP_CLASSE_EPISODIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_EPISODIO.TE_CLASSE[EPISODIO.EP_ID_TIPO_EPISODIO]) multbxref()")]
 [DefaultValue("1")]
-[MultipleChoices(new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelEpClasseEpisodio  { get; set; } = new List<string>();
 
@@ -61,7 +62,7 @@ public List<string> SelEpIdTipoEpisodio  { get; set; } = new List<string>();
 [Display(Name = "Stato Episodio", ShortName="", Description = "Stato del contatto F[oreseen] - A[ctual, in progress] - C[ompleted] - D[eleted] - S[uspended]", Prompt="")]
 [ErpDogField("EP_STATO_EPISODIO", SqlFieldNameExt="EP_STATO_EPISODIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "F", "A", "C", "D", "S" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "F", "A", "C", "D", "S" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelEpStatoEpisodio  { get; set; } = new List<string>();
 

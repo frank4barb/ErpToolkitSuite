@@ -11,6 +11,7 @@ public class TipoRisorsa : ModelErp {
 public const string Description = "Tipi di risorse disponibili/utilizzate nell'organizzazione sanitaria";
 public const string SqlTableName = "TIPO_RISORSA";
 public const string SqlTableNameExt = "TIPO_RISORSA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TS__ICODE";
 public const string SqlRowIdNameExt = "TS__ICODE";
 public const string SqlPrefix = "TS_";
@@ -82,7 +83,7 @@ public string? TsCodice  { get; set; }
 [ErpDogField("TS_CLASSE_RISORSA", SqlFieldNameExt="TS_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("M")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "E", "L", "M", "D", "S", "G" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "E", "L", "M", "D", "S", "G" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? TsClasseRisorsa  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del super-tipo di risorsa (cioè l'aggregazione nella gerarchia), se presente", Prompt="")]

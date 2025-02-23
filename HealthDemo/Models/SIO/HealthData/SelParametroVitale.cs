@@ -11,6 +11,7 @@ public class SelParametroVitale : ModelErp {
 public const string Description = "Dati sanitari - Parametri vitali";
 public const string SqlTableName = "PARAMETRO_VITALE";
 public const string SqlTableNameExt = "PARAMETRO_VITALE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PV__ICODE";
 public const string SqlRowIdNameExt = "PV__ICODE";
 public const string SqlPrefix = "PV_";
@@ -106,7 +107,7 @@ public TimeOnly? SelPvOraAcquisizione  { get; set; }
 [Display(Name = "Stato Dato Clinico", ShortName="", Description = "Stato del dato: P[reliminare] - C[onfermato] - A[nnullato]", Prompt="")]
 [ErpDogField("PV_STATO_DATO_CLINICO", SqlFieldNameExt="PV_STATO_DATO_CLINICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
-[MultipleChoices(new[] { "P", "C", "A" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "C", "A" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelPvStatoDatoClinico  { get; set; } = new List<string>();
 

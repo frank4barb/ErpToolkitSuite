@@ -11,6 +11,7 @@ public class TipoAttivita : ModelErp {
 public const string Description = "Tassonomie e classe di tipi di attività";
 public const string SqlTableName = "TIPO_ATTIVITA";
 public const string SqlTableNameExt = "TIPO_ATTIVITA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TA__ICODE";
 public const string SqlRowIdNameExt = "TA__ICODE";
 public const string SqlPrefix = "TA_";

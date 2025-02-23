@@ -11,6 +11,7 @@ public class SelTipoDiagnosi : ModelErp {
 public const string Description = "Tipi generali di classificazioni diagnostiche.";
 public const string SqlTableName = "TIPO_DIAGNOSI";
 public const string SqlTableNameExt = "TIPO_DIAGNOSI";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TD__ICODE";
 public const string SqlRowIdNameExt = "TD__ICODE";
 public const string SqlPrefix = "TD_";

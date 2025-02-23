@@ -11,6 +11,7 @@ public class RelAttivitaTipoCampione : ModelErp {
 public const string Description = "Tipo di campione rilevante per un certo tipo di attività";
 public const string SqlTableName = "REL_ATTIVITA_TIPO_CAMPIONE";
 public const string SqlTableNameExt = "REL_ATTIVITA_TIPO_CAMPIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AC__ICODE";
 public const string SqlRowIdNameExt = "AC__ICODE";
 public const string SqlPrefix = "AC_";
@@ -94,21 +95,21 @@ public string? AcNote  { get; set; }
 [ErpDogField("AC_TIPO", SqlFieldNameExt="AC_TIPO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("E")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "G", "E" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "G", "E" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AcTipo  { get; set; }
 
 [Display(Name = "Campione Preferenziale", ShortName="", Description = "Tipo di campione preferenziale (predefinito) per quel tipo di attività", Prompt="")]
 [ErpDogField("AC_CAMPIONE_PREFERENZIALE", SqlFieldNameExt="AC_CAMPIONE_PREFERENZIALE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AcCampionePreferenziale  { get; set; }
 
 [Display(Name = "Campione Specifico", ShortName="", Description = "Se 'Y', è necessario un campione dedicato, e il campione non può essere condiviso tra diverse attività (predefinito N)", Prompt="")]
 [ErpDogField("AC_CAMPIONE_SPECIFICO", SqlFieldNameExt="AC_CAMPIONE_SPECIFICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AcCampioneSpecifico  { get; set; }
 
 [Display(Name = "Regole Campionamento", ShortName="", Description = "Criteri da adottare quando si raccolgono più campioni (informazioni testuali, dedicate dall'utente)", Prompt="")]

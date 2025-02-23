@@ -11,6 +11,7 @@ public class SelPrestazione : ModelErp {
 public const string Description = "Prestazione effettuata: dettaglio delle attività effettivamente eseguite durante il lavoro quotidiano nell'organizzazione";
 public const string SqlTableName = "PRESTAZIONE";
 public const string SqlTableNameExt = "PRESTAZIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PR__ICODE";
 public const string SqlRowIdNameExt = "PR__ICODE";
 public const string SqlPrefix = "PR_";
@@ -81,7 +82,7 @@ public List<string> SelPrIdEpisodio  { get; set; } = new List<string>();
 [Display(Name = "Classe Episodio", ShortName="", Description = "Classe di contatto 1=Ricovero - 2=Day-Hospital - 3=Ambulatorio", Prompt="")]
 [ErpDogField("PR_CLASSE_EPISODIO", SqlFieldNameExt="PR_CLASSE_EPISODIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(EPISODIO.EP_CLASSE_EPISODIO[PRESTAZIONE.PR_ID_EPISODIO]) multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "1", "2", "3" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "1", "2", "3" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelPrClasseEpisodio  { get; set; } = new List<string>();
 
@@ -95,7 +96,7 @@ public List<string> SelPrTipoEpisodio  { get; set; } = new List<string>();
 [Display(Name = "Stato Prestazione", ShortName="", Description = "Stato dell'atto", Prompt="")]
 [ErpDogField("PR_STATO_PRESTAZIONE", SqlFieldNameExt="PR_STATO_PRESTAZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelPrStatoPrestazione  { get; set; } = new List<string>();
 

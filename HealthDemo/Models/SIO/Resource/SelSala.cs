@@ -11,6 +11,7 @@ public class SelSala : ModelErp {
 public const string Description = "Risorse: località";
 public const string SqlTableName = "SALA";
 public const string SqlTableNameExt = "SALA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "SA__ICODE";
 public const string SqlRowIdNameExt = "SA__ICODE";
 public const string SqlPrefix = "SA_";

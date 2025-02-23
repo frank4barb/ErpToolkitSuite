@@ -11,6 +11,7 @@ public class RisultatoEsame : ModelErp {
 public const string Description = "Dati sanitari - Risultato degli esami";
 public const string SqlTableName = "RISULTATO_ESAME";
 public const string SqlTableNameExt = "RISULTATO_ESAME";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "RE__ICODE";
 public const string SqlRowIdNameExt = "RE__ICODE";
 public const string SqlPrefix = "RE_";
@@ -160,7 +161,7 @@ public TimeOnly? ReOraAcquisizione  { get; set; }
 [ErpDogField("RE_STATO_DATO_CLINICO", SqlFieldNameExt="RE_STATO_DATO_CLINICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "P", "C", "A" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "C", "A" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? ReStatoDatoClinico  { get; set; }
 
 [Display(Name = "Data Validazione", ShortName="", Description = "Data di convalida del dato sanitario", Prompt="")]

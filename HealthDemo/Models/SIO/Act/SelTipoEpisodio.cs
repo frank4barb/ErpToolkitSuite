@@ -11,6 +11,7 @@ public class SelTipoEpisodio : ModelErp {
 public const string Description = "Classe di episodi";
 public const string SqlTableName = "TIPO_EPISODIO";
 public const string SqlTableNameExt = "TIPO_EPISODIO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TE__ICODE";
 public const string SqlRowIdNameExt = "TE__ICODE";
 public const string SqlPrefix = "TE_";
@@ -33,7 +34,7 @@ public string? SelTeCodice  { get; set; }
 [Display(Name = "Classe", ShortName="", Description = "Classe di contatto 1=Ricovero - 2=Day-hospital - 3=Ambulatorio", Prompt="")]
 [ErpDogField("TE_CLASSE", SqlFieldNameExt="TE_CLASSE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelTeClasse  { get; set; } = new List<string>();
 

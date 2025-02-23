@@ -11,6 +11,7 @@ public class SelPersonale : ModelErp {
 public const string Description = "Risorse: personale";
 public const string SqlTableName = "PERSONALE";
 public const string SqlTableNameExt = "PERSONALE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PE__ICODE";
 public const string SqlRowIdNameExt = "PE__ICODE";
 public const string SqlPrefix = "PE_";

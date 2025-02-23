@@ -11,6 +11,7 @@ public class SelNazione : ModelErp {
 public const string Description = "Nazioni";
 public const string SqlTableName = "NAZIONE";
 public const string SqlTableNameExt = "NAZIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "NZ__ICODE";
 public const string SqlRowIdNameExt = "NZ__ICODE";
 public const string SqlPrefix = "NZ_";

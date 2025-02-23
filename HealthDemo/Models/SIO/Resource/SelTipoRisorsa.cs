@@ -11,6 +11,7 @@ public class SelTipoRisorsa : ModelErp {
 public const string Description = "Tipi di risorse disponibili/utilizzate nell'organizzazione sanitaria";
 public const string SqlTableName = "TIPO_RISORSA";
 public const string SqlTableNameExt = "TIPO_RISORSA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TS__ICODE";
 public const string SqlRowIdNameExt = "TS__ICODE";
 public const string SqlPrefix = "TS_";
@@ -37,7 +38,7 @@ public string? SelTsCodice  { get; set; }
 [Display(Name = "Classe Risorsa", ShortName="", Description = "Classe: E[quipments] - L[ocations] - S[taff] - M[aterial] - [G]eneric", Prompt="")]
 [ErpDogField("TS_CLASSE_RISORSA", SqlFieldNameExt="TS_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("M")]
-[MultipleChoices(new[] { "E", "L", "M", "D", "S", "G" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "E", "L", "M", "D", "S", "G" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelTsClasseRisorsa  { get; set; } = new List<string>();
 

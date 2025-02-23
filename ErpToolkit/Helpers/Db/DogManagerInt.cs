@@ -163,7 +163,14 @@ namespace ErpToolkit.Helpers.Db
             if (numCond != numPreCond) throw new ErpException("Errore nell'applicazione delle condizioni di filtro. Previste {" + numPreCond.ToString() + "}, applicate " + numCond.ToString() + "");
             // terminatore di where
             var sqlPrefixExt = dogMng.selTypes[type]?.SqlPrefixExt?.Trim() ?? "";
-            sb.AppendLine($" {sqlPrefixExt}_DELETED = {DogManager.addParam("N", ref parameters)} ");
+            string SqlTableProperties = dogMng.selTypes[type]?.SqlTableProperties?.Trim() ?? "";
+            if (SqlTableProperties.Contains("[NoSysFields]") == false) {  // escludo filtro XX__DELETED='N' se il campo non è previsto per la Tabella
+                sb.AppendLine($" {sqlPrefixExt}_DELETED = {DogManager.addParam("N", ref parameters)} "); 
+            }
+            else
+            {
+                sb.AppendLine($" 1=1 ");   
+            }
             return sb.ToString();
         }
 

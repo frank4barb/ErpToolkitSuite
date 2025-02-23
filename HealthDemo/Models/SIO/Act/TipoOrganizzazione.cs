@@ -11,6 +11,7 @@ public class TipoOrganizzazione : ModelErp {
 public const string Description = "Classificazione delle strutture";
 public const string SqlTableName = "TIPO_ORGANIZZAZIONE";
 public const string SqlTableNameExt = "TIPO_ORGANIZZAZIONE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "TZ__ICODE";
 public const string SqlRowIdNameExt = "TZ__ICODE";
 public const string SqlPrefix = "TZ_";

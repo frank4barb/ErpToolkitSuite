@@ -11,6 +11,7 @@ public class Paziente : ModelErp {
 public const string Description = "Pazienti rilevanti per l'organizzazione sanitaria";
 public const string SqlTableName = "PAZIENTE";
 public const string SqlTableNameExt = "PAZIENTE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PA__ICODE";
 public const string SqlRowIdNameExt = "PA__ICODE";
 public const string SqlPrefix = "PA_";
@@ -101,7 +102,7 @@ public string? PaCognome  { get; set; }
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "M", "F", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "M", "F", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PaSesso  { get; set; }
 
 [Display(Name = "Data Nascita", ShortName="", Description = "Data di nascita", Prompt="")]

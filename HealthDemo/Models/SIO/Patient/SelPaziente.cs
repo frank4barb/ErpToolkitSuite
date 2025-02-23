@@ -11,6 +11,7 @@ public class SelPaziente : ModelErp {
 public const string Description = "Pazienti rilevanti per l'organizzazione sanitaria";
 public const string SqlTableName = "PAZIENTE";
 public const string SqlTableNameExt = "PAZIENTE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "PA__ICODE";
 public const string SqlRowIdNameExt = "PA__ICODE";
 public const string SqlPrefix = "PA_";
@@ -48,7 +49,7 @@ public string? SelPaCognome  { get; set; }
 [Display(Name = "Sesso", ShortName="", Description = "Sesso M / F / N", Prompt="")]
 [ErpDogField("PA_SESSO", SqlFieldNameExt="PA_SESSO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
-[MultipleChoices(new[] { "M", "F", "N" }, MaxSelections=-1, LabelClassName="")]
+[MultipleChoices(new[] { "M", "F", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelPaSesso  { get; set; } = new List<string>();
 

@@ -11,6 +11,7 @@ public class Attivita : ModelErp {
 public const string Description = "Tipi di attività che possono essere richieste e/o eseguite";
 public const string SqlTableName = "ATTIVITA";
 public const string SqlTableNameExt = "ATTIVITA";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AV__ICODE";
 public const string SqlRowIdNameExt = "AV__ICODE";
 public const string SqlPrefix = "AV_";
@@ -122,7 +123,7 @@ public HealthDemo.Models.SIO.Act.Attivita? AvIdGruppoObj  { get; set; }
 [ErpDogField("AV_ATTIVITA_PREFERENZIALE", SqlFieldNameExt="AV_ATTIVITA_PREFERENZIALE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AvAttivitaPreferenziale  { get; set; }
 
 [Display(Name = "Durata Validita", ShortName="", Description = "Livello clinico di validità (cioè il numero di ore durante le quali non ha senso clinico replicare l'attività)", Prompt="")]
@@ -137,7 +138,7 @@ public short? AvDurataMedia  { get; set; }
 [ErpDogField("AV_IN_EVIDENZA", SqlFieldNameExt="AV_IN_EVIDENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AvInEvidenza  { get; set; }
 
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività predefinita", Prompt="")]
@@ -152,7 +153,7 @@ public HealthDemo.Models.SIO.Act.TipoAttivita? AvIdTipoAttivitaObj  { get; set; 
 [ErpDogField("AV_ROUTINE", SqlFieldNameExt="AV_ROUTINE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("Y")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "Y", "N" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AvRoutine  { get; set; }
 
 [Display(Name = "Note Estese", ShortName="", Description = "Nota estesa", Prompt="")]

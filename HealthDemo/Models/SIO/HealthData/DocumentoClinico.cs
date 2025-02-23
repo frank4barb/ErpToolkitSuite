@@ -11,6 +11,7 @@ public class DocumentoClinico : ModelErp {
 public const string Description = "Dati sanitari - Altri tipi di dati";
 public const string SqlTableName = "DOCUMENTO_CLINICO";
 public const string SqlTableNameExt = "DOCUMENTO_CLINICO";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "DC__ICODE";
 public const string SqlRowIdNameExt = "DC__ICODE";
 public const string SqlPrefix = "DC_";
@@ -160,7 +161,7 @@ public TimeOnly? DcOraAcquisizione  { get; set; }
 [ErpDogField("DC_STATO_DATO_CLINICO", SqlFieldNameExt="DC_STATO_DATO_CLINICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
-[MultipleChoices(new[] { "P", "C", "A" }, MaxSelections=1, LabelClassName="")]
+[MultipleChoices(new[] { "P", "C", "A" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? DcStatoDatoClinico  { get; set; }
 
 [Display(Name = "Data Validazione", ShortName="", Description = "Data di convalida del dato sanitario", Prompt="")]

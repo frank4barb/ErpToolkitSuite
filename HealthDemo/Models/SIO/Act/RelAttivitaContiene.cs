@@ -11,6 +11,7 @@ public class RelAttivitaContiene : ModelErp {
 public const string Description = "Corrispondenze tra tassonomie di attività";
 public const string SqlTableName = "REL_ATTIVITA_CONTIENE";
 public const string SqlTableNameExt = "REL_ATTIVITA_CONTIENE";
+public const string SqlTableProperties = "";
 public const string SqlRowIdName = "AA__ICODE";
 public const string SqlRowIdNameExt = "AA__ICODE";
 public const string SqlPrefix = "AA_";
