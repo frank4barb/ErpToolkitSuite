@@ -898,13 +898,14 @@ namespace ErpToolkit.Helpers
 
                     string id = $"{prefixInputId}_{i}";
                     string value = choices[i].Trim();
+                    string label = labels[i].Trim();
                     string inputType = isMultiple ? "checkbox" : "radio";
                     string checkedAttr = selectedValues.Contains(value) ? "checked" : "";
 
                     content.AppendLine($@"
                         <div class='form-check form-switch d-inline-block mb-2'>
                             <input class='form-check-input' type='{inputType}' name='{prefixInputName}' id='{id}' value='{value}' {checkedAttr} {readonlyAttr} onchange='handleMaxSelections(""{prefixInputName}"", {maxSelections})'>
-                            <label class='form-check-label' for='{id}'>{value}</label> &nbsp; &nbsp; 
+                            <label class='form-check-label' for='{id}'>{label}</label> &nbsp; &nbsp; 
                         </div>");
                 }
 
