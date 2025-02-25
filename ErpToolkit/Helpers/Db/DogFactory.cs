@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MongoDB.Driver.Core.Configuration;
 using System.Data;
 using System.Data.Entity;
+using System.DirectoryServices.ActiveDirectory;
 using System.Reflection.Metadata;
 using static ErpToolkit.Helpers.Db.DatabaseFactory;
 
@@ -33,7 +34,8 @@ namespace ErpToolkit.Helpers.Db
                 if (String.IsNullOrWhiteSpace(connectionStringFull_NameTypeModel)) throw new ArgumentException("Errore: DogId: connectionStringFull_NameTypeModel vuota.");
                 string[] comp = connectionStringFull_NameTypeModel.Split("__");
                 if (comp.Length != 3) throw new ArgumentException("Errore: DogId: connectionStringFull_NameTypeModel bad syntax: #<DB name>__<DB type>__<Model Name>");
-                if (Enum.TryParse(comp[1], out DbTyp _dbType) == false) throw new ArgumentException("Errore: DogId: connectionStringFull_NameTypeModel unknown <DB type> in: #<DB name>__<DB type>__<Model Name>");
+                if (Enum.TryParse(comp[1], out DbTyp testType) == false) throw new ArgumentException("Errore: DogId: connectionStringFull_NameTypeModel unknown <DB type> in: #<DB name>__<DB type>__<Model Name>");
+                _dbType = testType;
                 _modelName = comp[2]; _connectionStringName = connectionStringFull_NameTypeModel;
                 //dbRoot dbHome
                 _dbRoot = dbRoot.Trim();
