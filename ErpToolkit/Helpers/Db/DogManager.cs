@@ -96,7 +96,7 @@ namespace ErpToolkit.Helpers.Db
         }
 
         //gestione objects
-        public static void checkTableObj(object tabModel) { if("TAB" != (tabModel.GetType().GetField("CATEG", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)?.ToString()?.Trim() ?? "")) throw new ArgumentOutOfRangeException(nameof(tabModel)); }
+        public static void checkTableObj(object tabModel) { if("TAB" != (tabModel.GetType().GetField("CATEG", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)?.ToString()?.Trim() ?? "")) throw new ArgumentException(nameof(tabModel)); }
 
 
         //gestione properties
@@ -399,13 +399,13 @@ namespace ErpToolkit.Helpers.Db
         public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null)
         {
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
-            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new ArgumentOutOfRangeException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
         }
         public List<T> ExecuteQuery<T>(string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null)
         {
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
-            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new ArgumentOutOfRangeException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable<T>(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
         }
 
@@ -624,7 +624,7 @@ namespace ErpToolkit.Helpers.Db
             }
             //access DB
             string sql = sb.ToString(); 
-            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new ArgumentOutOfRangeException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             int affectedRows = _getDbMg().ExecuteNonQuery(sql, EncodeSpecialFields(parameters, options), transactionId);
             if (affectedRows != results.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido o errore in insert/update.", null);
             

@@ -1,4 +1,3 @@
-
 using CsvHelper.Configuration;
 using CsvHelper;
 using System.Data;
@@ -21,9 +20,10 @@ namespace ErpToolkit.Helpers.Db
         private Timer _transactionTimeoutTimer;
         private string _transactionId = null;
 
+        private string _dumpLastSql = "";
 
         // Proprietà configurabili
-        public DbTyp DatabaseType { get { return _databaseType; } }  
+        public DbTyp DatabaseType { get { return _databaseType; } }
         public int PageSize { get; set; } = 1000;  //ReadBlob, WriteBlob
         public int MaxRetries { get; set; } = 3;
         public int DelayBetweenRetriesMs { get; set; } = 1000;
@@ -135,7 +135,7 @@ namespace ErpToolkit.Helpers.Db
         }
         private void TransactionTimeoutCallback(object state)
         {
-            _database.RollbackTransaction("Transaction_Timeout"); 
+            _database.RollbackTransaction("Transaction_Timeout");
             throw new DatabaseException(ERR_DB_TIMEOUT, "Transaction timeout reached.");
         }
 
@@ -150,15 +150,13 @@ namespace ErpToolkit.Helpers.Db
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("RecordExists");
             string sql = $"SELECT COUNT(1) FROM {tableName} WHERE {keyField} = @keyValue";
-            IDbConnection connection = _database.NewConnection();
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    IDbDataParameter parameter = command.CreateParameter(); //command.Parameters.AddWithValue("@keyValue", keyValue);
-                    parameter.ParameterName = "@keyValue"; parameter.Value = keyValue;
-                    command.Parameters.Add(parameter);
+                    string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     return (int)ExecuteScalarWithRetry(command) > 0;
                 }
             }
@@ -169,15 +167,13 @@ namespace ErpToolkit.Helpers.Db
             if (_transactionId != transactionId) RollBackDefaulTransaction("ReadBlob");
             int offset = pageNumber * PageSize;
             string sql = $"SELECT SUBSTRING({blobField}, {offset + 1}, {PageSize}) FROM {tableName} WHERE {keyField} = @keyValue";
-            IDbConnection connection = _database.NewConnection();
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    IDbDataParameter parameter = command.CreateParameter(); //command.Parameters.AddWithValue("@keyValue", keyValue);
-                    parameter.ParameterName = "@keyValue"; parameter.Value = keyValue;
-                    command.Parameters.Add(parameter);
+                    string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     return ExecuteScalarWithRetry(command) as byte[];
                 }
             }
@@ -189,18 +185,13 @@ namespace ErpToolkit.Helpers.Db
             int offset = pageNumber * PageSize;
             int length = Math.Min(PageSize, data.Length - offset);
             string sql = $"UPDATE {tableName} SET {blobField}.WRITE(@data, {offset}, {length}) WHERE {keyField} = @keyValue";
-            IDbConnection connection = _database.NewConnection();
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    IDbDataParameter parameter1 = command.CreateParameter(); //command.Parameters.AddWithValue("@data", data.Skip(offset).Take(length).ToArray());
-                    parameter1.ParameterName = "@data"; parameter1.Value = data.Skip(offset).Take(length).ToArray();
-                    command.Parameters.Add(parameter1);
-                    IDbDataParameter parameter2 = command.CreateParameter(); //command.Parameters.AddWithValue("@keyValue", keyValue);
-                    parameter2.ParameterName = "@keyValue"; parameter2.Value = keyValue;
-                    command.Parameters.Add(parameter2);
+                    string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "data", data.Skip(offset).Take(length).ToArray() }, { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     int affectedRows = ExecuteNonQueryWithRetry(command);
                 }
             }
@@ -211,13 +202,13 @@ namespace ErpToolkit.Helpers.Db
         public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, int maxRecords = 10000, string transactionId = null)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteQuery");
-            IDbConnection connection = _database.NewConnection();
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    AddParametersToCommand(command, parameters);
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     return ExecuteReaderWithRetry(command, maxRecords);
                 }
             }
@@ -247,26 +238,44 @@ namespace ErpToolkit.Helpers.Db
             return ExecuteWithRetry(() => command.ExecuteNonQuery());
         }
         //---
-        private void AddParametersToCommand(IDbCommand command, IDictionary<string, object> parameters)
+        private string AddParametersToCommand(IDbCommand command, IDictionary<string, object> parameters)
         {
+            string dumpSql = command.CommandText;
             if (parameters == null)
             {
                 if (EnableTrace)
                 {
                     _logger.Trace($"Executing SQL: {command.CommandText} with parameters: null");
                 }
-                return;
             }
             foreach (var param in parameters)
             {
                 IDbDataParameter parameter = command.CreateParameter(); //command.Parameters.AddWithValue($"@{param.Key}", param.Value ?? DBNull.Value);
                 parameter.ParameterName = $"@{param.Key}"; parameter.Value = param.Value ?? DBNull.Value;
                 command.Parameters.Add(parameter);
+                dumpSql = ReplaceParameter(dumpSql, parameter);
             }
             if (EnableTrace)
             {
                 _logger.Trace($"Executing SQL: {command.CommandText} with parameters: {string.Join(", ", parameters.Select(p => $"{p.Key}={p.Value}"))}");
             }
+            return dumpSql;
+        }
+        private string ReplaceParameter(string sql, IDbDataParameter parameter)
+        {
+            string paramValue;
+            if (parameter.Value == null) { paramValue = "NULL"; }
+            else if (parameter.Value is string) { paramValue = $"'{parameter.Value.ToString().Replace("'", "''")}'"; }
+            else if (parameter.Value is DateTime) { paramValue = $"'{((DateTime)parameter.Value).ToString("yyyy-MM-dd HH:mm:ss")}'"; }
+            else if (parameter.Value is DateTimeOffset) { paramValue = $"'{((DateTimeOffset)parameter.Value).ToString("yyyy-MM-dd HH:mm:ss zzz")}'"; }
+            else if (parameter.Value is DateOnly) { paramValue = $"'{((DateOnly)parameter.Value).ToString("yyyy-MM-dd")}'"; }
+            else if (parameter.Value is TimeOnly) { paramValue = $"'{((TimeOnly)parameter.Value).ToString("HH:mm:ss")}'"; }
+            else if (parameter.Value is TimeSpan) { paramValue = $"'{parameter.Value.ToString()}'"; }
+            else if (parameter.Value is bool) { paramValue = (bool)parameter.Value ? "1" : "0"; }
+            else if (parameter.Value is int || parameter.Value is long || parameter.Value is float
+                            || parameter.Value is double || parameter.Value is decimal) { paramValue = parameter.Value.ToString(); }
+            else { paramValue = "#!# NOT PRINTABLE #!#"; }
+            return sql.Replace(parameter.ParameterName, paramValue);
         }
         private DataTable ExecuteReaderWithRetry(IDbCommand command, int maxRecords)
         {
@@ -285,13 +294,13 @@ namespace ErpToolkit.Helpers.Db
         internal int ExecuteNonQuery(string sql, IDictionary<string, object> parameters, string transactionId = null)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteNonQuery");
-            IDbConnection connection = _database.NewConnection();
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    AddParametersToCommand(command, parameters);
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     return ExecuteNonQueryWithRetry(command);
                 }
             }
@@ -320,8 +329,23 @@ namespace ErpToolkit.Helpers.Db
         }
         private void HandleException(Exception ex, int errorCode, string message)
         {
-            _logger.Error(ex, $"{message} ErrorCode: {errorCode}");
-            if (!_database.HandleException(ex)) throw new DatabaseException(ERR_DB_ERROR, "{message} ({errorCode})", ex);
+            // --------------------------------------------------------------------
+            // QUI E' POSSIBILE INSERIRE LE LOGICHE DI GESTIONE DELL'ERRORE
+            // --------------------------------------------------------------------
+
+            //DatabaseException(<<codice numerico errore>>, <<messaggio errore che verrà visualizzato a video>>, <<eccezione lanciata da DBMS>>);
+
+            //////_logger.Error(ex, $"{message} ErrorCode: {errorCode}");
+            //////if (!_database.HandleException(ex)) throw new DatabaseException(ERR_DB_ERROR, "{message} ({errorCode})", ex);
+
+            try { _database.HandleException(ex); }
+            catch (DatabaseException ex1)
+            {
+                string dbmsMessage = ex?.Message ?? "";
+                _logger.Error(ex, $"{ex1.Message} ErrorCode: {ex1.ErrorCode} HResult: {ex.HResult} \nDbmsMess: {dbmsMessage} \nSQL: {_dumpLastSql}\n\n");
+                throw; // Rethrow to ensure we do not swallow the exception
+            }
+            throw new DatabaseException(ERR_DB_ERROR, "{message} ({errorCode})", ex);
         }
 
 
@@ -399,8 +423,8 @@ namespace ErpToolkit.Helpers.Db
                 }
                 else       // eseguo un solo comando di insert eg: INSERT INTO items (embedding) VALUES ('[1,2,3]'), ('[4,5,6]');
                 {
-                    sql.Append(insertCols); 
-                    for(int r=0; r<dataTable.Rows.Count; r++)
+                    sql.Append(insertCols);
+                    for (int r = 0; r < dataTable.Rows.Count; r++)
                     {
                         var row = dataTable.Rows[r];
                         if (r != 0) sql.Append(',');
@@ -408,7 +432,7 @@ namespace ErpToolkit.Helpers.Db
                         for (int c = 0; c < columnNames.Length; c++)
                         {
                             if (c != 0) sql.Append(',');
-                            sql.Append($"@{columnNames[c]}__{r+1}");
+                            sql.Append($"@{columnNames[c]}__{r + 1}");
                             parameters[$"@{columnNames[c]}__{r + 1}"] = row[columnNames[c]];  //parameters[$"@{columnNames[c]}__{r+1}"] = EncodeSpecialFields(row[columnNames[c]]);
                         }
                         sql.Append(')');
@@ -489,7 +513,7 @@ namespace ErpToolkit.Helpers.Db
         public void MantainRecord(char action, string tableName, string keyField, string timestampField, string deleteField, IDictionary<string, object> fields, string options, string transactionId = null)
         {
             int recNum = 1;
-            VerifyTransactionId("MantainRecord", transactionId) ;
+            VerifyTransactionId("MantainRecord", transactionId);
             string sql = SqlMantain(recNum, action, tableName, keyField, timestampField, deleteField, ref fields, options);
             var parameters = ParametersMantain(recNum, fields, options);
 

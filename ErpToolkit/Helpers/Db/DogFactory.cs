@@ -1,11 +1,4 @@
 
-using K4os.Compression.LZ4.Internal;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using MongoDB.Driver.Core.Configuration;
-using System.Data;
-using System.Data.Entity;
-using System.DirectoryServices.ActiveDirectory;
-using System.Reflection.Metadata;
 using static ErpToolkit.Helpers.Db.DatabaseFactory;
 
 namespace ErpToolkit.Helpers.Db

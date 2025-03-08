@@ -234,6 +234,7 @@ Consulta la documentazione interna al repository per ulteriori dettagli su confi
 - [MySql.Data](https://github.com/mysql/mysql-connector-net) (v9.0.0) - Connector MySQL
 - [Npgsql](https://github.com/npgsql/npgsql) (v8.0.3) - Provider PostgreSQL
 - [Oracle.ManagedDataAccess](https://github.com/oracle/dotnet-db-samples) (v23.5.1) - Provider Oracle
+- [InterSystems.Data.IRISClient](https://www.nuget.org/packages/InterSystems.Data.IRISClient/) (v2.5.0) - Provider IRIS (Maggiori informazioni sul sito ufficiale di [InterSystems](https://community.intersystems.com/))
 - [System.Data.SQLite](https://system.data.sqlite.org) (v1.0.118) - Provider SQLite
 
 ### Framework e Runtime

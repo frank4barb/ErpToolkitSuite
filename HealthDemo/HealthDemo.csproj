@@ -15,9 +15,6 @@
     <None Update="ERPdesktop.ini.sample">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="lib\InterSystems.Data.IRISClient.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

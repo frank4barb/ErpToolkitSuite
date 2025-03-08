@@ -163,9 +163,6 @@ Oppure, se utilizzi Visual Studio:
 3. Cerca il pacchetto ErpToolkit, seleziona la versione desiderata (es. 1.0.4) e installalo.
 
 
-Inoltre, per interagire con la piattaforma InterSystems IRIS, copia nella directory di esecuzione la Libreria **InterSystems.Data.IRISClient.dll**. Maggiori informazioni sul sito ufficiale di [InterSystems IRIS](https://community.intersystems.com/).
-
-
 ### Dal repository GitHub
 
 Il codice sorgente è disponibile su GitHub [ErpToolkitSuite](https://github.com/frank4barb/ErpToolkitSuite) per studiare il codice o contribuire al progetto.
@@ -237,6 +234,7 @@ Consulta la documentazione interna al repository per ulteriori dettagli su confi
 - [MySql.Data](https://github.com/mysql/mysql-connector-net) (v9.0.0) - Connector MySQL
 - [Npgsql](https://github.com/npgsql/npgsql) (v8.0.3) - Provider PostgreSQL
 - [Oracle.ManagedDataAccess](https://github.com/oracle/dotnet-db-samples) (v23.5.1) - Provider Oracle
+- [InterSystems.Data.IRISClient](https://www.nuget.org/packages/InterSystems.Data.IRISClient/) (v2.5.0) - Provider IRIS (Maggiori informazioni sul sito ufficiale di [InterSystems](https://community.intersystems.com/))
 - [System.Data.SQLite](https://system.data.sqlite.org) (v1.0.118) - Provider SQLite
 
 ### Framework e Runtime
