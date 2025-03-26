@@ -1,9 +1,7 @@
-﻿using ErpToolkit.Helpers;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ErpToolkit.Models {
-    public class ModelErp {
+    public abstract class ModelErp {
 
         //xx// SGANCIO DAL MODELLO IL CONCETTO DI VISIBILITA'
         //xx////attributi di visualizzazione dei campi definiti a run-time
@@ -14,7 +12,7 @@ namespace ErpToolkit.Models {
         public IDictionary<string, string> options { get; set; } = new Dictionary<string, string>();
 
         //metodi obbligatori
-        //public abstract string getIcode(); // metodo astratto 
+        public abstract object getIcode(); // metodo astratto (deve per forza essere implementato)
         //public abstract string getTimestamp(); // metodo astratto 
         //public abstract string getDeleted(); // metodo astratto 
 
@@ -22,6 +20,10 @@ namespace ErpToolkit.Models {
         public virtual bool TryValidateInt(ModelStateDictionary modelState, string? prefix = null)
         {
             return true;
+        }
+        public virtual string ViewQueryFromWhere()
+        {
+            return "";
         }
 
 

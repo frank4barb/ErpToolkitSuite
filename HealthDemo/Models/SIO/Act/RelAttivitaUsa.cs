@@ -12,6 +12,7 @@ public const string Description = "Tipi e/o risorse individuali generalmente nec
 public const string SqlTableName = "REL_ATTIVITA_USA";
 public const string SqlTableNameExt = "REL_ATTIVITA_USA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Au1Icode";
 public const string SqlRowIdName = "AU__ICODE";
 public const string SqlRowIdNameExt = "AU__ICODE";
 public const string SqlPrefix = "AU_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Au"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Au1Icode; } 
 
 //1193-1179//REL_ATTIVITA_USA.AU_ID_GRUPPO
 public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdGruppo  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();

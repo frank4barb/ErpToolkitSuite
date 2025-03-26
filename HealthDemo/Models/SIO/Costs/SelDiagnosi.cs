@@ -12,6 +12,7 @@ public const string Description = "Classificazioni diagnostiche adottate nelle o
 public const string SqlTableName = "DIAGNOSI";
 public const string SqlTableNameExt = "DIAGNOSI";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Dg1Icode";
 public const string SqlRowIdName = "DG__ICODE";
 public const string SqlRowIdNameExt = "DG__ICODE";
 public const string SqlPrefix = "DG_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Controllo di gestione"; //Table Area
 public const string PREFIX = "Dg"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Tipo Diagnosi", ShortName="", Description = "Codice del tipo di classificazione a cui l'istanza appartiene", Prompt="")]
 [ErpDogField("DG_TIPO_DIAGNOSI", SqlFieldNameExt="DG_TIPO_DIAGNOSI", SqlFieldOptions="", Xref="Td1Icode", SqlFieldProperties="prop() xref(TIPO_DIAGNOSI.TD__ICODE) xdup() multbxref()")]

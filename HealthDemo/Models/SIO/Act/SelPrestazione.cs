@@ -12,6 +12,7 @@ public const string Description = "Prestazione effettuata: dettaglio delle attiv
 public const string SqlTableName = "PRESTAZIONE";
 public const string SqlTableNameExt = "PRESTAZIONE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Pr1Icode";
 public const string SqlRowIdName = "PR__ICODE";
 public const string SqlRowIdNameExt = "PR__ICODE";
 public const string SqlPrefix = "PR_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Pr"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //120-119//REL_PRESTAZIONE_CAMPIONE.PC_ID_PRESTAZIONE
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione> SelRelPrestazioneCampione4PcIdPrestazione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione>();
 //124-124//REL_PRESTAZIONE_USA.PU_ID_PRESTAZIONE

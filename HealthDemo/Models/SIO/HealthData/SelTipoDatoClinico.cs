@@ -12,6 +12,7 @@ public const string Description = "Classificazioni generali dei tipi di dati san
 public const string SqlTableName = "TIPO_DATO_CLINICO";
 public const string SqlTableNameExt = "TIPO_DATO_CLINICO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Tc1Icode";
 public const string SqlRowIdName = "TC__ICODE";
 public const string SqlRowIdNameExt = "TC__ICODE";
 public const string SqlPrefix = "TC_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Dati clinici"; //Table Area
 public const string PREFIX = "Tc"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TC_CODICE", SqlFieldNameExt="TC_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_DATO_CLINICO.TC__ICODE[TC__ICODE] {TC_CODICE=' '}) multbxref()")]

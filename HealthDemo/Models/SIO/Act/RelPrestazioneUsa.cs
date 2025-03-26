@@ -12,6 +12,7 @@ public const string Description = "Risorse pianificate ed effettive utilizzate p
 public const string SqlTableName = "REL_PRESTAZIONE_USA";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_USA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Pu1Icode";
 public const string SqlRowIdName = "PU__ICODE";
 public const string SqlRowIdNameExt = "PU__ICODE";
 public const string SqlPrefix = "PU_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Pu"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Pu1Icode; } 
 
 [Display(Name = "Pu1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("PU__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

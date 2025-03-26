@@ -5,7 +5,6 @@ using System.Text;
 using System.Collections;
 using static ErpToolkit.Helpers.Db.DogManager;
 using static ErpToolkit.Helpers.Db.DatabaseFactory;
-using System.Linq;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -61,7 +60,7 @@ namespace ErpToolkit.Helpers.Db
             return $"from {sqlTableNameExt} \n";
         }
         //crea WHERE per l'oggetto del modello 'objModel' in base all'oggetto di selezione 'selModel'
-        internal static string sqlWhere(DogManager dogMng, object selModel, ref IDictionary<string, object> parameters)
+        internal static string sqlWhereSelection(DogManager dogMng, object selModel, ref IDictionary<string, object> parameters, string options = "")
         {
             // init
             int numCond = 0, numPreCond = 0;
@@ -99,6 +98,12 @@ namespace ErpToolkit.Helpers.Db
                     // esiste una condizione
                     if (sqlFieldNameExt != "")
                     {
+                        //---
+                        if (options.Contains("[UsePropertyNameField]"))
+                        {
+                            sqlFieldNameExt = (propertyName + "    ").Substring(3).Trim(); // uso il campo delle struttura in caso where per VISTE del tipo: "SELECT * FROM ( ??select?? ) ) AS subquery ??where??
+                        }
+                        //---
                         try
                         {
                             //string fieldOptions = ((ErpDogFieldAttribute)attribute).SqlFieldOptions?.ToString() ?? "";
@@ -124,7 +129,20 @@ namespace ErpToolkit.Helpers.Db
                             {
                                 if (fld.optTIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(tim, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{tim.ToString(DogManager.DB_FORMAT_TIME)}' and ");
                             }
-                            else if (propertyValue is List<string> strList) sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(str => str.TrimEnd()).ToList<object>(), ref parameters))).AppendLine($") and");  //sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", strList.Select(str => $"'{str.Trim()}'"))).AppendLine($") and");
+                            //>>>TC>>>// else if (propertyValue is List<string> strList) sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(str => str.TrimEnd()).ToList<object>(), ref parameters))).AppendLine($") and");  //sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", strList.Select(str => $"'{str.Trim()}'"))).AppendLine($") and");
+                            else if (propertyValue is List<string> strList)
+                            {
+                                // in javascrip considero qualsiasi valore come stringa.
+                                // se la chiave univoca è un numero, devo converitre la stringa in numero prima di passarla al DBMS
+                                //if (fld.optBIGINT) sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(str => (System.Int64)long.Parse(str.TrimEnd()))).ToList<object>(), ref parameters))).AppendLine($") and");
+                                if (fld.optBIGINT) { 
+                                    sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(s => (object)long.Parse(s)).ToList<object>(), ref parameters))).AppendLine($") and");
+                                }
+                                else {
+                                    sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(str => str.TrimEnd()).ToList<object>(), ref parameters))).AppendLine($") and");
+                                }
+                            }
+                            //<<<TC<<<
                             else if (propertyValue is List<long> lngList) sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(lngList.Select(u => (object)u).ToList(), ref parameters))).AppendLine($") and");  //sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", lngList)).AppendLine($") and");
                             else if (propertyValue is DateRange dateRng)
                             {
@@ -176,12 +194,21 @@ namespace ErpToolkit.Helpers.Db
 
 
         //crea WHERE per l'oggetto del modello 'objModel' in base all'icode
-        internal static string sqlWhere(DogManager dogMng, object objModel, string icode, ref IDictionary<string, object> parameters)
+        internal static string sqlWhereIcode(DogManager dogMng, object objModel, object icode, ref IDictionary<string, object> parameters, string options = "")
         {
-            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
+            return sqlWhereListIcode(dogMng, objModel, new List<object>() { icode }, ref parameters);
+        }
+        internal static string sqlWhereListIcode(DogManager dogMng, object objModel, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
+        {
+            if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
+            if (rowIdList == null) { throw new ArgumentNullException("Null " + nameof(rowIdList)); }
+            if (rowIdList.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(rowIdList)); }
             System.Type type = objModel.GetType();
             var sqlRowIdNameExt = dogMng.tabTypes[type]?.SqlRowIdNameExt?.Trim() ?? "";
-            return $"where {sqlRowIdNameExt} = {DogManager.addParam(icode, ref parameters)} ";
+            //---
+            if (options.Contains("[UsePropertyNameField]")) sqlRowIdNameExt = dogMng.tabTypes[type]?.RowIdName?.Trim() ?? "";
+            //---
+            return $"where {sqlRowIdNameExt} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
         }
 
         //crea INSERT, UPDATE, DELETE(logico) per l'oggetto del modello 'tabModel' (SOLO PER TABELLE)
@@ -543,6 +570,41 @@ namespace ErpToolkit.Helpers.Db
             catch (Exception ex) { }  //skip exceptions
             return false;
         }
+
+        //*********************************************************************************************************
+
+        internal static string replaceSqlTextWithPlaceholders(string sql, ref IDictionary<string, object> parameters)  // converte, se trova parametri (eg: 'Y') nel formato richiesto dal DogManager (eg: {DogManager.addParam(""Y"", ref parameters)})
+        {
+            StringBuilder sb = new StringBuilder(); StringBuilder text = new StringBuilder(); 
+            char[] s = sql.ToCharArray();
+
+            bool InStringa = false;
+            for (int i = 0; i < s.Length; i++)
+            {
+                //sono fuori dalla stringa
+                if (InStringa == false)
+                {
+                    if (s[i] == '\'') InStringa = true;
+                    else sb.Append(s[i]);
+                }
+                //sono dentro la stringa
+                else if (s[i] == '\'')
+                {
+                    if (i+1 < s.Length && s[i+1] == '\'')
+                    {
+                        text.Append("''"); i++;
+                    }
+                    else
+                    {
+                        sb.Append(DogManager.addParam(text.ToString().Replace("''","'"), ref parameters)); text = new StringBuilder();
+                        InStringa = false;
+                    }
+                }
+                else text.Append(s[i]);
+            }
+            return sb.ToString();
+        }
+
 
 
     }

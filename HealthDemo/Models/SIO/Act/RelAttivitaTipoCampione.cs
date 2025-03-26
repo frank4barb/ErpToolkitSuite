@@ -12,6 +12,7 @@ public const string Description = "Tipo di campione rilevante per un certo tipo 
 public const string SqlTableName = "REL_ATTIVITA_TIPO_CAMPIONE";
 public const string SqlTableNameExt = "REL_ATTIVITA_TIPO_CAMPIONE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ac1Icode";
 public const string SqlRowIdName = "AC__ICODE";
 public const string SqlRowIdNameExt = "AC__ICODE";
 public const string SqlPrefix = "AC_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Ac"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Ac1Icode; } 
 
 [Display(Name = "Ac1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("AC__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

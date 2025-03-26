@@ -1,5 +1,7 @@
-using Amazon.SecurityToken.Model;
+using ErpToolkit.Models;
+using Microsoft.CodeAnalysis;
 using MongoDB.Driver;
+using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -116,6 +118,7 @@ namespace ErpToolkit.Helpers.Db
 
 
         private string _modelName; // = "SIO";
+        private string _modelMode; // = "";  //indica come interpretare il Modello. Se _modelMode == "FREE" allora il modello non prevede i campi standard _deleted _timestamp, ecc. e non gestisce le date come stringhe
         private DbTyp _databaseType; // = SqlServer;
         private string _connectionStringName; // = "#connectionString_SQLSLocal";
         private string _dbRoot; // = "IU01";
@@ -167,6 +170,7 @@ namespace ErpToolkit.Helpers.Db
             public string SqlTableName = "";
             public string SqlTableNameExt = "";
             public string SqlTableProperties = "";
+            public string RowIdName = "";
             public string SqlRowIdName = "";
             public string SqlRowIdNameExt = "";
             public string SqlPrefix = "";
@@ -192,26 +196,30 @@ namespace ErpToolkit.Helpers.Db
             public string SqlFieldOptions = "";  // [UID] [XID] codice univoco utente e esterno
             public string SqlFieldNameExt = "";  // AY_CODE
             public string Xref = "";  // external reference (if any) eg: Pa1Icode
+            public DogField XrefObj;  // external reference (if any) eg: Pa1Icode
             //--
             public bool optXREF = false;
+            public bool optSID = false;
             public bool optUID = false;
             public bool optXID = false;
             public bool optDATE = false;
             public bool optTIME = false;
             public bool optDATETIME = false;
+            public bool optBIGINT = false;
             //--
             public string Description;  
             public object? DefaultValue = null;  
             public int? StringLength = null;
         }
 
-        internal DogManager(string modelName, DbTyp databaseType, string connectionStringName, string dbRoot, string dbHome)
+        internal DogManager(string modelName, string modelMode, DbTyp databaseType, string connectionStringName, string dbRoot, string dbHome)
         {
             //SetUpNLog();
             NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
             _logger = NLog.LogManager.GetCurrentClassLogger();
             //set dog
             _modelName = modelName;
+            _modelMode = modelMode;  //indica come interpretare il Modello. Se _modelMode == "FREE" allora il modello non prevede i campi standard _deleted _timestamp, ecc. e non gestisce le date come stringhe
             _databaseType = databaseType;
             _connectionStringName = connectionStringName;
             _dbRoot = dbRoot;
@@ -256,6 +264,7 @@ namespace ErpToolkit.Helpers.Db
                         tab.SqlTableName = objType.GetField("SqlTableName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableNameExt = objType.GetField("SqlTableNameExt")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableProperties = objType.GetField("SqlTableProperties")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.RowIdName = objType.GetField("RowIdName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlRowIdName = objType.GetField("SqlRowIdName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlRowIdNameExt = objType.GetField("SqlRowIdNameExt")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlPrefix = objType.GetField("SqlPrefix")?.GetRawConstantValue()?.ToString() ?? "";
@@ -288,11 +297,13 @@ namespace ErpToolkit.Helpers.Db
                                 fld.Xref = erpDogFieldAttribute.Xref?.ToString() ?? "";
                                 //---------
                                 fld.optXREF = String.IsNullOrWhiteSpace(fld.Xref) == false;
+                                fld.optSID = fld.SqlFieldOptions.Contains("[SID]");
                                 fld.optUID = fld.SqlFieldOptions.Contains("[UID]");
                                 fld.optXID = fld.SqlFieldOptions.Contains("[XID]");
                                 fld.optDATE = fld.SqlFieldOptions.Contains("[DATE]");
                                 fld.optTIME = fld.SqlFieldOptions.Contains("[TIME]");
                                 fld.optDATETIME = fld.SqlFieldOptions.Contains("[DATETIME]");
+                                fld.optBIGINT = fld.SqlFieldOptions.Contains("[BIGINT]");
                                 //---------
                                 DisplayAttribute? displaydAttribute = property.GetCustomAttribute(typeof(DisplayAttribute)) as DisplayAttribute;
                                 if (displaydAttribute != null)
@@ -341,6 +352,23 @@ namespace ErpToolkit.Helpers.Db
                     }
                 }
             }
+            // carica XrefObj
+            foreach (var fld in tabProperties.Values)
+            {
+                if (fld.optXREF)
+                {
+                    if (tabProperties.ContainsKey(fld.Xref)) fld.XrefObj = tabProperties[fld.Xref]; // il field deve esistere
+                    else throw new ArgumentException($"Errore: impossibile creare db, legame campo Xref {fld.Xref} non presente ");
+                }
+            }
+            //foreach (var fld in selProperties.Values)
+            //{
+            //    if (fld.optXREF)
+            //    {
+            //        if (selProperties.ContainsKey($"Sel{fld.Xref}")) fld.XrefObj = selProperties[$"Sel{fld.Xref}"]; // il field deve esistere (nota: SelXx1Icode ..non esiste)
+            //        else throw new ArgumentException($"Errore: impossibile creare db, legame campo Xref Sel{fld.Xref} non presente ");
+            //    }
+            //}
 
         }
         ~DogManager()
@@ -402,10 +430,10 @@ namespace ErpToolkit.Helpers.Db
             if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
         }
-        public List<T> ExecuteQuery<T>(string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null)
+        public List<T> ExecuteQuery<T>(string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null) 
         {
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
-            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable<T>(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
         }
 
@@ -448,125 +476,235 @@ namespace ErpToolkit.Helpers.Db
 
         private Dictionary<string, object> EncodeSpecialFields(IDictionary<string, object> fields, string options="")
         {
-            if (fields == null) return null;
-            var parameters = new Dictionary<string, object>();
-            foreach (var field in fields) { parameters[field.Key] = EncodeSpecialField(field.Value, options); }
-            return parameters;
+            String Key ="", Value="";
+            try { 
+                if (fields == null) return null;
+                var parameters = new Dictionary<string, object>();
+                foreach (KeyValuePair<string, object>  field in fields) { Key = field.Key; Value = field.Value?.ToString() ?? ""; parameters[field.Key] = EncodeSpecialField(field.Value, options); }
+                return parameters;
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvalidCastException($"EncodeSpecialFields[{Key}={Value}]: {ex.Message}.");
+            }
+
         }
         private DataTable DecodeSpecialTable(DataTable dataTable, string options = "")  //DecodeSpecialFields
         {
-            if (dataTable == null) return null;
-            foreach (DataRow row in dataTable.Rows)
-            {
-                foreach (DataColumn column in row.Table.Columns)
+            String Key = "", Value = "";
+            try
+            { 
+                if (dataTable == null) return null;
+                foreach (DataRow row in dataTable.Rows)
                 {
-                    row[column] = DecodeSpecialField(null, column.ColumnName, row[column], options);
+                    foreach (DataColumn column in row.Table.Columns)
+                    {
+                        Key = column.ColumnName; Value = row[column]?.ToString() ?? "";
+                        row[column] = DecodeSpecialField(null, column.ColumnName, row[column], options + " [ToDataRow]"); // in caso di DataRow => uso DBNull
+                        Key = ""; Value = "";
+                    }
                 }
+                return dataTable;
             }
-            return dataTable;
+            catch (System.Exception ex)
+            {
+                throw new InvalidCastException($"DecodeSpecialTable[{Key}={Value}]: {ex.Message}.");
+            }
         }
 
-        public List<T> DecodeSpecialTable<T>(DataTable dt, string options = "")
+        public List<T> DecodeSpecialTable<T>(DataTable dt, string options = "") 
         {
-            if (dt == null) return null;
-            List<T> data = new List<T>();
-            foreach (DataRow row in dt.Rows)
-            {
-                T item = DecodeSpecialRow<T>(row, options);
-                data.Add(item);
+            try { 
+                if (dt == null) return null;
+                List<T> data = new List<T>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    T item = DecodeSpecialRow<T>(row, options);
+                    data.Add(item);
+                }
+                return data;
             }
-            return data;
-        }
-        public T DecodeSpecialRow<T>(DataRow dr, string options = "")
-        {
-            System.Type temp = typeof(T);
-            //decode in object array
-            if (temp == typeof(System.Object[]))
+            catch (System.Exception ex)
             {
-                object[] objArr = new object[dr.Table.Columns.Count];
-                //foreach (DataColumn column in dr.Table.Columns)
+                throw new InvalidCastException($"DecodeSpecialTable<T>: {ex.Message}.");
+            }
+        }
+        public T DecodeSpecialRow<T>(DataRow dr, string options = "") 
+        {
+            String Key = "", Value = "";
+            try
+            {
+                System.Type temp = typeof(T);
+                //decode in object array
+                if (temp == typeof(System.Object[]))
+                {
+                    object[] objArr = new object[dr.Table.Columns.Count];
+                    //foreach (DataColumn column in dr.Table.Columns)
+                    for (int i = 0; i < dr.Table.Columns.Count; i++)
+                    {
+                        DataColumn column = dr.Table.Columns[i];
+                        Key = column.ColumnName; Value = dr[column.ColumnName]?.ToString() ?? "";
+                        objArr[i] = DecodeSpecialField(null, column.ColumnName, dr[column.ColumnName], options);
+                        Key = ""; Value = "";
+                    }
+                    return (T)(Object)objArr;
+                }
+                //decode in object model
+                T obj = Activator.CreateInstance<T>();
                 for (int i = 0; i < dr.Table.Columns.Count; i++)
                 {
                     DataColumn column = dr.Table.Columns[i];
-                    objArr[i] = DecodeSpecialField(null, column.ColumnName, dr[column.ColumnName], options);
-                }
-                return (T)(Object)objArr;
-            }
-            //decode in object model
-            T obj = Activator.CreateInstance<T>();
-            for (int i = 0; i < dr.Table.Columns.Count; i++)
-            {
-                DataColumn column = dr.Table.Columns[i];
-                foreach (PropertyInfo pro in temp.GetProperties())
-                {
-                    if (pro.Name == column.ColumnName)
+                    foreach (PropertyInfo pro in temp.GetProperties())
                     {
-                        pro.SetValue(obj, DecodeSpecialField(pro.PropertyType, column.ColumnName, dr[column.ColumnName], options), null);
+                        if (pro.Name == column.ColumnName)
+                        {
+                            Key = column.ColumnName; Value = dr[column.ColumnName]?.ToString() ?? "";
+                            pro.SetValue(obj, DecodeSpecialField(pro.PropertyType, column.ColumnName, dr[column.ColumnName], options), null);
+                            Key = ""; Value = "";
+                        }
                     }
                 }
+                return obj;
             }
-            return obj;
+            catch (System.Exception ex)
+            {
+                throw new InvalidCastException($"DecodeSpecialRow<T>[{Key}={Value}]: {ex.Message}.");
+            }
         }
 
         //-----------------------------------
 
+        //CODIFICHE: da STRUTTURA a DB
         private object EncodeSpecialField(object value, string options = "")
         {
-            if (value is string str)
+            try
             {
-                if (str == "") str = DB_STRING_EMPTY;  //in caso di stringa vuota devo sbianchettare
-                return str;  // ATTENZIONE!! non devo eliminare eventuali bianchi alla fine
+                if (_modelMode == "FREE")
+                {
+                    // conversioni minime valide per tutti i DB
+                    if (value == null)
+                    {
+                        return (object)System.DBNull.Value;  // ATTENZIONE!! non devo eliminare eventuali bianchi alla fine
+                    }
+                    if (value is string str)
+                    {
+                        if (str == "") str = DB_STRING_EMPTY;  //in caso di stringa vuota devo sbianchettare
+                        return str;  // ATTENZIONE!! non devo eliminare eventuali bianchi alla fine
+                    }
+                    if (value is DateOnly date)
+                    {
+                        return date.ToDateTime(new TimeOnly(0, 0, 1, 0));  //fisso l'ora al primo secondo del giorno
+                    }
+                    if (value is TimeOnly time)
+                    {
+                        return time.ToTimeSpan();
+                    }
+                    if (value is DateTime datetime)
+                    {
+                        return datetime;
+                    }
+
+                    return value;
+                }
+                else
+                {
+                    if (value is string str)
+                    {
+                        if (str == "") str = DB_STRING_EMPTY;  //in caso di stringa vuota devo sbianchettare
+                        return str;  // ATTENZIONE!! non devo eliminare eventuali bianchi alla fine
+                    }
+                    if (value is DateOnly date)
+                    {
+                        if (date.Equals(DateOnly.MinValue)) return DB_DATE_MIN;
+                        else if (date.Equals(DateOnly.MaxValue)) return DB_DATE_MAX;
+                        else return date.ToString(DB_FORMAT_DATE);
+                    }
+                    if (value is TimeOnly time)
+                    {
+                        if (time == default) return DB_TIME_EMPTY;
+                        else return time.ToString(DB_FORMAT_TIME);
+                    }
+                    if (value is DateTime datetime)
+                    {
+                        return datetime.ToString(DB_FORMAT_DATETIME);
+                    }
+                    // Aggiungere altre conversioni speciali qui se necessario
+                    return value;
+                }
+
             }
-            if (value is DateOnly date)
+            catch (System.Exception ex)
             {
-                if (date.Equals(DateOnly.MinValue)) return DB_DATE_MIN;
-                else if(date.Equals(DateOnly.MaxValue)) return DB_DATE_MAX;
-                else return date.ToString(DB_FORMAT_DATE);
+                throw new InvalidCastException($"EncodeSpecialField[{value?.ToString() ?? ""}]: Errore nella codifica del campo -- {ex.Message}.");
             }
-            if (value is TimeOnly time)
-            {
-                if (time == default) return DB_TIME_EMPTY;
-                else return time.ToString(DB_FORMAT_TIME);
-            }
-            if (value is DateTime datetime)
-            {
-                return datetime.ToString(DB_FORMAT_DATETIME);
-            }
-            // Aggiungere altre conversioni speciali qui se necessario
-            return value;
         }
+
+        //CODIFICHE: da DB a STRUTTURA (type = tipo campo in struttura [string/short/int/long/double/DateOnly/TimeOnly/DateTime/byte[]/bool])
         private object DecodeSpecialField(System.Type type, string colName, object value, string options = "")
         {
-            if (value == null) return null;
-            if (value.GetType() == typeof(string))
+            try
             {
-                string strVal = ((string)value).Trim();  
-                if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATE == true))
+                if (value == null || value.GetType() == typeof(System.DBNull))
                 {
-                    if (strVal == "" || strVal == "/  /" || strVal == DB_DATE_MIN) return DateOnly.MinValue;
-                    if (strVal == DB_DATE_MAX) return DateOnly.MaxValue;
-                    if (DateOnly.TryParseExact((string)value, DB_FORMAT_DATE, null, DateTimeStyles.None, out DateOnly date)) return date;
+                    if (options.Contains("[ToDataRow]")) return (object)System.DBNull.Value;  // se carico DataRow => uso DBNull
+                    else return null;       // se carico la struttura => uso null;
                 }
-                if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optTIME == true))
+                if (value.GetType() == typeof(string))
                 {
-                    if (strVal == "" || strVal == ":  :" || strVal == DB_TIME_EMPTY) return null;
-                    if (TimeOnly.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out TimeOnly time)) return time;
+                    string strVal = ((string)value).Trim();
+                    if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATE == true))
+                    {
+                        if (strVal == "" || strVal == "/  /" || strVal == DB_DATE_MIN) return DateOnly.MinValue;
+                        if (strVal == DB_DATE_MAX) return DateOnly.MaxValue;
+                        if (DateOnly.TryParseExact((string)value, DB_FORMAT_DATE, null, DateTimeStyles.None, out DateOnly date)) return date;
+                    }
+                    if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optTIME == true))
+                    {
+                        if (strVal == "" || strVal == ":  :" || strVal == DB_TIME_EMPTY) return null;
+                        if (TimeOnly.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out TimeOnly time)) return time;
+                    }
+                    if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATETIME == true))
+                    {
+                        if (strVal == "" || strVal == "/  /" || strVal == "/  /     :  :") return DateTime.MinValue;
+                        if (this.tabFields[colName]?.optDATE == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATE, null, DateTimeStyles.None, out DateTime datetimeDate)) return datetimeDate;
+                        else if (this.tabFields[colName]?.optTIME == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out DateTime datetimeTime)) return datetimeTime;
+                        else if (DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATETIME, null, DateTimeStyles.None, out DateTime datetime)) return datetime;
+                    }
                 }
-                if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATETIME == true))
+                if (value.GetType() == typeof(System.DateTime) || value.GetType() == typeof(System.DateTime?))
                 {
-                    if (strVal == "" || strVal == "/  /" || strVal == "/  /     :  :") return DateTime.MinValue;
-                    if (this.tabFields[colName]?.optDATE == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATE, null, DateTimeStyles.None, out DateTime datetimeDate)) return datetimeDate;
-                    else if (this.tabFields[colName]?.optTIME == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out DateTime datetimeTime)) return datetimeTime;
-                    else if (DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATETIME, null, DateTimeStyles.None, out DateTime datetime)) return datetime;
+                    if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATE == true))
+                    {
+                        DateOnly dt = DateOnly.FromDateTime((DateTime)value); return dt;
+                    }
+                    if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATETIME == true))
+                    {
+                        return (DateTime?)value;
+                    }
                 }
-            }
-            if (type == typeof(System.Int16?)) { short shr = Convert.ToInt16(value); if (shr == DogManager.DB_SHORT_EMPTY) return null; else return shr; }  //short
-            if (type == typeof(System.Int64?)) { long lng = Convert.ToInt64(value); if (lng == DogManager.DB_LONG_EMPTY) return null; else return lng; }  //long
-            if (type == typeof(System.Double?)) { double dbl = Convert.ToDouble(value); if (dbl == DogManager.DB_DOUBLE_EMPTY) return null; else return dbl; }  //double
-            if (type == typeof(System.Byte[])) { return value; }  //byte[]   ?????????????????????????????
+                if (value.GetType() == typeof(System.TimeSpan) || value.GetType() == typeof(System.TimeSpan?))
+                {
+                    if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optTIME == true))
+                    {
+                        TimeOnly tm = TimeOnly.FromTimeSpan((TimeSpan)value); return tm;
+                    }
+                }
+                //---
+                if (type == typeof(System.String)) { string str = Convert.ToString(value) ?? ""; return str.TrimEnd(); }  //string
+                if (type == typeof(System.Int16?)) { short shr = Convert.ToInt16(value); if (shr == DogManager.DB_SHORT_EMPTY) return null; else return shr; }  //short
+                if (type == typeof(System.Int32?)) { int integer = Convert.ToInt32(value); if (integer == DogManager.DB_LONG_EMPTY) return null; else return integer; }  //long
+                if (type == typeof(System.Int64?)) { long lng = Convert.ToInt64(value); if (lng == DogManager.DB_LONG_EMPTY) return null; else return lng; }  //bigint
+                if (type == typeof(System.Double?)) { double dbl = Convert.ToDouble(value); if (dbl == DogManager.DB_DOUBLE_EMPTY) return null; else return dbl; }  //double
+                if (type == typeof(System.Byte[])) { return value; }  //byte[]   ?????????????????????????????
+                if (type == typeof(System.Boolean?)) { bool b = Convert.ToBoolean(value); return b; }  //bool
 
-            // Aggiungere altre conversioni speciali qui se necessario
-            return value;
+                // Aggiungere altre conversioni speciali qui se necessario
+                return value;
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvalidCastException($"DecodeSpecialField[{colName}={value?.ToString() ?? ""}]: Errore nella decodifica del campo -- {ex.Message}.");
+            }
         }
 
 
@@ -575,21 +713,137 @@ namespace ErpToolkit.Helpers.Db
         //***************************************************************************************************************************************************
 
 
+        ////carica list oggetti con il contenuto del DB in base alla struttura in selezione  
+        //public List<T> List<T>(object selModel, string options = "") where T : ModelErp
+        //{
+        //    if (selModel == null) { throw new ArgumentNullException(nameof(selModel)); }
+        //    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
+        //    IDictionary<string, object> parameters = new Dictionary<string, object>();
+        //    StringBuilder sb = new StringBuilder(); List<T> outList;
+
+        //    string sqlFromWhere = objModel.ViewQueryFromWhere();
+        //    if (string.IsNullOrEmpty(sqlFromWhere))
+        //    {
+
+        //        sb.Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
+        //            .Append(DogManagerInt.sqlFrom(this, objModel, ref parameters))
+        //            .Append(DogManagerInt.sqlWhere(this, selModel, ref parameters));
+        //        //access DB
+        //        outList = this.ExecuteQuery<T>(sb.ToString(), parameters);
+
+        //    } 
+        //    else
+        //    {
+        //        sb.Append("SELECT * FROM ( \n")
+        //            .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
+        //            .Append(sqlFromWhere)
+        //            .Append(") AS subquery \n")
+        //            .Append(DogManagerInt.sqlWhere(this, selModel, ref parameters, options: "[UsePropertyNameField]")); // Componi il filtro dinamicamente
+        //        string sql = DogManagerInt.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
+        //        //access DB
+        //        outList = this.ExecuteQuery<T>(sql, parameters);  //this.ExecuteQuery<T>(sql, parameters, options: "[skipCheckSqlParms]");
+        //    }
+        //    return outList;
+
+        //}
+
+
         //carica list oggetti con il contenuto del DB in base alla struttura in selezione  
-        public List<T> List<T>(object selModel)
+        public List<T> List<T>(object selModel, string options = "") where T : ModelErp
         {
-            if (selModel == null) { throw new ArgumentNullException(nameof(selModel)); }
+            if (selModel == null) { throw new ArgumentNullException("Null " + nameof(selModel)); }
+            return List_int<T>(selModel, null, options);
+        }
+        public List<T> List<T>(List<object> lstRowId, string options = "") where T : ModelErp
+        {
+            if (lstRowId == null) { throw new ArgumentNullException("Null " + nameof(lstRowId)); }
+            if (lstRowId.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(lstRowId)); }
+            return List_int<T>(null, lstRowId, options);
+        }
+        private List<T> List_int<T>(object selModel, List<object> lstRowId, string options = "") where T : ModelErp
+        {
+            if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
             IDictionary<string, object> parameters = new Dictionary<string, object>();
-            StringBuilder sb = new StringBuilder()
-                .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
-                .Append(DogManagerInt.sqlFrom(this, objModel, ref parameters))
-                .Append(DogManagerInt.sqlWhere(this, selModel, ref parameters));
-            //access DB
-            return this.ExecuteQuery<T>(sb.ToString(), parameters);
+            StringBuilder sb = new StringBuilder(); List<T> outList;
+
+            string sqlFromWhere = objModel.ViewQueryFromWhere();
+            if (string.IsNullOrEmpty(sqlFromWhere))
+            {
+                sb.Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
+                    .Append(DogManagerInt.sqlFrom(this, objModel, ref parameters));
+                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters));  //lista icode
+                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters));  //filtro parametri
+                //access DB
+                outList = this.ExecuteQuery<T>(sb.ToString(), parameters);
+            }
+            else
+            {
+                sb.Append("SELECT * FROM ( \n")
+                    .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
+                    .Append(sqlFromWhere)
+                    .Append(") AS subquery \n");
+                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters, options: "[UsePropertyNameField]"));  //lista icode
+                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters, options: "[UsePropertyNameField]")); // Componi il filtro dinamicamente
+                string sql = DogManagerInt.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
+                //access DB
+                outList = this.ExecuteQuery<T>(sql, parameters);  //this.ExecuteQuery<T>(sql, parameters, options: "[skipCheckSqlParms]");
+            }
+
+            if (options.Contains("[DecodeLabels]"))
+            {
+                if (this.tabTypes.ContainsKey(objModel.GetType()))
+                {
+                    DogTable tab = this.tabTypes[objModel.GetType()];
+                    foreach (var fld in tab.fields)
+                    {
+                        try
+                        {
+                            var xrefObj = fld?.XrefObj;
+                            if (xrefObj == null) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
+                            string propertyName = fld.fieldName; // Get property name and value
+
+                            // Usa il tipo dell'oggetto per chiamare la funzione LIST_int generica
+                            MethodInfo method = typeof(DogManager).GetMethod("List_int", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(xrefObj.table.tableTpy);
+                            object propList = (IEnumerable)method.Invoke(this, new object[] { null, (List<object>)outList.Select(s => objModel.GetType().GetProperty(propertyName).GetValue(s)).ToList<object>(), "" });
+                            // Carico i risultati della tabella collegata
+                            Dictionary<object, ModelErp> propDict = new Dictionary<object, ModelErp>();
+                            foreach (var item in (IEnumerable)propList) { propDict.Add(((ModelErp)item).getIcode(), (ModelErp)item); } // Salvo i risultati della tabella collegata in un dizionario
+                            foreach (T rec in outList) { rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, propDict[rec.GetType().GetProperty(propertyName).GetValue(rec)]); }  // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
+                        }
+                        catch (Exception ex) { }  //skip exceptions
+                    }
+                }
+
+                ////ciclo sulle proprietà
+                //System.Type type = objModel.GetType();
+                //foreach (var property in type.GetProperties())
+                //{
+                //    try
+                //    {
+                //        string propertyName = property.Name; // Get property name and value
+                //        if (!this.tabProperties.ContainsKey(propertyName)) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
+                //        var fld = this.tabProperties[propertyName];
+                //        var xrefObj = fld?.XrefObj;
+                //        if (xrefObj == null) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
+
+                //        // Usa il tipo dell'oggetto per chiamare la funzione LIST_int generica
+                //        MethodInfo method = typeof(DogManager).GetMethod("List_int", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(xrefObj.table.tableTpy);
+                //        object propList =(IEnumerable)method.Invoke(this, new object[] { null, (List<object>)outList.Select(s => property.GetValue(s)).ToList<object>(), "" });
+                //        // Carico i risultati della tabella collegata
+                //        Dictionary<object, ModelErp> propDict = new Dictionary<object, ModelErp>();
+                //        foreach (var item in (IEnumerable)propList) { propDict.Add(((ModelErp)item).getIcode(), (ModelErp)item); } // Salvo i risultati della tabella collegata in un dizionario
+                //        foreach (T rec in outList) { rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, propDict[property.GetValue(rec)]); }  // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
+                //    }
+                //    catch (Exception ex) { }  //skip exceptions
+                //}
+            }
+            return outList;
         }
+
+
         //carica row con il contenuto del DB in base all'icode'  
-        public T Row<T>(string icode)
+        public T Row<T>(string icode) 
         {
             if (String.IsNullOrEmpty(icode)) { throw new ArgumentNullException(nameof(icode)); }
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
@@ -597,7 +851,7 @@ namespace ErpToolkit.Helpers.Db
             StringBuilder sb = new StringBuilder()
                 .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
                 .Append(DogManagerInt.sqlFrom(this,objModel, ref parameters))
-                .Append(DogManagerInt.sqlWhere(this, objModel, icode, ref parameters));
+                .Append(DogManagerInt.sqlWhereIcode(this, objModel, icode, ref parameters));
             //access DB
             DataTable dt = this.ExecuteQuery(sb.ToString(), parameters);
             if (dt.Rows.Count > 0) { objModel = this.DecodeSpecialRow<T>(dt.Rows[0], ""); }
@@ -645,6 +899,33 @@ namespace ErpToolkit.Helpers.Db
             return results;
         }
 
+
+        ////***************************************************************************************************************************************************
+        ////*** View
+        ////***************************************************************************************************************************************************
+
+
+        ////carica list oggetti con il contenuto del DB in base alla struttura in selezione  
+
+        //// es:  List<VistaPaziente> vistaPaziente = ErpContext.Instance.DogFactory.GetDog(dogId).View<VistaPaziente>(selobj);
+
+        //public List<T> View<T>(object selModel) where T : ModelErp
+        //{
+        //    if (selModel == null) { throw new ArgumentNullException(nameof(selModel)); }
+        //    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
+        //    string sqlFromWhere = objModel.ViewQuery();
+        //    if (string.IsNullOrEmpty(sqlFromWhere)) { throw new ArgumentNullException("View: empty sql"); }
+
+        //    IDictionary<string, object> parameters = new Dictionary<string, object>();
+        //    StringBuilder sb = new StringBuilder()
+        //        .Append("SELECT * FROM ( \n")
+        //        .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
+        //        .Append(sqlFromWhere)
+        //        .Append(") AS subquery \n")
+        //        .Append(DogManagerInt.sqlWhere(this, selModel, ref parameters)); // Componi il filtro dinamicamente
+        //    //access DB
+        //    return this.ExecuteQuery<T>(sb.ToString(), parameters, options: "[skipCheckSqlParms]");
+        //}
 
     }
 }

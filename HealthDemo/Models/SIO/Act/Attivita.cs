@@ -12,6 +12,7 @@ public const string Description = "Tipi di attività che possono essere richiest
 public const string SqlTableName = "ATTIVITA";
 public const string SqlTableNameExt = "ATTIVITA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Av1Icode";
 public const string SqlRowIdName = "AV__ICODE";
 public const string SqlRowIdNameExt = "AV__ICODE";
 public const string SqlPrefix = "AV_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Av"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Av1Icode; } 
 
 //370-370//REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_ATTIVITA
 public List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione> RelAttivitaTipoCampione4AcIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione>();

@@ -48,7 +48,7 @@ namespace ErpToolkit.Helpers.Db
         }
         public void Dispose()
         {
-            _database.Dispose(); CleanupTransaction();
+            _database?.Dispose(); CleanupTransaction();
             GC.SuppressFinalize(this);
         }
 
@@ -124,18 +124,18 @@ namespace ErpToolkit.Helpers.Db
 
         private void CleanupTransaction()
         {
-            _transactionStack.Clear(); _transactionId = null;
+            _transactionStack?.Clear(); _transactionId = null;
             _transactionTimeoutTimer?.Dispose(); _transactionTimeoutTimer = null;
         }
         private void RollBackDefaulTransaction(string action)
         {
-            _database.RollbackTransaction("Transaction_Default");
+            _database?.RollbackTransaction("Transaction_Default");
             CleanupTransaction();
             throw new DatabaseException(ERR_DB_BADTRAN, "{action} attempted for the wrong transaction.");
         }
         private void TransactionTimeoutCallback(object state)
         {
-            _database.RollbackTransaction("Transaction_Timeout");
+            _database?.RollbackTransaction("Transaction_Timeout");
             throw new DatabaseException(ERR_DB_TIMEOUT, "Transaction timeout reached.");
         }
 
@@ -252,6 +252,9 @@ namespace ErpToolkit.Helpers.Db
             {
                 IDbDataParameter parameter = command.CreateParameter(); //command.Parameters.AddWithValue($"@{param.Key}", param.Value ?? DBNull.Value);
                 parameter.ParameterName = $"@{param.Key}"; parameter.Value = param.Value ?? DBNull.Value;
+                if (parameter.Value is DateOnly) parameter.DbType = DbType.Date;
+                else if (parameter.Value is TimeOnly || parameter.Value is TimeSpan) parameter.DbType = DbType.Time;
+                else if (parameter.Value is DateTime) parameter.DbType = DbType.DateTime;
                 command.Parameters.Add(parameter);
                 dumpSql = ReplaceParameter(dumpSql, parameter);
             }

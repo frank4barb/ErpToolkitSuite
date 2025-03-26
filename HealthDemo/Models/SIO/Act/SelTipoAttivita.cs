@@ -12,6 +12,7 @@ public const string Description = "Tassonomie e classe di tipi di attività";
 public const string SqlTableName = "TIPO_ATTIVITA";
 public const string SqlTableNameExt = "TIPO_ATTIVITA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ta1Icode";
 public const string SqlRowIdName = "TA__ICODE";
 public const string SqlRowIdNameExt = "TA__ICODE";
 public const string SqlPrefix = "TA_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Ta"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TA_CODICE", SqlFieldNameExt="TA_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_ATTIVITA.TA__ICODE[TA__ICODE] {TA_CODICE=' '}) multbxref()")]

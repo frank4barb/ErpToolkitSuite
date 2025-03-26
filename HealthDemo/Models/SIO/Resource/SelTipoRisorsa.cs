@@ -12,6 +12,7 @@ public const string Description = "Tipi di risorse disponibili/utilizzate nell'o
 public const string SqlTableName = "TIPO_RISORSA";
 public const string SqlTableNameExt = "TIPO_RISORSA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ts1Icode";
 public const string SqlRowIdName = "TS__ICODE";
 public const string SqlRowIdNameExt = "TS__ICODE";
 public const string SqlPrefix = "TS_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Risorse"; //Table Area
 public const string PREFIX = "Ts"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //126-124//REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> SelRelPrestazioneUsa4PuIdTipoRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
 //1181-1179//REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA

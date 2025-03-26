@@ -12,6 +12,7 @@ public const string Description = "Classe di episodi";
 public const string SqlTableName = "TIPO_EPISODIO";
 public const string SqlTableNameExt = "TIPO_EPISODIO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Te1Icode";
 public const string SqlRowIdName = "TE__ICODE";
 public const string SqlRowIdNameExt = "TE__ICODE";
 public const string SqlPrefix = "TE_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Te"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TE_CODICE", SqlFieldNameExt="TE_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_EPISODIO.TE__ICODE[TE__ICODE] {TE_CODICE=' '}) multbxref()")]

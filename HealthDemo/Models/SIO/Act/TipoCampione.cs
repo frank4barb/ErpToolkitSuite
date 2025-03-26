@@ -12,6 +12,7 @@ public const string Description = "Tipo di campione";
 public const string SqlTableName = "TIPO_CAMPIONE";
 public const string SqlTableNameExt = "TIPO_CAMPIONE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Tp1Icode";
 public const string SqlRowIdName = "TP__ICODE";
 public const string SqlRowIdNameExt = "TP__ICODE";
 public const string SqlPrefix = "TP_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Tp"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Tp1Icode; } 
 
 //123-119//REL_PRESTAZIONE_CAMPIONE.PC_ID_TIPO_CAMPIONE
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione> RelPrestazioneCampione4PcIdTipoCampione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione>();

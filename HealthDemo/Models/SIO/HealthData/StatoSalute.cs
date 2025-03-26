@@ -12,6 +12,7 @@ public const string Description = "Dati sanitari - Condizioni di salute generich
 public const string SqlTableName = "STATO_SALUTE";
 public const string SqlTableNameExt = "STATO_SALUTE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ss1Icode";
 public const string SqlRowIdName = "SS__ICODE";
 public const string SqlRowIdNameExt = "SS__ICODE";
 public const string SqlPrefix = "SS_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Dati clinici"; //Table Area
 public const string PREFIX = "Ss"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Ss1Icode; } 
 
 //1026-1025//REL_PRESTAZIONE_DATO_CLINICO.PD_ID_DATO_CLINICO
 public List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico> RelPrestazioneDatoClinico4PdIdDatoClinico  { get; set; } = new List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico>();

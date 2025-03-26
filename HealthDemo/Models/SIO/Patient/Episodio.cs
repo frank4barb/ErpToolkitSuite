@@ -12,6 +12,7 @@ public const string Description = "Episodi";
 public const string SqlTableName = "EPISODIO";
 public const string SqlTableNameExt = "EPISODIO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ep1Icode";
 public const string SqlRowIdName = "EP__ICODE";
 public const string SqlRowIdNameExt = "EP__ICODE";
 public const string SqlPrefix = "EP_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Accoglienza"; //Table Area
 public const string PREFIX = "Ep"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Ep1Icode; } 
 
 [Display(Name = "Ep1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("EP__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

@@ -12,6 +12,7 @@ public const string Description = "Classificazione dei tipi di dati sanitari";
 public const string SqlTableName = "CATEGORIA_DATO_CLINICO";
 public const string SqlTableNameExt = "CATEGORIA_DATO_CLINICO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Cc1Icode";
 public const string SqlRowIdName = "CC__ICODE";
 public const string SqlRowIdNameExt = "CC__ICODE";
 public const string SqlPrefix = "CC_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Dati clinici"; //Table Area
 public const string PREFIX = "Cc"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Cc1Icode; } 
 
 [Display(Name = "Cc1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("CC__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

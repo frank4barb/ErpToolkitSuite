@@ -12,6 +12,7 @@ public const string Description = "Struttura sanitaria: centro sanitario, unità
 public const string SqlTableName = "ORGANIZZAZIONE";
 public const string SqlTableNameExt = "ORGANIZZAZIONE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Or1Icode";
 public const string SqlRowIdName = "OR__ICODE";
 public const string SqlRowIdNameExt = "OR__ICODE";
 public const string SqlPrefix = "OR_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Organizzazione ospedaliera"; //Table Area
 public const string PREFIX = "Or"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //327-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_PADRE
 public List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene> SelRelOrganizzazioneContiene4OoIdOrganizzazionePadre  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>();
 //328-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_FIGLIO

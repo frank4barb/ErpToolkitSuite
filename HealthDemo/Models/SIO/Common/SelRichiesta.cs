@@ -12,6 +12,7 @@ public const string Description = "Comunicazione e/o richiesta di prestazioni";
 public const string SqlTableName = "RICHIESTA";
 public const string SqlTableNameExt = "RICHIESTA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ri1Icode";
 public const string SqlRowIdName = "RI__ICODE";
 public const string SqlRowIdNameExt = "RI__ICODE";
 public const string SqlPrefix = "RI_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Organizzazione ospedaliera"; //Table Area
 public const string PREFIX = "Ri"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Id Unita Richiedente", ShortName="", Description = "Codice dell'unità che ha originato la comunicazione", Prompt="")]
 [ErpDogField("RI_ID_UNITA_RICHIEDENTE", SqlFieldNameExt="RI_ID_UNITA_RICHIEDENTE", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]

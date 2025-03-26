@@ -12,6 +12,7 @@ public const string Description = "Relazioni generiche esistenti tra diverse str
 public const string SqlTableName = "REL_ORGANIZZAZIONE_CONTIENE";
 public const string SqlTableNameExt = "REL_ORGANIZZAZIONE_CONTIENE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Oo1Icode";
 public const string SqlRowIdName = "OO__ICODE";
 public const string SqlRowIdNameExt = "OO__ICODE";
 public const string SqlPrefix = "OO_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Oo"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Oo1Icode; } 
 
 [Display(Name = "Oo1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("OO__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

@@ -12,6 +12,7 @@ public const string Description = "Tipi generali di classificazioni diagnostiche
 public const string SqlTableName = "TIPO_DIAGNOSI";
 public const string SqlTableNameExt = "TIPO_DIAGNOSI";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Td1Icode";
 public const string SqlRowIdName = "TD__ICODE";
 public const string SqlRowIdNameExt = "TD__ICODE";
 public const string SqlPrefix = "TD_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Controllo di gestione"; //Table Area
 public const string PREFIX = "Td"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TD_CODICE", SqlFieldNameExt="TD_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_DIAGNOSI.TD__ICODE[TD__ICODE] {TD_CODICE=' '}) multbxref()")]

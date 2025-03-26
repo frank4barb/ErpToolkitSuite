@@ -12,6 +12,7 @@ public const string Description = "Risorse: materiali";
 public const string SqlTableName = "MATERIALE";
 public const string SqlTableNameExt = "MATERIALE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Mt1Icode";
 public const string SqlRowIdName = "MT__ICODE";
 public const string SqlRowIdNameExt = "MT__ICODE";
 public const string SqlPrefix = "MT_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Risorse"; //Table Area
 public const string PREFIX = "Mt"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //127-124//REL_PRESTAZIONE_USA.PU_ID_RISORSA
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> SelRelPrestazioneUsa4PuIdRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
 //1182-1179//REL_ATTIVITA_USA.AU_ID_RISORSA

@@ -12,6 +12,7 @@ public const string Description = "Comuni";
 public const string SqlTableName = "COMUNE";
 public const string SqlTableNameExt = "COMUNE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Cm1Icode";
 public const string SqlRowIdName = "CM__ICODE";
 public const string SqlRowIdNameExt = "CM__ICODE";
 public const string SqlPrefix = "CM_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Accoglienza"; //Table Area
 public const string PREFIX = "Cm"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Codice", ShortName="", Description = "Codice nazionale della città", Prompt="")]
 [ErpDogField("CM_CODICE", SqlFieldNameExt="CM_CODICE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]

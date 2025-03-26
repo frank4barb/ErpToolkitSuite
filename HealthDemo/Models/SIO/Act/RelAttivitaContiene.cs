@@ -12,6 +12,7 @@ public const string Description = "Corrispondenze tra tassonomie di attività";
 public const string SqlTableName = "REL_ATTIVITA_CONTIENE";
 public const string SqlTableNameExt = "REL_ATTIVITA_CONTIENE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Aa1Icode";
 public const string SqlRowIdName = "AA__ICODE";
 public const string SqlRowIdNameExt = "AA__ICODE";
 public const string SqlPrefix = "AA_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Aa"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Aa1Icode; } 
 
 [Display(Name = "Aa1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("AA__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

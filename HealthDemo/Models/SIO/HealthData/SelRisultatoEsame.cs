@@ -12,6 +12,7 @@ public const string Description = "Dati sanitari - Risultato degli esami";
 public const string SqlTableName = "RISULTATO_ESAME";
 public const string SqlTableNameExt = "RISULTATO_ESAME";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Re1Icode";
 public const string SqlRowIdName = "RE__ICODE";
 public const string SqlRowIdNameExt = "RE__ICODE";
 public const string SqlPrefix = "RE_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Dati clinici"; //Table Area
 public const string PREFIX = "Re"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //1026-1025//REL_PRESTAZIONE_DATO_CLINICO.PD_ID_DATO_CLINICO
 public List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico> SelRelPrestazioneDatoClinico4PdIdDatoClinico  { get; set; } = new List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico>();
 

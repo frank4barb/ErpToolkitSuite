@@ -12,6 +12,7 @@ public const string Description = "Dati sanitari - Altri tipi di dati";
 public const string SqlTableName = "DOCUMENTO_CLINICO";
 public const string SqlTableNameExt = "DOCUMENTO_CLINICO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Dc1Icode";
 public const string SqlRowIdName = "DC__ICODE";
 public const string SqlRowIdNameExt = "DC__ICODE";
 public const string SqlPrefix = "DC_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Dati clinici"; //Table Area
 public const string PREFIX = "Dc"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //1026-1025//REL_PRESTAZIONE_DATO_CLINICO.PD_ID_DATO_CLINICO
 public List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico> SelRelPrestazioneDatoClinico4PdIdDatoClinico  { get; set; } = new List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico>();
 

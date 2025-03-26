@@ -444,6 +444,7 @@ namespace ErpToolkit.Helpers
 
                 var preSelectedValues = new List<string>();
                 if (For.ModelExplorer.Model is string) preSelectedValues = new List<string>() { For.ModelExplorer.Model as string };
+                else if (For.ModelExplorer.Model is long) preSelectedValues = new List<string>() { For.ModelExplorer.Model.ToString() as string };  //le chiavi esterne possono essere solo string o long
                 else preSelectedValues = For.ModelExplorer.Model as List<string>;
 
                 var divId = $"{prefixInputId}SelectedItems";
@@ -482,6 +483,7 @@ namespace ErpToolkit.Helpers
 
                 var preSelectedValues = new List<string>();
                 if (For.ModelExplorer.Model is string) preSelectedValues = new List<string>() { For.ModelExplorer.Model as string };
+                else if (For.ModelExplorer.Model is long) preSelectedValues = new List<string>() { For.ModelExplorer.Model.ToString() as string }; //le chiavi esterne possono essere solo string o long
                 else preSelectedValues = For.ModelExplorer.Model as List<string>;
                 var divId = $"{prefixInputId}SelectedItems";
 

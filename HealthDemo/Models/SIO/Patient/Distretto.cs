@@ -12,6 +12,7 @@ public const string Description = "Distretto territoriale (circoscrizione)";
 public const string SqlTableName = "DISTRETTO";
 public const string SqlTableNameExt = "DISTRETTO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Di1Icode";
 public const string SqlRowIdName = "DI__ICODE";
 public const string SqlRowIdNameExt = "DI__ICODE";
 public const string SqlPrefix = "DI_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Accoglienza"; //Table Area
 public const string PREFIX = "Di"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Di1Icode; } 
 
 [Display(Name = "Di1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("DI__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

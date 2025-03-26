@@ -12,6 +12,7 @@ public const string Description = "Classificazioni diagnostiche adottate nelle o
 public const string SqlTableName = "DIAGNOSI";
 public const string SqlTableNameExt = "DIAGNOSI";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Dg1Icode";
 public const string SqlRowIdName = "DG__ICODE";
 public const string SqlRowIdNameExt = "DG__ICODE";
 public const string SqlPrefix = "DG_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Controllo di gestione"; //Table Area
 public const string PREFIX = "Dg"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Dg1Icode; } 
 
 [Display(Name = "Dg1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("DG__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

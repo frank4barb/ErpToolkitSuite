@@ -11,6 +11,14 @@ namespace ErpToolkit.Helpers.Db
         private IRISTransaction _transaction = null;
         private static readonly object _lock = new object();
 
+        // Codice da eseguire solo alla prima istanziazione della classe (
+        static IRISDatabase()
+        {
+            // Serve per la gestione della classe DbContext() con IRIS
+            var irisFactory = new IRISFactory();
+            DbProviderFactories.RegisterFactory("InterSystems.Data.IRISClient", irisFactory);
+        }
+
         public IRISDatabase(string connectionString)
         {
             _connectionString = connectionString;

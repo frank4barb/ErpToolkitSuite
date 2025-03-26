@@ -12,6 +12,7 @@ public const string Description = "Strutture che possono eseguire un certo tipo 
 public const string SqlTableName = "REL_ATTIVITA_EROGATA_DA";
 public const string SqlTableNameExt = "REL_ATTIVITA_EROGATA_DA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ae1Icode";
 public const string SqlRowIdName = "AE__ICODE";
 public const string SqlRowIdNameExt = "AE__ICODE";
 public const string SqlPrefix = "AE_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Ae"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Ae1Icode; } 
 
 [Display(Name = "Ae1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("AE__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

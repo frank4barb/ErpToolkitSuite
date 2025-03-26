@@ -12,6 +12,7 @@ public const string Description = "Campioni utilizzati e/o generati da una prest
 public const string SqlTableName = "REL_PRESTAZIONE_CAMPIONE";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_CAMPIONE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Pc1Icode";
 public const string SqlRowIdName = "PC__ICODE";
 public const string SqlRowIdNameExt = "PC__ICODE";
 public const string SqlPrefix = "PC_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Pc"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Pc1Icode; } 
 
 [Display(Name = "Pc1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("PC__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

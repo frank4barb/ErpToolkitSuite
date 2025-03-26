@@ -12,6 +12,7 @@ public const string Description = "Campione effettivo raccolto durante le attivi
 public const string SqlTableName = "CAMPIONE";
 public const string SqlTableNameExt = "CAMPIONE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Cp1Icode";
 public const string SqlRowIdName = "CP__ICODE";
 public const string SqlRowIdNameExt = "CP__ICODE";
 public const string SqlPrefix = "CP_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Cp"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 //119-119//REL_PRESTAZIONE_CAMPIONE.PC_ID_CAMPIONE
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione> SelRelPrestazioneCampione4PcIdCampione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione>();
 

@@ -12,6 +12,7 @@ public const string Description = "Risorse: attrezzature";
 public const string SqlTableName = "ATTREZZATURA";
 public const string SqlTableNameExt = "ATTREZZATURA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "At1Icode";
 public const string SqlRowIdName = "AT__ICODE";
 public const string SqlRowIdNameExt = "AT__ICODE";
 public const string SqlPrefix = "AT_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Risorse"; //Table Area
 public const string PREFIX = "At"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)At1Icode; } 
 
 //127-124//REL_PRESTAZIONE_USA.PU_ID_RISORSA
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> RelPrestazioneUsa4PuIdRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();

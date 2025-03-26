@@ -12,6 +12,7 @@ public const string Description = "Pazienti rilevanti per l'organizzazione sanit
 public const string SqlTableName = "PAZIENTE";
 public const string SqlTableNameExt = "PAZIENTE";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Pa1Icode";
 public const string SqlRowIdName = "PA__ICODE";
 public const string SqlRowIdNameExt = "PA__ICODE";
 public const string SqlPrefix = "PA_";
@@ -25,6 +26,8 @@ public const string TBAREA = "Accoglienza"; //Table Area
 public const string PREFIX = "Pa"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
+public override object getIcode() { return null; } 
+
 
 [Display(Name = "Cod Fiscale", ShortName="", Description = "Identificatore nazionale del paziente/individuo", Prompt="")]
 [ErpDogField("PA_COD_FISCALE", SqlFieldNameExt="PA_COD_FISCALE", SqlFieldOptions="[XID]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]

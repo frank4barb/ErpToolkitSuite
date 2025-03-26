@@ -12,6 +12,7 @@ public const string Description = "Tipi di attività che possono essere richiest
 public const string SqlTableName = "REL_ATTIVITA_RICHIESTA_DA";
 public const string SqlTableNameExt = "REL_ATTIVITA_RICHIESTA_DA";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Ar1Icode";
 public const string SqlRowIdName = "AR__ICODE";
 public const string SqlRowIdNameExt = "AR__ICODE";
 public const string SqlPrefix = "AR_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Attività"; //Table Area
 public const string PREFIX = "Ar"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Ar1Icode; } 
 
 [Display(Name = "Ar1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("AR__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

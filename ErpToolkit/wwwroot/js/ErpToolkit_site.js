@@ -645,7 +645,7 @@ function initializeAfterLoadPageAndPartial() {
             resultsDiv.empty();
             if (term.length >= minChars) {
                 if (mode === 'autocompleteClient') {
-                    var filtered = allChoices.filter(c => (' ' + c.label.toUpperCase() + ' ').includes(term));
+                    var filtered = allChoices.filter(c => c.label && (' ' + c.label.toUpperCase() + ' ').includes(term));
                     showResults(filtered);
                 } else if (mode === 'autocompleteServer') {
                     if (cache[term]) {

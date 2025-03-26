@@ -12,6 +12,7 @@ public const string Description = "Dettaglio delle relazioni tra prestazioni e d
 public const string SqlTableName = "REL_PRESTAZIONE_DATO_CLINICO";
 public const string SqlTableNameExt = "REL_PRESTAZIONE_DATO_CLINICO";
 public const string SqlTableProperties = "";
+public const string RowIdName = "Pd1Icode";
 public const string SqlRowIdName = "PD__ICODE";
 public const string SqlRowIdNameExt = "PD__ICODE";
 public const string SqlPrefix = "PD_";
@@ -25,6 +26,7 @@ public const string TBAREA = "Dati clinici"; //Table Area
 public const string PREFIX = "Pd"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
+public override object getIcode() { return (object)Pd1Icode; } 
 
 [Display(Name = "Pd1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("PD__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
