@@ -1,6 +1,8 @@
 using ErpToolkit.Models;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.CodeAnalysis;
 using MongoDB.Driver;
+using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -8,6 +10,7 @@ using System.Data;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using static ErpToolkit.Helpers.Db.DatabaseFactory;
 using static ErpToolkit.Helpers.ErpError;
 
@@ -89,9 +92,9 @@ namespace ErpToolkit.Helpers.Db
         {
             public System.Type TabType { get; set; } = null;
             public char Action { get; set; } = ' ';
-            public string Icode { get; set; } = "";
+            public object Icode { get; set; } = null;
             public byte[]? Timestamp { get; set; } = null;
-            public DogResult(System.Type tabType, char action, string icode, byte[]? timestamp)
+            public DogResult(System.Type tabType, char action, object icode, byte[]? timestamp)
             {
                 TabType = tabType; Action = action; Icode = icode; Timestamp = timestamp;
             }
@@ -393,6 +396,15 @@ namespace ErpToolkit.Helpers.Db
 
 
         //***************************************************************************************************************************************************
+        //*** ICODE
+        //***************************************************************************************************************************************************
+
+        //public
+
+        public string GenerateIcode() { return $"{this._dbRoot}{GenCodeHelper.EpochIcode()}"; }
+
+
+        //***************************************************************************************************************************************************
         //*** TRANSAZIONI
         //***************************************************************************************************************************************************
 
@@ -579,6 +591,9 @@ namespace ErpToolkit.Helpers.Db
         {
             try
             {
+                value = UtilHelper.DecodeJsonElement(value); //Decodifica tipi JSON, se le variabili vengono da pagina web
+
+                //converti in tipi standard
                 if (_modelMode == "FREE")
                 {
                     // conversioni minime valide per tutti i DB
@@ -754,12 +769,23 @@ namespace ErpToolkit.Helpers.Db
             if (selModel == null) { throw new ArgumentNullException("Null " + nameof(selModel)); }
             return List_int<T>(selModel, null, options);
         }
+        //carica list oggetti con il contenuto del DB in base alla lista icode'  
         public List<T> List<T>(List<object> lstRowId, string options = "") where T : ModelErp
         {
             if (lstRowId == null) { throw new ArgumentNullException("Null " + nameof(lstRowId)); }
             if (lstRowId.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(lstRowId)); }
             return List_int<T>(null, lstRowId, options);
         }
+        //carica row con il contenuto del DB in base all'icode'  
+        public T Row<T>(object icode, string options = "") where T : ModelErp
+        {
+            if (UtilHelper.IsNullOrEmptyObject(icode)) { throw new ArgumentNullException(nameof(icode)); }
+            List<T> outList = List_int<T>(null, new List<object>() { icode }, options);
+            if (outList.Count() == 0) throw new DatabaseException(ERR_DB_BAD_IDEN, $"Nessun record corrispondente alla Chiave Primaria specificata [{icode}].", null);
+            else if (outList.Count() > 1) throw new DatabaseException(ERR_DB_AMBIGOUS, $"a Chiave Primaria specificata è ambiqua. Più di un record trovato  [{icode}].", null);
+            return outList[0];
+        }
+
         private List<T> List_int<T>(object selModel, List<object> lstRowId, string options = "") where T : ModelErp
         {
             if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
@@ -772,10 +798,10 @@ namespace ErpToolkit.Helpers.Db
             {
                 sb.Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
                     .Append(DogManagerInt.sqlFrom(this, objModel, ref parameters));
-                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters));  //lista icode
-                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters));  //filtro parametri
+                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters, options: options));  //lista icode
+                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters, options: options));  //filtro parametri
                 //access DB
-                outList = this.ExecuteQuery<T>(sb.ToString(), parameters);
+                outList = this.ExecuteQuery<T>(sb.ToString(), parameters, options: options);
             }
             else
             {
@@ -783,14 +809,14 @@ namespace ErpToolkit.Helpers.Db
                     .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
                     .Append(sqlFromWhere)
                     .Append(") AS subquery \n");
-                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters, options: "[UsePropertyNameField]"));  //lista icode
-                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters, options: "[UsePropertyNameField]")); // Componi il filtro dinamicamente
+                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
+                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters, options: "[UsePropertyNameField] " + options)); // Componi il filtro dinamicamente
                 string sql = DogManagerInt.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
                 //access DB
-                outList = this.ExecuteQuery<T>(sql, parameters);  //this.ExecuteQuery<T>(sql, parameters, options: "[skipCheckSqlParms]");
+                outList = this.ExecuteQuery<T>(sql, parameters, options: options);  //this.ExecuteQuery<T>(sql, parameters, options: "[skipCheckSqlParms]");
             }
 
-            if (options.Contains("[DecodeLabels]"))
+            if (options.Contains("[PLAIN]") == false)  //if (options.Contains("[DecodeLabels]"))
             {
                 if (this.tabTypes.ContainsKey(objModel.GetType()))
                 {
@@ -805,15 +831,20 @@ namespace ErpToolkit.Helpers.Db
 
                             // Usa il tipo dell'oggetto per chiamare la funzione LIST_int generica
                             MethodInfo method = typeof(DogManager).GetMethod("List_int", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(xrefObj.table.tableTpy);
-                            object propList = (IEnumerable)method.Invoke(this, new object[] { null, (List<object>)outList.Select(s => objModel.GetType().GetProperty(propertyName).GetValue(s)).ToList<object>(), "" });
+                            object propList = (IEnumerable)method.Invoke(this, new object[] { null, (List<object>)outList.Select(s => objModel.GetType().GetProperty(propertyName).GetValue(s)).ToList<object>(), "[PLAIN] " + options }); // non ricorsivo
                             // Carico i risultati della tabella collegata
                             Dictionary<object, ModelErp> propDict = new Dictionary<object, ModelErp>();
                             foreach (var item in (IEnumerable)propList) { propDict.Add(((ModelErp)item).getIcode(), (ModelErp)item); } // Salvo i risultati della tabella collegata in un dizionario
-                            foreach (T rec in outList) { rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, propDict[rec.GetType().GetProperty(propertyName).GetValue(rec)]); }  // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
+                            foreach (T rec in outList) // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
+                            {
+                                try { rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, propDict[rec.GetType().GetProperty(propertyName).GetValue(rec)]); }
+                                catch (Exception ex) { }  //skip exceptions (salta se la chiave non è valorizzata 
+                            }
                         }
                         catch (Exception ex) { }  //skip exceptions
                     }
                 }
+
 
                 ////ciclo sulle proprietà
                 //System.Type type = objModel.GetType();
@@ -842,21 +873,22 @@ namespace ErpToolkit.Helpers.Db
         }
 
 
-        //carica row con il contenuto del DB in base all'icode'  
-        public T Row<T>(string icode) 
-        {
-            if (String.IsNullOrEmpty(icode)) { throw new ArgumentNullException(nameof(icode)); }
-            T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            IDictionary<string, object> parameters = new Dictionary<string, object>();
-            StringBuilder sb = new StringBuilder()
-                .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
-                .Append(DogManagerInt.sqlFrom(this,objModel, ref parameters))
-                .Append(DogManagerInt.sqlWhereIcode(this, objModel, icode, ref parameters));
-            //access DB
-            DataTable dt = this.ExecuteQuery(sb.ToString(), parameters);
-            if (dt.Rows.Count > 0) { objModel = this.DecodeSpecialRow<T>(dt.Rows[0], ""); }
-            return objModel;
-        }
+        ////carica row con il contenuto del DB in base all'icode'  
+        //public T Row<T>(object icode, string options = "") 
+        //{
+        //    if (UtilHelper.IsNullOrEmptyObject(icode)) { throw new ArgumentNullException(nameof(icode)); }
+        //    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
+        //    IDictionary<string, object> parameters = new Dictionary<string, object>();
+        //    StringBuilder sb = new StringBuilder()
+        //        .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
+        //        .Append(DogManagerInt.sqlFrom(this,objModel, ref parameters))
+        //        .Append(DogManagerInt.sqlWhereIcode(this, objModel, icode, ref parameters, options: options));
+        //    //access DB
+        //    DataTable dt = this.ExecuteQuery(sb.ToString(), parameters, options: options);
+        //    if (dt.Rows.Count > 0) { objModel = this.DecodeSpecialRow<T>(dt.Rows[0], options: options); }
+        //    return objModel;
+        //}
+
         //salva su DB modifiche e nuovi record  
         public DogResult Mnt<T>(T tablModel, string options = "", string transactionId = null) {
             List<object> tabModels = new List<object>() { tablModel };
@@ -890,7 +922,7 @@ namespace ErpToolkit.Helpers.Db
                 DataTable dtIcodeTimestamp = _getDbMg().ExecuteQuery(sqlIcodeTimestamp, EncodeSpecialFields(parametersIcodeTimestamp, options), results.Count(), transactionId);
                 for(int i=0; i < results.Count(); i++)
                 {
-                    var row = dtIcodeTimestamp.AsEnumerable().FirstOrDefault(r => r.Field<string>("ICODE") == results[i].Icode); // Cerca la riga con ICODE uguale a results[i].Icode
+                    var row = dtIcodeTimestamp.AsEnumerable().FirstOrDefault(r => r.Field<string>("ICODE").Equals(results[i].Icode)); // Cerca la riga con ICODE uguale a results[i].Icode
                     if (row == null) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non trovato o errore in insert/update.", null);
                     results[i].Timestamp = row.Field<byte[]>("TIMESTAMP");
                 }

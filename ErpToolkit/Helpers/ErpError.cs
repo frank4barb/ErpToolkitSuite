@@ -1,3 +1,6 @@
+using Mysqlx.Expr;
+using System.Security.Policy;
+
 namespace ErpToolkit.Helpers
 {
     public static class ErpError
@@ -8,6 +11,10 @@ namespace ErpToolkit.Helpers
         public const int ERR_NO_INPUT = -107; // Input obbligatorio non inserito
         public const int ERR_BAD_INPUT = -204; // Input inserito, non valido
         public const int ERR_BAD_IDEN = -205; // Identificativo univoco vuoto o ambiguo
+
+        public const int ERR_DB_BAD_IDEN = -359; // Nessun record corrispondente alla Chiave Primaria specificata
+        public const int ERR_DB_AMBIGOUS = -329; // La Chiave Primaria specificata è ambiqua. Più di un record trovato 
+        public const int ERR_DB_CODEGEN = -365; // Impossibile generare un nuovo codice univoco. Verificare la validità del prefisso. 
 
         public const int ERR_DB_TRANSACTION = -367; // Errore DB nell'esecuzione transazione
         public const int ERR_DB_DOMAIN = -366; // Il valore del campo è fuori dal dominio previsto

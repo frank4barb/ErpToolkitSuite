@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Patient {
 public class SelEpisodio : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Ep"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
+public override string ToString() { return $""; } 
+public override string ToHtml() { return $""; } 
 
 
 [Display(Name = "Cod Episodio", ShortName="", Description = "Identificativo del contatto nell'organizzazione sanitaria", Prompt="")]

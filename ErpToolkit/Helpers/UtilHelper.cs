@@ -1,11 +1,12 @@
 //using ErpToolkit.Controllers;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 using ErpToolkit.Helpers.Db;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Mysqlx.Crud;
 using NLog;
-using Org.BouncyCastle.Ocsp;
 using System.DirectoryServices;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace ErpToolkit.Helpers
 {
@@ -241,7 +242,7 @@ namespace ErpToolkit.Helpers
 
                 string homeClassName = ErpContext.Instance.GetString("#homeClassName"); // "ErpToolkit.Controllers.HomeController";     //nome della classe in cui sono definiti i percorsi
                 string homePathMenuFieldName = ErpContext.Instance.GetString("#homePathMenuFieldName"); // "PathMenu";     //nome della variabile in cui sono definiti i percorsi
-                Type type = ErpContext.Instance.AssemblyMODEL.GetType(homeClassName);
+                System.Type type = ErpContext.Instance.AssemblyMODEL.GetType(homeClassName);
                 if (type != null)
                 {
                     FieldInfo field = type.GetField(homePathMenuFieldName, BindingFlags.Public | BindingFlags.Static);
@@ -290,11 +291,43 @@ namespace ErpToolkit.Helpers
 
         //#############################################################################
 
+        //DB utility
+        public static object DecodeJsonElement(object xvalue) //Decodifica tipi JSON, se le variabili vengono da pagina web
+        {
+            if (xvalue != null && xvalue is JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == JsonValueKind.Null) xvalue = (object)null;
+                else if (jsonElement.ValueKind == JsonValueKind.String) xvalue = (string)jsonElement.GetString();
+                else if (jsonElement.ValueKind == JsonValueKind.Number)
+                {
+                    if (jsonElement.TryGetInt16(out short shortValue)) xvalue = (short)shortValue;
+                    else if (jsonElement.TryGetInt32(out int intValue)) xvalue = (int)intValue;
+                    else if (jsonElement.TryGetInt64(out long longValue)) xvalue = (long)longValue;
+                    else if (jsonElement.TryGetDouble(out double doubleValue)) xvalue = (double)doubleValue;
+                }
+                else if (jsonElement.ValueKind == JsonValueKind.True) xvalue = (bool)true;
+                else if (jsonElement.ValueKind == JsonValueKind.False) xvalue = (bool)false;
+                else throw new JsonException($"Il tipo JsonElement {jsonElement.ValueKind.ToString()} non è supportato ({xvalue?.ToString() ?? ""})");
+            }
+            return xvalue;
+        }
+        public static bool IsNullOrEmptyObject(object icode)
+        {
+            icode = UtilHelper.DecodeJsonElement(icode); //Decodifica tipi JSON, se le variabili vengono da pagina web
 
+            if (icode == DBNull.Value) return true; // Il dato è DBNull
+            else if (icode == null) return true; // Il dato è null
+            else if (icode is string str && string.IsNullOrWhiteSpace(str)) return true; // Il dato è una stringa vuota
+            else return false; // Il dato non è né DBNull, né null, né una stringa vuota
+        }
+        public static object TrimEndObject(object icode)
+        {
+            icode = UtilHelper.DecodeJsonElement(icode); //Decodifica tipi JSON, se le variabili vengono da pagina web
 
-
-
-
+            if (icode == null) return null; // Il dato è null
+            else if (icode is string str) return str.TrimEnd(); // Il dato è una stringa 
+            else return icode; // se non è stringa restituisco l'oggetto
+        }
 
 
         //https://github.com/dotnet/efcore/issues/4675

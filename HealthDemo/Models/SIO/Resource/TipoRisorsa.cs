@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Resource {
 public class TipoRisorsa : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Ts"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Ts1Icode; } 
+public override string ToString() { return $"{TsCodice} - {TsDescrizione}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(TsCodice)}</strong> {HttpUtility.HtmlEncode(TsDescrizione)}"; } 
 
 //126-124//REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> RelPrestazioneUsa4PuIdTipoRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();

@@ -6,6 +6,7 @@ using System.Data.Common;
 using static ErpToolkit.Helpers.ErpError;
 using System.Text;
 using static ErpToolkit.Helpers.Db.DatabaseFactory;
+using System.Text.RegularExpressions;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -266,9 +267,11 @@ namespace ErpToolkit.Helpers.Db
         }
         private string ReplaceParameter(string sql, IDbDataParameter parameter)
         {
-            string paramValue;
-            if (parameter.Value == null) { paramValue = "NULL"; }
+            string paramValue = "";
+            if (parameter.Value == null) { paramValue = "NULL"; } 
+            else if (parameter.Value is System.DBNull) { paramValue = "NULL"; } 
             else if (parameter.Value is string) { paramValue = $"'{parameter.Value.ToString().Replace("'", "''")}'"; }
+            else if (parameter.Value is char) { paramValue = $"'{parameter.Value.ToString().Replace("'", "''")}'"; }
             else if (parameter.Value is DateTime) { paramValue = $"'{((DateTime)parameter.Value).ToString("yyyy-MM-dd HH:mm:ss")}'"; }
             else if (parameter.Value is DateTimeOffset) { paramValue = $"'{((DateTimeOffset)parameter.Value).ToString("yyyy-MM-dd HH:mm:ss zzz")}'"; }
             else if (parameter.Value is DateOnly) { paramValue = $"'{((DateOnly)parameter.Value).ToString("yyyy-MM-dd")}'"; }
@@ -277,8 +280,16 @@ namespace ErpToolkit.Helpers.Db
             else if (parameter.Value is bool) { paramValue = (bool)parameter.Value ? "1" : "0"; }
             else if (parameter.Value is int || parameter.Value is long || parameter.Value is float
                             || parameter.Value is double || parameter.Value is decimal) { paramValue = parameter.Value.ToString(); }
-            else { paramValue = "#!# NOT PRINTABLE #!#"; }
-            return sql.Replace(parameter.ParameterName, paramValue);
+            else if (parameter.Value is byte[] b)
+            {
+                paramValue = "0x"; for (int i = 0; i < b.Length; i++) { if (i >= 8) { paramValue += "..."; break; } paramValue += b[i].ToString("X2"); }
+            }
+            else if (parameter.Value is char[] c)
+            {
+                paramValue = "";  for(int i = 0; i < c.Length; i++) { if (i >= 8) { paramValue += "..."; break; } paramValue += c[i].ToString(); }
+            }
+            else { paramValue = "#!#_NOT_PRINTABLE_#!#"; }
+            return Regex.Replace(sql, $@"{Regex.Escape(parameter.ParameterName)}(?!\d)", paramValue, RegexOptions.None); //return sql.Replace(parameter.ParameterName, paramValue);
         }
         private DataTable ExecuteReaderWithRetry(IDbCommand command, int maxRecords)
         {

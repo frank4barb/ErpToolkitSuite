@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Act {
 public class TipoCampione : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Tp"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Tp1Icode; } 
+public override string ToString() { return $"{TpCodice} - {TpDescrizione}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(TpCodice)}</strong> {HttpUtility.HtmlEncode(TpDescrizione)}"; } 
 
 //123-119//REL_PRESTAZIONE_CAMPIONE.PC_ID_TIPO_CAMPIONE
 public List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione> RelPrestazioneCampione4PcIdTipoCampione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione>();

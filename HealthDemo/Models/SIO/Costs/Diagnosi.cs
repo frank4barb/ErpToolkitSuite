@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Costs {
 public class Diagnosi : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Dg"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Dg1Icode; } 
+public override string ToString() { return $"{DgCodice} - {DgDescrizione}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(DgCodice)}</strong> {HttpUtility.HtmlEncode(DgDescrizione)}"; } 
 
 [Display(Name = "Dg1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("DG__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

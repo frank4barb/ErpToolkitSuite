@@ -96,19 +96,19 @@
                     @Html.ActionLink(item.EpCodEpisodio, "RedirectToNextPage", "Home", null, null, null, new { provenienzaPagina = "Episodio", Ep1Icode = item.Ep1Icode}, null)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdPaziente)
+                    @Html.DisplayFor(modelItem => item.EpIdPazienteObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpSesso)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdTipoEpisodio)
+                    @Html.DisplayFor(modelItem => item.EpIdTipoEpisodioObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpStatoEpisodio)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdUnitaIngresso)
+                    @Html.DisplayFor(modelItem => item.EpIdUnitaIngressoObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpDataInizio)
@@ -126,7 +126,7 @@
                     @Html.DisplayFor(modelItem => item.EpCartellaPs)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdCorsia)
+                    @Html.DisplayFor(modelItem => item.EpIdCorsiaObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpIdReparto)
@@ -138,16 +138,16 @@
                     @Html.DisplayFor(modelItem => item.EpStanza)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdDiagnosiAmmissione)
+                    @Html.DisplayFor(modelItem => item.EpIdDiagnosiAmmissioneObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdDiagnosiDimissione)
+                    @Html.DisplayFor(modelItem => item.EpIdDiagnosiDimissioneObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpNote)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdAttoAmministrativo)
+                    @Html.DisplayFor(modelItem => item.EpIdAttoAmministrativoObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpDataInizioLa)
@@ -156,7 +156,7 @@
                     @Html.DisplayFor(modelItem => item.EpOraInizioLa)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdRepartoLa)
+                    @Html.DisplayFor(modelItem => item.EpIdRepartoLaObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpDataInizioPreh)
@@ -165,7 +165,7 @@
                     @Html.DisplayFor(modelItem => item.EpOraInizioPreh)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EpIdRepartoPreh)
+                    @Html.DisplayFor(modelItem => item.EpIdRepartoPrehObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EpFaseEpisodio)

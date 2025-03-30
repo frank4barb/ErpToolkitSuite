@@ -7,6 +7,6 @@ namespace ErpToolkit.Models
     {
         [Key]
         [Required(ErrorMessage = "Required Id")]
-        public string Id { get; set; }
+        public object Id { get; set; }
     }
 }

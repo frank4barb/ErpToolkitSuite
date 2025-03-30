@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Patient {
 public class Episodio : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Ep"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Ep1Icode; } 
+public override string ToString() { return $"{EpCodEpisodio} - {EpNote}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(EpCodEpisodio)}</strong> {HttpUtility.HtmlEncode(EpNote)}"; } 
 
 [Display(Name = "Ep1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("EP__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

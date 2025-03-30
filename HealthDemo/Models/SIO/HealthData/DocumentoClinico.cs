@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.HealthData {
 public class DocumentoClinico : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Dc"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Dc1Icode; } 
+public override string ToString() { return $"{Dc1Icode} - {DcNote}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(Dc1Icode)}</strong> {HttpUtility.HtmlEncode(DcNote)}"; } 
 
 //1026-1025//REL_PRESTAZIONE_DATO_CLINICO.PD_ID_DATO_CLINICO
 public List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico> RelPrestazioneDatoClinico4PdIdDatoClinico  { get; set; } = new List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico>();

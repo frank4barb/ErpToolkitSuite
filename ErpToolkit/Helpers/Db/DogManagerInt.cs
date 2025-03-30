@@ -227,7 +227,7 @@ namespace ErpToolkit.Helpers.Db
             if (sqlPrefixExt == "") throw new ArgumentNullException(nameof(sqlPrefixExt));
             List<string> sysFieldList = new List<string>() { "_ICODE","_DELETED","_TIMESTAMP", "_CDATE","_CTIME","_CAGENT","_CUNIT", "_MDATE","_MTIME","_MAGENT","_MUNIT" };
 
-            string icode = ""; byte[] oldTimestamp = new byte[8], newTimestamp = DatabaseManager.GenerateTimestamp();
+            object icode = null; byte[] oldTimestamp = new byte[8], newTimestamp = DatabaseManager.GenerateTimestamp();
             string dateNow = DateTime.Now.ToString(DogManager.DB_FORMAT_DATE), timeNow = DateTime.Now.ToString(DogManager.DB_FORMAT_TIME);
             string agent = ErpContext.Instance.UserId, unit = ErpContext.Instance.UnitId;
 
@@ -254,7 +254,8 @@ namespace ErpToolkit.Helpers.Db
             //gestione action
             char? action = (char)type.GetProperty("action",typeof(char?)).GetValue(tabModel);  //può assumere solo A[dd], M[odify], D[elete]
             if (action == null || "AMD".Contains((char)action) == false) throw new ArgumentOutOfRangeException(nameof(action));
-            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableNameExt} ("); sbValues.AppendLine("("); } else { sb.AppendLine($"update {tab.SqlTableNameExt} set "); }
+            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableNameExt} ("); } else { sb.AppendLine($"update {tab.SqlTableNameExt} set "); }  //            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableNameExt} ("); sbValues.AppendLine("("); } else { sb.AppendLine($"update {tab.SqlTableNameExt} set "); }
+
             if (action != 'D')
             {
                 foreach (var property in type.GetProperties())
@@ -297,7 +298,7 @@ namespace ErpToolkit.Helpers.Db
                         if (sqlFieldNameExt != "")
                         {
                             //recupero icode
-                            if (sqlFieldNameExt == $"{sqlPrefixExt}_ICODE") { icode = (string)propertyValue; }
+                            if (sqlFieldNameExt == $"{sqlPrefixExt}_ICODE") { icode = propertyValue; }
                             //recupero timestamp
                             if (sqlFieldNameExt == $"{sqlPrefixExt}_TIMESTAMP") { oldTimestamp = (byte[])propertyValue; }
                             //escludo campi di sistema
@@ -384,6 +385,9 @@ namespace ErpToolkit.Helpers.Db
             // terminatore di insert update
             if (action == 'A')
             {
+                //-- SE L'ICODE NON E' FORNITO LO DEVO GENERARE
+                if (UtilHelper.IsNullOrEmptyObject(icode)) { icode = dogMng.GenerateIcode(); }
+
                 //--
                 if (dogMng.DatabaseType != DbTyp.SqlServer && dogMng.DatabaseType != DbTyp.Sybase)
                 {
@@ -411,7 +415,7 @@ namespace ErpToolkit.Helpers.Db
                 sb.AppendLine($"{sqlPrefixExt}_MDATE = {DogManager.addParam(_db_mdate, ref parameters)}, {sqlPrefixExt}_MTIME = {DogManager.addParam(_db_mtime, ref parameters)}, ");
                 sb.AppendLine($"{sqlPrefixExt}_MAGENT = {DogManager.addParam(_db_magent, ref parameters)}, {sqlPrefixExt}_MUNIT = {DogManager.addParam(_db_munit, ref parameters)}");
                 //--
-                sb.AppendLine($" where {sqlPrefixExt}_ICODE = {DogManager.addParam(icode, ref parameters)} and {sqlPrefixExt}_DELETED = {DogManager.addParam('N', ref parameters)}");
+                sb.AppendLine($" where {sqlPrefixExt}_ICODE = {DogManager.addParam(icode, ref parameters)} and {sqlPrefixExt}_DELETED = {DogManager.addParam("N", ref parameters)}");
                 if (options.Contains("*noTms*") == false) sb.Append($" and {sqlPrefixExt}_TIMESTAMP = {DogManager.addParam(oldTimestamp, ref parameters)}");
             }
 
@@ -425,10 +429,10 @@ namespace ErpToolkit.Helpers.Db
         internal static string sqlSelectIcodeTimestamp(DogManager dogMng, List<DogResult> results, ref IDictionary<string, object> parameters, string options = "")
         {
             //divido per tabelle
-            IDictionary<System.Type, List<string>> tabList = new Dictionary<System.Type, List<string>>();
+            IDictionary<System.Type, List<object>> tabList = new Dictionary<System.Type, List<object>>();
             foreach (DogResult result in results) 
             {
-                if (!tabList.ContainsKey(result.TabType)) tabList.Add(result.TabType, new List<string>());
+                if (!tabList.ContainsKey(result.TabType)) tabList.Add(result.TabType, new List<object>());
                 tabList[result.TabType].Add(result.Icode); 
             }
             //scrivo query
@@ -437,7 +441,7 @@ namespace ErpToolkit.Helpers.Db
                 DogManager.DogTable tab = dogMng.tabTypes[tpy];
                 if (sb.Length != 0) sb.AppendLine(" union ");
                 sb.Append($"select {tab.SqlPrefix}_ICODE as ICODE, {tab.SqlPrefix}_TIMESTAMP as TIMESTAMP from {tab.SqlTableName} where {tab.SqlPrefix}_ICODE in (")
-                    .Append(string.Join(", ", DogManager.addListParam(tabList[tpy].Select(str => str.TrimEnd()).ToList<object>(), ref parameters)))
+                    .Append(string.Join(", ", DogManager.addListParam(tabList[tpy].Select(obj => UtilHelper.TrimEndObject(obj)).ToList<object>(), ref parameters)))
                     .AppendLine(") "); ;
             }
             return sb.ToString();

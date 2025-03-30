@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Act {
 public class RelAttivitaUsa : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Au"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Au1Icode; } 
+public override string ToString() { return $""; } 
+public override string ToHtml() { return $""; } 
 
 //1193-1179//REL_ATTIVITA_USA.AU_ID_GRUPPO
 public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdGruppo  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();

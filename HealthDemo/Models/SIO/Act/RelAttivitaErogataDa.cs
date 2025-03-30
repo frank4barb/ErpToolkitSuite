@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Act {
 public class RelAttivitaErogataDa : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Ae"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Ae1Icode; } 
+public override string ToString() { return $""; } 
+public override string ToHtml() { return $""; } 
 
 [Display(Name = "Ae1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("AE__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

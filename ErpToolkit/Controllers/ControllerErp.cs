@@ -48,7 +48,7 @@ namespace ErpToolkit.Controllers
 
         //$$//public const string DbConnectionString = "#connectionString_SQLSLocal";
         //$$//public readonly DogId dogId = new DogId("SIO", "SqlServer", "#connectionString_SQLSLocal");
-        public readonly DogId dogId = new DogId(ErpContext.Instance.GetString("#defaultServerDOG"), "IU00");  //connectionStringFull_NameTypeModel syntax: connectionStringAMM__SqlServer__SIO eg: #connectionStringAMM__SqlServer__SIO 
+        public readonly DogId dogId = new DogId(ErpContext.Instance.GetString("#defaultServerDOG"), ErpContext.Instance.GetString("#defaultDbRoot"));  //connectionStringFull_NameTypeModel syntax: connectionStringAMM__SqlServer__SIO eg: #connectionStringAMM__SqlServer__SIO 
 
 
         // VARIABILI DI SESSIONE
@@ -67,9 +67,9 @@ namespace ErpToolkit.Controllers
         {
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            if (parms != null && !String.IsNullOrWhiteSpace(parms.Id))
+            if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
             {
-                try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id); }
+                try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, options: "[PLAIN]"); }  //[PLAIN] => non leggo le strutture relazionete
                 catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
                 objModel.action = 'M'; //update
             }
@@ -126,9 +126,9 @@ namespace ErpToolkit.Controllers
         {
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            if (parms != null && !String.IsNullOrWhiteSpace(parms.Id))
+            if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
             {
-                try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id); }
+                try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, options: "[PLAIN]"); } //[PLAIN] => non leggo le strutture relazionete
                 catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
                 objModel.action = 'D'; //update
             }

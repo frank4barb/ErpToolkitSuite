@@ -1,0 +1,16 @@
+﻿@model ErpToolkit.Models.ModelErp
+@if (Model != null)
+{
+    <div>
+        @* Personalizza l'output grafico qui Model.ToHtml() ..esempio:
+        <div title="codice del comune di residenza">
+            <strong>@Model.CodiceComune</strong> @Model.NomeComune
+        </div>
+        *@
+        @Html.Raw(@Model.ToHtml())
+    </div>
+}
+else
+{
+    @* Lascio il campo vuoto se la struttura non è stata valorizzata *@
+}

@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.HealthData {
 public class CategoriaDatoClinico : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Cc"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Cc1Icode; } 
+public override string ToString() { return $"{CcCodice} - {CcDescrizione}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(CcCodice)}</strong> {HttpUtility.HtmlEncode(CcDescrizione)}"; } 
 
 [Display(Name = "Cc1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
 [ErpDogField("CC__IENV", SqlFieldNameExt="", SqlFieldProperties="")]

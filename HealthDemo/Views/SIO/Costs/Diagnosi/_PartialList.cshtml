@@ -39,7 +39,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DgTipoDiagnosi)
+                    @Html.DisplayFor(modelItem => item.DgTipoDiagnosiObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DgClasse)
@@ -54,7 +54,7 @@
                     @Html.ActionLink(item.DgCodice, "RedirectToNextPage", "Home", null, null, null, new { provenienzaPagina = "Diagnosi", Dg1Icode = item.Dg1Icode}, null)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DgIdGruppo)
+                    @Html.DisplayFor(modelItem => item.DgIdGruppoObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DgTipoDrg)

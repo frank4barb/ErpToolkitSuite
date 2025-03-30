@@ -51,16 +51,16 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdUnitaRichiedente)
+                    @Html.DisplayFor(modelItem => item.RiIdUnitaRichiedenteObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdPostazioneRichiedente)
+                    @Html.DisplayFor(modelItem => item.RiIdPostazioneRichiedenteObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdIstitutoRichiedente)
+                    @Html.DisplayFor(modelItem => item.RiIdIstitutoRichiedenteObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdOperatoreRichiedente)
+                    @Html.DisplayFor(modelItem => item.RiIdOperatoreRichiedenteObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.RiDataRichiesta)
@@ -78,13 +78,13 @@
                     @Html.DisplayFor(modelItem => item.RiStatoRichiesta)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdTipoRichiesta)
+                    @Html.DisplayFor(modelItem => item.RiIdTipoRichiestaObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdPaziente)
+                    @Html.DisplayFor(modelItem => item.RiIdPazienteObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RiIdEpisodio)
+                    @Html.DisplayFor(modelItem => item.RiIdEpisodioObj)
                 </td>
                 <td>
                     <a href="#" class="btn btn-primary" onclick="loadModalWithContent('EditModale','/Richiesta/ReadForEdit','@Html.DisplayFor(modelItem => item.Ri1Icode)')">Edit</a>

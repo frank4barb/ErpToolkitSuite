@@ -4,7 +4,7 @@ using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace HealthDemo.Models.SIO.Common {
 public class Organizzazione : ModelErp {
@@ -27,6 +27,8 @@ public const string PREFIX = "Or"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Or1Icode; } 
+public override string ToString() { return $"{OrCodice} - {OrDescrizione}"; } 
+public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(OrCodice)}</strong> {HttpUtility.HtmlEncode(OrDescrizione)}"; } 
 
 //327-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_PADRE
 public List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene> RelOrganizzazioneContiene4OoIdOrganizzazionePadre  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>();

@@ -12,6 +12,7 @@ namespace ErpToolkit.Models {
         public IDictionary<string, string> options { get; set; } = new Dictionary<string, string>();
 
         //metodi obbligatori
+        public abstract string ToHtml(); // metodo astratto: output Html da usare per visualizzare l'oggetto (deve per forza essere implementato)
         public abstract object getIcode(); // metodo astratto (deve per forza essere implementato)
         //public abstract string getTimestamp(); // metodo astratto 
         //public abstract string getDeleted(); // metodo astratto 
