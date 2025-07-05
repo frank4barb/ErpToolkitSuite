@@ -1,12 +1,16 @@
 //using ErpToolkit.Controllers;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 using ErpToolkit.Helpers.Db;
+using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Mysqlx.Crud;
 using NLog;
+using System.Data.Entity.Infrastructure;
 using System.DirectoryServices;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
+using static ErpToolkit.Helpers.Db.DogManager;
 
 namespace ErpToolkit.Helpers
 {
@@ -357,6 +361,10 @@ namespace ErpToolkit.Helpers
         //https://www.entityframeworktutorial.net/entityframework6/raw-sql-query-in-entity-framework.aspx
         //https://learn.microsoft.com/en-us/dotnet/api/system.data.linq.datacontext.executequery?view=netframework-4.8.1&redirectedfrom=MSDN#System_Data_Linq_DataContext_ExecuteQuery__1_System_String_System_Object___
         //https://mcuslu.medium.com/executing-raw-sql-queries-using-entity-framework-core-and-returns-to-generic-data-model-534356b1c2b3
+
+
+
+
 
 
 

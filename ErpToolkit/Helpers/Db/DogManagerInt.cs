@@ -198,17 +198,40 @@ namespace ErpToolkit.Helpers.Db
         {
             return sqlWhereListIcode(dogMng, objModel, new List<object>() { icode }, ref parameters);
         }
+        //internal static string sqlWhereListIcode(DogManager dogMng, object objModel, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
+        //{
+        //    if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
+        //    if (rowIdList == null) { throw new ArgumentNullException("Null " + nameof(rowIdList)); }
+        //    if (rowIdList.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(rowIdList)); }
+        //    System.Type type = objModel.GetType();
+        //    var sqlRowIdNameExt = dogMng.tabTypes[type]?.SqlRowIdNameExt?.Trim() ?? "";
+        //    //---
+        //    if (options.Contains("[UsePropertyNameField]")) sqlRowIdNameExt = dogMng.tabTypes[type]?.RowIdName?.Trim() ?? "";
+        //    //---
+        //    return $"where {sqlRowIdNameExt} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
+        //}
         internal static string sqlWhereListIcode(DogManager dogMng, object objModel, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
         {
-            if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
+            return sqlWhereListXref(dogMng, objModel, null, rowIdList, ref parameters, options);
+        }
+        internal static string sqlWhereListXref(DogManager dogMng, object objModel, DogField fldXref, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
+        {
+            var sqlRowName = "";
             if (rowIdList == null) { throw new ArgumentNullException("Null " + nameof(rowIdList)); }
             if (rowIdList.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(rowIdList)); }
-            System.Type type = objModel.GetType();
-            var sqlRowIdNameExt = dogMng.tabTypes[type]?.SqlRowIdNameExt?.Trim() ?? "";
-            //---
-            if (options.Contains("[UsePropertyNameField]")) sqlRowIdNameExt = dogMng.tabTypes[type]?.RowIdName?.Trim() ?? "";
-            //---
-            return $"where {sqlRowIdNameExt} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
+            if (fldXref == null)  // uso icode della tabella
+            {
+                if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
+                System.Type type = objModel.GetType();
+                sqlRowName = dogMng.tabTypes[type]?.SqlRowIdNameExt?.Trim() ?? "";
+                if (options.Contains("[UsePropertyNameField]")) sqlRowName = dogMng.tabTypes[type]?.RowIdName?.Trim() ?? "";
+            }
+            else
+            {
+                sqlRowName = fldXref.SqlFieldNameExt;
+                if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.SqlFieldName;
+            }
+            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
         }
 
         //crea INSERT, UPDATE, DELETE(logico) per l'oggetto del modello 'tabModel' (SOLO PER TABELLE)
