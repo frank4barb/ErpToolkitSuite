@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,9 +28,16 @@ public const string PREFIX = "Pa"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
+//9-2//[N] PRESTAZIONE.PR_ID_PAZIENTE
+//562-524//[N] RICHIESTA.RI_ID_PAZIENTE
+//596-593//[N] EPISODIO.EP_ID_PAZIENTE
+//846-845//[N] RISULTATO_ESAME.RE_ID_PAZIENTE
+//979-978//[N] STATO_SALUTE.SS_ID_PAZIENTE
+//1197-1196//[N] DOCUMENTO_CLINICO.DC_ID_PAZIENTE
+//2165-2164//[N] PARAMETRO_VITALE.PV_ID_PAZIENTE
 
 [Display(Name = "Cod Fiscale", ShortName="", Description = "Identificatore nazionale del paziente/individuo", Prompt="")]
 [ErpDogField("PA_COD_FISCALE", SqlFieldNameExt="PA_COD_FISCALE", SqlFieldOptions="[XID]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
@@ -47,12 +55,12 @@ public string? SelPaCodSanitario  { get; set; }
 public string? SelPaNome  { get; set; }
 
 [Display(Name = "Cognome", ShortName="", Description = "Cognome del paziente", Prompt="")]
-[ErpDogField("PA_COGNOME", SqlFieldNameExt="PA_COGNOME", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PA_COGNOME", SqlFieldNameExt="PA_COGNOME", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelPaCognome  { get; set; }
 
 [Display(Name = "Sesso", ShortName="", Description = "Sesso M / F / N", Prompt="")]
-[ErpDogField("PA_SESSO", SqlFieldNameExt="PA_SESSO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PA_SESSO", SqlFieldNameExt="PA_SESSO", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [MultipleChoices(new[] { "M", "F", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]

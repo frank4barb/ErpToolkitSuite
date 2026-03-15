@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,57 +28,120 @@ public const string PREFIX = "Ts"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Ts1Icode; } 
-public override string ToString() { return $"{TsCodice} - {TsDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(TsCodice)}</strong> {HttpUtility.HtmlEncode(TsDescrizione)}"; } 
+public override string labelText() { return $@"{TsCodice} - {TsDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(TsCodice)}</strong> {HttpUtility.HtmlEncode(TsDescrizione)}"; }
 
-//126-124//REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> RelPrestazioneUsa4PuIdTipoRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
-//1181-1179//REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdTipoRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
-[Display(Name = "Ts1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("TS__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Ts1Ienv { get; set; }
+//126-124//[Y] REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA
+[Display(Name = "RelPrestazioneUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelPrestazioneUsa>? XrefPuIdTipoRisorsa { get; set; } = null;
+//780-775//[N] FARMACO.FM_ID_TIPO_RISORSA
+[Display(Name = "Farmaco", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Resource.Farmaco>? XrefFmIdTipoRisorsa { get; set; } = null;
+//826-822//[N] ATTREZZATURA.AT_ID_TIPO_RISORSA
+[Display(Name = "Attrezzatura", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Resource.Attrezzatura>? XrefAtIdTipoRisorsa { get; set; } = null;
+//1063-1061//[N] SALA.SA_ID_TIPO_RISORSA
+[Display(Name = "Sala", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Resource.Sala>? XrefSaIdTipoRisorsa { get; set; } = null;
+//1096-1092//[N] MATERIALE.MT_ID_TIPO_RISORSA
+[Display(Name = "Materiale", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Resource.Materiale>? XrefMtIdTipoRisorsa { get; set; } = null;
+//1181-1179//[Y] REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA
+[Display(Name = "RelAttivitaUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaUsa>? XrefAuIdTipoRisorsa { get; set; } = null;
+//2040-2036//[N] PERSONALE.PE_ID_TIPO_RISORSA
+[Display(Name = "Personale", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Resource.Personale>? XrefPeIdTipoRisorsa { get; set; } = null;
+//2136-2134//[N] TIPO_RISORSA.TS_ID_GRUPPO
+[Display(Name = "TipoRisorsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Resource.TipoRisorsa>? XrefTsIdGruppo { get; set; } = null;
 [Key]
 [Display(Name = "Ts1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("TS__ICODE", SqlFieldNameExt="TS__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("TS__ICODE", SqlFieldNameExt="TS__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ts1Icode { get; set; }
 [Display(Name = "Ts1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("TS__DELETED", SqlFieldNameExt="TS__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("TS__DELETED", SqlFieldNameExt="TS__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Ts1Deleted { get; set; }
 [Display(Name = "Ts1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("TS__TIMESTAMP", SqlFieldNameExt="TS__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("TS__TIMESTAMP", SqlFieldNameExt="TS__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Ts1Timestamp { get; set; }
+[Display(Name = "Ts1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("TS__CDATE", SqlFieldNameExt="TS__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Ts1Cdate { get; set; }
+[Display(Name = "Ts1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("TS__CTIME", SqlFieldNameExt="TS__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Ts1Ctime { get; set; }
+[Display(Name = "Ts1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("TS__CAGENT", SqlFieldNameExt="TS__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ts1Cagent { get; set; }
+[Display(Name = "Ts1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("TS__CUNIT", SqlFieldNameExt="TS__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ts1Cunit { get; set; }
+[Display(Name = "Ts1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("TS__MDATE", SqlFieldNameExt="TS__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Ts1Mdate { get; set; }
+[Display(Name = "Ts1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("TS__MTIME", SqlFieldNameExt="TS__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Ts1Mtime { get; set; }
+[Display(Name = "Ts1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("TS__MAGENT", SqlFieldNameExt="TS__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ts1Magent { get; set; }
+[Display(Name = "Ts1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("TS__MUNIT", SqlFieldNameExt="TS__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ts1Munit { get; set; }
 [Display(Name = "Ts1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("TS__HOME", SqlFieldNameExt="TS__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("TS__HOME", SqlFieldNameExt="TS__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ts1Home { get; set; }
 [Display(Name = "Ts1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("TS__VERSION", SqlFieldNameExt="TS__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("TS__VERSION", SqlFieldNameExt="TS__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ts1Version { get; set; }
 [Display(Name = "Ts1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("TS__INACTIVE", SqlFieldNameExt="TS__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("TS__INACTIVE", SqlFieldNameExt="TS__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Ts1Inactive { get; set; }
 [Display(Name = "Ts1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("TS__EXTATT", SqlFieldNameExt="TS__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("TS__EXTATT", SqlFieldNameExt="TS__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Ts1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("TS_CODICE", SqlFieldNameExt="TS_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS__ICODE[TS__ICODE] {TS_CODICE=' '}) multbxref()")]
+[ErpDogField("TS_CODICE", SqlFieldNameExt="TS_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS__ICODE[TS__ICODE] {TS_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
@@ -98,7 +162,7 @@ public string? TsIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Resource.TipoRisorsa? TsIdGruppoObj  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("TS_DESCRIZIONE", SqlFieldNameExt="TS_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TS_DESCRIZIONE", SqlFieldNameExt="TS_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]

@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using AdoNetCore.AseClient;
 using MySqlX.XDevAPI.Common;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -184,6 +185,67 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  Sybase ASE: sa_role per sp_showplan e MDA tables come monProcess. [help.sap.com], [help.sap.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("SELECT @@spid;", conn);
+            if (conn.State != ConnectionState.Open) conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            // monProcess contiene processi in esecuzione/attesa
+            const string sql = @"SELECT 1 FROM master..monProcess WHERE SPID = @spid;";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@spid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            return rdr.Read();
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Stato + wait da monProcess; SQL corrente da monProcessStatement (se installata); piano via sp_showplan (non sempre catturabile come resultset)
+            const string sql = @"
+                                    SELECT TOP 1 
+                                        Command, SecondsWaiting, WaitEventID, BlockingSPID
+                                    FROM master..monProcess
+                                    WHERE SPID = @spid;
+
+                                    -- SQL corrente (se disponibile):
+                                    -- SELECT SQLText FROM master..monProcessStatement WHERE SPID = @spid;
+                                    ";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@spid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            string status = null; long elapsedMs = 0; int? blocker = null;
+
+            if (rdr.Read())
+            {
+                status = rdr["Command"] as string;
+                elapsedMs = rdr["SecondsWaiting"] == DBNull.Value ? 0 : Convert.ToInt64(rdr["SecondsWaiting"]) * 1000;
+                blocker = rdr["BlockingSPID"] == DBNull.Value ? (int?)null : Convert.ToInt32(rdr["BlockingSPID"]);
+            }
+
+            // Piano: spesso è disponibile come messaggio via sp_showplan; lo indichiamo testualmente
+            string planText = "-- Piano disponibile via sp_showplan {spid}, 'long' (messaggi server)";
+            return new LiveSessionSnapshot
+            {
+                Status = status ?? "ACTIVE",
+                WaitType = rdr["WaitEventID"] == DBNull.Value ? null : $"WaitEventID={rdr["WaitEventID"]}",
+                TotalElapsedMs = elapsedMs,
+                BlockingSessionId = blocker,
+                SqlText = null, // puoi aggiungere lettura da monProcessStatement se presente
+                QueryPlanXml = planText
+            };
+        }
 
 
     }

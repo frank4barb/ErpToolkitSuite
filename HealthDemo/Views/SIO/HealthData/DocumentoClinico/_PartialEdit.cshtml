@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "DocumentoClinico Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "DocumentoClinico", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -100,6 +100,48 @@
                         <input asp-for="DcSequenza" class="form-control" />
                         <span asp-validation-for="DcSequenza" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPdIdDatoClinico != null)
+                    {
+                        <h5 class="mt-5">Vista su RelPrestazioneDatoClinico per PdIdDatoClinico</h5>
+                        <erp-table asp-for="XrefPdIdDatoClinico" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PdClasseDatoClinico"     label="ClasseDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PdIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PdTipoRelazione"     label="TipoRelazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PdNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PdIdDatoClinico"  visible="false"   value="@Model.Dc1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PdClasseDatoClinico">
+                                    <div class="form-group" data-prop="PdClasseDatoClinico">
+                                        <input asp-for='XrefPdIdDatoClinico["0"].PdClasseDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefPdIdDatoClinico["0"].PdClasseDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PdIdPrestazione">
+                                    <div class="form-group" data-prop="PdIdPrestazione">
+                                        <input asp-for='XrefPdIdDatoClinico["0"].PdIdPrestazione' class="form-control" />
+                                        <span asp-validation-for='XrefPdIdDatoClinico["0"].PdIdPrestazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PdTipoRelazione">
+                                    <div class="form-group" data-prop="PdTipoRelazione">
+                                        <input asp-for='XrefPdIdDatoClinico["0"].PdTipoRelazione' class="form-control" />
+                                        <span asp-validation-for='XrefPdIdDatoClinico["0"].PdTipoRelazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PdNote">
+                                    <div class="form-group" data-prop="PdNote">
+                                        <input asp-for='XrefPdIdDatoClinico["0"].PdNote' class="form-control" />
+                                        <span asp-validation-for='XrefPdIdDatoClinico["0"].PdNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

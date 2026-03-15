@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,64 +28,103 @@ public const string PREFIX = "Mt"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Mt1Icode; } 
-public override string ToString() { return $"{MtCodice} - {MtDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(MtCodice)}</strong> {HttpUtility.HtmlEncode(MtDescrizione)}"; } 
+public override string labelText() { return $@"{MtCodice} - {MtDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(MtCodice)}</strong> {HttpUtility.HtmlEncode(MtDescrizione)}"; }
 
-//127-124//REL_PRESTAZIONE_USA.PU_ID_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> RelPrestazioneUsa4PuIdRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
-//1182-1179//REL_ATTIVITA_USA.AU_ID_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
-[Display(Name = "Mt1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("MT__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Mt1Ienv { get; set; }
+//127-124//[Y] REL_PRESTAZIONE_USA.PU_ID_RISORSA
+[Display(Name = "RelPrestazioneUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelPrestazioneUsa>? XrefPuIdRisorsa { get; set; } = null;
+//1182-1179//[Y] REL_ATTIVITA_USA.AU_ID_RISORSA
+[Display(Name = "RelAttivitaUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaUsa>? XrefAuIdRisorsa { get; set; } = null;
 [Key]
 [Display(Name = "Mt1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("MT__ICODE", SqlFieldNameExt="MT__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("MT__ICODE", SqlFieldNameExt="MT__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Mt1Icode { get; set; }
 [Display(Name = "Mt1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("MT__DELETED", SqlFieldNameExt="MT__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("MT__DELETED", SqlFieldNameExt="MT__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Mt1Deleted { get; set; }
 [Display(Name = "Mt1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("MT__TIMESTAMP", SqlFieldNameExt="MT__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("MT__TIMESTAMP", SqlFieldNameExt="MT__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Mt1Timestamp { get; set; }
+[Display(Name = "Mt1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("MT__CDATE", SqlFieldNameExt="MT__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Mt1Cdate { get; set; }
+[Display(Name = "Mt1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("MT__CTIME", SqlFieldNameExt="MT__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Mt1Ctime { get; set; }
+[Display(Name = "Mt1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("MT__CAGENT", SqlFieldNameExt="MT__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Mt1Cagent { get; set; }
+[Display(Name = "Mt1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("MT__CUNIT", SqlFieldNameExt="MT__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Mt1Cunit { get; set; }
+[Display(Name = "Mt1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("MT__MDATE", SqlFieldNameExt="MT__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Mt1Mdate { get; set; }
+[Display(Name = "Mt1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("MT__MTIME", SqlFieldNameExt="MT__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Mt1Mtime { get; set; }
+[Display(Name = "Mt1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("MT__MAGENT", SqlFieldNameExt="MT__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Mt1Magent { get; set; }
+[Display(Name = "Mt1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("MT__MUNIT", SqlFieldNameExt="MT__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Mt1Munit { get; set; }
 [Display(Name = "Mt1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("MT__HOME", SqlFieldNameExt="MT__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("MT__HOME", SqlFieldNameExt="MT__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Mt1Home { get; set; }
 [Display(Name = "Mt1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("MT__VERSION", SqlFieldNameExt="MT__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("MT__VERSION", SqlFieldNameExt="MT__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Mt1Version { get; set; }
 [Display(Name = "Mt1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("MT__INACTIVE", SqlFieldNameExt="MT__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("MT__INACTIVE", SqlFieldNameExt="MT__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Mt1Inactive { get; set; }
 [Display(Name = "Mt1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("MT__EXTATT", SqlFieldNameExt="MT__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("MT__EXTATT", SqlFieldNameExt="MT__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Mt1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("MT_CODICE", SqlFieldNameExt="MT_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(MATERIALE.MT__ICODE[MT__ICODE] {MT_CODICE=' '}) multbxref()")]
+[ErpDogField("MT_CODICE", SqlFieldNameExt="MT_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(MATERIALE.MT__ICODE[MT__ICODE] {MT_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? MtCodice  { get; set; }
 
 [Display(Name = "Classe Risorsa", ShortName="", Description = "Classe di risorsa: M[aterial] (Materiale)", Prompt="")]
-[ErpDogField("MT_CLASSE_RISORSA", SqlFieldNameExt="MT_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[MATERIALE.MT_ID_TIPO_RISORSA]) multbxref()")]
+[ErpDogField("MT_CLASSE_RISORSA", SqlFieldNameExt="MT_CLASSE_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[MATERIALE.MT_ID_TIPO_RISORSA]) multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue("M")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
@@ -92,14 +132,14 @@ public string? MtCodice  { get; set; }
 public string? MtClasseRisorsa  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("MT_DESCRIZIONE", SqlFieldNameExt="MT_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("MT_DESCRIZIONE", SqlFieldNameExt="MT_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]
 public string? MtDescrizione  { get; set; }
 
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di materiale, secondo la classificazione operativa definita in A_TYRESOUR con radice #SIO#MATER", Prompt="")]
-[ErpDogField("MT_ID_TIPO_RISORSA", SqlFieldNameExt="MT_ID_TIPO_RISORSA", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
+[ErpDogField("MT_ID_TIPO_RISORSA", SqlFieldNameExt="MT_ID_TIPO_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]

@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using Oracle.ManagedDataAccess.Client;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -170,6 +171,74 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  Oracle: SELECT_CATALOG_ROLE/privilegi su V$SQL_PLAN, V$SQL, V$SESSION per DBMS_XPLAN.DISPLAY_CURSOR. [docs.cloud...oracle.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("SELECT SYS_CONTEXT('USERENV','SID') FROM DUAL", conn);
+            if (conn.State != ConnectionState.Open) conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar()); // SID come NUMBER -> int
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            const string sql = @"SELECT 1 FROM v$session WHERE sid = :sid AND status = 'ACTIVE'";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = ":sid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            return rdr.Read();
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Recupera sql_id/child_number e piano con DBMS_XPLAN.DISPLAY_CURSOR
+            const string s = @"
+                                SELECT sid, sql_id, sql_child_number AS child_number, status
+                                FROM v$session
+                                WHERE sid = :sid";
+            string sqlId = null; int child = 0; string status = null;
+
+            using (var cmd = this.NewCommand(s, conn))
+            {
+                var p = cmd.CreateParameter(); p.ParameterName = ":sid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+                using var rdr = cmd.ExecuteReader();
+                if (!rdr.Read()) return null;
+                sqlId = rdr["sql_id"] as string;
+                child = rdr["child_number"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["child_number"]);
+                status = rdr["status"] as string;
+            }
+
+            string planText = null;
+            if (!string.IsNullOrEmpty(sqlId))
+            {
+                const string plan = @"
+                                        SELECT PLAN_TABLE_OUTPUT
+                                        FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(:sql_id, :child, 'ALLSTATS LAST'))";
+                using var cmd = this.NewCommand(plan, conn);
+                var p1 = cmd.CreateParameter(); p1.ParameterName = ":sql_id"; p1.Value = sqlId; cmd.Parameters.Add(p1);
+                var p2 = cmd.CreateParameter(); p2.ParameterName = ":child"; p2.Value = child; cmd.Parameters.Add(p2);
+                using var rdr = cmd.ExecuteReader();
+                var sb = new System.Text.StringBuilder();
+                while (rdr.Read()) sb.AppendLine(rdr["PLAN_TABLE_OUTPUT"] as string);
+                planText = sb.ToString();
+            }
+
+            return new LiveSessionSnapshot
+            {
+                Status = status ?? "ACTIVE",
+                WaitType = null,
+                TotalElapsedMs = 0,
+                BlockingSessionId = null,
+                SqlText = null, // puoi ottenere SQL da v$sqltext se necessario
+                QueryPlanXml = planText
+            };
+        }
 
 
 

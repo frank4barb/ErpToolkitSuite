@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,13 +28,12 @@ public const string PREFIX = "Tp"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
-//123-119//REL_PRESTAZIONE_CAMPIONE.PC_ID_TIPO_CAMPIONE
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione> SelRelPrestazioneCampione4PcIdTipoCampione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione>();
-//371-370//REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_TIPO_CAMPIONE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione> SelRelAttivitaTipoCampione4AcIdTipoCampione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione>();
+//123-119//[Y] REL_PRESTAZIONE_CAMPIONE.PC_ID_TIPO_CAMPIONE
+//371-370//[Y] REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_TIPO_CAMPIONE
+//1730-1730//[N] CAMPIONE.CP_ID_TIPO_CAMPIONE
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TP_CODICE", SqlFieldNameExt="TP_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_CAMPIONE.TP__ICODE[TP__ICODE] {TP_CODICE=' '}) multbxref()")]

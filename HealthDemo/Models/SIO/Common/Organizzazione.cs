@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,61 +28,190 @@ public const string PREFIX = "Or"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Or1Icode; } 
-public override string ToString() { return $"{OrCodice} - {OrDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(OrCodice)}</strong> {HttpUtility.HtmlEncode(OrDescrizione)}"; } 
+public override string labelText() { return $@"{OrCodice} - {OrDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(OrCodice)}</strong> {HttpUtility.HtmlEncode(OrDescrizione)}"; }
 
-//327-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_PADRE
-public List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene> RelOrganizzazioneContiene4OoIdOrganizzazionePadre  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>();
-//328-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_FIGLIO
-public List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene> RelOrganizzazioneContiene4OoIdOrganizzazioneFiglio  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>();
-//1132-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_ISTITUTO
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> RelAttivitaRichiestaDa4ArIdIstituto  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1133-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_UNITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> RelAttivitaRichiestaDa4ArIdUnita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1134-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_POSTAZIONE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> RelAttivitaRichiestaDa4ArIdPostazione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1135-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_OPERATORE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> RelAttivitaRichiestaDa4ArIdOperatore  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1993-1992//REL_ATTIVITA_EROGATA_DA.AE_ID_UNITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa> RelAttivitaErogataDa4AeIdUnita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa>();
-[Display(Name = "Or1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("OR__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Or1Ienv { get; set; }
+//19-2//[N] PRESTAZIONE.PR_ID_OPERATORE_RICHIEDENTE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdOperatoreRichiedente { get; set; } = null;
+//20-2//[N] PRESTAZIONE.PR_ID_UNITA_RICHIEDENTE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdUnitaRichiedente { get; set; } = null;
+//21-2//[N] PRESTAZIONE.PR_ID_POSTAZIONE_RICHIEDENTE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdPostazioneRichiedente { get; set; } = null;
+//44-2//[N] PRESTAZIONE.PR_ID_OPERATORE_ESECUTORE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdOperatoreEsecutore { get; set; } = null;
+//45-2//[N] PRESTAZIONE.PR_ID_UNITA_ESECUTRICE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdUnitaEsecutrice { get; set; } = null;
+//46-2//[N] PRESTAZIONE.PR_ID_POSTAZIONE_ESECUTRICE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdPostazioneEsecutrice { get; set; } = null;
+//57-2//[N] PRESTAZIONE.PR_ID_OPERATORE_PIANIFICATORE
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdOperatorePianificatore { get; set; } = null;
+//327-327//[Y] REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_PADRE
+[Display(Name = "RelOrganizzazioneContiene", ShortName = "", Description = "Relazioni generiche esistenti tra diverse strutture", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>? XrefOoIdOrganizzazionePadre { get; set; } = null;
+//328-327//[Y] REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_FIGLIO
+[Display(Name = "RelOrganizzazioneContiene", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>? XrefOoIdOrganizzazioneFiglio { get; set; } = null;
+//527-524//[N] RICHIESTA.RI_ID_UNITA_RICHIEDENTE
+[Display(Name = "Richiesta", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Richiesta>? XrefRiIdUnitaRichiedente { get; set; } = null;
+//528-524//[N] RICHIESTA.RI_ID_POSTAZIONE_RICHIEDENTE
+[Display(Name = "Richiesta", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Richiesta>? XrefRiIdPostazioneRichiedente { get; set; } = null;
+//529-524//[N] RICHIESTA.RI_ID_ISTITUTO_RICHIEDENTE
+[Display(Name = "Richiesta", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Richiesta>? XrefRiIdIstitutoRichiedente { get; set; } = null;
+//532-524//[N] RICHIESTA.RI_ID_OPERATORE_RICHIEDENTE
+[Display(Name = "Richiesta", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Richiesta>? XrefRiIdOperatoreRichiedente { get; set; } = null;
+//601-593//[N] EPISODIO.EP_ID_UNITA_INGRESSO
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdUnitaIngresso { get; set; } = null;
+//615-593//[N] EPISODIO.EP_ID_CORSIA
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdCorsia { get; set; } = null;
+//616-593//[N] EPISODIO.EP_ID_REPARTO
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdReparto { get; set; } = null;
+//666-593//[N] EPISODIO.EP_ID_REPARTO_LA
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdRepartoLa { get; set; } = null;
+//669-593//[N] EPISODIO.EP_ID_REPARTO_PREH
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdRepartoPreh { get; set; } = null;
+//1132-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_ISTITUTO
+[Display(Name = "RelAttivitaRichiestaDa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>? XrefArIdIstituto { get; set; } = null;
+//1133-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_UNITA
+[Display(Name = "RelAttivitaRichiestaDa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>? XrefArIdUnita { get; set; } = null;
+//1134-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_POSTAZIONE
+[Display(Name = "RelAttivitaRichiestaDa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>? XrefArIdPostazione { get; set; } = null;
+//1135-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_OPERATORE
+[Display(Name = "RelAttivitaRichiestaDa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>? XrefArIdOperatore { get; set; } = null;
+//1740-1730//[N] CAMPIONE.CP_ID_POSIZIONE_ATTUALE
+[Display(Name = "Campione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Campione>? XrefCpIdPosizioneAttuale { get; set; } = null;
+//1792-1769//[N] ORGANIZZAZIONE.OR_ID_ISTITUTO
+[Display(Name = "Organizzazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Organizzazione>? XrefOrIdIstituto { get; set; } = null;
+//1793-1769//[N] ORGANIZZAZIONE.OR_ID_UNITA
+[Display(Name = "Organizzazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Organizzazione>? XrefOrIdUnita { get; set; } = null;
+//1794-1769//[N] ORGANIZZAZIONE.OR_ID_POSTAZIONE
+[Display(Name = "Organizzazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Organizzazione>? XrefOrIdPostazione { get; set; } = null;
+//1993-1992//[Y] REL_ATTIVITA_EROGATA_DA.AE_ID_UNITA
+[Display(Name = "RelAttivitaErogataDa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaErogataDa>? XrefAeIdUnita { get; set; } = null;
 [Key]
 [Display(Name = "Or1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("OR__ICODE", SqlFieldNameExt="OR__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("OR__ICODE", SqlFieldNameExt="OR__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Or1Icode { get; set; }
 [Display(Name = "Or1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("OR__DELETED", SqlFieldNameExt="OR__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("OR__DELETED", SqlFieldNameExt="OR__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Or1Deleted { get; set; }
 [Display(Name = "Or1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("OR__TIMESTAMP", SqlFieldNameExt="OR__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("OR__TIMESTAMP", SqlFieldNameExt="OR__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Or1Timestamp { get; set; }
+[Display(Name = "Or1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("OR__CDATE", SqlFieldNameExt="OR__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Or1Cdate { get; set; }
+[Display(Name = "Or1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("OR__CTIME", SqlFieldNameExt="OR__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Or1Ctime { get; set; }
+[Display(Name = "Or1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("OR__CAGENT", SqlFieldNameExt="OR__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Or1Cagent { get; set; }
+[Display(Name = "Or1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("OR__CUNIT", SqlFieldNameExt="OR__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Or1Cunit { get; set; }
+[Display(Name = "Or1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("OR__MDATE", SqlFieldNameExt="OR__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Or1Mdate { get; set; }
+[Display(Name = "Or1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("OR__MTIME", SqlFieldNameExt="OR__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Or1Mtime { get; set; }
+[Display(Name = "Or1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("OR__MAGENT", SqlFieldNameExt="OR__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Or1Magent { get; set; }
+[Display(Name = "Or1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("OR__MUNIT", SqlFieldNameExt="OR__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Or1Munit { get; set; }
 [Display(Name = "Or1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("OR__HOME", SqlFieldNameExt="OR__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("OR__HOME", SqlFieldNameExt="OR__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Or1Home { get; set; }
 [Display(Name = "Or1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("OR__VERSION", SqlFieldNameExt="OR__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("OR__VERSION", SqlFieldNameExt="OR__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Or1Version { get; set; }
 [Display(Name = "Or1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("OR__INACTIVE", SqlFieldNameExt="OR__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("OR__INACTIVE", SqlFieldNameExt="OR__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Or1Inactive { get; set; }
 [Display(Name = "Or1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("OR__EXTATT", SqlFieldNameExt="OR__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("OR__EXTATT", SqlFieldNameExt="OR__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Or1Extatt { get; set; }
 
@@ -94,14 +224,14 @@ public string? Or1Extatt { get; set; }
 public string? OrClasseAssistenza  { get; set; }
 
 [Display(Name = "Codice", ShortName="", Description = "Identificatore dell'agente", Prompt="")]
-[ErpDogField("OR_CODICE", SqlFieldNameExt="OR_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(ORGANIZZAZIONE.OR__ICODE[OR__ICODE] {OR_CODICE=' '}) multbxref()")]
+[ErpDogField("OR_CODICE", SqlFieldNameExt="OR_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(ORGANIZZAZIONE.OR__ICODE[OR__ICODE] {OR_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? OrCodice  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione dell'agente", Prompt="")]
-[ErpDogField("OR_DESCRIZIONE", SqlFieldNameExt="OR_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("OR_DESCRIZIONE", SqlFieldNameExt="OR_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]
@@ -122,7 +252,7 @@ public string? OrNote  { get; set; }
 public string? OrEmail  { get; set; }
 
 [Display(Name = "Tipo Assistenza", ShortName="", Description = "Tipo dell'agente nella classificazione generale", Prompt="")]
-[ErpDogField("OR_TIPO_ASSISTENZA", SqlFieldNameExt="OR_TIPO_ASSISTENZA", SqlFieldOptions="", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
+[ErpDogField("OR_TIPO_ASSISTENZA", SqlFieldNameExt="OR_TIPO_ASSISTENZA", SqlFieldOptions="[MANDATORY]", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]

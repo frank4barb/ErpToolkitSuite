@@ -85,3 +85,110 @@ body {
 
 
 /*  end autocomplete  */
+
+
+/*  init alert  */
+
+.overlay-alert {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 3000; /* sopra modale e toast */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay-alert-box {
+    background: #fff;
+    padding: 24px 32px;
+    border-radius: 10px;
+    min-width: 300px;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+}
+
+.overlay-alert-box {
+    background: #fff;
+    padding: 26px 34px;
+    border-radius: 12px;
+    min-width: 320px;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,.35);
+}
+
+/* TIPI */
+.overlay-alert.info {
+    border-top: 6px solid #0dcaf0;
+}
+
+.overlay-alert.success {
+    border-top: 6px solid #198754;
+}
+
+.overlay-alert.warning {
+    border-top: 6px solid #ffc107;
+}
+
+.overlay-alert.error {
+    border-top: 6px solid #dc3545;
+}
+
+.overlay-alert-icon {
+    font-size: 32px;
+}
+
+/*  end alert  */
+
+
+/* init etkTable2 */
+.editing-row {
+    background-color: #fff3cd !important;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+.editing-row.table-success {
+    background-color: #d1e7dd !important;
+    box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+}
+
+.editing-row td {
+    border-color: #ffc107 !important;
+}
+
+.editing-row.table-success td {
+    border-color: #198754 !important;
+}
+
+/* Riga cancellata: sfondo rosato */
+table.erptbl tr.erptbl-deleted {
+    background-color: #ffe6e6; /* rosso molto chiaro */
+}
+
+/* Testo sbarrato e colore attenuato su tutta la riga */
+table.erptbl tr.erptbl-deleted,
+table.erptbl tr.erptbl-deleted td,
+table.erptbl tr.erptbl-deleted td span,
+table.erptbl tr.erptbl-deleted td a,
+table.erptbl tr.erptbl-deleted td input,
+table.erptbl tr.erptbl-deleted td select,
+table.erptbl tr.erptbl-deleted td textarea {
+    text-decoration: line-through;
+    color: #a10000; /* rosso scuro leggibile */
+    opacity: 0.85; /* leggermente attenuato */
+}
+
+/* Evita di barrare i pulsanti azione (solo estetica) */
+table.erptbl tr.erptbl-deleted td.action-buttons,
+table.erptbl tr.erptbl-deleted td.action-buttons * {
+    text-decoration: none;
+    color: inherit;
+    opacity: 1;
+}
+
+
+/* end etkTable2 */
+
+

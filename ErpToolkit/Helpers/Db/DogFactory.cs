@@ -1,5 +1,5 @@
 
-using static ErpToolkit.Helpers.Db.DatabaseFactory;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 
 namespace ErpToolkit.Helpers.Db
 {

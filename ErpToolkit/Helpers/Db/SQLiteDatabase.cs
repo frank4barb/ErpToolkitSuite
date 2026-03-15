@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -175,6 +176,39 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  SQLite: nessun privilegio speciale.
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            // Non esiste SPID in SQLite: restituisci null
+            return null;
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            // Non esiste concetto di request attiva per sessione: evita audit
+            return false;
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Nessun piano/request live: ritorna snapshot minimale
+            return new LiveSessionSnapshot
+            {
+                Status = "N/A",
+                WaitType = null,
+                TotalElapsedMs = 0,
+                BlockingSessionId = null,
+                SqlText = null,
+                QueryPlanXml = null
+            };
+        }
 
 
 

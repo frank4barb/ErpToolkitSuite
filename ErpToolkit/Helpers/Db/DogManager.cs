@@ -1,24 +1,15 @@
-using Amazon.Runtime.Internal.Transform;
-using Amazon.SecurityToken.Model;
 using ErpToolkit.Models;
-using Google.Protobuf.Collections;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.CodeAnalysis;
 using MongoDB.Driver;
-using MySql.Data.MySqlClient.X.XDevAPI.Common;
-using Org.BouncyCastle.Crypto.Parameters;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
-using static ErpToolkit.Helpers.Db.DatabaseFactory;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 
@@ -30,6 +21,14 @@ namespace ErpToolkit.Helpers.Db
     // Funzioni di gestione accesso al Database, con il supporto del Data Model 
     public class DogManager
     {
+        private static readonly NLog.ILogger _logger;
+        static DogManager()
+        {
+            NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
+            _logger = NLog.LogManager.GetCurrentClassLogger();  //SetUpNLog();
+        }
+
+
         //formati interni
         internal const string DB_FORMAT_DATE = "yyyy/MM/dd"; //formato stringa di memorizzazione della data nel DB
         internal const string DB_FORMAT_TIME = "HH:mm:ss"; //formato stringa di memorizzazione dell'ora nel DB
@@ -44,6 +43,7 @@ namespace ErpToolkit.Helpers.Db
         internal const long DB_LONG_EMPTY = (long)(-2147483647 - 1); //vuoto
         internal const double DB_DOUBLE_EMPTY = (double)(-2147483648.0000); //vuoto
         //---
+        internal const int DOG_MAX_OBJ_DEPTH = (int) 3; //massimo livello di profondità di inclusione degli oggetti. Serve per evitare loop infiniti in caso di inclusione di oggetti che si richiamano a vicenda, come ad esempio un cliente che ha un ordine, e l'ordine ha un cliente, e così via. Se il livello di profondità è maggiore di DOG_MAX_OBJ_DEPTH, allora l'oggetto non viene incluso.
 
         //***************************************************************************************************************************************************
         //*** STRUTTURE STATICHE
@@ -120,14 +120,15 @@ namespace ErpToolkit.Helpers.Db
             private int serviceMntID = -1;
             internal int GetMntID() { return ++serviceMntID; }
             internal void InitMntID() { serviceMntID = -1; }
+            internal ModelErp? GetObject(System.Type type, object icode) { try { return dbCache[type][icode]; } catch (Exception ex) { return null; } } // return= null se non trovato
 
             //-----
 
-            public List<string> ruleXrefFrom { get; } = new List<string>();
-            public void AddRuleXrefFrom(List<string> newRuleXrefFrom) { this.ruleXrefFrom.Union<string>(newRuleXrefFrom); } //integra valori passati a quelli presenti. esclude duplicati in base alla funzione Equal. E' case sensitive.
+            private List<string> ruleXrefFrom = new List<string>();
+            public List<string> RuleXrefFrom { get { return ruleXrefFrom; } }
+            public void AddRuleXrefFrom(List<string> newRuleXrefFrom) { this.ruleXrefFrom = this.ruleXrefFrom.Union<string>(newRuleXrefFrom).ToList<string>(); } //integra valori passati a quelli presenti. esclude duplicati in base alla funzione Equal. E' case sensitive.
 
             public Dictionary<System.Type, Dictionary<object, ModelErp>> dbCache { get; } = new Dictionary<System.Type, Dictionary<object, ModelErp>>();
-
 
             public DogCache()
             {
@@ -140,13 +141,17 @@ namespace ErpToolkit.Helpers.Db
 
 
         //gestione properties
-        public static object? getPropertyValue(object selModel, string propName) { return DogManagerInt.getPropertyValue(selModel, propName); }
-        public static bool setPropertyValue(object selModel, string propName, string? propValue) { return DogManagerInt.setPropertyValue(selModel, propName, propValue);  }
+        //^^//public static object? getPropertyValue(object selModel, string propName) { return DogManagerInt.getPropertyValue(selModel, propName); }
+        //^^//public static bool setPropertyValue(object selModel, string propName, string? propValue) { return DogManagerInt.setPropertyValue(selModel, propName, propValue); }
+        public static object? getPropertyValue(ModelErp selModel, string propName) { return DogManagerQuery.getPropertyValue_static(selModel, propName); }
+        public static bool setPropertyValue(ModelErp selModel, string propName, string? propValue) { return DogManagerQuery.setPropertyValue_static(selModel, propName, propValue); }
+        public object? getDogPropertyValue(ModelErp selModel, string propName) { return DogManagerQuery.getPropertyValue(this, selModel, propName); }
+        public bool setDogPropertyValue(ModelErp selModel, string propName, string? propValue) { return DogManagerQuery.setPropertyValue(this, selModel, propName, propValue); }
 
 
         //gestione parameters
-        public static string addParam(object value, ref IDictionary<string, object> parameters) { string parName = $"PARM{parameters.Count}"; parameters.Add(parName, value); return $"@{parName}"; }
-        public static List<string> addListParam(List<object> values, ref IDictionary<string, object> parameters) { List<string> cond = new List<string>(); foreach (var value in values) { string parName = $"PARM{parameters.Count}"; parameters.Add(parName, value); cond.Add($"@{parName}"); } return cond; }
+        public static string addParam(object value, ref IDictionary<string, object> parameters) { string parName = $"PARM{parameters.Count}X"; parameters.Add(parName, value); return $"@{parName}"; }
+        public static List<string> addListParam(List<object> values, ref IDictionary<string, object> parameters) { List<string> cond = new List<string>(); foreach (var value in values) { string parName = $"PARM{parameters.Count}X"; parameters.Add(parName, value); cond.Add($"@{parName}"); } return cond; }
 
 
 
@@ -161,7 +166,6 @@ namespace ErpToolkit.Helpers.Db
         private string _connectionStringName; // = "#connectionString_SQLSLocal";
         private string _dbRoot; // = "IU01";
         private string _dbHome; // = "sio_PROD";
-        private NLog.ILogger _logger;
 
 
         public DbTyp DatabaseType { get { return this._databaseType; } }
@@ -196,10 +200,14 @@ namespace ErpToolkit.Helpers.Db
         public readonly Dictionary<System.Type, DogTable> selTypes = new Dictionary<System.Type, DogTable>();
         public readonly Dictionary<string, DogField> selProperties = new Dictionary<string, DogField>();
         public readonly Dictionary<string, DogField> selFields = new Dictionary<string, DogField>();
+        //----TopologicalSort-------------------------
+        public readonly Dictionary<System.Type, List<System.Type>> typeGraph = new Dictionary<System.Type, List<System.Type>>();
 
 
         public class DogTable
         {
+            internal DogTable() { }
+            //--
             public string tableName = "";
             public System.Type tableTpy;
             public List<DogField> fields = new List<DogField>();
@@ -223,11 +231,37 @@ namespace ErpToolkit.Helpers.Db
             public string PREFIX = ""; //Table Prefix
             public string LIVEDESC = ""; //Table type: Live or Description
             public string IS_RELTABLE = ""; //Is Relation Table: Yes or No
+            //---
+            public DogTable tabSelection = null; //ref tabella legata alla classe di selezione.
+            //---
+            public DogField fldIcode = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldDeleted = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldTimestamp = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldCdate = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldCtime = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldCagent = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldCunit = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldMdate = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldMtime = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldMagent = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldMunit = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldHome = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldVersion = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldInactive = null; //ref campo di sistema. se presente può essere solo uno per tabella.
+            public DogField fldExtatt = null; //ref campo di sistema. se presente può essere solo uno per tabella.
         }
         public class DogField
         {
+            private DogField() { }
+            internal DogField(Func<ModelErp, object?>? getter, Action<ModelErp, object?>? setter, Func<ModelErp, object?>? objGetter, Action<ModelErp, object?>? objSetter) { _getter = getter; _setter = setter; _objGetter = objGetter; _objSetter = objSetter; }
+            internal void setXrefListGetterSetter(Func<ModelErp, object?>? getter, Action<ModelErp, object?>? setter) { _listXrefGetter = getter; _listXrefSetter = setter; }
+            internal void setXrefDictGetterSetter(Func<ModelErp, object?>? getter, Action<ModelErp, object?>? setter) { _dictXrefGetter = getter; _dictXrefSetter = setter; }
+            //--
             public string fieldName = "";
             public System.Type fieldTyp;
+            public System.Type fieldObjTyp;
+            public System.Type fieldXrefListTyp;  // List<T>?
+            public System.Type fieldXrefDictTyp;  // Dictionary<string,T>?
             public DogTable table;
             //--
             public string SqlFieldName = "";  // eg: AV_CODICE
@@ -237,25 +271,219 @@ namespace ErpToolkit.Helpers.Db
             public string Xref = "";  // external reference (if any) eg: Pa1Icode
             public DogField XrefObj;  // external reference (if any) eg: Pa1Icode
             //--
-            public bool optXREF = false;
-            public bool optSID = false;
-            public bool optUID = false;
-            public bool optXID = false;
-            public bool optDATE = false;
-            public bool optTIME = false;
-            public bool optDATETIME = false;
-            public bool optBIGINT = false;
+            public bool optXREF = false;        //campo di relazione (es. PrIdAttivitaRichiesta)
+            public bool optXREFlist = false;    //campo di relazione (es. PrIdAttivitaRichiesta) con lista definita sul modello della tabella relazionata (es: List<Prestazione> XrefPrIdAttivitaRichiesta; definita sul modello Attivita)
+            public bool optXREFdict = false;    //campo di relazione (es. PrIdAttivitaRichiesta) con dictionary definita sul modello della tabella relazionata (es: Dictionary<string,Prestazione> XrefPrIdAttivitaRichiesta; definita sul modello Attivita)
+            public bool optMANDATORY = false;   //campo obbligatorio. Il valore non può essere NULL o vuoto, anche se il campo è di relazione (optXREF).
+            public bool optSYS = false;         //campo di sistema su cui non devo effettuare confronto tra record (sono solo: _icode _deleted, _timestamp, _home, _cdate,_ctime,_cagent,_cunit, _mdate,_mtime,_magent,_munit)
+            //-
+            public bool optSID = false;         //campo di sistema: chiave univoca  (es. _icode)
+            public bool optDEL = false;         //campo di sistema: di sistema (es. _deleted)
+            public bool optTMS = false;         //campo di sistema timestamp di sistema (es. _timestamp)
+            public bool optCDATE = false;       //campo di sistema: data creazione (es. _cdate)
+            public bool optCTIME = false;       //campo di sistema: ora creazione (es. _ctime)
+            public bool optCAGENT = false;      //campo di sistema: agente creazione (es. _cagent)
+            public bool optCUNIT = false;       //campo di sistema: unità creazione (es. _cunit)
+            public bool optMDATE = false;       //campo di sistema: data ultima modifica (es. _mdate)
+            public bool optMTIME = false;       //campo di sistema: ora ultima modifica (es. _mtime)
+            public bool optMAGENT = false;      //campo di sistema: agente ultima modifica (es. _magent)
+            public bool optMUNIT = false;       //campo di sistema: unità ultima modifica (es. _munit)
+            public bool optHOME = false;        //campo home (es. _home)
+            public bool optVERSION = false;     //campo version (es. _version)
+            public bool optINACTIVE = false;    //campo inactive (es. _inactive)
+            public bool optEXTATT = false;      //campo extatt (es. _extatt)
+            //-
+            public bool optUID = false;         //campo chiave univoca di utente (es. codice cliente)
+            public bool optXID = false;         //campo chiave univoca esterna (es. codice esterno cliente)
+            public bool optDATE = false;        //campo data (es. data nascita)
+            public bool optTIME = false;        //campo ora (es. ora appuntamento)
+            public bool optDATETIME = false;    //campo data e ora (es. data e ora registrazione)
+            public bool optBIGINT = false;      //campo intero lungo usato come chiave relazione esterna FK (usato generalmente su IRIS)
+            public bool optLABEL = false;       //campo label viene usato come etichetta descrittiva in liste e combo (es. descrizione cliente)
             //--
             public string Description;  
             public object? DefaultValue = null;  
             public int? StringLength = null;
-        }
+            // Getter e Setter
+            private Func<ModelErp, object?>? _getter;
+            private Action<ModelErp, object?>? _setter;
+            public object? GetValue(ModelErp model)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));
+                if (_getter == null) throw new InvalidOperationException("_getter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                return _getter!(model);
+            }
+            public void SetValue(ModelErp model, object? value)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));
+                if (_setter == null) throw new InvalidOperationException("_setter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                System.Type targetType = Nullable.GetUnderlyingType(this.fieldTyp) ?? this.fieldTyp;
+                if (value == null)
+                {
+                    if (!this.fieldTyp.IsValueType || Nullable.GetUnderlyingType(this.fieldTyp) != null) { _setter!(model, null); } // Se il tipo è nullable, possiamo assegnare null
+                    else { throw new Exception($"Tipo non nullable nel ModelErp ({model.GetType().FullName}.{this.fieldName})"); }
+                }
+                else
+                {
+                    try
+                    {
+                        // Se il valore è già compatibile, lo assegniamo direttamente
+                        if (targetType.IsAssignableFrom(value.GetType())) { _setter!(model, value); }
+                        else { object convertedValue = Convert.ChangeType(value, targetType); _setter!(model, convertedValue); } // Proviamo a convertire dinamicamente
+                    }
+                    catch (Exception ex) { throw new Exception($"Tipo {value.GetType().Name} non assegnabile nel ModelErp ({model.GetType().FullName}.{this.fieldName})", ex); }
+                }
+            }
+            public void CopyValue(ModelErp model, object? value)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));
+                if (_setter == null) throw new InvalidOperationException("_setter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (value == null) { _setter!(model, null); }
+                else
+                {
+                    var type = value.GetType();
+                    var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
 
+                    // Caso: Dictionary<string,string>
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>) &&
+                        type.GetGenericArguments()[0] == typeof(string) && type.GetGenericArguments()[1] == typeof(string))
+                    {
+                        var dictStr = (Dictionary<string, string>)value; _setter!(model, new Dictionary<string, string>(dictStr));
+                    }
+                    // Caso: List<string>
+                    else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>) && type.GetGenericArguments()[0] == typeof(string))
+                    {
+                        var listString = (List<string>)value; _setter!(model, new List<string>(listString));
+                    }
+                    // Caso: List<long>
+                    else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>) && type.GetGenericArguments()[0] == typeof(long))
+                    {
+                        var listLong = (List<long>)value; _setter!(model, new List<long>(listLong));
+                    }
+                    // Tipi semplici e nullable
+                    else if (underlyingType == typeof(string) ||
+                        underlyingType == typeof(int) ||
+                        underlyingType == typeof(long) ||
+                        underlyingType == typeof(double) ||
+                        underlyingType == typeof(short) ||
+                        underlyingType == typeof(char) ||
+                        underlyingType == typeof(DateTime) ||
+                        underlyingType == typeof(DateOnly) ||
+                        underlyingType == typeof(TimeOnly))
+                    {
+                        _setter!(model, value);
+                    }
+                    // DateRange
+                    else if (type == typeof(DateRange))
+                    {
+                        var originalDateRange = (DateRange)value;
+                        var newDateRange = new DateRange(); newDateRange.StartDate = originalDateRange.StartDate; newDateRange.EndDate = originalDateRange.EndDate;
+                        _setter!(model, newDateRange);
+                    }
+                    // Clonazione profonda di byte[]
+                    else if (type == typeof(byte[]))
+                    {
+                        var originalBytes = (byte[])value;
+                        _setter!(model, (originalBytes != null) ? (byte[])originalBytes.Clone() : null);
+                    }
+                    else
+                    {
+                        //non sono consentite altre tipologie di proprietà nei ModelErp
+                        throw new Exception($"Tipo {type.Name} non consentito nel ModelErp ({model.GetType().FullName}.{this.fieldName})");
+                    }
+                }
+            }
+            // Obj Getter e Setter
+            private Func<ModelErp, object?>? _objGetter;
+            private Action<ModelErp, object?>? _objSetter;
+            public object? GetObjValue(ModelErp model)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));
+                if (_objGetter == null) throw new InvalidOperationException("_objGetter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (!this.optXREF || this.fieldObjTyp == null) throw new Exception($"Tipo non Object nel ModelErp ({model.GetType().FullName}.{this.fieldName})");
+                return _objGetter!(model);
+            }
+            public void SetObjValue(ModelErp model, object? value)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));
+                if (_objSetter == null) throw new InvalidOperationException("_objSetter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (!this.optXREF || this.fieldObjTyp == null) throw new Exception($"Tipo non Object nel ModelErp ({model.GetType().FullName}.{this.fieldName})");
+                System.Type targetType = Nullable.GetUnderlyingType(this.fieldObjTyp) ?? this.fieldObjTyp;
+                if (value == null)
+                {
+                    if (!this.fieldObjTyp.IsValueType || Nullable.GetUnderlyingType(this.fieldObjTyp) != null) { _objSetter!(model, null); } // Se il tipo è nullable, possiamo assegnare null
+                    else { throw new Exception($"Tipo non nullable nel ModelErp ({model.GetType().FullName}.{this.fieldName}Obj)"); }
+                }
+                else
+                {
+                    try
+                    {
+                        // Se il valore è già compatibile, lo assegniamo direttamente
+                        if (targetType.IsAssignableFrom(value.GetType())) { _objSetter!(model, value); }
+                        else { object convertedValue = Convert.ChangeType(value, targetType); _objSetter!(model, convertedValue); } // Proviamo a convertire dinamicamente
+                    }
+                    catch (Exception ex) { throw new Exception($"Tipo {value.GetType().Name} non assegnabile nel ModelErp ({model.GetType().FullName}.{this.fieldName}Obj)", ex); }
+                }
+            }
+            // List Getter e Setter
+            protected Func<ModelErp, object?>? _listXrefGetter;
+            protected Action<ModelErp, object?>? _listXrefSetter;
+            public object? GetListXrefValue(ModelErp model)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
+                if (_listXrefGetter == null) throw new InvalidOperationException("_listXrefGetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFlist || this.fieldXrefListTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelErp {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                return _listXrefGetter!(model);
+            }
+            public void SetListXrefValue(ModelErp model, object? value)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
+                if (_listXrefSetter == null) throw new InvalidOperationException("_listXrefSetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFlist || this.fieldXrefListTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelErp {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                try
+                {
+                    // Se il valore è già compatibile, lo assegniamo direttamente
+                    if (value == null || this.fieldXrefListTyp.IsAssignableFrom(value.GetType())) { _listXrefSetter!(model, value); }
+                    else { object convertedValue = Convert.ChangeType(value, this.fieldXrefListTyp); _listXrefSetter!(model, convertedValue); } // Proviamo a convertire dinamicamente
+                }
+                catch (Exception ex) { throw new Exception($"Tipo {value?.GetType().Name ?? "null"} non assegnabile alla proprietà {model.GetType().FullName}.Xref{this.fieldName} ", ex); }
+            }
+            // Dictionary Getter e Setter
+            protected Func<ModelErp, object?>? _dictXrefGetter;
+            protected Action<ModelErp, object?>? _dictXrefSetter;
+            public object? GetDictXrefValue(ModelErp model)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
+                if (_dictXrefGetter == null) throw new InvalidOperationException("_dictXrefGetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFdict || this.fieldXrefDictTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelErp {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                return _dictXrefGetter!(model);
+            }
+            public void SetDictXrefValue(ModelErp model, object? value)
+            {
+                if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
+                if (_dictXrefSetter == null) throw new InvalidOperationException("_dictXrefSetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFdict || this.fieldXrefDictTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelErp {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                try
+                {
+                    // Se il valore è già compatibile, lo assegniamo direttamente
+                    if (value == null || this.fieldXrefDictTyp.IsAssignableFrom(value.GetType())) { _dictXrefSetter!(model, value); }
+                    else { object convertedValue = Convert.ChangeType(value, this.fieldXrefDictTyp); _dictXrefSetter!(model, convertedValue); } // Proviamo a convertire dinamicamente
+                }
+                catch (Exception ex) { throw new Exception($"Tipo {value?.GetType().Name ?? "null"} non assegnabile alla proprietà {model.GetType().FullName}.Xref{this.fieldName} ", ex); }
+            }
+
+        }
         internal DogManager(string modelName, string modelMode, DbTyp databaseType, string connectionStringName, string dbRoot, string dbHome)
         {
-            //SetUpNLog();
-            NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
-            _logger = NLog.LogManager.GetCurrentClassLogger();
             //set dog
             _modelName = modelName;
             _modelMode = modelMode;  //indica come interpretare il Modello. Se _modelMode == "FREE" allora il modello non prevede i campi standard _deleted _timestamp, ecc. e non gestisce le date come stringhe
@@ -286,6 +514,8 @@ namespace ErpToolkit.Helpers.Db
 
             foreach (var objType in typesInNamespace)
             {
+                if (typeof(ModelErp).IsAssignableFrom(objType) == false) continue; // esclude i tipi che non estendono ModelErp. (Se si vuole includere anche questi, rimuovere questa riga).
+
                 // Cerca le costanti MODELNAME e MODELTYPE
                 var modName = objType.GetField("MODEL", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 var categName = objType.GetField("CATEG", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
@@ -318,13 +548,77 @@ namespace ErpToolkit.Helpers.Db
                         tab.LIVEDESC = objType.GetField("LIVEDESC")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.IS_RELTABLE = objType.GetField("IS_RELTABLE")?.GetRawConstantValue()?.ToString() ?? "";
                         //---------
+                        tab.tabSelection = null;
+                        //---------
+                        tab.fldIcode = null;
+                        tab.fldDeleted = null;
+                        tab.fldTimestamp = null;
+                        tab.fldCdate = null;
+                        tab.fldCtime = null;
+                        tab.fldCagent = null;
+                        tab.fldCunit = null;
+                        tab.fldMdate = null;
+                        tab.fldMtime = null;
+                        tab.fldMagent = null;
+                        tab.fldMunit = null;
+                        tab.fldHome = null;
+                        tab.fldVersion = null;
+                        tab.fldInactive = null;
+                        tab.fldExtatt = null;
+                        //---------
                         foreach (var property in objType.GetProperties())
                         {
                             ErpDogFieldAttribute? erpDogFieldAttribute = property.GetCustomAttribute(typeof(ErpDogFieldAttribute)) as ErpDogFieldAttribute;
                             if (erpDogFieldAttribute != null)
                             {
+                                string fld_Xref = erpDogFieldAttribute.Xref?.ToString() ?? "";
+                                bool fld_optXREF = String.IsNullOrWhiteSpace(fld_Xref) == false;
+                                //--------- EnsureDelegates
+                                var paramModel = Expression.Parameter(typeof(ModelErp), "model");
+                                var castModel = Expression.Convert(paramModel, tab.tableTpy);
+                                // ====== Getter ======
+                                var propAccess = Expression.Property(castModel, property);
+                                var castToObject = Expression.Convert(propAccess, typeof(object));
+                                Func<ModelErp, object?>? _getter = Expression.Lambda<Func<ModelErp, object?>>(castToObject, paramModel).Compile();
+                                // ====== Setter ======
+                                var paramValue = Expression.Parameter(typeof(object), "value");
+                                var castValue = Expression.Convert(paramValue, property.PropertyType);
+                                var setExpr = Expression.Call(castModel, property.GetSetMethod(), castValue);
+                                Action<ModelErp, object?>? _setter = Expression.Lambda<Action<ModelErp, object?>>(setExpr, paramModel, paramValue).Compile();
                                 //---------
-                                DogField fld = new DogField();
+                                DogField fld = null;
+                                if (fld_optXREF && tab.CATEG == "TAB")
+                                {
+                                    var objPropertyName = property.Name + "Obj";
+                                    var objProperty = objType.GetProperty(objPropertyName);
+                                    if (objProperty == null) throw new ArgumentException($"Errore nel modello {objType.Name}: manca la proprietà di oggetto correlata {objPropertyName} per il campo di relazione {property.Name}.");
+                                    // ====== Getter ======
+                                    var objPropAccess = Expression.Property(castModel, objProperty);
+                                    var objCastToObject = Expression.Convert(objPropAccess, typeof(object));
+                                    Func<ModelErp, object?>? _objGetter = Expression.Lambda<Func<ModelErp, object?>>(objCastToObject, paramModel).Compile();
+                                    // ====== Setter ======
+                                    var objParamValue = Expression.Parameter(typeof(object), "value");
+                                    var objCastValue = Expression.Convert(objParamValue, objProperty.PropertyType);
+                                    var objSetExpr = Expression.Call(castModel, objProperty.GetSetMethod(), objCastValue);
+                                    Action<ModelErp, object?>? _objSetter = Expression.Lambda<Action<ModelErp, object?>>(objSetExpr, paramModel, objParamValue).Compile();
+                                    // Salva 
+                                    fld = new DogField(_getter, _setter, _objGetter, _objSetter);
+                                    fld.fieldObjTyp = objProperty.PropertyType;
+                                    fld.fieldXrefListTyp = null; //viene valorizzato solo se presente la proprietà XrefXXXXXX
+                                    fld.fieldXrefDictTyp = null; //viene valorizzato solo se presente la proprietà XrefXXXXXX
+                                }
+                                else
+                                {
+                                    fld = new DogField(_getter, _setter, null, null);
+                                    fld.fieldObjTyp = null;
+                                    fld.fieldXrefListTyp = null; //viene valorizzato solo se presente la proprietà XrefXXXXXX
+                                    fld.fieldXrefDictTyp = null; //viene valorizzato solo se presente la proprietà XrefXXXXXX
+                                }
+                                fld.Xref = fld_Xref;
+                                fld.optXREF = fld_optXREF;
+                                fld.optXREFlist = false;
+                                fld.optXREFdict = false;
+                                //---------
                                 fld.fieldName = property.Name;
                                 fld.fieldTyp = property.PropertyType;
                                 fld.table = tab;
@@ -333,16 +627,37 @@ namespace ErpToolkit.Helpers.Db
                                 fld.SqlFieldProperties = erpDogFieldAttribute.SqlFieldProperties?.ToString() ?? "";
                                 fld.SqlFieldOptions = erpDogFieldAttribute.SqlFieldOptions?.ToString() ?? "";
                                 fld.SqlFieldNameExt = erpDogFieldAttribute.SqlFieldNameExt?.ToString() ?? "";
-                                fld.Xref = erpDogFieldAttribute.Xref?.ToString() ?? "";
                                 //---------
-                                fld.optXREF = String.IsNullOrWhiteSpace(fld.Xref) == false;
-                                fld.optSID = fld.SqlFieldOptions.Contains("[SID]");
+                                fld.optMANDATORY = fld.SqlFieldOptions.Contains("[MANDATORY]");
+                                //-
+                                fld.optSID = fld.SqlFieldOptions.Contains("[SID]");             if (fld.optSID) { if (fld.table.fldIcode == null) fld.table.fldIcode = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optDEL = fld.SqlFieldOptions.Contains("[DEL]");             if (fld.optDEL) { if (fld.table.fldDeleted == null) fld.table.fldDeleted = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optTMS = fld.SqlFieldOptions.Contains("[TMS]");			    if (fld.optTMS) { if (fld.table.fldTimestamp == null) fld.table.fldTimestamp = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optCDATE = fld.SqlFieldOptions.Contains("[CDATE]");			if (fld.optCDATE) { if (fld.table.fldCdate == null) fld.table.fldCdate = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optCTIME = fld.SqlFieldOptions.Contains("[CTIME]");			if (fld.optCTIME) { if (fld.table.fldCtime == null) fld.table.fldCtime = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optCAGENT = fld.SqlFieldOptions.Contains("[CAGENT]");		if (fld.optCAGENT) { if (fld.table.fldCagent == null) fld.table.fldCagent = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optCUNIT = fld.SqlFieldOptions.Contains("[CUNIT]");			if (fld.optCUNIT) { if (fld.table.fldCunit == null) fld.table.fldCunit = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optMDATE = fld.SqlFieldOptions.Contains("[MDATE]");			if (fld.optMDATE) { if (fld.table.fldMdate == null) fld.table.fldMdate = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optMTIME = fld.SqlFieldOptions.Contains("[MTIME]");			if (fld.optMTIME) { if (fld.table.fldMtime == null) fld.table.fldMtime = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optMAGENT = fld.SqlFieldOptions.Contains("[MAGENT]");		if (fld.optMAGENT) { if (fld.table.fldMagent == null) fld.table.fldMagent = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optMUNIT = fld.SqlFieldOptions.Contains("[MUNIT]");			if (fld.optMUNIT) { if (fld.table.fldMunit == null) fld.table.fldMunit = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optHOME = fld.SqlFieldOptions.Contains("[HOME]");			if (fld.optHOME) { if (fld.table.fldHome == null) fld.table.fldHome = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optVERSION = fld.SqlFieldOptions.Contains("[VERSION]");		if (fld.optVERSION) { if (fld.table.fldVersion == null) fld.table.fldVersion = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optINACTIVE = fld.SqlFieldOptions.Contains("[INACTIVE]");	if (fld.optINACTIVE) { if (fld.table.fldInactive == null) fld.table.fldInactive = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                fld.optEXTATT = fld.SqlFieldOptions.Contains("[EXTATT]");		if (fld.optEXTATT) { if (fld.table.fldExtatt == null) fld.table.fldExtatt = fld; else throw new ArgumentException($"Errore nelle opzioni del campo {fld.fieldName}: il tipo deve essere unico nella tabella"); }
+                                //-
+                                fld.optSYS = fld.SqlFieldOptions.Contains("[SYS]");
+                                fld.optSYS |= fld.optSID | fld.optDEL | fld.optTMS | fld.optHOME;           // includo sempre questi tipi di campo di sistema
+                                fld.optSYS |= fld.optCDATE | fld.optCTIME | fld.optCAGENT | fld.optCUNIT;   // includo sempre questi tipi di campo di sistema
+                                fld.optSYS |= fld.optMDATE | fld.optMTIME | fld.optMAGENT | fld.optMUNIT;   // includo sempre questi tipi di campo di sistema
+                                //-
                                 fld.optUID = fld.SqlFieldOptions.Contains("[UID]");
                                 fld.optXID = fld.SqlFieldOptions.Contains("[XID]");
                                 fld.optDATE = fld.SqlFieldOptions.Contains("[DATE]");
                                 fld.optTIME = fld.SqlFieldOptions.Contains("[TIME]");
                                 fld.optDATETIME = fld.SqlFieldOptions.Contains("[DATETIME]");
                                 fld.optBIGINT = fld.SqlFieldOptions.Contains("[BIGINT]");
+                                fld.optLABEL = fld.SqlFieldOptions.Contains("[LABEL]");
                                 //---------
                                 DisplayAttribute? displaydAttribute = property.GetCustomAttribute(typeof(DisplayAttribute)) as DisplayAttribute;
                                 if (displaydAttribute != null)
@@ -364,7 +679,7 @@ namespace ErpToolkit.Helpers.Db
                                 switch (categNameVal)
                                 {
                                     case "TAB":
-                                        tabProperties.Add(fld.fieldName, fld);
+                                        tabProperties.Add(fld.fieldName, fld);  
                                         tabFields.Add(fld.SqlFieldName, fld);
                                         break;
                                     case "SEL":
@@ -396,9 +711,86 @@ namespace ErpToolkit.Helpers.Db
             {
                 if (fld.optXREF)
                 {
-                    if (tabProperties.ContainsKey(fld.Xref)) { fld.XrefObj = tabProperties[fld.Xref]; tabProperties[fld.Xref].table.XrefFromFld.Add(fld); }  // il field deve esistere
+                    if (tabProperties.ContainsKey(fld.Xref))    // il field deve esistere
+                    {  
+
+                        //carico lista di relazione
+                        fld.XrefObj = tabProperties[fld.Xref]; tabProperties[fld.Xref].table.XrefFromFld.Add(fld);
+
+                        // check if List<T> :: verifico se è definita la tabella XrefXXXXXXXX nel modello
+                        ModelErp tb = (ModelErp)Activator.CreateInstance(tabProperties[fld.Xref].table.tableTpy)!;
+                        if (tb == null) throw new ArgumentException($"Errore: impossibile creare istanza modello {tabProperties[fld.Xref].table.tableTpy} ");
+                        var property = tb.GetType().GetProperty("Xref" + fld.fieldName);
+                        if (property != null && property.CanWrite &&
+                            property.PropertyType.IsGenericType &&
+                            property.PropertyType.GetGenericTypeDefinition() == typeof(List<>) &&
+                            property.PropertyType.GetGenericArguments()[0] == fld.table.tableTpy)
+                        {
+                            // verifica se la lista e nullable
+                            if (property.GetType().IsValueType && Nullable.GetUnderlyingType(property.GetType()) == null) { throw new Exception($"Errore: Xref{fld.fieldName} non nullable nel ModelErp {tb.GetType().FullName} "); }
+
+                            //--------- EnsureDelegates
+                            var paramModel = Expression.Parameter(typeof(ModelErp), "model");
+                            var castModel = Expression.Convert(paramModel, tabProperties[fld.Xref].table.tableTpy);
+                            // ====== Getter ======
+                            var propAccess = Expression.Property(castModel, property);
+                            var castToObject = Expression.Convert(propAccess, typeof(object));
+                            Func<ModelErp, object?>? _listXrefGetter = Expression.Lambda<Func<ModelErp, object?>>(castToObject, paramModel).Compile();
+                            // ====== Setter ======
+                            var paramValue = Expression.Parameter(typeof(object), "value");
+                            var castValue = Expression.Convert(paramValue, property.PropertyType);
+                            var setExpr = Expression.Call(castModel, property.GetSetMethod(), castValue);
+                            Action<ModelErp, object?>? _listXrefSetter = Expression.Lambda<Action<ModelErp, object?>>(setExpr, paramModel, paramValue).Compile();
+                            // Salva
+                            fld.setXrefListGetterSetter(_listXrefGetter, _listXrefSetter);
+                            //---
+                            var xrefListType = typeof(List<>).MakeGenericType(fld.table.tableTpy);
+                            fld.fieldXrefListTyp = Nullable.GetUnderlyingType(xrefListType) ?? xrefListType;  // List<T>?   lista nullable
+                            fld.optXREFlist = true;     // nel modello tabProperties[fld.Xref].table è definita la propietà List<..fld.table.tableTpy..> Xef..fld.fieldName.. che fa riferimento a questo campo
+                        }
+                        if (property != null && property.CanWrite &&
+                            property.PropertyType.IsGenericType &&
+                            property.PropertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>) &&
+                            property.PropertyType.GetGenericArguments()[0] == typeof(string) &&
+                            property.PropertyType.GetGenericArguments()[1] == fld.table.tableTpy)
+                        {
+                            // verifica se la lista e nullable
+                            if (property.GetType().IsValueType && Nullable.GetUnderlyingType(property.GetType()) == null) { throw new Exception($"Errore: Xref{fld.fieldName} non nullable nel ModelErp {tb.GetType().FullName} "); }
+
+                            //--------- EnsureDelegates
+                            var paramModel = Expression.Parameter(typeof(ModelErp), "model");
+                            var castModel = Expression.Convert(paramModel, tabProperties[fld.Xref].table.tableTpy);
+                            // ====== Getter ======
+                            var propAccess = Expression.Property(castModel, property);
+                            var castToObject = Expression.Convert(propAccess, typeof(object));
+                            Func<ModelErp, object?>? _dictXrefGetter = Expression.Lambda<Func<ModelErp, object?>>(castToObject, paramModel).Compile();
+                            // ====== Setter ======
+                            var paramValue = Expression.Parameter(typeof(object), "value");
+                            var castValue = Expression.Convert(paramValue, property.PropertyType);
+                            var setExpr = Expression.Call(castModel, property.GetSetMethod(), castValue);
+                            Action<ModelErp, object?>? _dictXrefSetter = Expression.Lambda<Action<ModelErp, object?>>(setExpr, paramModel, paramValue).Compile();
+                            // Salva
+                            fld.setXrefDictGetterSetter(_dictXrefGetter, _dictXrefSetter);
+                            //---
+                            var xrefDictType = typeof(Dictionary<,>).MakeGenericType(new[] { typeof(string), fld.table.tableTpy });
+                            //fld.fieldXrefDictTyp = Nullable.GetUnderlyingType(xrefDictType) ?? xrefDictType;  // Dictionary<object,T>?   dictionary nullable
+                            fld.fieldXrefDictTyp = xrefDictType;  // Dictionary<object,T>?   dictionary nullable
+                            fld.optXREFdict = true;     // nel modello tabProperties[fld.Xref].table è definita la propietà Dictionary<object,..fld.table.tableTpy..> Xef..fld.fieldName.. che fa riferimento a questo campo
+                        }
+
+                    }
                     else throw new ArgumentException($"Errore: impossibile creare db, legame campo Xref {fld.Xref} non presente ");
                 }
+                if (PropertyTypeAllowed(fld.fieldTyp) == false)
+                {
+                    throw new ArgumentException($"Errore: impossibile creare db, tipo {fld.fieldTyp.Name} non consentito nel ModelErp ({fld.table.tableTpy.FullName}.{fld.fieldName})");
+                }
+
+            }
+            // collegamento della tabella collegata ad un filtro selezione
+            foreach (var sel in selfilters.Values)
+            {
+                if (sel.SqlTableName != null && tables.ContainsKey(sel.SqlTableName)) sel.tabSelection = tables[sel.SqlTableName];
             }
             //foreach (var fld in selProperties.Values)
             //{
@@ -409,7 +801,89 @@ namespace ErpToolkit.Helpers.Db
             //    }
             //}
 
+            // Costruisci il grafo delle dipendenze per usare l'ordinamento topologico [TopologicalSort]
+            typeGraph = DogManagerTopologicalSort.BuildTypeDependencyGraph(this);
+
+
+            //Genera file all'avvio
+            DogManagerFile.CreateInitFile(this);
+
         }
+        // Controlla se il tipo di proprietà è consentito nei ModelErp
+        private static bool PropertyTypeAllowed(System.Type type)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+            // Caso: Dictionary<string,string>
+            if (type.IsGenericType &&
+                         type.GetGenericTypeDefinition() == typeof(IDictionary<,>) &&
+                         type.GetGenericArguments()[0] == typeof(string) &&
+                         type.GetGenericArguments()[1] == typeof(string))
+            {
+                return true;
+            }
+            // Caso: List<string>
+            else if (type.IsGenericType &&
+                    type.GetGenericTypeDefinition() == typeof(List<>) &&
+                    type.GetGenericArguments()[1] == typeof(string))
+            {
+                return true;
+            }
+            // Caso: List<long>
+            else if (type.IsGenericType &&
+                    type.GetGenericTypeDefinition() == typeof(List<>) &&
+                    type.GetGenericArguments()[1] == typeof(long))
+            {
+                return true;
+            }
+            // Caso: List<ModelErp>
+            else if (type.IsGenericType &&
+                    type.GetGenericTypeDefinition() == typeof(List<>) &&
+                    typeof(ModelErp).IsAssignableFrom(type.GetGenericArguments()[0]))
+            {
+                return true;
+            }
+            // Caso: IDictionary<string, List<ModelErp>>
+            else if (type.IsGenericType &&
+                         type.GetGenericTypeDefinition() == typeof(IDictionary<,>) &&
+                         type.GetGenericArguments()[0] == typeof(object) &&
+                         typeof(List<ModelErp>).IsAssignableFrom(type.GetGenericArguments()[1]))
+            {
+                return true;
+            }
+            // Caso generico: ModelErp singolo
+            else if (typeof(ModelErp).IsAssignableFrom(type))
+            {
+                return true;
+            }
+            // Tipi semplici e nullable
+            if (underlyingType == typeof(string) ||
+                underlyingType == typeof(int) ||
+                underlyingType == typeof(long) ||
+                underlyingType == typeof(double) ||
+                underlyingType == typeof(short) ||
+                underlyingType == typeof(char) ||
+                underlyingType == typeof(DateTime) ||
+                underlyingType == typeof(DateOnly) ||
+                underlyingType == typeof(TimeOnly))
+            {
+                return true;
+            }
+            // DateRange
+            else if (type == typeof(DateRange))
+            {
+                return true;
+            }
+            // Clonazione profonda di byte[]
+            else if (type == typeof(byte[]))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         ~DogManager()
         {
             Dispose();
@@ -427,6 +901,7 @@ namespace ErpToolkit.Helpers.Db
             if (selTypes != null) { selTypes.Clear(); }
             if (selProperties != null) { selProperties.Clear(); }
             if (selFields != null) { selFields.Clear(); }
+            if (typeGraph != null) { typeGraph.Clear(); }
             GC.SuppressFinalize(this);
         }
 
@@ -438,6 +913,92 @@ namespace ErpToolkit.Helpers.Db
 
         public string? getRowIdName(ModelErp obj) { return (this.tabTypes.ContainsKey(obj.GetType())) ? this.tabTypes[obj.GetType()].RowIdName : null; }
 
+        public DogTable getTable(System.Type t)
+        {
+            // cerca per Type
+            var match = tables.Values.FirstOrDefault(tab => tab.tableTpy == t);
+            if (match == null) throw new InvalidOperationException($"Nessuna tabella trovata per il tipo {t.Name}");
+            return match;
+        }
+
+        //***************************************************************************************************************************************************
+        //*** ModelErp COPY & CLONE
+        //***************************************************************************************************************************************************
+
+        // Restituisce una lista di oggetti ModelErp da aggiornare su DB (action in 'A','M','D'), e presenti nella gerarchia dell'oggetto corrente
+        public Dictionary<ModelErp, List<string>> GetListObjToMnt(ModelErp source, string prefix) { Dictionary<ModelErp, List<string>> listObjToMnt = new Dictionary<ModelErp, List<string>>(); DogManagerClone.CloneModelErp(this, source, deepXref: false, updated: listObjToMnt, namePath: prefix); return listObjToMnt; }  //public List<ModelErp> GetListObjToMnt(ModelErp source) { List<ModelErp> listObjToMnt = new List<ModelErp>(); DogManagerClone.CloneModelErp(this, source, deepXref: false, updated: listObjToMnt); return listObjToMnt; }
+
+        // Crea un clone Shallow dell'oggetto ModelErp, condivide le referenze interne
+        // ie: gli oggetti ModelErp sono condivisi tra l'originale e il clone e presenti tutti nella cache
+        public ModelErp? CopyModelErp(ModelErp? source) { return DogManagerClone.CloneModelErp(this, source, deepXref: false); }
+
+        // Crea un clone Deep dell'oggetto ModelErp, non condivide le referenze interne
+        // ie: gli oggetti ModelErp non sono più condivisi tra l'originale e il clone. viene cancellata la relazione interna con la cache
+        public ModelErp? CloneModelErp(ModelErp? source) { return DogManagerClone.CloneModelErp(this, source, deepXref: true); }
+
+
+        //***************************************************************************************************************************************************
+        //*** ModelErp TRUNCATE CLONE
+        //***************************************************************************************************************************************************
+
+        // Crea un clone dell'oggetto ModelErp, troncando le proprietà ModelErp e le liste di ModelErp a null, mantenendo i tipi semplici e i byte[].
+        // Ogni oggetto ModelErp o liste di ModelErp viene duplicato per non avere riferimenti incrociati
+        // Serve per consentire la serializzazione JSON senza incorrere in loop infiniti o oggetti troppo grandi.
+        public ModelErp? TruncateCloneModelErp(ModelErp? source, int maxDepth, char? action = null, string? options=null)
+        {
+            //return TruncateCloneModelErp(this, maxDepth, 0, action);
+            return DogManagerClone.TruncateCloneModelErp(this, source, maxDepth, 0, action, options);
+        }
+
+        //Crea una copia con solo i dati vivi del record senza nessun rifermento a ModelErp Liste o dizionari esterrni eccetto le options
+        public ModelErp? CleanCloneModelErp(ModelErp? source)
+        {
+            //return TruncateCloneModelErp(this, maxDepth: 0);
+            return DogManagerClone.TruncateCloneModelErp(this, source, maxDepth: 0);
+        }
+
+
+        //***************************************************************************************************************************************************
+        //*** Json UTIL
+        //***************************************************************************************************************************************************
+
+        //public
+
+        // converte l'oggetto di tipo T in stringa Json eliminando eventuali riferimenti ciclici
+        public static string JsonSafeSerializeToBase64Url<T>(T obj, string options = null) { return UtilHelper.ToBase64Url(JsonSafeSerialize<T>(obj, options)); }
+        public static string JsonSafeSerialize<T>(T obj, string options = null) 
+        {
+            //string jsonStr = DogManagerJson.SafeSerialize<T>(obj, options); // System.Text.Json
+            string jsonStr = DogManagerNewtonsoftJson.SafeSerialize<T>(obj, options); // Newtonsoft.Json
+
+            if (_logger.IsTraceEnabled) { _logger.Trace($"JsonSafeSerialize_static ({typeof(T).Name}) {nameof(obj)} [{options ?? ""}] -- {DogManagerNewtonsoftJson.FormatJsonString(jsonStr)}"); }
+            return jsonStr;
+
+        }
+        // converte il ModelObject in un oggetto di tipo T
+        public T JsonSafeDeserialize<T>(ModelObject dataObject, string? prefix = null, string? options = null) 
+        {
+            //return DogManagerJson.SafeDeserialize<T>(this, dataObject);  // System.Text.Json
+
+            if (_logger.IsTraceEnabled) { _logger.Trace($"JsonSafeDeserialize ({typeof(T).Name}) {nameof(dataObject)} {prefix ?? ""} [{options ?? ""}] -- {DogManagerNewtonsoftJson.FormatJsonString(dataObject?.data?.ToString() ?? "")}"); }
+            return DogManagerNewtonsoftJson.SafeDeserialize<T>(this, dataObject, prefix, options); // Newtonsoft.Json
+        }
+        // converte l'oggetto Json in un oggetto di tipo T
+        public T JsonSafeDeserialize<T>(object jsonObject, string? prefix = null, string? options = null) 
+        {
+            //return DogManagerJson.SafeDeserialize<T>(this, jsonObject);  // System.Text.Json
+
+            if (_logger.IsTraceEnabled) { _logger.Trace($"JsonSafeDeserialize ({typeof(T).Name}) {nameof(jsonObject)} {prefix ?? ""} [{options ?? ""}] -- {DogManagerNewtonsoftJson.FormatJsonString(jsonObject?.ToString() ?? "")}"); }
+            return DogManagerNewtonsoftJson.SafeDeserialize<T>(this, jsonObject, prefix, options); // Newtonsoft.Json
+        }
+        // converte l'oggetto Json in un oggetto di tipo T
+        public static T JsonStaticSafeDeserialize<T>(object jsonObject, string? prefix = null, string? options = null) 
+        {
+            //return DogManagerJson.SafeDeserialize<T>(null, jsonObject);  // System.Text.Json
+
+            if (_logger.IsTraceEnabled) { _logger.Trace($"JsonSafeDeserialize_static ({typeof(T).Name}) {nameof(jsonObject)} {prefix ?? ""} [{options ?? ""}] -- {DogManagerNewtonsoftJson.FormatJsonString(jsonObject?.ToString() ?? "")}"); }
+            return DogManagerNewtonsoftJson.SafeDeserialize<T>(null, jsonObject, prefix, options); // Newtonsoft.Json
+        } 
 
         //***************************************************************************************************************************************************
         //*** ICODE
@@ -446,6 +1007,15 @@ namespace ErpToolkit.Helpers.Db
         //public
 
         public string GenerateIcode() { return $"{this._dbRoot}{GenCodeHelper.EpochIcode()}"; }
+
+
+        //***************************************************************************************************************************************************
+        //*** AUTOCOMPLETE
+        //***************************************************************************************************************************************************
+
+        public List<Choice> AutocompleteGetAll<T>(string? extraWhere = null) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere); }
+        public List<Choice> AutocompleteGetSelect<T>(string term, bool caseInsensitive = true, string? extraWhere = null) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetSelect<T>(this, term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere); }
+        public List<Choice> AutocompletePreLoad<T>(List<string> values, string? extraWhere = null) where T : ModelErp, new() { return DogManagerQuery.AutocompletePreLoad<T>(this, values: values, extraWhere: extraWhere); }
 
 
         //***************************************************************************************************************************************************
@@ -538,7 +1108,7 @@ namespace ErpToolkit.Helpers.Db
         //*** ENCODE-DECODE
         //***************************************************************************************************************************************************
 
-        private Dictionary<string, object> EncodeSpecialFields(IDictionary<string, object> fields, string options="")
+        internal Dictionary<string, object> EncodeSpecialFields(IDictionary<string, object> fields, string options="")  // usata anche da DogManagerTopologicalSort
         {
             String Key ="", Value="";
             try { 
@@ -575,7 +1145,7 @@ namespace ErpToolkit.Helpers.Db
                 throw new InvalidCastException($"DecodeSpecialTable[{Key}={Value}]: {ex.Message}.");
             }
         }
-        public List<T> DecodeSpecialTable<T>(DataTable dt, string options = "")
+        public List<T> DecodeSpecialTable<T>(DataTable dt, string options = "") 
         {
             try { 
                 if (dt == null) return null;
@@ -614,7 +1184,7 @@ namespace ErpToolkit.Helpers.Db
                 throw new InvalidCastException($"DecodeSpecialTable[ModelErp]: {ex.Message}.");
             }
         }
-        public T DecodeSpecialRow<T>(DataRow dr, string options = "")
+        public T DecodeSpecialRow<T>(DataRow dr, string options = "") 
         {
             String Key = "", Value = "";
             try
@@ -928,8 +1498,8 @@ namespace ErpToolkit.Helpers.Db
 
 
         //carica list oggetti con il contenuto del DB in base alla struttura in selezione  
-        public List<T> List<T>(object selModel, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return List<T>(selModel, null, ref dogCache, options);  }
-        public List<T> List<T>(object selModel, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
+        public List<T> List<T>(ModelErp selModel, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return List<T>(selModel, null, ref dogCache, options);  }
+        public List<T> List<T>(ModelErp selModel, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
         {
             if (selModel == null) { throw new ArgumentNullException("Null " + nameof(selModel)); }
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
@@ -951,10 +1521,10 @@ namespace ErpToolkit.Helpers.Db
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
             List<T> outList = List_int<T>(null, new List<object>() { icode }, xrefFrom, ref dogCache, options);
             if (outList.Count() == 0) throw new DatabaseException(ERR_DB_BAD_IDEN, $"Nessun record corrispondente alla Chiave Primaria specificata [{icode}].", null);
-            else if (outList.Count() > 1) throw new DatabaseException(ERR_DB_AMBIGOUS, $"a Chiave Primaria specificata è ambiqua. Più di un record trovato  [{icode}].", null);
+            else if (outList.Count() > 1) throw new DatabaseException(ERR_DB_AMBIGOUS, $"La Chiave Primaria specificata è ambiqua. Più di un record trovato  [{icode}].", null);
             return outList[0];
         }
-        private List<T> List_int<T>(object selModel, List<object> lstRowId, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
+        private List<T> List_int<T>(ModelErp selModel, List<object> lstRowId, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
         {
             List<object> outKeyList;
             if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
@@ -962,18 +1532,37 @@ namespace ErpToolkit.Helpers.Db
             if (xrefFrom == null) { xrefFrom = new List<string>(); }
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
             IDictionary<string, object> parameters = new Dictionary<string, object>();
+            //se richiesto esplicitamente, uso in visualizzazione i record già presenti in cache 
+            //funziona solo se effettuo una query per lista di Icode 
+            if (options.Contains("[ICODELIST_USE_CACHE]") && lstRowId != null) // !!!!!!!!!! questa opzione non serve molto e forse andrebbe eliminata !!!!!!!!!!!!!!!!
+            {
+                //foreach(var item in lstRowId) { 
+                //    if (dogCache.dbCache.ContainsKey(objModel.GetType()) && item != null && dogCache.dbCache[objModel.GetType()][item] != null) // Controllo se l'oggetto è già in cache
+                //    {
+                //        lstRowId.Remove(item); // Rimuovo l'oggetto dalla lista dei record da cercare nel DB
+                //    }
+                //}
+                for (int i = lstRowId.Count - 1; i >= 0; i--)
+                {
+                    var item = lstRowId[i];
+                    if (dogCache.dbCache.ContainsKey(objModel.GetType()) && item != null && dogCache.dbCache[objModel.GetType()].ContainsKey(item)) // Controllo se l'oggetto è già in cache
+                    {
+                        lstRowId.RemoveAt(i); // Rimuovo l'oggetto dalla lista dei record da cercare nel DB // sicuro perché parti dalla fine
+                    }
+                }
+            }
 
-            string sql = sqlList(objModel, ref parameters, selModel, null, lstRowId, options);
+            string sql = DogManagerCache.sqlList(this, objModel, ref parameters, selModel, null, lstRowId, options);
 
             //init
-            CacheFuncInit(ref dogCache, "List_int", 'R', objModel.GetType(), options: options); // Inizializzo la cache per il tipo di oggetto, in modo da poterla usare per le query successive.
+            DogManagerCache.CacheFuncInit(this, ref dogCache, "List_int", 'R', objModel.GetType(), options: options); // Inizializzo la cache per il tipo di oggetto, in modo da poterla usare per le query successive.
 
             //outList = this.ExecuteQuery<T>(sql, parameters, options: options);
             Dictionary<object, ModelErp> outDict = this.ExecuteQuery(null, objModel.GetType(), sql, parameters, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
-            outKeyList = CacheAddDict(ref dogCache, objModel.GetType(), outDict, options: options);
+            outKeyList = DogManagerCache.CacheAddDict(this, ref dogCache, objModel.GetType(), outDict, options: options);
 
-            // se richiestro riempio i riferimenti all'oggetto referenziati nelle tabelle esterne
-            if (xrefFrom.Count > 0)
+            // se richiesto riempio i riferimenti all'oggetto referenziati nelle tabelle esterne
+            if (xrefFrom.Count > 0 && outKeyList.Count > 0)
             {
                 dogCache.AddRuleXrefFrom(xrefFrom); // Aggiungo le regole di xrefFrom al DogCache per ricalcolare le relazioni in fase di ricostruzione dei legami della cache (ie: CacheFillNull()).
                 foreach (var xrefFromPropertyName in xrefFrom)
@@ -985,88 +1574,31 @@ namespace ErpToolkit.Helpers.Db
 
                     ModelErp xrefFromObj = (ModelErp)Activator.CreateInstance(xrefFromType); // create an instance of that type
                     IDictionary<string, object> xrefFromParameters = new Dictionary<string, object>();
-                    string xrefFromSql = sqlList(xrefFromObj, ref xrefFromParameters, null, fld, outKeyList, options);
+                    string xrefFromSql = DogManagerCache.sqlList(this, xrefFromObj, ref xrefFromParameters, null, fld, outKeyList, options);
                     Dictionary<object, ModelErp> outDictFrom = ExecuteQuery(null, xrefFromType, xrefFromSql, xrefFromParameters, options: options);
                     //carico nella cache i riferimenti per ogni record della lista
-                    CacheAddDict(ref dogCache, xrefFromObj.GetType(), outDictFrom); // salvo i record estratti in cache
+                    DogManagerCache.CacheAddDict(this, ref dogCache, xrefFromObj.GetType(), outDictFrom, options: options); // salvo i record estratti in cache
                 }
             }
-            return CacheFillNull<T>(ref dogCache, outKeyList, options: options); 
-        }
-        private string sqlList(ModelErp objModel, ref IDictionary<string, object> parameters, object selModel, DogField fldXref, List<object> lstRowId, string options = "")
-        {
-            string sql = "";
-            if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
-            StringBuilder sb = new StringBuilder();
+            List<T> outList = DogManagerCache.CacheFillNull<T>(this, ref dogCache, outKeyList, options: options);
 
-            string sqlFromWhere = objModel.ViewQueryFromWhere();
-            if (string.IsNullOrEmpty(sqlFromWhere))
-            {
-                sb.Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
-                    .Append(DogManagerInt.sqlFrom(this, objModel, ref parameters));
-                if (selModel == null && fldXref == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters, options: options));  //lista icode
-                else if (selModel == null) sb.Append(DogManagerInt.sqlWhereListXref(this, objModel, fldXref, lstRowId, ref parameters, options: options));  //lista icode
-                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters, options: options));  //filtro parametri
-                sql = sb.ToString();
-            }
-            else
-            {
-                sb.Append("SELECT * FROM ( \n")
-                    .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
-                    .Append(sqlFromWhere)
-                    .Append(") AS subquery \n");
-                if (selModel == null && fldXref == null) sb.Append(DogManagerInt.sqlWhereListIcode(this, objModel, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
-                if (selModel == null) sb.Append(DogManagerInt.sqlWhereListXref(this, objModel, fldXref, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
-                else sb.Append(DogManagerInt.sqlWhereSelection(this, selModel, ref parameters, options: "[UsePropertyNameField] " + options)); // Componi il filtro dinamicamente
-                sql = DogManagerInt.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
-            }
-            return sql;
+
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //!!!!!!! RESTITUISCO UN CLONE DELL'OGGETTO ModelErp TRONCATO AL SECONDO LIVELLO (depth=2)                    !!!!!!
+            //!!!!!!! in questo modo eventuali modifiche effettuate sulla lista restituita non hanno impatto sulla CACHE  !!!!!!
+            //!!!!!!! e posso usarlo come Model in una pagina .cshtml                                                     !!!!!!
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+            //List<T> outListTruncated = outList.Select(item => (T)item.TruncateClone(DogManager.DOG_MAX_OBJ_DEPTH, action: 'R')).ToList();     // restituisce un clone troncato la lista di valori T 
+
+            List<T> outListTruncated = outList.Select(item => (T)this.TruncateCloneModelErp(item, DogManager.DOG_MAX_OBJ_DEPTH, action: 'R', options: options)).ToList();  // restituisce un clone troncato la lista di valori T 
+
+            return outListTruncated;
         }
 
-
-
-
-        ////salva su DB modifiche e nuovi record  
-        //public DogResult Mnt<T>(T tablModel, string options = "", string transactionId = null) {
-        //    List<object> tabModels = new List<object>() { tablModel };
-        //    List<DogResult> dogResults = MntList(tabModels, options, transactionId);
-        //    return dogResults.First(); 
-        //}
-
-        //public List<DogResult> MntList(List<object> tabModels, string options = "", string transactionId = null)
-        //{
-        //    if (tabModels == null) { throw new ArgumentNullException(nameof(tabModels)); }
-        //    List<DogResult> results = new List<DogResult>();
-        //    IDictionary<string, object> parameters = new Dictionary<string, object>();
-        //    StringBuilder sb = new StringBuilder();
-        //    foreach (var tab in tabModels)
-        //    {
-        //        if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
-        //        sb.Append(DogManagerInt.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
-
-        //    }
-        //    //access DB
-        //    string sql = sb.ToString(); 
-        //    if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
-        //    int affectedRows = _getDbMg().ExecuteNonQuery(sql, EncodeSpecialFields(parameters, options), transactionId);
-        //    if (affectedRows != results.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido o errore in insert/update.", null);
-            
-        //    //se necessario rileggo i timestamp
-        //    if (_databaseType == DbTyp.SqlServer || _databaseType == DbTyp.Sybase)
-        //    {
-        //        IDictionary<string, object> parametersIcodeTimestamp = new Dictionary<string, object>();
-        //        string sqlIcodeTimestamp = DogManagerInt.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
-        //        DataTable dtIcodeTimestamp = _getDbMg().ExecuteQuery(sqlIcodeTimestamp, EncodeSpecialFields(parametersIcodeTimestamp, options), results.Count(), transactionId);
-        //        for(int i=0; i < results.Count(); i++)
-        //        {
-        //            var row = dtIcodeTimestamp.AsEnumerable().FirstOrDefault(r => r.Field<string>("ICODE").Equals(results[i].Icode)); // Cerca la riga con ICODE uguale a results[i].Icode
-        //            if (row == null) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non trovato o errore in insert/update.", null);
-        //            results[i].Timestamp = row.Field<byte[]>("TIMESTAMP");
-        //        }
-        //    }
-            
-        //    return results;
-        //}
+        //***************************************************************************************************************************************************
+        //***************************************************************************************************************************************************
 
 
         //salva su DB modifiche e nuovi record  
@@ -1075,35 +1607,6 @@ namespace ErpToolkit.Helpers.Db
             List<ModelErp> tabModels = new List<ModelErp>() { tablModel };
             List<DogResult> dogResults = MntList(tabModels, options, transactionId);
             return dogResults.First();
-        }
-
-        public List<DogResult> MntList(ref DogCache dogCache, string options = "", string transactionId = null)
-        {
-            List<DogResult> results = new List<DogResult>();
-            if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
-
-            // Scorri il dizionario esterno
-            List<ModelErp> tabModels = new List<ModelErp>();   // Lista vuota dove raccogliere tutti i ModelErp da processare
-            foreach (var kvpTipo in dogCache.dbCache)
-            {
-                // Scorri il dizionario interno
-                foreach (var kvpOggetto in kvpTipo.Value)
-                {
-                    ModelErp model = kvpOggetto.Value;
-                    //if (model != null && model.action != null && "AMD".Contains(model.action.ToString())) tabModels.Add(model);
-                    if (model != null && model.orderMnt() >= 0) tabModels.Add(model);  //se orderMnt() == -1 => non devo forzare aggiornamento su DB
-                }
-            }
-            // Ordina la lista in base alla proprietà getOrd()
-            tabModels.Sort((a, b) => a.orderMnt().CompareTo(b.orderMnt()));
-
-            // genera la query di mantenimento e agiorna DB
-            List<DogResult> dogResults = MntList(tabModels, options, transactionId);
-
-            //resetta il flag di aggiornamento su DB dai record della cache
-            foreach(var model in tabModels) { model.resetMnt(); }
-
-            return dogResults;
         }
 
         public List<DogResult> MntList(List<ModelErp> tabModels, string options = "", string transactionId = null)
@@ -1115,20 +1618,22 @@ namespace ErpToolkit.Helpers.Db
             foreach (var tab in tabModels)
             {
                 if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
-                sb.Append(DogManagerInt.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
+                //^^//.Append(DogManagerInt.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
+                sb.Append(DogManagerQuery.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
 
             }
             //access DB
             string sql = sb.ToString();
             if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             int affectedRows = _getDbMg().ExecuteNonQuery(sql, EncodeSpecialFields(parameters, options), transactionId);
-            if (affectedRows != results.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido o errore in insert/update.", null);
+            if (affectedRows != results.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, $"Timestamp non valido o errore in insert/update. affectedRows: {affectedRows} resultsCount: {results.Count()}", null);
 
             //se necessario rileggo i timestamp
             if (_databaseType == DbTyp.SqlServer || _databaseType == DbTyp.Sybase)
             {
                 IDictionary<string, object> parametersIcodeTimestamp = new Dictionary<string, object>();
-                string sqlIcodeTimestamp = DogManagerInt.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
+                //^^//string sqlIcodeTimestamp = DogManagerInt.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
+                string sqlIcodeTimestamp = DogManagerQuery.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
                 DataTable dtIcodeTimestamp = _getDbMg().ExecuteQuery(sqlIcodeTimestamp, EncodeSpecialFields(parametersIcodeTimestamp, options), results.Count(), transactionId);
                 for (int i = 0; i < results.Count(); i++)
                 {
@@ -1141,11 +1646,73 @@ namespace ErpToolkit.Helpers.Db
             return results;
         }
 
+        // MntList con cache (ordina i modelli in base alle dipendenze topologiche e gestisce la cache)
+        // generalmente gli oggetti ModelErp presenti in tabModels sono già tutti referenziati in cache (caricati in precedenza con List/Row)
+        // in ogni caso, a seguito dell'aggiornamento, i record modificati vengono rimossi dalla cache (ie: [FORCE_CACHE_RELOAD_MNT])
+        // in modo che alla prossima lettura vengano ricaricati da DB
+        public List<DogResult> MntList(List<ModelErp> tabModels, ref DogCache dogCache, string options = "", string transactionId = null)
+        {
+            List<DogResult> dogResults = new List<DogResult>();
+            if (tabModels == null) { throw new ArgumentNullException(nameof(tabModels)); }
+            if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
+            try
+            {
+                //------------------------------------------------------------------------------------------------
+                // Pianifica le modifiche e ordina i modelli in base alle dipendenze topologiche
+                List<ModelErp> tabModelsTopologicalSorted = DogManagerTopologicalSort.PlanSortedChanges(
+                    this,
+                    tabModels,  // lista di modelli DA_INSERIRE_AGGIORNARE
+                    dogCache,   // cache con i record già caricati
+                    this.typeGraph,
+                    checkDbForOrphans: true,
+                    tryBreakCyclesByNullingFK: true
+                );
 
+                //------------------------------------------------------------------------------------------------
+                // Esegue mantain su DB
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                StringBuilder sb = new StringBuilder();
+                foreach (var tab in tabModelsTopologicalSorted)
+                {
+                    if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
+                    sb.Append(DogManagerQuery.sqlMantain(this, tab, ref parameters, ref dogResults)).AppendLine("; ");
+                }
+                //access DB
+                string sql = sb.ToString();
+                if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+                int affectedRows = _getDbMg().ExecuteNonQuery(sql, EncodeSpecialFields(parameters, options), transactionId);
+                if (affectedRows != dogResults.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, $"Timestamp non valido o errore in insert/update. affectedRows: {affectedRows} resultsCount: {dogResults.Count()}", null);
 
+                //------------------------------------------------------------------------------------------------
+                //forza la cache a ricaricare i records modificati [FORCE_CACHE_RELOAD_MNT], alla prossima rilettura
+                //foreach (var model in tabModels) { if (dogCache.dbCache.TryGetValue(model.GetType(), out var dizInterno)) { dizInterno.Remove(model.getIcode()); } } //rimuovo dalla cache i record modificati su DB (alla prossima lettura verranno ricaricati da DB)
+                foreach (var result in dogResults)
+                {
+                    if (dogCache.dbCache.TryGetValue(result.TabType, out var dizInterno))
+                    {
+                        dizInterno[result.Icode] = (ModelErp)null; //annullo nella cache il record aggiunto/modificati su DB (quando eseguo CacheFillNull verranno ricaricati da DB)
+                    }
+                    else 
+                    {
+                        var dizNewType = new Dictionary<object, ModelErp>(); dizNewType[result.Icode] = null;   //aggiungo i rcord nelle nuove tabelle se non presenti
+                        dogCache.dbCache.Add(result.TabType, dizNewType);
+                    }
+                }
+                DogManagerCache.CacheFillNull(this, ref dogCache, null, null, options: options);    //ricarico la cache con i record modificati (forza reload sulla cache)
 
-
-
+                return dogResults;
+            }
+            catch (DatabaseException dbEx)
+            {
+                string strResults = dogResults != null ? string.Join(", ", dogResults.Select(d => $"{d.Action}:{d.Icode ?? "null"}")) : string.Empty;
+                throw new DatabaseException (dbEx.ErrorCode, $"MntList[{strResults}]: {dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                string strResults = dogResults != null ? string.Join(", ", dogResults.Select(d => $"{d.Action}:{d.Icode ?? "null"}")) : string.Empty;
+                throw new DatabaseException(ERR_DB_ERROR, $"MntList[{strResults}]: {ex.Message} {ex.InnerException?.Message ?? ""}");
+            }
+        }
 
 
 
@@ -1175,235 +1742,6 @@ namespace ErpToolkit.Helpers.Db
         //    //access DB
         //    return this.ExecuteQuery<T>(sb.ToString(), parameters, options: "[skipCheckSqlParms]");
         //}
-
-
-
-        ////***************************************************************************************************************************************************
-        ////*** Gestione CACHE
-        ////***************************************************************************************************************************************************
-
-        // Negli accessi ad DB è previsto l'uso di una cache interna di tipo: Dictionary<System.Type, Dictionary<object, ModelErp>> dbCache
-        // dove: System.Type è il tipo di struttura del modello, object è la chiave univoca del record, e ModelErp è l'istanza del modello con i contenuti dl DB
-        //
-        // (1) ad ogni query i contenuti della dbCache vengono integrati/aggiornati (se esiste aggiorno, altrimenti aggiungo)
-        // (2) per il calcolo dei riferimenti esterni (campi XrefObj) accedo al DB solo se l'informazione non è già contenuta nella dbCache
-        // (3) ad ogni accesso al DB integro la dbCache con i contenuti estratti
-
-        //Inizializza la Cache per un nuovo servizio DogManager (eg: List, Mnt, ecc.)
-        public void CacheFuncInit(ref DogCache dogCache, string serviceName, char serviceAction, System.Type serviceTabType, string options = "")
-        {
-            if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
-            // Inizializza la cache per il nuovo Servizio
-            dogCache.ServiceName = serviceName;  // Nome del servizio (es: "List", "Mnt", ecc.)
-            dogCache.ServiceAction = serviceAction;  // Azione del servizio (es: 'L' per List, 'M' per Mnt, ecc.)
-            dogCache.ServiceTabType = serviceTabType;  // Tipo della tabella del servizio (es: typeof(T) per List<T>, ecc.)
-            dogCache.InitReadID();  // Inizializza l'ID della lista per il servizio
-            dogCache.InitMntID();  // Inizializza l'ID di manutenzione per il servizio
-
-        }
-
-        // Integra in Cache il dizionario "outDict". return: la lista "List<T>" del dizionario inserito/aggiornato 
-        public List<object> CacheAddDict(ref DogCache dogCache, System.Type objType, Dictionary<object, ModelErp> outDict, string options = "")
-        {
-            // Recupera il dizionario finale esistente o inizializza uno nuovo
-            if (!dogCache.dbCache.TryGetValue(objType, out var dictFinale)) { dictFinale = new Dictionary<object, ModelErp>(); }
-
-            //Hai Un dizionario esistente (Dictionary<object, ModelErp> dictFinale) e Un dizionario sorgente (Dictionary<object, List<ModelErp>> dizionario)
-            //Vuoi usare le chiavi di dizionario come riferimento: (1) Se la chiave esiste in dizionarioFinale, aggiorni il valore (2) Se non esiste, la aggiungi
-
-            // Unisci i dati: aggiorna o aggiungi
-            foreach (var kv in outDict) { if (kv.Value != null) { kv.Value.addToCache(ref dogCache); dictFinale[kv.Key] = kv.Value; } }
-
-            // Salva nella cache
-            dogCache.dbCache[objType] = dictFinale;
-
-            // Inserisci nella cache i riferimenti agli oggetti referenziati (XrefObj) se non sono già presenti
-            // Integra in Cache l'elenco degli oggetti icodeXref referenziati nella lista "outList". Ad ogni Chiave Icode viene associato un Valore null. 
-            if (options.Contains("[PLAIN]") == false)  //if (options.Contains("[DecodeLabels]"))
-            {
-                //Hai Un dizionario esistente (Dictionary<object, ModelErp> dictFinale) e Un dizionario sorgente (Dictionary<object, List<ModelErp>> dizionario)
-                //Vuoi usare le chiavi di dizionario come riferimento: (1) Se la chiave esiste in dizionarioFinale, salti (2) Se non esiste, la aggiungi la chiave Icode con un valore null (questo sarà valorizzato successivamente)
-
-                // Unisci i dati: aggiungi solo se non esiste, per tutti i riferimenti a campi Xref presenti nel modello
-                if (this.tabTypes.ContainsKey(objType))
-                {
-                    DogTable tab = this.tabTypes[objType];
-
-                    //carica gli Icode degli oggetti referenziati
-                    foreach (var fld in tab.fields)
-                    {
-                        try
-                        {
-                            var xrefObj = fld?.XrefObj;
-                            if (xrefObj == null) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
-                            string propertyName = fld.fieldName; // Get property name and value
-                            System.Type xrefObjType = fld.XrefObj.table.tableTpy;
-
-                            foreach (var el in outDict.Values)
-                            {
-                                if (el == null) continue; // Salta l'elemento della lista è null
-                                object? icodeXref = objType.GetProperty(propertyName).GetValue(el);
-                                if (icodeXref == null) continue; // Salta se il valore della chiave è null
-                                if (!dogCache.dbCache.ContainsKey(xrefObjType)) { dogCache.dbCache.Add(xrefObjType, new Dictionary<object, ModelErp>()); }
-                                if (dogCache.dbCache[xrefObjType].ContainsKey(icodeXref)) continue; // Salta se la chiave è già presente nel dizionario
-                                dogCache.dbCache[xrefObjType].Add(icodeXref, null); // Aggiungi la chiave con valore null
-                            }
-                        }
-                        catch (Exception ex) { }  //skip exceptions
-                    }
-                }
-            }
-
-            // Ritorna la lista finale delle chiavi dei soli valori estratti
-            return dictFinale.Keys.ToList<object>(); 
-        }
-
-        // Integra in Cache tutti i riferimenti a Chiave Icode con Valore null.
-        // A fine processo effettua l'abbinamento dei riferimenti Xref per tutti i record presenti nella Cache
-        public List<T> CacheFillNull<T>(ref DogCache dogCache, List<object> mainObjKeyList, string options = "")
-        {
-            T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            return CacheFillNull(ref dogCache, objModel.GetType(), mainObjKeyList, options).OfType<T>().ToList(); //  OfType<T>() : filtra e fa cast solo se possibile (cioè solo se tipo T, atrimenti scarta la struttura);
-        }
-        public List<ModelErp> CacheFillNull(ref DogCache dogCache, System.Type mainObjType, List<object> mainObjKeyList, string options = "")
-        {
-            int recursiveCicle = 0; bool mustAddRecursiveObj = false;
-            do {
-                //----------------------------------------------------------
-                recursiveCicle++; mustAddRecursiveObj = false;
-                if (recursiveCicle > 100) { throw new IndexOutOfRangeException(nameof(recursiveCicle)); }
-                // ----------------------------------------------------------
-                //riempi i valori degli oggetti con Valore null presenti in Cache 
-                foreach (var objType in dogCache.dbCache.Keys)
-                {
-                    ModelErp obj = (ModelErp)Activator.CreateInstance(objType); // create an instance of that type
-                    IDictionary<string, object> objParameters = new Dictionary<string, object>();
-                    string objSql = sqlList(obj, ref objParameters, null, null, dogCache.dbCache[objType].Keys.ToList<object>(), options);
-                    //dogCache.dbCache[objType] = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, "[PLAIN] " + options); // non ricorsivo ?????
-                    Dictionary<object, ModelErp> outDict = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, options);
-                    foreach (var kv in outDict) { if (kv.Value != null) { kv.Value.addToCache(ref dogCache); dogCache.dbCache[objType][kv.Key] = kv.Value; } } //aggiorna o aggiungi alla cache
-                }
-                // ----------------------------------------------------------
-                //riassegno a tutti i record della Cache il riferimento agli oggetto referenziati (ie: per tutte le tabelle presenti nella cache
-                Dictionary<System.Type, Dictionary<object, ModelErp>> appIcodeList = new Dictionary<System.Type, Dictionary<object, ModelErp>>();
-                foreach (var objType in dogCache.dbCache.Keys)
-                {
-                    if (this.tabTypes.ContainsKey(objType))
-                    {
-                        List<ModelErp> outList = dogCache.dbCache[objType].Values.OfType<ModelErp>().ToList(); // prendo la lista dei record della tabella corrente
-                        DogTable tab = this.tabTypes[objType];
-                        foreach (var fld in tab.fields)
-                        {
-                            try
-                            {
-                                var xrefObj = fld?.XrefObj;
-                                if (xrefObj == null) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
-                                string propertyName = fld.fieldName; // Get property name and value
-                                System.Type xrefObjType = fld.XrefObj.table.tableTpy;
-
-                                if (!dogCache.dbCache.ContainsKey(xrefObjType) && options.Contains("[RECURSIVE]") == false) continue; // Se non è presente la tabella collegata, salto il ciclo (non aggiorno i riferimenti)
-
-                                foreach (ModelErp rec in outList) // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
-                                {
-                                    try 
-                                    {
-                                        if (rec == null) continue; // Salta l'elemento della lista se inserito come null
-                                        object? icode = rec.GetType().GetProperty(propertyName).GetValue(rec); // Get the value of the property
-                                        if (UtilHelper.IsNullOrEmptyObject(icode)) continue; // Salta se il valore della chiave è null o stringa vuota
-
-                                        //verifico se devo aggiungere l'oggetto ricorsivo alla cache
-                                        //if (options.Contains("[PLAIN]") == false && options.Contains("[RECURSIVE]") == true)
-                                        //{
-                                        //    if (!dogCache.dbCache.ContainsKey(xrefObjType)) dogCache.dbCache[xrefObjType] = new Dictionary<object, ModelErp>();
-                                        //    if (!dogCache.dbCache[xrefObjType].ContainsKey(icode))
-                                        //    {
-                                        //        mustAddRecursiveObj = true; // devo aggiungere l'oggetto ricorsivo alla cache
-                                        //        dogCache.dbCache[xrefObjType].Add(icode, null); // Aggiungo la chiave con valore null
-                                        //    }
-                                        //    if (mustAddRecursiveObj) continue; // Se devo aggiungere l'oggetto ricorsivo, salto il ciclo (non aggiorno i riferimenti)
-                                        //}
-
-                                        //verifico se devo aggiungere l'oggetto ricorsivo alla cache
-                                        if (options.Contains("[PLAIN]") == false && options.Contains("[RECURSIVE]") == true)
-                                        {
-                                            if (!dogCache.dbCache.ContainsKey(xrefObjType) || !dogCache.dbCache[xrefObjType].ContainsKey(icode))
-                                            {
-                                                // devo aggiungere l'oggetto ricorsivo alla cache se non già presente
-                                                if (!appIcodeList.ContainsKey(xrefObjType)) appIcodeList[xrefObjType] = new Dictionary<object, ModelErp>();
-                                                if (!appIcodeList[xrefObjType].ContainsKey(icode))
-                                                {
-                                                    mustAddRecursiveObj = true; // devo aggiungere l'oggetto ricorsivo alla cache
-                                                    appIcodeList[xrefObjType].Add(icode, null); // Aggiungo la chiave con valore null
-                                                }
-
-                                            }
-                                            if (mustAddRecursiveObj) continue; // Se devo aggiungere l'oggetto ricorsivo, salto il ciclo (non aggiorno i riferimenti)
-                                        }
-
-                                        // Aggiorno riferimenti
-                                        rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, dogCache.dbCache[xrefObjType][icode]); 
-                                    }
-                                    catch (Exception ex) { }  //skip exceptions (salta se la chiave non è valorizzata 
-                                }
-                            }
-                            catch (Exception ex) { }  //skip exceptions
-                        }
-                    }
-                }
-                // Aggiungo le nuove chiavi da cercare, con il valore null
-                if (mustAddRecursiveObj)
-                {
-                    foreach (var xrefObjType in appIcodeList.Keys)
-                    {
-                        if (!dogCache.dbCache.ContainsKey(xrefObjType)) dogCache.dbCache[xrefObjType] = new Dictionary<object, ModelErp>();
-                        foreach (var icode in appIcodeList[xrefObjType].Keys)
-                        {
-                            if (!dogCache.dbCache[xrefObjType].ContainsKey(icode)) dogCache.dbCache[xrefObjType].Add(icode, null); // Aggiungo la chiave con valore null
-                        }
-                    }
-                }
-                //----------------------------------------------------------
-            } while (mustAddRecursiveObj); // Ciclo per aggiungere oggetti ricorsivi se necessario
-
-            // ----------------------------------------------------------
-            // ricostruisco tutti i riferimenti all'oggetto referenziati nelle tabelle esterne (per le regole impostate in ruleXrefFrom)
-            if (dogCache.ruleXrefFrom.Count > 0)
-            {
-                foreach (var xrefFromPropertyName in dogCache.ruleXrefFrom)
-                {
-                    DogField fld = this.tabProperties[xrefFromPropertyName];
-                    System.Type objModelType = fld?.XrefObj?.table?.tableTpy; // modello tabella da aggiornare  
-                    if (objModelType == null) continue;
-                    if (!dogCache.dbCache.ContainsKey(objModelType)) continue;
-                    System.Type xrefFromType = fld?.table?.tableTpy;  // modello tabella referenziata
-                    if (xrefFromType == null) continue;
-                    if (!dogCache.dbCache.ContainsKey(xrefFromType)) continue;
-                    //carico i riferimenti per ogni record della lista
-                    Dictionary<object, ModelErp> outDictFrom = dogCache.dbCache[xrefFromType];
-                    foreach (var key in dogCache.dbCache[objModelType].Keys)
-                    {
-                        var el = dogCache.dbCache[objModelType][key];
-                        object icode = el.getIcode(); if (icode == null) continue;
-                        el.xrefFrom[xrefFromPropertyName] = outDictFrom.Values.ToList<ModelErp>().Where(item => item != null &&                             // esclude null
-                                                                            item.GetType() == xrefFromType &&                                               // filtro sul tipo esatto
-                                                                            xrefFromType.GetProperty(xrefFromPropertyName) != null &&                       // controlla che la proprietà esista
-                                                                            Equals(xrefFromType.GetProperty(xrefFromPropertyName).GetValue(item), icode))   // confronta valori
-                                                                        .ToList<ModelErp>();
-                    }
-                }
-            }
-            // ----------------------------------------------------------
-            // ricostruisco tutti i riferimenti ai dati estesi ....to do....
-            //...
-            //...
-            //...
-            // ----------------------------------------------------------
-            // Ritorna la lista finale dei soli valori estratti
-            if (mainObjType == null || mainObjKeyList == null) return null;
-            Dictionary<object, ModelErp> mainObjDict = dogCache.dbCache[mainObjType];
-            return mainObjKeyList.Select(k => mainObjDict[k]).ToList();     // restituisce la lista di valori T corrispondenti a una lista di chiavi List<object> da un Dictionary<object, T> 
-                                                                            // se anche una sola chiave non è presente, otterrai una KeyNotFoundException.
-        }
 
 
 

@@ -14,7 +14,7 @@ using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using MongoDB.Driver.Core.Configuration;
 using System.Data.Entity.Infrastructure;
-using static ErpToolkit.Helpers.Db.DatabaseFactory;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using ErpToolkit.Controllers;
 using ErpToolkit.Models;
 

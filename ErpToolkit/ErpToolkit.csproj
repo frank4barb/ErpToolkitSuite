@@ -37,6 +37,7 @@
     <PackageReference Include="InterSystems.Data.IRISClient" Version="2.5.0" />
     <PackageReference Include="MemoryPack" Version="1.21.1" />
     <PackageReference Include="Microsoft.AspNetCore.Grpc.Swagger" Version="0.8.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.12" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.12" />

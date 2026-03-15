@@ -19,6 +19,7 @@ namespace HealthDemo.Controllers
             new DogManager.MenuItem("ERModel", "Home", "ERModel")
             ,new DogManager.MenuItem("Attivita", "Attivita", "Index")
             ,new DogManager.MenuItem("Episodio", "Episodio", "Index")
+            ,new DogManager.MenuItem("Stato Richieste", "StatoRichieste", "Index")
             ,new DogManager.MenuItem("Percorso 1", "Home", "Percorso1Start")
             ,new DogManager.MenuItem("Percorso 2", "Home", "Percorso2Start")
         };

@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,57 +28,100 @@ public const string PREFIX = "Pe"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Pe1Icode; } 
-public override string ToString() { return $"{PeCodice} - {PeDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(PeCodice)}</strong> {HttpUtility.HtmlEncode(PeDescrizione)}"; } 
+public override string labelText() { return $@"{PeCodice} - {PeDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(PeCodice)}</strong> {HttpUtility.HtmlEncode(PeDescrizione)}"; }
 
-//127-124//REL_PRESTAZIONE_USA.PU_ID_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> RelPrestazioneUsa4PuIdRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
-//1182-1179//REL_ATTIVITA_USA.AU_ID_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
-[Display(Name = "Pe1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("PE__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Pe1Ienv { get; set; }
+//127-124//[Y] REL_PRESTAZIONE_USA.PU_ID_RISORSA
+[Display(Name = "RelPrestazioneUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelPrestazioneUsa>? XrefPuIdRisorsa { get; set; } = null;
+//1182-1179//[Y] REL_ATTIVITA_USA.AU_ID_RISORSA
+[Display(Name = "RelAttivitaUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaUsa>? XrefAuIdRisorsa { get; set; } = null;
+//1788-1769//[N] ORGANIZZAZIONE.OR_ID_PERSONALE
+[Display(Name = "Organizzazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Organizzazione>? XrefOrIdPersonale { get; set; } = null;
 [Key]
 [Display(Name = "Pe1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("PE__ICODE", SqlFieldNameExt="PE__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("PE__ICODE", SqlFieldNameExt="PE__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pe1Icode { get; set; }
 [Display(Name = "Pe1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("PE__DELETED", SqlFieldNameExt="PE__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("PE__DELETED", SqlFieldNameExt="PE__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Pe1Deleted { get; set; }
 [Display(Name = "Pe1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("PE__TIMESTAMP", SqlFieldNameExt="PE__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("PE__TIMESTAMP", SqlFieldNameExt="PE__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Pe1Timestamp { get; set; }
+[Display(Name = "Pe1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("PE__CDATE", SqlFieldNameExt="PE__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Pe1Cdate { get; set; }
+[Display(Name = "Pe1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("PE__CTIME", SqlFieldNameExt="PE__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Pe1Ctime { get; set; }
+[Display(Name = "Pe1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("PE__CAGENT", SqlFieldNameExt="PE__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Pe1Cagent { get; set; }
+[Display(Name = "Pe1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("PE__CUNIT", SqlFieldNameExt="PE__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Pe1Cunit { get; set; }
+[Display(Name = "Pe1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("PE__MDATE", SqlFieldNameExt="PE__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Pe1Mdate { get; set; }
+[Display(Name = "Pe1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("PE__MTIME", SqlFieldNameExt="PE__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Pe1Mtime { get; set; }
+[Display(Name = "Pe1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("PE__MAGENT", SqlFieldNameExt="PE__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Pe1Magent { get; set; }
+[Display(Name = "Pe1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("PE__MUNIT", SqlFieldNameExt="PE__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Pe1Munit { get; set; }
 [Display(Name = "Pe1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("PE__HOME", SqlFieldNameExt="PE__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("PE__HOME", SqlFieldNameExt="PE__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pe1Home { get; set; }
 [Display(Name = "Pe1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("PE__VERSION", SqlFieldNameExt="PE__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("PE__VERSION", SqlFieldNameExt="PE__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pe1Version { get; set; }
 [Display(Name = "Pe1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("PE__INACTIVE", SqlFieldNameExt="PE__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("PE__INACTIVE", SqlFieldNameExt="PE__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Pe1Inactive { get; set; }
 [Display(Name = "Pe1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("PE__EXTATT", SqlFieldNameExt="PE__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("PE__EXTATT", SqlFieldNameExt="PE__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Pe1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "ID del membro dello staff nell'organizzazione", Prompt="")]
-[ErpDogField("PE_CODICE", SqlFieldNameExt="PE_CODICE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PE_CODICE", SqlFieldNameExt="PE_CODICE", SqlFieldOptions="[MANDATORY] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
@@ -85,7 +129,7 @@ public string? Pe1Extatt { get; set; }
 public string? PeCodice  { get; set; }
 
 [Display(Name = "Classe Risorsa", ShortName="", Description = "Classe di risorse S[tato]", Prompt="")]
-[ErpDogField("PE_CLASSE_RISORSA", SqlFieldNameExt="PE_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[PERSONALE.PE_ID_TIPO_RISORSA]) multbxref()")]
+[ErpDogField("PE_CLASSE_RISORSA", SqlFieldNameExt="PE_CLASSE_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[PERSONALE.PE_ID_TIPO_RISORSA]) multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue("S")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
@@ -93,14 +137,14 @@ public string? PeCodice  { get; set; }
 public string? PeClasseRisorsa  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("PE_DESCRIZIONE", SqlFieldNameExt="PE_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PE_DESCRIZIONE", SqlFieldNameExt="PE_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]
 public string? PeDescrizione  { get; set; }
 
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di membro dello staff (classificazione operativa)", Prompt="")]
-[ErpDogField("PE_ID_TIPO_RISORSA", SqlFieldNameExt="PE_ID_TIPO_RISORSA", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
+[ErpDogField("PE_ID_TIPO_RISORSA", SqlFieldNameExt="PE_ID_TIPO_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]

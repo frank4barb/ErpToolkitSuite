@@ -3,7 +3,7 @@
     ViewData["Title"] = "TipoDiagnosi Delete [" + (Model?.action ?? ' ') + "]";
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Delete", "TipoDiagnosi", FormMethod.Post))
     {
         @Html.AntiForgeryToken()

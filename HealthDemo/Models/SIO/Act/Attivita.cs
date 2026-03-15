@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,72 +28,131 @@ public const string PREFIX = "Av"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Av1Icode; } 
-public override string ToString() { return $"{AvCodice} - {AvDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(AvCodice)}</strong> {HttpUtility.HtmlEncode(AvDescrizione)}"; } 
+public override string labelText() { return $@"{AvCodice} - {AvDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(AvCodice)}</strong> {HttpUtility.HtmlEncode(AvDescrizione)}"; }
 
-//370-370//REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione> RelAttivitaTipoCampione4AcIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione>();
-//1131-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> RelAttivitaRichiestaDa4ArIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1179-1179//REL_ATTIVITA_USA.AU_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
-//1992-1992//REL_ATTIVITA_EROGATA_DA.AE_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa> RelAttivitaErogataDa4AeIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa>();
-//2203-2203//REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_PADRE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaContiene> RelAttivitaContiene4AaIdAttivitaPadre  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaContiene>();
-//2204-2203//REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_FIGLIO
-public List<HealthDemo.Models.SIO.Act.RelAttivitaContiene> RelAttivitaContiene4AaIdAttivitaFiglio  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaContiene>();
-[Display(Name = "Av1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("AV__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Av1Ienv { get; set; }
+//3-2//[N] PRESTAZIONE.PR_ID_ATTIVITA_RICHIESTA
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdAttivitaRichiesta { get; set; } = null;
+//4-2//[N] PRESTAZIONE.PR_ID_ATTIVITA_ESEGUITA
+[Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdAttivitaEseguita { get; set; } = null;
+//91-83//[N] ATTIVITA.AV_ID_GRUPPO
+[Display(Name = "Attivita", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Attivita>? XrefAvIdGruppo { get; set; } = null;
+//370-370//[Y] REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_ATTIVITA
+[Display(Name = "RelAttivitaTipoCampione", ShortName = "", Description = "Tipo di campione rilevante per un certo tipo di attività", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione>? XrefAcIdAttivita { get; set; } = null;
+//1131-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_ATTIVITA
+[Display(Name = "RelAttivitaRichiestaDa", ShortName = "", Description = "Tipi di attività che possono essere richiesti da un certo operatore/struttura sanitaria", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>? XrefArIdAttivita { get; set; } = null;
+//1179-1179//[Y] REL_ATTIVITA_USA.AU_ID_ATTIVITA
+[Display(Name = "RelAttivitaUsa", ShortName = "", Description = "Tipi e/o risorse individuali generalmente necessari per l'esecuzione di un'attività", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaUsa>? XrefAuIdAttivita { get; set; } = null;
+//1992-1992//[Y] REL_ATTIVITA_EROGATA_DA.AE_ID_ATTIVITA
+[Display(Name = "RelAttivitaErogataDa", ShortName = "", Description = "Strutture che possono eseguire un certo tipo di attività", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaErogataDa>? XrefAeIdAttivita { get; set; } = null;
+//2203-2203//[Y] REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_PADRE
+[Display(Name = "RelAttivitaContiene", ShortName = "", Description = "Corrispondenze tra tassonomie di attività", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaContiene>? XrefAaIdAttivitaPadre { get; set; } = null;
+//2204-2203//[Y] REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_FIGLIO
+[Display(Name = "RelAttivitaContiene", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaContiene>? XrefAaIdAttivitaFiglio { get; set; } = null;
 [Key]
 [Display(Name = "Av1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("AV__ICODE", SqlFieldNameExt="AV__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("AV__ICODE", SqlFieldNameExt="AV__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Av1Icode { get; set; }
 [Display(Name = "Av1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("AV__DELETED", SqlFieldNameExt="AV__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("AV__DELETED", SqlFieldNameExt="AV__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Av1Deleted { get; set; }
 [Display(Name = "Av1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("AV__TIMESTAMP", SqlFieldNameExt="AV__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("AV__TIMESTAMP", SqlFieldNameExt="AV__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Av1Timestamp { get; set; }
+[Display(Name = "Av1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("AV__CDATE", SqlFieldNameExt="AV__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Av1Cdate { get; set; }
+[Display(Name = "Av1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("AV__CTIME", SqlFieldNameExt="AV__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Av1Ctime { get; set; }
+[Display(Name = "Av1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("AV__CAGENT", SqlFieldNameExt="AV__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Av1Cagent { get; set; }
+[Display(Name = "Av1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("AV__CUNIT", SqlFieldNameExt="AV__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Av1Cunit { get; set; }
+[Display(Name = "Av1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("AV__MDATE", SqlFieldNameExt="AV__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Av1Mdate { get; set; }
+[Display(Name = "Av1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("AV__MTIME", SqlFieldNameExt="AV__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Av1Mtime { get; set; }
+[Display(Name = "Av1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("AV__MAGENT", SqlFieldNameExt="AV__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Av1Magent { get; set; }
+[Display(Name = "Av1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("AV__MUNIT", SqlFieldNameExt="AV__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Av1Munit { get; set; }
 [Display(Name = "Av1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("AV__HOME", SqlFieldNameExt="AV__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("AV__HOME", SqlFieldNameExt="AV__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Av1Home { get; set; }
 [Display(Name = "Av1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("AV__VERSION", SqlFieldNameExt="AV__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("AV__VERSION", SqlFieldNameExt="AV__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Av1Version { get; set; }
 [Display(Name = "Av1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("AV__INACTIVE", SqlFieldNameExt="AV__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("AV__INACTIVE", SqlFieldNameExt="AV__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Av1Inactive { get; set; }
 [Display(Name = "Av1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("AV__EXTATT", SqlFieldNameExt="AV__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("AV__EXTATT", SqlFieldNameExt="AV__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Av1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("AV_CODICE", SqlFieldNameExt="AV_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(ATTIVITA.AV__ICODE[AV__ICODE] {AV_CODICE=' '}) multbxref()")]
+[ErpDogField("AV_CODICE", SqlFieldNameExt="AV_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(ATTIVITA.AV__ICODE[AV__ICODE] {AV_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? AvCodice  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("AV_DESCRIZIONE", SqlFieldNameExt="AV_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_DESCRIZIONE", SqlFieldNameExt="AV_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]
@@ -146,7 +206,7 @@ public short? AvDurataMedia  { get; set; }
 public string? AvInEvidenza  { get; set; }
 
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività predefinita", Prompt="")]
-[ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="AV_ID_TIPO_ATTIVITA", SqlFieldOptions="", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
+[ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="AV_ID_TIPO_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]

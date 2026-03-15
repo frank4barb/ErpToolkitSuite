@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Data.Common;
 using static ErpToolkit.Helpers.ErpError;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -643,6 +644,40 @@ namespace ErpToolkit.Helpers.Db
         //Tesseract OCR è una buona scelta se hai bisogno di un motore OCR open source.
         //Docotic.Pdf è una libreria ad alte prestazioni per la manipolazione dei PDF.
         //Queste librerie ti permetteranno di leggere il contenuto dei documenti PDF e di effettuare operazioni di OCR senza aprire manualmente il contenuto del PDF.
+
+
+
+
+
+
+        //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  MongoDB: db.currentOp()/$currentOp richiede diritti admin o inprog(o $ownOps: true). .explain() non richiede privilegi speciali. [mongodb.com], [mongodb.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            // Non supportato via IDbConnection (serve driver Mongo)
+            return null;
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            // Non disponibile via IDbConnection
+            return false;
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Non disponibile via IDbConnection. Usa driver Mongo (.explain('executionStats')).
+            return null;
+        }
+
+
 
     }
 }

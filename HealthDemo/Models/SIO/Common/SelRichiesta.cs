@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,9 +28,10 @@ public const string PREFIX = "Ri"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
+//24-2//[N] PRESTAZIONE.PR_ID_RICHIESTA
 
 [Display(Name = "Id Unita Richiedente", ShortName="", Description = "Codice dell'unità che ha originato la comunicazione", Prompt="")]
 [ErpDogField("RI_ID_UNITA_RICHIEDENTE", SqlFieldNameExt="RI_ID_UNITA_RICHIEDENTE", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
@@ -97,7 +99,7 @@ public List<string> SelRiStatoRichiesta  { get; set; } = new List<string>();
 public List<string> SelRiClasseRichiesta  { get; set; } = new List<string>();
 
 [Display(Name = "Id Tipo Richiesta", ShortName="", Description = "Codice del tipo specifico di comunicazione", Prompt="")]
-[ErpDogField("RI_ID_TIPO_RICHIESTA", SqlFieldNameExt="RI_ID_TIPO_RICHIESTA", SqlFieldOptions="", Xref="Ti1Icode", SqlFieldProperties="prop() xref(TIPO_RICHIESTA.TI__ICODE) xdup() multbxref()")]
+[ErpDogField("RI_ID_TIPO_RICHIESTA", SqlFieldNameExt="RI_ID_TIPO_RICHIESTA", SqlFieldOptions="[MANDATORY]", Xref="Ti1Icode", SqlFieldProperties="prop() xref(TIPO_RICHIESTA.TI__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoRichiesta", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]

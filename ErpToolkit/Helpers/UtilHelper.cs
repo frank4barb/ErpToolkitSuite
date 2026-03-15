@@ -1,21 +1,30 @@
-//using ErpToolkit.Controllers;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+﻿//using ErpToolkit.Controllers;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Mysqlx.Crud;
+using MySqlX.XDevAPI.Common;
 using NLog;
-using System.Data.Entity.Infrastructure;
+using System.Buffers.Text;
+using System.ComponentModel.DataAnnotations;
 using System.DirectoryServices;
-using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text.Json;
-using static ErpToolkit.Helpers.Db.DogManager;
+using System.Text;
+using static Google.Protobuf.Reflection.UninterpretedOption.Types;
+using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
 
 namespace ErpToolkit.Helpers
 {
     public static class UtilHelper
     {
+        private static readonly NLog.ILogger _logger;
+        static UtilHelper()
+        {
+            NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
+            _logger = NLog.LogManager.GetCurrentClassLogger();  //SetUpNLog();
+        }
+        //******************************************************************************************************************
         //configura NLog per la classe
         public static NLog.Config.LoggingConfiguration GetNLogConfig()
         {
@@ -35,6 +44,8 @@ namespace ErpToolkit.Helpers
             config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
             return config;
         }
+        //******************************************************************************************************************
+
 
         //Converti stringa NomeCampo in NomeProprieta
         public static string field2Property(string s)
@@ -59,7 +70,7 @@ namespace ErpToolkit.Helpers
 
 
         //Cripta & Decripta -- Simple3Des
-        private const string CRYP_KEY_STR = "&%�73Erp#$";
+        private const string CRYP_KEY_STR = "&%£73Erp#$";
 
         public static string EncryptData(string plaintext)
         {
@@ -214,7 +225,7 @@ namespace ErpToolkit.Helpers
 
         //#############################################################################
 
-        //calcola restrizioni visibilit� pagina
+        //calcola restrizioni visibilità pagina
         //-------------------------------------
 
         public static DogManager.FieldAttr fieldAttrTagHelper(string prefix, string fieldName, string xrefFieldName, ViewContext viewContext)
@@ -296,41 +307,95 @@ namespace ErpToolkit.Helpers
         //#############################################################################
 
         //DB utility
-        public static object DecodeJsonElement(object xvalue) //Decodifica tipi JSON, se le variabili vengono da pagina web
+        //public static object DecodeJsonElement(object xvalue) //Decodifica tipi JSON, se le variabili vengono da pagina web
+        //{
+        //    if (xvalue != null && xvalue is System.Text.Json.JsonElement jsonElement)
+        //    {
+        //        if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null) xvalue = (object)null;
+        //        else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.String) xvalue = (string)jsonElement.GetString();
+        //        else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Number)
+        //        {
+        //            if (jsonElement.TryGetInt16(out short shortValue)) xvalue = (short)shortValue;
+        //            else if (jsonElement.TryGetInt32(out int intValue)) xvalue = (int)intValue;
+        //            else if (jsonElement.TryGetInt64(out long longValue)) xvalue = (long)longValue;
+        //            else if (jsonElement.TryGetDouble(out double doubleValue)) xvalue = (double)doubleValue;
+        //        }
+        //        else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.True) xvalue = (bool)true;
+        //        else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.False) xvalue = (bool)false;
+        //        else throw new System.Text.Json.JsonException($"Il tipo JsonElement {jsonElement.ValueKind.ToString()} non è supportato ({xvalue?.ToString() ?? ""})");
+        //    }
+        //    return xvalue;
+        //}
+
+        /// <summary>
+        /// Decodifica valori JSON generici, che possano provenire da System.Text.Json o da Newtonsoft.Json.
+        /// </summary>
+        public static object? DecodeJsonElement(object? xvalue)
         {
-            if (xvalue != null && xvalue is JsonElement jsonElement)
+            // Caso 1: System.Text.Json.JsonElement
+            if (xvalue is System.Text.Json.JsonElement jsonElement)
             {
-                if (jsonElement.ValueKind == JsonValueKind.Null) xvalue = (object)null;
-                else if (jsonElement.ValueKind == JsonValueKind.String) xvalue = (string)jsonElement.GetString();
-                else if (jsonElement.ValueKind == JsonValueKind.Number)
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null)
+                    return null;
+                else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.String)
+                    return jsonElement.GetString();
+                else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Number)
                 {
-                    if (jsonElement.TryGetInt16(out short shortValue)) xvalue = (short)shortValue;
-                    else if (jsonElement.TryGetInt32(out int intValue)) xvalue = (int)intValue;
-                    else if (jsonElement.TryGetInt64(out long longValue)) xvalue = (long)longValue;
-                    else if (jsonElement.TryGetDouble(out double doubleValue)) xvalue = (double)doubleValue;
+                    if (jsonElement.TryGetInt16(out short shortValue)) return shortValue;
+                    if (jsonElement.TryGetInt32(out int intValue)) return intValue;
+                    if (jsonElement.TryGetInt64(out long longValue)) return longValue;
+                    if (jsonElement.TryGetDouble(out double doubleValue)) return doubleValue;
+                    return jsonElement.GetRawText(); // fallback
                 }
-                else if (jsonElement.ValueKind == JsonValueKind.True) xvalue = (bool)true;
-                else if (jsonElement.ValueKind == JsonValueKind.False) xvalue = (bool)false;
-                else throw new JsonException($"Il tipo JsonElement {jsonElement.ValueKind.ToString()} non � supportato ({xvalue?.ToString() ?? ""})");
+                else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.True)
+                    return true;
+                else if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.False)
+                    return false;
+                else
+                    throw new System.Text.Json.JsonException(
+                        $"Il tipo JsonElement {jsonElement.ValueKind} non è supportato ({xvalue?.ToString() ?? ""})");
             }
+
+            // Caso 2: Newtonsoft.Json.Linq.JValue
+            if (xvalue is Newtonsoft.Json.Linq.JValue jvalue)
+            {
+                if (jvalue.Type == Newtonsoft.Json.Linq.JTokenType.Null || jvalue.Type == Newtonsoft.Json.Linq.JTokenType.Undefined)
+                    return null;
+                else if (jvalue.Type == Newtonsoft.Json.Linq.JTokenType.String)
+                    return (string)jvalue.Value;
+                else if (jvalue.Type == Newtonsoft.Json.Linq.JTokenType.Integer)
+                    return (long)jvalue.Value; // attenzione: Newtonsoft usa long come default
+                else if (jvalue.Type == Newtonsoft.Json.Linq.JTokenType.Float)
+                    return (double)jvalue.Value;
+                else if (jvalue.Type == Newtonsoft.Json.Linq.JTokenType.Boolean)
+                    return (bool)jvalue.Value;
+                else
+                    throw new Newtonsoft.Json.JsonException(
+                        $"Il tipo JValue {jvalue.Type} non è supportato ({jvalue?.ToString() ?? ""})");
+            }
+
+            // Caso 3: già primitivo o null => restituisci com'è
             return xvalue;
         }
-        public static bool IsNullOrEmptyObject(object icode)
+
+
+
+        public static bool IsNullOrEmptyObject(object? icode)
         {
             icode = UtilHelper.DecodeJsonElement(icode); //Decodifica tipi JSON, se le variabili vengono da pagina web
 
-            if (icode == DBNull.Value) return true; // Il dato � DBNull
-            else if (icode == null) return true; // Il dato � null
-            else if (icode is string str && string.IsNullOrWhiteSpace(str)) return true; // Il dato � una stringa vuota
-            else return false; // Il dato non � n� DBNull, n� null, n� una stringa vuota
+            if (icode == DBNull.Value) return true; // Il dato è DBNull
+            else if (icode == null) return true; // Il dato è null
+            else if (icode is string str && string.IsNullOrWhiteSpace(str)) return true; // Il dato è una stringa vuota
+            else return false; // Il dato non è né DBNull, né null, né una stringa vuota
         }
         public static object TrimEndObject(object icode)
         {
             icode = UtilHelper.DecodeJsonElement(icode); //Decodifica tipi JSON, se le variabili vengono da pagina web
 
-            if (icode == null) return null; // Il dato � null
-            else if (icode is string str) return str.TrimEnd(); // Il dato � una stringa 
-            else return icode; // se non � stringa restituisco l'oggetto
+            if (icode == null) return null; // Il dato è null
+            else if (icode is string str) return str.TrimEnd(); // Il dato è una stringa 
+            else return icode; // se non è stringa restituisco l'oggetto
         }
 
 
@@ -363,7 +428,302 @@ namespace ErpToolkit.Helpers
         //https://mcuslu.medium.com/executing-raw-sql-queries-using-entity-framework-core-and-returns-to-generic-data-model-534356b1c2b3
 
 
+        //#############################################################################
 
+        //MODEL utility
+
+
+        //1. Valida il modello usando gli attributi di data annotation([Required], [Range], ecc.).
+        //2. Chiama la funzione TryValidateInt del modello(se disponibile).
+        //3. Accetta un ModelStateDictionary esterno opzionale:
+        //      - Se fornito, lo aggiorna con gli errori.
+        //      - Se non fornito, restituisce una struttura con gli errori.
+        public static bool ValidateModelState<T>(T model, ModelStateDictionary modelState, List<string> listNamePath, string? prefix = null ) where T : ModelErp
+        {
+            // verifica modello
+            var context = new ValidationContext(model);
+            var results = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(model, context, results, true);
+            foreach (var result in results)
+            {
+                foreach (var member in result.MemberNames)
+                {
+                    //string key = string.IsNullOrEmpty(prefix) ? member : $"{prefix}.{member}";
+                    //modelState.AddModelError(key, result.ErrorMessage);
+                    if (listNamePath == null)
+                    {
+                        modelState.AddModelError(member, result.ErrorMessage);
+                    }
+                    else
+                    {
+                        foreach(var namePath in listNamePath) { modelState.AddModelError($"{namePath}{member}", result.ErrorMessage); }
+                    }
+                }
+
+                // Se non ci sono membri specifici, è un errore generale
+                if (!result.MemberNames.Any())
+                {
+                    modelState.AddModelError(string.Empty, result.ErrorMessage);
+                }
+            }
+
+            //verifica vincoli interni del modello
+            bool internalValid = model.TryValidateInt(modelState, prefix);
+            if(!internalValid) isValid = false;
+
+            //verifica action del modello
+            if (model.action != 'A' && model.action != 'M' && model.action != 'D')
+            {
+                modelState.AddModelError(string.Empty, "L'azione impostata non è in [AMD].");  
+                isValid = false;
+            }
+
+            // >>>>> sostituito con gestione LISTA_RECORD_AGGIORNATI 
+            ////////aggiunge all'errore principale l'elenco degli errori dei singoli campi
+            //////if (!isValid)
+            //////{
+            //////    modelState.AddModelError(string.Empty, $"{typeof(T).FullName}[{model?.action ?? ' '}:{model?.getIcode() ?? "(null)"}] Verifica valore dei campi: " +
+            //////        string.Join(", ",
+            //////            modelState.Where(ms => ms.Value.Errors.Any())
+            //////                        .Select(kvp => kvp.Key)
+            //////                        .ToArray()
+            //////        )
+            //////    );
+            //////}
+            // <<<<<
+
+            //---SALVO INFORMAZIONE DI SERVIZIO DEI RECORD AGGIORNATI
+            // questi record posso essere letti nella funzione ControllerErp.ValidationResult() e correlati ai campi con errore (eg: {namePath}{member})
+            if (listNamePath != null)
+            {
+                foreach (var namePath in listNamePath) { modelState.AddModelError("LISTA_RECORD_AGGIORNATI", $"{namePath.Trim().Trim('.')} -- {typeof(T).FullName}[{model?.action ?? ' '}:{model?.getIcode() ?? "(null)"}]"); }
+            }
+            //---
+
+
+            return isValid;
+        }
+
+        public static string ValidateModel<T>(T model, List<string> listNamePath, string? prefix = null) where T : ModelErp
+        {
+            var modelState = new ModelStateDictionary();
+            bool isValid = ValidateModelState(model, modelState, listNamePath, prefix);
+            return FormatModelStateErrors(modelState, typeof(T).Name);
+        }
+        private static string FormatModelStateErrors(ModelStateDictionary modelState, string? objectName = null)
+        {
+            if (modelState == null || !modelState.Any(ms => ms.Value.Errors.Any())) return "Nessun errore di validazione.";
+
+            var sb = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(objectName)) sb.AppendLine($"Errori di validazione per l'oggetto: **{objectName}**");
+            else sb.AppendLine("Errori di validazione:");
+
+            foreach (var entry in modelState.Where(ms => ms.Value.Errors.Any()))
+            {
+                string key = string.IsNullOrWhiteSpace(entry.Key) ? "(Generale)" : entry.Key;
+                sb.AppendLine($"- Campo: {key}");
+
+                foreach (var error in entry.Value.Errors)
+                {
+                    string message = string.IsNullOrWhiteSpace(error.ErrorMessage)
+                        ? "(Errore senza messaggio)"
+                        : error.ErrorMessage;
+
+                    sb.AppendLine($"    • {message}");
+                }
+            }
+            return sb.ToString();
+        }
+
+
+
+        // Recupera tutte le proprietà di una classe che hanno l'attributo ErpDogFieldAttribute, restituendo anche il nome del campo SQL e le opzioni specificate nell'attributo.
+        //USO: foreach(var x in GetAllErpDogFields(typeof(MiaClasse))) { Console.WriteLine($"{x.Prop.Name}: SqlFieldName={x.SqlFieldName}, SqlFieldOptions={x.SqlFieldOptions}"); }
+        public static IEnumerable<(PropertyInfo Prop, string SqlFieldName, string SqlFieldOptions)> GetAllErpDogFields(Type t, BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+        {
+            foreach (var p in t.GetProperties(flags))
+            {
+                var a = p.GetCustomAttribute<ErpDogFieldAttribute>(inherit: true);
+                if (a != null)
+                    yield return (p, a.SqlFieldName?.Trim() ?? "", a.SqlFieldOptions?.Trim() ?? "");
+            }
+        }
+
+
+
+    //#############################################################################
+
+    //GENERIC utility
+
+    //-----------------------------------------------------------
+    //--------- Convert HEX -------------------------------------
+
+    //Converte byte[] in stringa esadecimale
+    public static string ByteArrayToHexString(byte[]? bytes)
+        {
+            if (bytes == null) return "";
+            return BitConverter.ToString(bytes).Replace("-", "");
+        }
+
+        //Converte stringa esadecimale in byte[]
+        public static byte[]? HexStringToByteArray(string hex)
+        {
+            if (IsNullOrEmptyObject(hex)) return null;
+
+            if (hex.Length % 2 != 0)
+                throw new ArgumentException("La stringa esadecimale deve avere lunghezza pari.");
+
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < hex.Length; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+            return bytes;
+        }
+
+        //--------------------------------------------------------------
+        //--------- Convert Base64 -------------------------------------
+
+        private static readonly Encoding Utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+
+        // ========================
+        // String ⇄ Base64 (Standard)
+        // ========================
+
+        /// <summary>
+        /// Converte una stringa in Base64 (UTF-8).
+        /// </summary>
+        public static string ToBase64(string? plainText)
+        {
+            if (string.IsNullOrEmpty(plainText)) return string.Empty;
+            var bytes = Utf8.GetBytes(plainText);
+            return Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>
+        /// Converte Base64 (standard) in stringa UTF-8.
+        /// </summary>
+        public static string FromBase64(string? base64)
+        {
+            if (string.IsNullOrWhiteSpace(base64)) return string.Empty;
+            var bytes = Convert.FromBase64String(base64);
+            return Utf8.GetString(bytes);
+        }
+
+        /// <summary>
+        /// Versione Try che intercetta errori e restituisce false se non è valido Base64.
+        /// </summary>
+        public static bool TryFromBase64(string? base64, out string result)
+        {
+            result = string.Empty;
+            if (string.IsNullOrWhiteSpace(base64)) return true;
+
+            try
+            {
+                var bytes = Convert.FromBase64String(base64);
+                result = Utf8.GetString(bytes);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Controllo rapido se la stringa sembra Base64 valida (standard).
+        /// Nota: evita falsi positivi provando una decodifica.
+        /// </summary>
+        public static bool LooksLikeBase64(string? base64)
+        {
+            if (string.IsNullOrWhiteSpace(base64)) return false;
+
+            // Lunghezza multipla di 4 non è sufficiente, ma aiuta
+            if (base64!.Length % 4 != 0) return false;
+
+            return true;
+        }
+
+        // ========================
+        // String ⇄ Base64 URL-safe
+        // ========================
+
+        /// <summary>
+        /// Converte una stringa in Base64 URL-safe (RFC 4648).
+        /// Sostituisce '+'→'-', '/'→'_', rimuove '=' padding.
+        /// </summary>
+        public static string ToBase64Url(string? plainText)
+        {
+            if (string.IsNullOrEmpty(plainText)) return string.Empty;
+
+            var bytes = Utf8.GetBytes(plainText);
+
+#if NET8_0_OR_GREATER
+            var base64UrlLen = Base64.GetMaxEncodedToUtf8Length(bytes.Length);
+            byte[] base64Bytes = new byte[base64UrlLen];
+            Base64.EncodeToUtf8(bytes, base64Bytes, out _, out int written);
+            var b64 = Encoding.ASCII.GetString(base64Bytes, 0, written);
+#else
+            var b64 = Convert.ToBase64String(bytes);
+#endif
+            // URL-safe cleanup
+            return b64.Replace('+', '-').Replace('/', '_').TrimEnd('=');
+        }
+
+        /// <summary>
+        /// Converte Base64 URL-safe in stringa UTF-8.
+        /// Ripristina padding e caratteri standard.
+        /// </summary>
+        public static string FromBase64Url(string? base64Url)
+        {
+            if (string.IsNullOrWhiteSpace(base64Url)) return string.Empty;
+
+            string b64 = base64Url!.Replace('-', '+').Replace('_', '/');
+            switch (b64.Length % 4)
+            {
+                case 2: b64 += "=="; break;
+                case 3: b64 += "="; break;
+                case 0: break;
+                default:
+                    throw new FormatException("Base64Url non valido: lunghezza non compatibile.");
+            }
+
+            var bytes = Convert.FromBase64String(b64);
+            return Utf8.GetString(bytes);
+        }
+
+        public static bool TryFromBase64Url(string? base64Url, out string result)
+        {
+            result = string.Empty;
+            if (string.IsNullOrWhiteSpace(base64Url)) return true;
+
+            try
+            {
+                result = FromBase64Url(base64Url);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool LooksLikeBase64Url(string s)
+        {
+            // Ammessi: A-Z a-z 0-9 - _
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                bool ok =
+                    (c >= 'A' && c <= 'Z') ||
+                    (c >= 'a' && c <= 'z') ||
+                    (c >= '0' && c <= '9') ||
+                    c == '-' || c == '_';
+                if (!ok) return false;
+            }
+            return true;
+        }
 
 
 

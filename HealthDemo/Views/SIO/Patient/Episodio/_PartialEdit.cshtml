@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Episodio Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "Episodio", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -150,6 +150,1021 @@
                         <input asp-for="EpFaseEpisodio" class="form-control" />
                         <span asp-validation-for="EpFaseEpisodio" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPrIdEpisodio != null)
+                    {
+                        <h5 class="mt-5">Vista su Prestazione per PrIdEpisodio</h5>
+                        <erp-table asp-for="XrefPrIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdAttivitaEseguita"     label="IdAttivitaEseguita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrTipoEpisodio"     label="TipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataRichiesta"     label="DataRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraRichiesta"     label="OraRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdRichiesta"     label="IdRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataPropostaEsecuzione"     label="DataPropostaEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraPropostaEsecuzione"     label="OraPropostaEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDurataPrevista"     label="DurataPrevista" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrUrgenza"     label="Urgenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrNoteRichiesta"     label="NoteRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrRoutine"     label="Routine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataAppuntamento"     label="DataAppuntamento" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraAppuntamento"     label="OraAppuntamento" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrNotePianificazione"     label="NotePianificazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataInizioEsecuzione"     label="DataInizioEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraInizioEsecuzione"     label="OraInizioEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataFineEsecuzione"     label="DataFineEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraFineEsecuzione"     label="OraFineEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataRefertazione"     label="DataRefertazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraRefertazione"     label="OraRefertazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdOperatoreEsecutore"     label="IdOperatoreEsecutore" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdUnitaEsecutrice"     label="IdUnitaEsecutrice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdPostazioneEsecutrice"     label="IdPostazioneEsecutrice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDurataEffettiva"     label="DurataEffettiva" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrCostoPrestazione"     label="CostoPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrNoteEsecuzione"     label="NoteEsecuzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdOperatorePianificatore"     label="IdOperatorePianificatore" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrDataPianificazione"     label="DataPianificazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrOraPianificazione"     label="OraPianificazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrMobilita"     label="Mobilita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PrIdTipoAttivita">
+                                    <div class="form-group" data-prop="PrIdTipoAttivita">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdTipoAttivita' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdTipoAttivita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdAttivitaRichiesta">
+                                    <div class="form-group" data-prop="PrIdAttivitaRichiesta">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdAttivitaRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdAttivitaRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdAttivitaEseguita">
+                                    <div class="form-group" data-prop="PrIdAttivitaEseguita">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdAttivitaEseguita' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdAttivitaEseguita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdGruppo">
+                                    <div class="form-group" data-prop="PrIdGruppo">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdGruppo' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdGruppo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrInEvidenza">
+                                    <div class="form-group" data-prop="PrInEvidenza">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrInEvidenza' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrInEvidenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdPaziente">
+                                    <div class="form-group" data-prop="PrIdPaziente">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrClasseEpisodio">
+                                    <div class="form-group" data-prop="PrClasseEpisodio">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrClasseEpisodio' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrClasseEpisodio' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrTipoEpisodio">
+                                    <div class="form-group" data-prop="PrTipoEpisodio">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrTipoEpisodio' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrTipoEpisodio' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrStatoPrestazione">
+                                    <div class="form-group" data-prop="PrStatoPrestazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrStatoPrestazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrStatoPrestazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdOperatoreRichiedente">
+                                    <div class="form-group" data-prop="PrIdOperatoreRichiedente">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdOperatoreRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdOperatoreRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdUnitaRichiedente">
+                                    <div class="form-group" data-prop="PrIdUnitaRichiedente">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdUnitaRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdUnitaRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdPostazioneRichiedente">
+                                    <div class="form-group" data-prop="PrIdPostazioneRichiedente">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdPostazioneRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdPostazioneRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataRichiesta">
+                                    <div class="form-group" data-prop="PrDataRichiesta">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraRichiesta">
+                                    <div class="form-group" data-prop="PrOraRichiesta">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdRichiesta">
+                                    <div class="form-group" data-prop="PrIdRichiesta">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataPropostaEsecuzione">
+                                    <div class="form-group" data-prop="PrDataPropostaEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataPropostaEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataPropostaEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraPropostaEsecuzione">
+                                    <div class="form-group" data-prop="PrOraPropostaEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraPropostaEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraPropostaEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDurataPrevista">
+                                    <div class="form-group" data-prop="PrDurataPrevista">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDurataPrevista' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDurataPrevista' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrUrgenza">
+                                    <div class="form-group" data-prop="PrUrgenza">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrUrgenza' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrUrgenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrNoteRichiesta">
+                                    <div class="form-group" data-prop="PrNoteRichiesta">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrNoteRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrNoteRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrRoutine">
+                                    <div class="form-group" data-prop="PrRoutine">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrRoutine' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrRoutine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataAppuntamento">
+                                    <div class="form-group" data-prop="PrDataAppuntamento">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataAppuntamento' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataAppuntamento' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraAppuntamento">
+                                    <div class="form-group" data-prop="PrOraAppuntamento">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraAppuntamento' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraAppuntamento' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrNotePianificazione">
+                                    <div class="form-group" data-prop="PrNotePianificazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrNotePianificazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrNotePianificazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataInizioEsecuzione">
+                                    <div class="form-group" data-prop="PrDataInizioEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataInizioEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataInizioEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraInizioEsecuzione">
+                                    <div class="form-group" data-prop="PrOraInizioEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraInizioEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraInizioEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataFineEsecuzione">
+                                    <div class="form-group" data-prop="PrDataFineEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataFineEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataFineEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraFineEsecuzione">
+                                    <div class="form-group" data-prop="PrOraFineEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraFineEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraFineEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataRefertazione">
+                                    <div class="form-group" data-prop="PrDataRefertazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataRefertazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataRefertazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraRefertazione">
+                                    <div class="form-group" data-prop="PrOraRefertazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraRefertazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraRefertazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdOperatoreEsecutore">
+                                    <div class="form-group" data-prop="PrIdOperatoreEsecutore">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdOperatoreEsecutore' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdOperatoreEsecutore' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdUnitaEsecutrice">
+                                    <div class="form-group" data-prop="PrIdUnitaEsecutrice">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdUnitaEsecutrice' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdUnitaEsecutrice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdPostazioneEsecutrice">
+                                    <div class="form-group" data-prop="PrIdPostazioneEsecutrice">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdPostazioneEsecutrice' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdPostazioneEsecutrice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDurataEffettiva">
+                                    <div class="form-group" data-prop="PrDurataEffettiva">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDurataEffettiva' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDurataEffettiva' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrCostoPrestazione">
+                                    <div class="form-group" data-prop="PrCostoPrestazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrCostoPrestazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrCostoPrestazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrNoteEsecuzione">
+                                    <div class="form-group" data-prop="PrNoteEsecuzione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrNoteEsecuzione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrNoteEsecuzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrIdOperatorePianificatore">
+                                    <div class="form-group" data-prop="PrIdOperatorePianificatore">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrIdOperatorePianificatore' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrIdOperatorePianificatore' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrDataPianificazione">
+                                    <div class="form-group" data-prop="PrDataPianificazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrDataPianificazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrDataPianificazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrOraPianificazione">
+                                    <div class="form-group" data-prop="PrOraPianificazione">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrOraPianificazione' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrOraPianificazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrNote">
+                                    <div class="form-group" data-prop="PrNote">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrNote' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PrMobilita">
+                                    <div class="form-group" data-prop="PrMobilita">
+                                        <input asp-for='XrefPrIdEpisodio["0"].PrMobilita' class="form-control" />
+                                        <span asp-validation-for='XrefPrIdEpisodio["0"].PrMobilita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefRiIdEpisodio != null)
+                    {
+                        <h5 class="mt-5">Vista su Richiesta per RiIdEpisodio</h5>
+                        <erp-table asp-for="XrefRiIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="RiIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdIstitutoRichiedente"     label="IdIstitutoRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiDataRichiesta"     label="DataRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiOraRichiesta"     label="OraRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiUrgenza"     label="Urgenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiOggetto"     label="Oggetto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiStatoRichiesta"     label="StatoRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiClasseRichiesta"     label="ClasseRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdTipoRichiesta"     label="IdTipoRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="RiIdUnitaRichiedente">
+                                    <div class="form-group" data-prop="RiIdUnitaRichiedente">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiIdUnitaRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiIdUnitaRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdPostazioneRichiedente">
+                                    <div class="form-group" data-prop="RiIdPostazioneRichiedente">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiIdPostazioneRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiIdPostazioneRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdIstitutoRichiedente">
+                                    <div class="form-group" data-prop="RiIdIstitutoRichiedente">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiIdIstitutoRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiIdIstitutoRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdOperatoreRichiedente">
+                                    <div class="form-group" data-prop="RiIdOperatoreRichiedente">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiIdOperatoreRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiIdOperatoreRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiDataRichiesta">
+                                    <div class="form-group" data-prop="RiDataRichiesta">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiDataRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiDataRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiOraRichiesta">
+                                    <div class="form-group" data-prop="RiOraRichiesta">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiOraRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiOraRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiUrgenza">
+                                    <div class="form-group" data-prop="RiUrgenza">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiUrgenza' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiUrgenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiOggetto">
+                                    <div class="form-group" data-prop="RiOggetto">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiOggetto' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiOggetto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiStatoRichiesta">
+                                    <div class="form-group" data-prop="RiStatoRichiesta">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiStatoRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiStatoRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiClasseRichiesta">
+                                    <div class="form-group" data-prop="RiClasseRichiesta">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiClasseRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiClasseRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdTipoRichiesta">
+                                    <div class="form-group" data-prop="RiIdTipoRichiesta">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiIdTipoRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiIdTipoRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdPaziente">
+                                    <div class="form-group" data-prop="RiIdPaziente">
+                                        <input asp-for='XrefRiIdEpisodio["0"].RiIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdEpisodio["0"].RiIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefReIdTipoDatoClinico != null)
+                    {
+                        <h5 class="mt-5">Vista su RisultatoEsame per ReIdTipoDatoClinico</h5>
+                        <erp-table asp-for="XrefReIdTipoDatoClinico" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="ReClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReValoreScelta"     label="ValoreScelta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReValoreTesto"     label="ValoreTesto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReCodiceReferto"     label="CodiceReferto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReDataAcquisizione"     label="DataAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReOraAcquisizione"     label="OraAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReStatoDatoClinico"     label="StatoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReDataValidazione"     label="DataValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReOraValidazione"     label="OraValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReIdTipoDatoClinico"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="ReClasse">
+                                    <div class="form-group" data-prop="ReClasse">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReClasse' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReClasse' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReIdPaziente">
+                                    <div class="form-group" data-prop="ReIdPaziente">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReIdEpisodio">
+                                    <div class="form-group" data-prop="ReIdEpisodio">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReIdEpisodio' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReIdEpisodio' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReIdGruppoDatoClinico">
+                                    <div class="form-group" data-prop="ReIdGruppoDatoClinico">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReIdGruppoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReIdGruppoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReValoreMinimo">
+                                    <div class="form-group" data-prop="ReValoreMinimo">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReValoreMinimo' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReValoreMinimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReValoreMassimo">
+                                    <div class="form-group" data-prop="ReValoreMassimo">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReValoreMassimo' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReValoreMassimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReValoreScelta">
+                                    <div class="form-group" data-prop="ReValoreScelta">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReValoreScelta' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReValoreScelta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReValoreTesto">
+                                    <div class="form-group" data-prop="ReValoreTesto">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReValoreTesto' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReValoreTesto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReNote">
+                                    <div class="form-group" data-prop="ReNote">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReNote' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReCodiceReferto">
+                                    <div class="form-group" data-prop="ReCodiceReferto">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReCodiceReferto' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReCodiceReferto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReDataAcquisizione">
+                                    <div class="form-group" data-prop="ReDataAcquisizione">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReDataAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReDataAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReOraAcquisizione">
+                                    <div class="form-group" data-prop="ReOraAcquisizione">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReOraAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReOraAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReStatoDatoClinico">
+                                    <div class="form-group" data-prop="ReStatoDatoClinico">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReStatoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReStatoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReDataValidazione">
+                                    <div class="form-group" data-prop="ReDataValidazione">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReDataValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReDataValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReOraValidazione">
+                                    <div class="form-group" data-prop="ReOraValidazione">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReOraValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReOraValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="ReSequenza">
+                                    <div class="form-group" data-prop="ReSequenza">
+                                        <input asp-for='XrefReIdTipoDatoClinico["0"].ReSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefReIdTipoDatoClinico["0"].ReSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefSsIdEpisodio != null)
+                    {
+                        <h5 class="mt-5">Vista su StatoSalute per SsIdEpisodio</h5>
+                        <erp-table asp-for="XrefSsIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="SsClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsValoreScelta"     label="ValoreScelta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsValoreTesto"     label="ValoreTesto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsCodiceReferto"     label="CodiceReferto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsDataAcquisizione"     label="DataAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsOraAcquisizione"     label="OraAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsStatoDatoClinico"     label="StatoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsDataValidazione"     label="DataValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsOraValidazione"     label="OraValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="SsClasse">
+                                    <div class="form-group" data-prop="SsClasse">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsClasse' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsClasse' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsIdPaziente">
+                                    <div class="form-group" data-prop="SsIdPaziente">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsIdTipoDatoClinico">
+                                    <div class="form-group" data-prop="SsIdTipoDatoClinico">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsIdTipoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsIdTipoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsIdGruppoDatoClinico">
+                                    <div class="form-group" data-prop="SsIdGruppoDatoClinico">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsIdGruppoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsIdGruppoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsValoreMinimo">
+                                    <div class="form-group" data-prop="SsValoreMinimo">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsValoreMinimo' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsValoreMinimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsValoreMassimo">
+                                    <div class="form-group" data-prop="SsValoreMassimo">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsValoreMassimo' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsValoreMassimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsValoreScelta">
+                                    <div class="form-group" data-prop="SsValoreScelta">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsValoreScelta' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsValoreScelta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsValoreTesto">
+                                    <div class="form-group" data-prop="SsValoreTesto">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsValoreTesto' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsValoreTesto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsNote">
+                                    <div class="form-group" data-prop="SsNote">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsNote' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsCodiceReferto">
+                                    <div class="form-group" data-prop="SsCodiceReferto">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsCodiceReferto' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsCodiceReferto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsDataAcquisizione">
+                                    <div class="form-group" data-prop="SsDataAcquisizione">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsDataAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsDataAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsOraAcquisizione">
+                                    <div class="form-group" data-prop="SsOraAcquisizione">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsOraAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsOraAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsStatoDatoClinico">
+                                    <div class="form-group" data-prop="SsStatoDatoClinico">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsStatoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsStatoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsDataValidazione">
+                                    <div class="form-group" data-prop="SsDataValidazione">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsDataValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsDataValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsOraValidazione">
+                                    <div class="form-group" data-prop="SsOraValidazione">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsOraValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsOraValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SsSequenza">
+                                    <div class="form-group" data-prop="SsSequenza">
+                                        <input asp-for='XrefSsIdEpisodio["0"].SsSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefSsIdEpisodio["0"].SsSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefDcIdEpisodio != null)
+                    {
+                        <h5 class="mt-5">Vista su DocumentoClinico per DcIdEpisodio</h5>
+                        <erp-table asp-for="XrefDcIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="DcClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcValoreScelta"     label="ValoreScelta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcValoreTesto"     label="ValoreTesto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcCodiceReferto"     label="CodiceReferto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcDataAcquisizione"     label="DataAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcOraAcquisizione"     label="OraAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcStatoDatoClinico"     label="StatoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcDataValidazione"     label="DataValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcOraValidazione"     label="OraValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="DcClasse">
+                                    <div class="form-group" data-prop="DcClasse">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcClasse' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcClasse' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcIdPaziente">
+                                    <div class="form-group" data-prop="DcIdPaziente">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcIdTipoDatoClinico">
+                                    <div class="form-group" data-prop="DcIdTipoDatoClinico">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcIdTipoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcIdTipoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcIdGruppoDatoClinico">
+                                    <div class="form-group" data-prop="DcIdGruppoDatoClinico">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcIdGruppoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcIdGruppoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcValoreMinimo">
+                                    <div class="form-group" data-prop="DcValoreMinimo">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcValoreMinimo' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcValoreMinimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcValoreMassimo">
+                                    <div class="form-group" data-prop="DcValoreMassimo">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcValoreMassimo' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcValoreMassimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcValoreScelta">
+                                    <div class="form-group" data-prop="DcValoreScelta">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcValoreScelta' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcValoreScelta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcValoreTesto">
+                                    <div class="form-group" data-prop="DcValoreTesto">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcValoreTesto' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcValoreTesto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcNote">
+                                    <div class="form-group" data-prop="DcNote">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcNote' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcCodiceReferto">
+                                    <div class="form-group" data-prop="DcCodiceReferto">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcCodiceReferto' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcCodiceReferto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcDataAcquisizione">
+                                    <div class="form-group" data-prop="DcDataAcquisizione">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcDataAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcDataAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcOraAcquisizione">
+                                    <div class="form-group" data-prop="DcOraAcquisizione">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcOraAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcOraAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcStatoDatoClinico">
+                                    <div class="form-group" data-prop="DcStatoDatoClinico">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcStatoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcStatoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcDataValidazione">
+                                    <div class="form-group" data-prop="DcDataValidazione">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcDataValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcDataValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcOraValidazione">
+                                    <div class="form-group" data-prop="DcOraValidazione">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcOraValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcOraValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DcSequenza">
+                                    <div class="form-group" data-prop="DcSequenza">
+                                        <input asp-for='XrefDcIdEpisodio["0"].DcSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefDcIdEpisodio["0"].DcSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefCpIdEpisodio != null)
+                    {
+                        <h5 class="mt-5">Vista su Campione per CpIdEpisodio</h5>
+                        <erp-table asp-for="XrefCpIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="CpIdTipoCampione"     label="IdTipoCampione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpCodiceUnivoco"     label="CodiceUnivoco" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpDataPrelievo"     label="DataPrelievo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpOraPrelievo"     label="OraPrelievo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpCodiceAssoluto"     label="CodiceAssoluto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpStatoCampione"     label="StatoCampione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpIdPosizioneAttuale"     label="IdPosizioneAttuale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpDescPosizioneAttuale"     label="DescPosizioneAttuale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpDataCambiamentoStato"     label="DataCambiamentoStato" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpOraCambiamentoStato"     label="OraCambiamentoStato" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpNoteCambiamentoStato"     label="NoteCambiamentoStato" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="CpIdTipoCampione">
+                                    <div class="form-group" data-prop="CpIdTipoCampione">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpIdTipoCampione' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpIdTipoCampione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpDescrizione">
+                                    <div class="form-group" data-prop="CpDescrizione">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpCodiceUnivoco">
+                                    <div class="form-group" data-prop="CpCodiceUnivoco">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpCodiceUnivoco' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpCodiceUnivoco' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpDataPrelievo">
+                                    <div class="form-group" data-prop="CpDataPrelievo">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpDataPrelievo' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpDataPrelievo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpOraPrelievo">
+                                    <div class="form-group" data-prop="CpOraPrelievo">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpOraPrelievo' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpOraPrelievo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpNote">
+                                    <div class="form-group" data-prop="CpNote">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpNote' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpIdPaziente">
+                                    <div class="form-group" data-prop="CpIdPaziente">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpCodiceAssoluto">
+                                    <div class="form-group" data-prop="CpCodiceAssoluto">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpCodiceAssoluto' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpCodiceAssoluto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpStatoCampione">
+                                    <div class="form-group" data-prop="CpStatoCampione">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpStatoCampione' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpStatoCampione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpIdPosizioneAttuale">
+                                    <div class="form-group" data-prop="CpIdPosizioneAttuale">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpIdPosizioneAttuale' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpIdPosizioneAttuale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpDescPosizioneAttuale">
+                                    <div class="form-group" data-prop="CpDescPosizioneAttuale">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpDescPosizioneAttuale' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpDescPosizioneAttuale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpDataCambiamentoStato">
+                                    <div class="form-group" data-prop="CpDataCambiamentoStato">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpDataCambiamentoStato' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpDataCambiamentoStato' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpOraCambiamentoStato">
+                                    <div class="form-group" data-prop="CpOraCambiamentoStato">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpOraCambiamentoStato' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpOraCambiamentoStato' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="CpNoteCambiamentoStato">
+                                    <div class="form-group" data-prop="CpNoteCambiamentoStato">
+                                        <input asp-for='XrefCpIdEpisodio["0"].CpNoteCambiamentoStato' class="form-control" />
+                                        <span asp-validation-for='XrefCpIdEpisodio["0"].CpNoteCambiamentoStato' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPvIdEpisodio != null)
+                    {
+                        <h5 class="mt-5">Vista su ParametroVitale per PvIdEpisodio</h5>
+                        <erp-table asp-for="XrefPvIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PvClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvValoreScelta"     label="ValoreScelta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvValoreTesto"     label="ValoreTesto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvCodiceReferto"     label="CodiceReferto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvDataAcquisizione"     label="DataAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvOraAcquisizione"     label="OraAcquisizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvStatoDatoClinico"     label="StatoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvDataValidazione"     label="DataValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvOraValidazione"     label="OraValidazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PvClasse">
+                                    <div class="form-group" data-prop="PvClasse">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvClasse' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvClasse' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvIdPaziente">
+                                    <div class="form-group" data-prop="PvIdPaziente">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvIdTipoDatoClinico">
+                                    <div class="form-group" data-prop="PvIdTipoDatoClinico">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvIdTipoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvIdTipoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvIdGruppoDatoClinico">
+                                    <div class="form-group" data-prop="PvIdGruppoDatoClinico">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvIdGruppoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvIdGruppoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvValoreMinimo">
+                                    <div class="form-group" data-prop="PvValoreMinimo">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvValoreMinimo' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvValoreMinimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvValoreMassimo">
+                                    <div class="form-group" data-prop="PvValoreMassimo">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvValoreMassimo' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvValoreMassimo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvValoreScelta">
+                                    <div class="form-group" data-prop="PvValoreScelta">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvValoreScelta' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvValoreScelta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvValoreTesto">
+                                    <div class="form-group" data-prop="PvValoreTesto">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvValoreTesto' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvValoreTesto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvNote">
+                                    <div class="form-group" data-prop="PvNote">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvNote' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvCodiceReferto">
+                                    <div class="form-group" data-prop="PvCodiceReferto">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvCodiceReferto' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvCodiceReferto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvDataAcquisizione">
+                                    <div class="form-group" data-prop="PvDataAcquisizione">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvDataAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvDataAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvOraAcquisizione">
+                                    <div class="form-group" data-prop="PvOraAcquisizione">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvOraAcquisizione' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvOraAcquisizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvStatoDatoClinico">
+                                    <div class="form-group" data-prop="PvStatoDatoClinico">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvStatoDatoClinico' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvStatoDatoClinico' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvDataValidazione">
+                                    <div class="form-group" data-prop="PvDataValidazione">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvDataValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvDataValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvOraValidazione">
+                                    <div class="form-group" data-prop="PvOraValidazione">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvOraValidazione' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvOraValidazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PvSequenza">
+                                    <div class="form-group" data-prop="PvSequenza">
+                                        <input asp-for='XrefPvIdEpisodio["0"].PvSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefPvIdEpisodio["0"].PvSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

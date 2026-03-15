@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "TipoRichiesta Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "TipoRichiesta", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -40,6 +40,104 @@
                         <input asp-for="TiNote" class="form-control" />
                         <span asp-validation-for="TiNote" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefRiIdTipoRichiesta != null)
+                    {
+                        <h5 class="mt-5">Vista su Richiesta per RiIdTipoRichiesta</h5>
+                        <erp-table asp-for="XrefRiIdTipoRichiesta" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="RiIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdIstitutoRichiedente"     label="IdIstitutoRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiDataRichiesta"     label="DataRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiOraRichiesta"     label="OraRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiUrgenza"     label="Urgenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiOggetto"     label="Oggetto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiStatoRichiesta"     label="StatoRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiClasseRichiesta"     label="ClasseRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdTipoRichiesta"  visible="false"   value="@Model.Ti1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="RiIdUnitaRichiedente">
+                                    <div class="form-group" data-prop="RiIdUnitaRichiedente">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiIdUnitaRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiIdUnitaRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdPostazioneRichiedente">
+                                    <div class="form-group" data-prop="RiIdPostazioneRichiedente">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiIdPostazioneRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiIdPostazioneRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdIstitutoRichiedente">
+                                    <div class="form-group" data-prop="RiIdIstitutoRichiedente">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiIdIstitutoRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiIdIstitutoRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdOperatoreRichiedente">
+                                    <div class="form-group" data-prop="RiIdOperatoreRichiedente">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiIdOperatoreRichiedente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiIdOperatoreRichiedente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiDataRichiesta">
+                                    <div class="form-group" data-prop="RiDataRichiesta">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiDataRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiDataRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiOraRichiesta">
+                                    <div class="form-group" data-prop="RiOraRichiesta">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiOraRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiOraRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiUrgenza">
+                                    <div class="form-group" data-prop="RiUrgenza">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiUrgenza' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiUrgenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiOggetto">
+                                    <div class="form-group" data-prop="RiOggetto">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiOggetto' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiOggetto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiStatoRichiesta">
+                                    <div class="form-group" data-prop="RiStatoRichiesta">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiStatoRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiStatoRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiClasseRichiesta">
+                                    <div class="form-group" data-prop="RiClasseRichiesta">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiClasseRichiesta' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiClasseRichiesta' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdPaziente">
+                                    <div class="form-group" data-prop="RiIdPaziente">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiIdPaziente' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiIdPaziente' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="RiIdEpisodio">
+                                    <div class="form-group" data-prop="RiIdEpisodio">
+                                        <input asp-for='XrefRiIdTipoRichiesta["0"].RiIdEpisodio' class="form-control" />
+                                        <span asp-validation-for='XrefRiIdTipoRichiesta["0"].RiIdEpisodio' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

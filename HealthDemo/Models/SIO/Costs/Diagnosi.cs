@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,47 +28,94 @@ public const string PREFIX = "Dg"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Dg1Icode; } 
-public override string ToString() { return $"{DgCodice} - {DgDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(DgCodice)}</strong> {HttpUtility.HtmlEncode(DgDescrizione)}"; } 
+public override string labelText() { return $@"{DgCodice} - {DgDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(DgCodice)}</strong> {HttpUtility.HtmlEncode(DgDescrizione)}"; }
 
-[Display(Name = "Dg1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("DG__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Dg1Ienv { get; set; }
+//622-593//[N] EPISODIO.EP_ID_DIAGNOSI_AMMISSIONE
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdDiagnosiAmmissione { get; set; } = null;
+//625-593//[N] EPISODIO.EP_ID_DIAGNOSI_DIMISSIONE
+[Display(Name = "Episodio", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Patient.Episodio>? XrefEpIdDiagnosiDimissione { get; set; } = null;
+//2597-2591//[N] DIAGNOSI.DG_ID_GRUPPO
+[Display(Name = "Diagnosi", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Costs.Diagnosi>? XrefDgIdGruppo { get; set; } = null;
 [Key]
 [Display(Name = "Dg1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("DG__ICODE", SqlFieldNameExt="DG__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("DG__ICODE", SqlFieldNameExt="DG__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Dg1Icode { get; set; }
 [Display(Name = "Dg1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("DG__DELETED", SqlFieldNameExt="DG__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("DG__DELETED", SqlFieldNameExt="DG__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Dg1Deleted { get; set; }
 [Display(Name = "Dg1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("DG__TIMESTAMP", SqlFieldNameExt="DG__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("DG__TIMESTAMP", SqlFieldNameExt="DG__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Dg1Timestamp { get; set; }
+[Display(Name = "Dg1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("DG__CDATE", SqlFieldNameExt="DG__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Dg1Cdate { get; set; }
+[Display(Name = "Dg1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("DG__CTIME", SqlFieldNameExt="DG__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Dg1Ctime { get; set; }
+[Display(Name = "Dg1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("DG__CAGENT", SqlFieldNameExt="DG__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Dg1Cagent { get; set; }
+[Display(Name = "Dg1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("DG__CUNIT", SqlFieldNameExt="DG__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Dg1Cunit { get; set; }
+[Display(Name = "Dg1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("DG__MDATE", SqlFieldNameExt="DG__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Dg1Mdate { get; set; }
+[Display(Name = "Dg1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("DG__MTIME", SqlFieldNameExt="DG__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Dg1Mtime { get; set; }
+[Display(Name = "Dg1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("DG__MAGENT", SqlFieldNameExt="DG__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Dg1Magent { get; set; }
+[Display(Name = "Dg1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("DG__MUNIT", SqlFieldNameExt="DG__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Dg1Munit { get; set; }
 [Display(Name = "Dg1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("DG__HOME", SqlFieldNameExt="DG__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("DG__HOME", SqlFieldNameExt="DG__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Dg1Home { get; set; }
 [Display(Name = "Dg1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("DG__VERSION", SqlFieldNameExt="DG__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("DG__VERSION", SqlFieldNameExt="DG__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Dg1Version { get; set; }
 [Display(Name = "Dg1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("DG__INACTIVE", SqlFieldNameExt="DG__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("DG__INACTIVE", SqlFieldNameExt="DG__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Dg1Inactive { get; set; }
 [Display(Name = "Dg1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("DG__EXTATT", SqlFieldNameExt="DG__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("DG__EXTATT", SqlFieldNameExt="DG__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Dg1Extatt { get; set; }
 
@@ -80,7 +128,7 @@ public string? DgTipoDiagnosi  { get; set; }
 public HealthDemo.Models.SIO.Costs.TipoDiagnosi? DgTipoDiagnosiObj  { get; set; }
 
 [Display(Name = "Classe", ShortName="", Description = "Classificazione di aggregazione diagnostica definita dall'utente: 1: DRG 2: ICD9 3: ICD9-CM 4: APG, 5: AFO; 6: Specialità HC, ecc.", Prompt="")]
-[ErpDogField("DG_CLASSE", SqlFieldNameExt="DG_CLASSE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("DG_CLASSE", SqlFieldNameExt="DG_CLASSE", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
@@ -88,7 +136,7 @@ public HealthDemo.Models.SIO.Costs.TipoDiagnosi? DgTipoDiagnosiObj  { get; set; 
 public string? DgClasse  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione", Prompt="")]
-[ErpDogField("DG_DESCRIZIONE", SqlFieldNameExt="DG_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("DG_DESCRIZIONE", SqlFieldNameExt="DG_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]
@@ -102,7 +150,7 @@ public string? DgDescrizione  { get; set; }
 public string? DgNote  { get; set; }
 
 [Display(Name = "Codice", ShortName="", Description = "Codice definito dall'utente per la classificazione", Prompt="")]
-[ErpDogField("DG_CODICE", SqlFieldNameExt="DG_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(DIAGNOSI.DG__ICODE[DG__ICODE] {DG_CODICE=' '}) multbxref()")]
+[ErpDogField("DG_CODICE", SqlFieldNameExt="DG_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(DIAGNOSI.DG__ICODE[DG__ICODE] {DG_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]

@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,9 +28,14 @@ public const string PREFIX = "Tc"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
+//849-845//[N] RISULTATO_ESAME.RE_ID_GRUPPO_DATO_CLINICO
+//967-946//[N] TIPO_DATO_CLINICO.TC_ID_GRUPPO
+//981-978//[N] STATO_SALUTE.SS_ID_TIPO_DATO_CLINICO
+//1199-1196//[N] DOCUMENTO_CLINICO.DC_ID_TIPO_DATO_CLINICO
+//2167-2164//[N] PARAMETRO_VITALE.PV_ID_TIPO_DATO_CLINICO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TC_CODICE", SqlFieldNameExt="TC_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_DATO_CLINICO.TC__ICODE[TC__ICODE] {TC_CODICE=' '}) multbxref()")]

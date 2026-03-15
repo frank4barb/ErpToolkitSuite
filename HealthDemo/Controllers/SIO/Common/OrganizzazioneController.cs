@@ -6,27 +6,65 @@ using Microsoft.AspNetCore.Mvc;
 using ErpToolkit.Controllers;
 using HealthDemo.Models.SIO.Common;
 
+using static ErpToolkit.Helpers.Db.DogManager;
 namespace HealthDemo.Controllers.SIO.Common
 {
     public class OrganizzazioneController : ControllerErp
     {
+        private static readonly List<string> xrefTables = new List<string> {
+             "PrIdOperatoreRichiedente"   //carico in cache tutti i dati di Prestazione collegati
+            ,"PrIdUnitaRichiedente"   //carico in cache tutti i dati di Prestazione collegati
+            ,"PrIdPostazioneRichiedente"   //carico in cache tutti i dati di Prestazione collegati
+            ,"PrIdOperatoreEsecutore"   //carico in cache tutti i dati di Prestazione collegati
+            ,"PrIdUnitaEsecutrice"   //carico in cache tutti i dati di Prestazione collegati
+            ,"PrIdPostazioneEsecutrice"   //carico in cache tutti i dati di Prestazione collegati
+            ,"PrIdOperatorePianificatore"   //carico in cache tutti i dati di Prestazione collegati
+            ,"OoIdOrganizzazionePadre"   //carico in cache tutti i dati di RelOrganizzazioneContiene collegati
+            ,"OoIdOrganizzazioneFiglio"   //carico in cache tutti i dati di RelOrganizzazioneContiene collegati
+            ,"RiIdUnitaRichiedente"   //carico in cache tutti i dati di Richiesta collegati
+            ,"RiIdPostazioneRichiedente"   //carico in cache tutti i dati di Richiesta collegati
+            ,"RiIdIstitutoRichiedente"   //carico in cache tutti i dati di Richiesta collegati
+            ,"RiIdOperatoreRichiedente"   //carico in cache tutti i dati di Richiesta collegati
+            ,"EpIdUnitaIngresso"   //carico in cache tutti i dati di Episodio collegati
+            ,"EpIdCorsia"   //carico in cache tutti i dati di Episodio collegati
+            ,"EpIdReparto"   //carico in cache tutti i dati di Episodio collegati
+            ,"EpIdRepartoLa"   //carico in cache tutti i dati di Episodio collegati
+            ,"EpIdRepartoPreh"   //carico in cache tutti i dati di Episodio collegati
+            ,"ArIdIstituto"   //carico in cache tutti i dati di RelAttivitaRichiestaDa collegati
+            ,"ArIdUnita"   //carico in cache tutti i dati di RelAttivitaRichiestaDa collegati
+            ,"ArIdPostazione"   //carico in cache tutti i dati di RelAttivitaRichiestaDa collegati
+            ,"ArIdOperatore"   //carico in cache tutti i dati di RelAttivitaRichiestaDa collegati
+            ,"CpIdPosizioneAttuale"   //carico in cache tutti i dati di Campione collegati
+            ,"OrIdIstituto"   //carico in cache tutti i dati di Organizzazione collegati
+            ,"OrIdUnita"   //carico in cache tutti i dati di Organizzazione collegati
+            ,"OrIdPostazione"   //carico in cache tutti i dati di Organizzazione collegati
+            ,"AeIdUnita"   //carico in cache tutti i dati di RelAttivitaErogataDa collegati
+        };
+        private const string ErpContext_dogCache = "@HealthDemo.Controllers.SIO.Common.Organizzazione_dogCache";
+        private DogCache _dogCache = new DogCache();
+
         //private static NLog.ILogger _logger;
         public OrganizzazioneController()
         {
             //SetUpNLog();
             NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
             _logger = NLog.LogManager.GetCurrentClassLogger();
-        }
 
+            this._dogCache = (DogCache)ErpContext.Instance.GetObject(ErpContext_dogCache); // Alloca le risorse cache
+        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) { }  // Rilascia le risorse gestite
+            ErpContext.Instance.Set(ErpContext_dogCache, this._dogCache);   // Rilascia le risorse non gestite (se presenti)
+            base.Dispose(disposing); // Chiama il metodo Dispose della classe base
+        }
 
         [HttpGet]
         public JsonResult AutocompleteGetAll()
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select OR_CODICE + {DogManager.addParam(" - ", ref parameters)} + OR_DESCRIZIONE as label, OR__ICODE as value from ORGANIZZAZIONE where OR__DELETED = {DogManager.addParam("N", ref parameters)} ";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetAll<Organizzazione>());
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetAll Organizzazione: " + ex.Message }); }
         }
@@ -35,9 +73,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select OR_CODICE + {DogManager.addParam(" - ", ref parameters)} + OR_DESCRIZIONE as label, OR__ICODE as value from ORGANIZZAZIONE where OR__DELETED = {DogManager.addParam("N", ref parameters)} and upper({DogManager.addParam(" ", ref parameters)} + OR_CODICE + {DogManager.addParam(" - ", ref parameters)} + OR_DESCRIZIONE + {DogManager.addParam(" ", ref parameters)}) like {DogManager.addParam("%" + term.ToUpper() + "%", ref parameters)} ";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<Organizzazione>(term));
             }
             catch (Exception ex)  { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetSelect Organizzazione: " + ex.Message }); }
         }
@@ -46,9 +82,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select OR_CODICE + {DogManager.addParam(" - ", ref parameters)} + OR_DESCRIZIONE as label, OR__ICODE as value from ORGANIZZAZIONE where OR__DELETED = {DogManager.addParam("N", ref parameters)} and OR__ICODE in (" + string.Join(", ", DogManager.addListParam(values.ToList<object>(), ref parameters)) + ")";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompletePreLoad<Organizzazione>(values));
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Organizzazione: " + ex.Message }); }
         }
@@ -65,6 +99,8 @@ namespace HealthDemo.Controllers.SIO.Common
         [HttpGet]
         public IActionResult Index(string returnUrl = null)
         {
+            this._dogCache = new DogCache();    // Inizializza le risorse ...in caso di chiamata della pagina dall'esterno (ie: no reload)
+
             this.Select = new SelOrganizzazione();
             foreach (var key in Request.Query.Keys) DogManager.setPropertyValue(this.Select, key, Request.Query[key]); // carica parametri QueryString
             this.List = new List<Organizzazione>();
@@ -89,7 +125,7 @@ namespace HealthDemo.Controllers.SIO.Common
                 return View("~/Views/SIO/Common/Organizzazione/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Organizzazione>(this.Select); }
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Organizzazione>(this.Select, null, ref this._dogCache, ""); }  // non carico tabelle relazionate per la lista di selezione
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/Common/Organizzazione/Index.cshtml", this);
@@ -100,7 +136,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, modelPrefix);
+            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, xrefTables, ref this._dogCache, modelPrefix);
             return PartialView("~/Views/SIO/Common/Organizzazione/_PartialEdit.cshtml", obj);
         }
         [HttpPost]
@@ -108,11 +144,9 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.SaveModel<Organizzazione>(dataObj, modelPrefix);
-            if (!TryValidateModel(obj, modelPrefix))
-            {
-                return PartialView("~/Views/SIO/Common/Organizzazione/_PartialEdit.cshtml", obj);
-            }
+            Organizzazione obj = this.SaveModel<Organizzazione>(dataObj, ref this._dogCache, prefix: modelPrefix);
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record aggiornato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";
@@ -126,7 +160,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.ReadForDeleteModel<Organizzazione>(parms, modelPrefix);
+            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, null, ref this._dogCache, modelPrefix, action: 'D');    // non carico tabelle relazionate per il delete
             return PartialView("~/Views/SIO/Common/Organizzazione/_PartialDelete.cshtml", obj);
         }
         [HttpPost]
@@ -134,11 +168,9 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.DeleteModel<Organizzazione>(dataObj, modelPrefix);
-            if (ModelState.ErrorCount > 0)
-            {
-                return PartialView("~/Views/SIO/Common/Organizzazione/_PartialDelete.cshtml", obj);
-            }
+            Organizzazione obj = this.SaveModel<Organizzazione>(dataObj, ref this._dogCache, prefix: modelPrefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]");
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record cancellato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";

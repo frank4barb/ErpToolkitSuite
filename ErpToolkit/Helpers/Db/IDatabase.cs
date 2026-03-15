@@ -1,6 +1,7 @@
 
 using System.Data;
 using System.Data.Common;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -22,6 +23,10 @@ namespace ErpToolkit.Helpers.Db
         //Util errori
         bool IsTransient(Exception ex);
         bool HandleException(Exception ex);
+        //audit
+        object GetCommandSpid(IDbConnection conn);
+        bool IsCommandRequestActive(IDbConnection conn, object spid);
+        LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid);
     }
 }
 

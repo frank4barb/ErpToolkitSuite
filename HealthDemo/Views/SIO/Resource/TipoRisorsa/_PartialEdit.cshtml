@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "TipoRisorsa Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "TipoRisorsa", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -50,6 +50,881 @@
                         <input asp-for="TsUnitaDiMisura" class="form-control" />
                         <span asp-validation-for="TsUnitaDiMisura" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPuIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su RelPrestazioneUsa per PuIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefPuIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuIdRisorsa"     label="IdRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuDataInizioUso"     label="DataInizioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuOraInizioUso"     label="OraInizioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuDataFineUso"     label="DataFineUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuOraFineUso"     label="OraFineUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuQuantitaPrevista"     label="QuantitaPrevista" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuUnitaDiMisuraPrevista"     label="UnitaDiMisuraPrevista" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuQuantitaUsata"     label="QuantitaUsata" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuUnitaDiMisuraUsata"     label="UnitaDiMisuraUsata" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuQuantitaRestituita"     label="QuantitaRestituita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuUnitaDiMisuraRestituita"     label="UnitaDiMisuraRestituita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuCostoRisorsa"     label="CostoRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuDescrizioneRisorsaUsata"     label="DescrizioneRisorsaUsata" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PuIdPrestazione">
+                                    <div class="form-group" data-prop="PuIdPrestazione">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuIdPrestazione' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuIdPrestazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuClasseRisorsa">
+                                    <div class="form-group" data-prop="PuClasseRisorsa">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuIdRisorsa">
+                                    <div class="form-group" data-prop="PuIdRisorsa">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuIdRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuIdRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuSequenza">
+                                    <div class="form-group" data-prop="PuSequenza">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuInEvidenza">
+                                    <div class="form-group" data-prop="PuInEvidenza">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuInEvidenza' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuInEvidenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuDataInizioUso">
+                                    <div class="form-group" data-prop="PuDataInizioUso">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuDataInizioUso' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuDataInizioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuOraInizioUso">
+                                    <div class="form-group" data-prop="PuOraInizioUso">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuOraInizioUso' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuOraInizioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuDataFineUso">
+                                    <div class="form-group" data-prop="PuDataFineUso">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuDataFineUso' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuDataFineUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuOraFineUso">
+                                    <div class="form-group" data-prop="PuOraFineUso">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuOraFineUso' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuOraFineUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuQuantitaPrevista">
+                                    <div class="form-group" data-prop="PuQuantitaPrevista">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuQuantitaPrevista' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuQuantitaPrevista' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuUnitaDiMisuraPrevista">
+                                    <div class="form-group" data-prop="PuUnitaDiMisuraPrevista">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuUnitaDiMisuraPrevista' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuUnitaDiMisuraPrevista' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuQuantitaUsata">
+                                    <div class="form-group" data-prop="PuQuantitaUsata">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuQuantitaUsata' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuQuantitaUsata' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuUnitaDiMisuraUsata">
+                                    <div class="form-group" data-prop="PuUnitaDiMisuraUsata">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuUnitaDiMisuraUsata' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuUnitaDiMisuraUsata' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuQuantitaRestituita">
+                                    <div class="form-group" data-prop="PuQuantitaRestituita">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuQuantitaRestituita' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuQuantitaRestituita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuUnitaDiMisuraRestituita">
+                                    <div class="form-group" data-prop="PuUnitaDiMisuraRestituita">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuUnitaDiMisuraRestituita' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuUnitaDiMisuraRestituita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuNote">
+                                    <div class="form-group" data-prop="PuNote">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuNote' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuCostoRisorsa">
+                                    <div class="form-group" data-prop="PuCostoRisorsa">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuCostoRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuCostoRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PuDescrizioneRisorsaUsata">
+                                    <div class="form-group" data-prop="PuDescrizioneRisorsaUsata">
+                                        <input asp-for='XrefPuIdTipoRisorsa["0"].PuDescrizioneRisorsaUsata' class="form-control" />
+                                        <span asp-validation-for='XrefPuIdTipoRisorsa["0"].PuDescrizioneRisorsaUsata' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefFmIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su Farmaco per FmIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefFmIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="FmCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmDisponibilita"     label="Disponibilita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmQuantitaDisponibile"     label="QuantitaDisponibile" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmQuantitaMinimaMagazzino"     label="QuantitaMinimaMagazzino" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmUsoMedioGiornaliero"     label="UsoMedioGiornaliero" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmDataUltimoOrdine"     label="DataUltimoOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmQuantitaUltimoOrdine"     label="QuantitaUltimoOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmDataProssimoOrdine"     label="DataProssimoOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmQuantitaMediaOrdine"     label="QuantitaMediaOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmRiferimentiFornitore"     label="RiferimentiFornitore" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmCodiceNazionale"     label="CodiceNazionale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmCodiceAic"     label="CodiceAic" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmDataInizioAutorizzazione"     label="DataInizioAutorizzazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmDataFineAutorizzazione"     label="DataFineAutorizzazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="FmCodice">
+                                    <div class="form-group" data-prop="FmCodice">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmCodice' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmClasseRisorsa">
+                                    <div class="form-group" data-prop="FmClasseRisorsa">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmDescrizione">
+                                    <div class="form-group" data-prop="FmDescrizione">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmCostoUnitarioUso">
+                                    <div class="form-group" data-prop="FmCostoUnitarioUso">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmCostoUnitarioUso' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmCostoUnitarioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmMisuraUnitariaUso">
+                                    <div class="form-group" data-prop="FmMisuraUnitariaUso">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmMisuraUnitariaUso' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmMisuraUnitariaUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmNote">
+                                    <div class="form-group" data-prop="FmNote">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmNote' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmDisponibilita">
+                                    <div class="form-group" data-prop="FmDisponibilita">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmDisponibilita' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmDisponibilita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmQuantitaDisponibile">
+                                    <div class="form-group" data-prop="FmQuantitaDisponibile">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmQuantitaDisponibile' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmQuantitaDisponibile' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmQuantitaMinimaMagazzino">
+                                    <div class="form-group" data-prop="FmQuantitaMinimaMagazzino">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmQuantitaMinimaMagazzino' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmQuantitaMinimaMagazzino' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmUsoMedioGiornaliero">
+                                    <div class="form-group" data-prop="FmUsoMedioGiornaliero">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmUsoMedioGiornaliero' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmUsoMedioGiornaliero' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmDataUltimoOrdine">
+                                    <div class="form-group" data-prop="FmDataUltimoOrdine">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmDataUltimoOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmDataUltimoOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmQuantitaUltimoOrdine">
+                                    <div class="form-group" data-prop="FmQuantitaUltimoOrdine">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmQuantitaUltimoOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmQuantitaUltimoOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmDataProssimoOrdine">
+                                    <div class="form-group" data-prop="FmDataProssimoOrdine">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmDataProssimoOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmDataProssimoOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmQuantitaMediaOrdine">
+                                    <div class="form-group" data-prop="FmQuantitaMediaOrdine">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmQuantitaMediaOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmQuantitaMediaOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmRiferimentiFornitore">
+                                    <div class="form-group" data-prop="FmRiferimentiFornitore">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmRiferimentiFornitore' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmRiferimentiFornitore' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmCodiceNazionale">
+                                    <div class="form-group" data-prop="FmCodiceNazionale">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmCodiceNazionale' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmCodiceNazionale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmCodiceAic">
+                                    <div class="form-group" data-prop="FmCodiceAic">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmCodiceAic' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmCodiceAic' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmDataInizioAutorizzazione">
+                                    <div class="form-group" data-prop="FmDataInizioAutorizzazione">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmDataInizioAutorizzazione' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmDataInizioAutorizzazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="FmDataFineAutorizzazione">
+                                    <div class="form-group" data-prop="FmDataFineAutorizzazione">
+                                        <input asp-for='XrefFmIdTipoRisorsa["0"].FmDataFineAutorizzazione' class="form-control" />
+                                        <span asp-validation-for='XrefFmIdTipoRisorsa["0"].FmDataFineAutorizzazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefAtIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su Attrezzatura per AtIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefAtIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="AtCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtDisponibilita"     label="Disponibilita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtTelefonoFornitore"     label="TelefonoFornitore" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtNumeroSeriale"     label="NumeroSeriale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtRiferimentiAssistenza"     label="RiferimentiAssistenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtTelefonoAssistenza"     label="TelefonoAssistenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtDataUltimaManutenzione"     label="DataUltimaManutenzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtFrequenzaManutenzione"     label="FrequenzaManutenzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtUsoMedioGiornaliero"     label="UsoMedioGiornaliero" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtDataProssimaManutenzione"     label="DataProssimaManutenzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="AtCodice">
+                                    <div class="form-group" data-prop="AtCodice">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtCodice' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtClasseRisorsa">
+                                    <div class="form-group" data-prop="AtClasseRisorsa">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtDescrizione">
+                                    <div class="form-group" data-prop="AtDescrizione">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtCostoUnitarioUso">
+                                    <div class="form-group" data-prop="AtCostoUnitarioUso">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtCostoUnitarioUso' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtCostoUnitarioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtMisuraUnitariaUso">
+                                    <div class="form-group" data-prop="AtMisuraUnitariaUso">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtMisuraUnitariaUso' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtMisuraUnitariaUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtNote">
+                                    <div class="form-group" data-prop="AtNote">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtNote' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtDisponibilita">
+                                    <div class="form-group" data-prop="AtDisponibilita">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtDisponibilita' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtDisponibilita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtTelefonoFornitore">
+                                    <div class="form-group" data-prop="AtTelefonoFornitore">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtTelefonoFornitore' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtTelefonoFornitore' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtNumeroSeriale">
+                                    <div class="form-group" data-prop="AtNumeroSeriale">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtNumeroSeriale' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtNumeroSeriale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtRiferimentiAssistenza">
+                                    <div class="form-group" data-prop="AtRiferimentiAssistenza">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtRiferimentiAssistenza' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtRiferimentiAssistenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtTelefonoAssistenza">
+                                    <div class="form-group" data-prop="AtTelefonoAssistenza">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtTelefonoAssistenza' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtTelefonoAssistenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtDataUltimaManutenzione">
+                                    <div class="form-group" data-prop="AtDataUltimaManutenzione">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtDataUltimaManutenzione' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtDataUltimaManutenzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtFrequenzaManutenzione">
+                                    <div class="form-group" data-prop="AtFrequenzaManutenzione">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtFrequenzaManutenzione' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtFrequenzaManutenzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtUsoMedioGiornaliero">
+                                    <div class="form-group" data-prop="AtUsoMedioGiornaliero">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtUsoMedioGiornaliero' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtUsoMedioGiornaliero' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AtDataProssimaManutenzione">
+                                    <div class="form-group" data-prop="AtDataProssimaManutenzione">
+                                        <input asp-for='XrefAtIdTipoRisorsa["0"].AtDataProssimaManutenzione' class="form-control" />
+                                        <span asp-validation-for='XrefAtIdTipoRisorsa["0"].AtDataProssimaManutenzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefSaIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su Sala per SaIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefSaIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="SaCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaDisponibilita"     label="Disponibilita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaTelefonoFornitore"     label="TelefonoFornitore" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaDataUltimaManutenzione"     label="DataUltimaManutenzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaFrequenzaManutenzione"     label="FrequenzaManutenzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaUsoMedioGiornaliero"     label="UsoMedioGiornaliero" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaDataProssimaManutenzione"     label="DataProssimaManutenzione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="SaCodice">
+                                    <div class="form-group" data-prop="SaCodice">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaCodice' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaClasseRisorsa">
+                                    <div class="form-group" data-prop="SaClasseRisorsa">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaDescrizione">
+                                    <div class="form-group" data-prop="SaDescrizione">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaCostoUnitarioUso">
+                                    <div class="form-group" data-prop="SaCostoUnitarioUso">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaCostoUnitarioUso' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaCostoUnitarioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaMisuraUnitariaUso">
+                                    <div class="form-group" data-prop="SaMisuraUnitariaUso">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaMisuraUnitariaUso' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaMisuraUnitariaUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaNote">
+                                    <div class="form-group" data-prop="SaNote">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaNote' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaDisponibilita">
+                                    <div class="form-group" data-prop="SaDisponibilita">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaDisponibilita' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaDisponibilita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaTelefonoFornitore">
+                                    <div class="form-group" data-prop="SaTelefonoFornitore">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaTelefonoFornitore' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaTelefonoFornitore' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaDataUltimaManutenzione">
+                                    <div class="form-group" data-prop="SaDataUltimaManutenzione">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaDataUltimaManutenzione' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaDataUltimaManutenzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaFrequenzaManutenzione">
+                                    <div class="form-group" data-prop="SaFrequenzaManutenzione">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaFrequenzaManutenzione' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaFrequenzaManutenzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaUsoMedioGiornaliero">
+                                    <div class="form-group" data-prop="SaUsoMedioGiornaliero">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaUsoMedioGiornaliero' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaUsoMedioGiornaliero' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="SaDataProssimaManutenzione">
+                                    <div class="form-group" data-prop="SaDataProssimaManutenzione">
+                                        <input asp-for='XrefSaIdTipoRisorsa["0"].SaDataProssimaManutenzione' class="form-control" />
+                                        <span asp-validation-for='XrefSaIdTipoRisorsa["0"].SaDataProssimaManutenzione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefMtIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su Materiale per MtIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefMtIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="MtCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtDisponibilita"     label="Disponibilita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtTelefonoFornitore"     label="TelefonoFornitore" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtQuantitaDisponibile"     label="QuantitaDisponibile" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtQuantitaMinimaMagazzino"     label="QuantitaMinimaMagazzino" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtUsoMedioGiornaliero"     label="UsoMedioGiornaliero" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtDataUltimoOrdine"     label="DataUltimoOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtQuantitaUltimoOrdine"     label="QuantitaUltimoOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtDataProssimoOrdine"     label="DataProssimoOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtQuantitaMediaOrdine"     label="QuantitaMediaOrdine" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtCodiceNazionale"     label="CodiceNazionale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="MtCodice">
+                                    <div class="form-group" data-prop="MtCodice">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtCodice' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtClasseRisorsa">
+                                    <div class="form-group" data-prop="MtClasseRisorsa">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtDescrizione">
+                                    <div class="form-group" data-prop="MtDescrizione">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtCostoUnitarioUso">
+                                    <div class="form-group" data-prop="MtCostoUnitarioUso">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtCostoUnitarioUso' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtCostoUnitarioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtMisuraUnitariaUso">
+                                    <div class="form-group" data-prop="MtMisuraUnitariaUso">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtMisuraUnitariaUso' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtMisuraUnitariaUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtNote">
+                                    <div class="form-group" data-prop="MtNote">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtNote' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtDisponibilita">
+                                    <div class="form-group" data-prop="MtDisponibilita">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtDisponibilita' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtDisponibilita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtTelefonoFornitore">
+                                    <div class="form-group" data-prop="MtTelefonoFornitore">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtTelefonoFornitore' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtTelefonoFornitore' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtQuantitaDisponibile">
+                                    <div class="form-group" data-prop="MtQuantitaDisponibile">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtQuantitaDisponibile' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtQuantitaDisponibile' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtQuantitaMinimaMagazzino">
+                                    <div class="form-group" data-prop="MtQuantitaMinimaMagazzino">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtQuantitaMinimaMagazzino' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtQuantitaMinimaMagazzino' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtUsoMedioGiornaliero">
+                                    <div class="form-group" data-prop="MtUsoMedioGiornaliero">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtUsoMedioGiornaliero' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtUsoMedioGiornaliero' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtDataUltimoOrdine">
+                                    <div class="form-group" data-prop="MtDataUltimoOrdine">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtDataUltimoOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtDataUltimoOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtQuantitaUltimoOrdine">
+                                    <div class="form-group" data-prop="MtQuantitaUltimoOrdine">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtQuantitaUltimoOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtQuantitaUltimoOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtDataProssimoOrdine">
+                                    <div class="form-group" data-prop="MtDataProssimoOrdine">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtDataProssimoOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtDataProssimoOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtQuantitaMediaOrdine">
+                                    <div class="form-group" data-prop="MtQuantitaMediaOrdine">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtQuantitaMediaOrdine' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtQuantitaMediaOrdine' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="MtCodiceNazionale">
+                                    <div class="form-group" data-prop="MtCodiceNazionale">
+                                        <input asp-for='XrefMtIdTipoRisorsa["0"].MtCodiceNazionale' class="form-control" />
+                                        <span asp-validation-for='XrefMtIdTipoRisorsa["0"].MtCodiceNazionale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefAuIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su RelAttivitaUsa per AuIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefAuIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuIdRisorsa"     label="IdRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuQuantitaMediaUsata"     label="QuantitaMediaUsata" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuQuantitaExtra"     label="QuantitaExtra" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuUnitaDiMisura"     label="UnitaDiMisura" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuCostoMedio"     label="CostoMedio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuDescrizioneRisorsaUsata"     label="DescrizioneRisorsaUsata" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="AuIdAttivita">
+                                    <div class="form-group" data-prop="AuIdAttivita">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuIdAttivita' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuIdAttivita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuClasseRisorsa">
+                                    <div class="form-group" data-prop="AuClasseRisorsa">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuIdRisorsa">
+                                    <div class="form-group" data-prop="AuIdRisorsa">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuIdRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuIdRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuSequenza">
+                                    <div class="form-group" data-prop="AuSequenza">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuQuantitaMediaUsata">
+                                    <div class="form-group" data-prop="AuQuantitaMediaUsata">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuQuantitaMediaUsata' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuQuantitaMediaUsata' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuQuantitaExtra">
+                                    <div class="form-group" data-prop="AuQuantitaExtra">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuQuantitaExtra' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuQuantitaExtra' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuUnitaDiMisura">
+                                    <div class="form-group" data-prop="AuUnitaDiMisura">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuUnitaDiMisura' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuUnitaDiMisura' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuNote">
+                                    <div class="form-group" data-prop="AuNote">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuNote' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuCostoMedio">
+                                    <div class="form-group" data-prop="AuCostoMedio">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuCostoMedio' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuCostoMedio' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuDescrizioneRisorsaUsata">
+                                    <div class="form-group" data-prop="AuDescrizioneRisorsaUsata">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuDescrizioneRisorsaUsata' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuDescrizioneRisorsaUsata' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="AuIdGruppo">
+                                    <div class="form-group" data-prop="AuIdGruppo">
+                                        <input asp-for='XrefAuIdTipoRisorsa["0"].AuIdGruppo' class="form-control" />
+                                        <span asp-validation-for='XrefAuIdTipoRisorsa["0"].AuIdGruppo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPeIdTipoRisorsa != null)
+                    {
+                        <h5 class="mt-5">Vista su Personale per PeIdTipoRisorsa</h5>
+                        <erp-table asp-for="XrefPeIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PeCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeDisponibilita"     label="Disponibilita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeTelefono"     label="Telefono" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeCellulare"     label="Cellulare" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeNome"     label="Nome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeCodiceFiscale"     label="CodiceFiscale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeEmail"     label="Email" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeIdTipoRisorsa"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PeCodice">
+                                    <div class="form-group" data-prop="PeCodice">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeCodice' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeClasseRisorsa">
+                                    <div class="form-group" data-prop="PeClasseRisorsa">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeDescrizione">
+                                    <div class="form-group" data-prop="PeDescrizione">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeCostoUnitarioUso">
+                                    <div class="form-group" data-prop="PeCostoUnitarioUso">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeCostoUnitarioUso' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeCostoUnitarioUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeMisuraUnitariaUso">
+                                    <div class="form-group" data-prop="PeMisuraUnitariaUso">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeMisuraUnitariaUso' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeMisuraUnitariaUso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeNote">
+                                    <div class="form-group" data-prop="PeNote">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeNote' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeDisponibilita">
+                                    <div class="form-group" data-prop="PeDisponibilita">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeDisponibilita' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeDisponibilita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeTelefono">
+                                    <div class="form-group" data-prop="PeTelefono">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeTelefono' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeTelefono' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeCellulare">
+                                    <div class="form-group" data-prop="PeCellulare">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeCellulare' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeCellulare' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeNome">
+                                    <div class="form-group" data-prop="PeNome">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeNome' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeNome' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeCognome">
+                                    <div class="form-group" data-prop="PeCognome">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeCognome' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeCognome' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeCodiceFiscale">
+                                    <div class="form-group" data-prop="PeCodiceFiscale">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeCodiceFiscale' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeCodiceFiscale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PeEmail">
+                                    <div class="form-group" data-prop="PeEmail">
+                                        <input asp-for='XrefPeIdTipoRisorsa["0"].PeEmail' class="form-control" />
+                                        <span asp-validation-for='XrefPeIdTipoRisorsa["0"].PeEmail' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefTsIdGruppo != null)
+                    {
+                        <h5 class="mt-5">Vista su TipoRisorsa per TsIdGruppo</h5>
+                        <erp-table asp-for="XrefTsIdGruppo" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="TsCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TsClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TsDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TsNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TsUnitaDiMisura"     label="UnitaDiMisura" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TsIdGruppo"  visible="false"   value="@Model.Ts1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="TsCodice">
+                                    <div class="form-group" data-prop="TsCodice">
+                                        <input asp-for='XrefTsIdGruppo["0"].TsCodice' class="form-control" />
+                                        <span asp-validation-for='XrefTsIdGruppo["0"].TsCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TsClasseRisorsa">
+                                    <div class="form-group" data-prop="TsClasseRisorsa">
+                                        <input asp-for='XrefTsIdGruppo["0"].TsClasseRisorsa' class="form-control" />
+                                        <span asp-validation-for='XrefTsIdGruppo["0"].TsClasseRisorsa' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TsDescrizione">
+                                    <div class="form-group" data-prop="TsDescrizione">
+                                        <input asp-for='XrefTsIdGruppo["0"].TsDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefTsIdGruppo["0"].TsDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TsNote">
+                                    <div class="form-group" data-prop="TsNote">
+                                        <input asp-for='XrefTsIdGruppo["0"].TsNote' class="form-control" />
+                                        <span asp-validation-for='XrefTsIdGruppo["0"].TsNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TsUnitaDiMisura">
+                                    <div class="form-group" data-prop="TsUnitaDiMisura">
+                                        <input asp-for='XrefTsIdGruppo["0"].TsUnitaDiMisura' class="form-control" />
+                                        <span asp-validation-for='XrefTsIdGruppo["0"].TsUnitaDiMisura' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

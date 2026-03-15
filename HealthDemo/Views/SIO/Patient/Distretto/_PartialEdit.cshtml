@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Distretto Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "Distretto", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -40,6 +40,412 @@
                         <input asp-for="DiIdComune" class="form-control" />
                         <span asp-validation-for="DiIdComune" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPaIdDistrettoRes != null)
+                    {
+                        <h5 class="mt-5">Vista su Paziente per PaIdDistrettoRes</h5>
+                        <erp-table asp-for="XrefPaIdDistrettoRes" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PaCodFiscale"     label="CodFiscale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCodSanitario"     label="CodSanitario" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNome"     label="Nome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaDataNascita"     label="DataNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaOraNascita"     label="OraNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdComuneNascita"     label="IdComuneNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdNazioneNascita"     label="IdNazioneNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdCittadinanza"     label="IdCittadinanza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIndirizzoRes"     label="IndirizzoRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNumCivicoRes"     label="NumCivicoRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCapRes"     label="CapRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdComuneRes"     label="IdComuneRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdNazioneDom"     label="IdNazioneDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaMail"     label="Mail" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIndirizzoDom"     label="IndirizzoDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNumCivicoDom"     label="NumCivicoDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCapDom"     label="CapDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdComuneDom"     label="IdComuneDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaTelefono"     label="Telefono" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCellulare"     label="Cellulare" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdDistrettoDom"     label="IdDistrettoDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaDataDecesso"     label="DataDecesso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaOraDecesso"     label="OraDecesso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdNazioneRes"     label="IdNazioneRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdDistrettoRes"  visible="false"   value="@Model.Di1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PaCodFiscale">
+                                    <div class="form-group" data-prop="PaCodFiscale">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaCodFiscale' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaCodFiscale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCodSanitario">
+                                    <div class="form-group" data-prop="PaCodSanitario">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaCodSanitario' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaCodSanitario' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNome">
+                                    <div class="form-group" data-prop="PaNome">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaNome' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaNome' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCognome">
+                                    <div class="form-group" data-prop="PaCognome">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaCognome' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaCognome' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaSesso">
+                                    <div class="form-group" data-prop="PaSesso">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaSesso' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaSesso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaDataNascita">
+                                    <div class="form-group" data-prop="PaDataNascita">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaDataNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaDataNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaOraNascita">
+                                    <div class="form-group" data-prop="PaOraNascita">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaOraNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaOraNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdComuneNascita">
+                                    <div class="form-group" data-prop="PaIdComuneNascita">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdComuneNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdComuneNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdNazioneNascita">
+                                    <div class="form-group" data-prop="PaIdNazioneNascita">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdNazioneNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdNazioneNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdCittadinanza">
+                                    <div class="form-group" data-prop="PaIdCittadinanza">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdCittadinanza' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdCittadinanza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIndirizzoRes">
+                                    <div class="form-group" data-prop="PaIndirizzoRes">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIndirizzoRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIndirizzoRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNumCivicoRes">
+                                    <div class="form-group" data-prop="PaNumCivicoRes">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaNumCivicoRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaNumCivicoRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCapRes">
+                                    <div class="form-group" data-prop="PaCapRes">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaCapRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaCapRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdComuneRes">
+                                    <div class="form-group" data-prop="PaIdComuneRes">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdComuneRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdComuneRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdNazioneDom">
+                                    <div class="form-group" data-prop="PaIdNazioneDom">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdNazioneDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdNazioneDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaMail">
+                                    <div class="form-group" data-prop="PaMail">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaMail' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaMail' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIndirizzoDom">
+                                    <div class="form-group" data-prop="PaIndirizzoDom">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIndirizzoDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIndirizzoDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNumCivicoDom">
+                                    <div class="form-group" data-prop="PaNumCivicoDom">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaNumCivicoDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaNumCivicoDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCapDom">
+                                    <div class="form-group" data-prop="PaCapDom">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaCapDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaCapDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdComuneDom">
+                                    <div class="form-group" data-prop="PaIdComuneDom">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdComuneDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdComuneDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaTelefono">
+                                    <div class="form-group" data-prop="PaTelefono">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaTelefono' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaTelefono' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCellulare">
+                                    <div class="form-group" data-prop="PaCellulare">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaCellulare' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaCellulare' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdDistrettoDom">
+                                    <div class="form-group" data-prop="PaIdDistrettoDom">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdDistrettoDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdDistrettoDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNote">
+                                    <div class="form-group" data-prop="PaNote">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaNote' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaDataDecesso">
+                                    <div class="form-group" data-prop="PaDataDecesso">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaDataDecesso' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaDataDecesso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaOraDecesso">
+                                    <div class="form-group" data-prop="PaOraDecesso">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaOraDecesso' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaOraDecesso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdNazioneRes">
+                                    <div class="form-group" data-prop="PaIdNazioneRes">
+                                        <input asp-for='XrefPaIdDistrettoRes["0"].PaIdNazioneRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoRes["0"].PaIdNazioneRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPaIdDistrettoDom != null)
+                    {
+                        <h5 class="mt-5">Vista su Paziente per PaIdDistrettoDom</h5>
+                        <erp-table asp-for="XrefPaIdDistrettoDom" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PaCodFiscale"     label="CodFiscale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCodSanitario"     label="CodSanitario" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNome"     label="Nome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaDataNascita"     label="DataNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaOraNascita"     label="OraNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdComuneNascita"     label="IdComuneNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdNazioneNascita"     label="IdNazioneNascita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdCittadinanza"     label="IdCittadinanza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIndirizzoRes"     label="IndirizzoRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNumCivicoRes"     label="NumCivicoRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCapRes"     label="CapRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdComuneRes"     label="IdComuneRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdDistrettoRes"     label="IdDistrettoRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdNazioneDom"     label="IdNazioneDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaMail"     label="Mail" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIndirizzoDom"     label="IndirizzoDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNumCivicoDom"     label="NumCivicoDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCapDom"     label="CapDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdComuneDom"     label="IdComuneDom" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaTelefono"     label="Telefono" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaCellulare"     label="Cellulare" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaDataDecesso"     label="DataDecesso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaOraDecesso"     label="OraDecesso" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdNazioneRes"     label="IdNazioneRes" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaIdDistrettoDom"  visible="false"   value="@Model.Di1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PaCodFiscale">
+                                    <div class="form-group" data-prop="PaCodFiscale">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaCodFiscale' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaCodFiscale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCodSanitario">
+                                    <div class="form-group" data-prop="PaCodSanitario">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaCodSanitario' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaCodSanitario' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNome">
+                                    <div class="form-group" data-prop="PaNome">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaNome' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaNome' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCognome">
+                                    <div class="form-group" data-prop="PaCognome">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaCognome' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaCognome' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaSesso">
+                                    <div class="form-group" data-prop="PaSesso">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaSesso' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaSesso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaDataNascita">
+                                    <div class="form-group" data-prop="PaDataNascita">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaDataNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaDataNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaOraNascita">
+                                    <div class="form-group" data-prop="PaOraNascita">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaOraNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaOraNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdComuneNascita">
+                                    <div class="form-group" data-prop="PaIdComuneNascita">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdComuneNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdComuneNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdNazioneNascita">
+                                    <div class="form-group" data-prop="PaIdNazioneNascita">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdNazioneNascita' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdNazioneNascita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdCittadinanza">
+                                    <div class="form-group" data-prop="PaIdCittadinanza">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdCittadinanza' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdCittadinanza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIndirizzoRes">
+                                    <div class="form-group" data-prop="PaIndirizzoRes">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIndirizzoRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIndirizzoRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNumCivicoRes">
+                                    <div class="form-group" data-prop="PaNumCivicoRes">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaNumCivicoRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaNumCivicoRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCapRes">
+                                    <div class="form-group" data-prop="PaCapRes">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaCapRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaCapRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdComuneRes">
+                                    <div class="form-group" data-prop="PaIdComuneRes">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdComuneRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdComuneRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdDistrettoRes">
+                                    <div class="form-group" data-prop="PaIdDistrettoRes">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdDistrettoRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdDistrettoRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdNazioneDom">
+                                    <div class="form-group" data-prop="PaIdNazioneDom">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdNazioneDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdNazioneDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaMail">
+                                    <div class="form-group" data-prop="PaMail">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaMail' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaMail' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIndirizzoDom">
+                                    <div class="form-group" data-prop="PaIndirizzoDom">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIndirizzoDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIndirizzoDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNumCivicoDom">
+                                    <div class="form-group" data-prop="PaNumCivicoDom">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaNumCivicoDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaNumCivicoDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCapDom">
+                                    <div class="form-group" data-prop="PaCapDom">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaCapDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaCapDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdComuneDom">
+                                    <div class="form-group" data-prop="PaIdComuneDom">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdComuneDom' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdComuneDom' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaTelefono">
+                                    <div class="form-group" data-prop="PaTelefono">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaTelefono' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaTelefono' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaCellulare">
+                                    <div class="form-group" data-prop="PaCellulare">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaCellulare' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaCellulare' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaNote">
+                                    <div class="form-group" data-prop="PaNote">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaNote' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaDataDecesso">
+                                    <div class="form-group" data-prop="PaDataDecesso">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaDataDecesso' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaDataDecesso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaOraDecesso">
+                                    <div class="form-group" data-prop="PaOraDecesso">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaOraDecesso' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaOraDecesso' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PaIdNazioneRes">
+                                    <div class="form-group" data-prop="PaIdNazioneRes">
+                                        <input asp-for='XrefPaIdDistrettoDom["0"].PaIdNazioneRes' class="form-control" />
+                                        <span asp-validation-for='XrefPaIdDistrettoDom["0"].PaIdNazioneRes' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

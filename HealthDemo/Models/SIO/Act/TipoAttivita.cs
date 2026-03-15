@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,60 +28,107 @@ public const string PREFIX = "Ta"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Ta1Icode; } 
-public override string ToString() { return $"{TaCodice} -  {TaDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(TaCodice)}</strong> {HttpUtility.HtmlEncode(TaDescrizione)}"; } 
+public override string labelText() { return $@"{TaCodice} -  {TaDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(TaCodice)}</strong> {HttpUtility.HtmlEncode(TaDescrizione)}"; }
 
-[Display(Name = "Ta1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("TA__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Ta1Ienv { get; set; }
+//2-2//[N] PRESTAZIONE.PR_ID_TIPO_ATTIVITA
+[Display(Name = "Prestazione", ShortName = "", Description = "Prestazione effettuata: dettaglio delle attività effettivamente eseguite durante il lavoro quotidiano nell'organizzazione", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdTipoAttivita { get; set; } = null;
+//102-83//[N] ATTIVITA.AV_ID_TIPO_ATTIVITA
+[Display(Name = "Attivita", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.Attivita>? XrefAvIdTipoAttivita { get; set; } = null;
+//2106-2099//[N] TIPO_ATTIVITA.TA_ID_GRUPPO
+[Display(Name = "TipoAttivita", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.TipoAttivita>? XrefTaIdGruppo { get; set; } = null;
 [Key]
 [Display(Name = "Ta1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("TA__ICODE", SqlFieldNameExt="TA__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("TA__ICODE", SqlFieldNameExt="TA__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ta1Icode { get; set; }
 [Display(Name = "Ta1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("TA__DELETED", SqlFieldNameExt="TA__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("TA__DELETED", SqlFieldNameExt="TA__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Ta1Deleted { get; set; }
 [Display(Name = "Ta1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("TA__TIMESTAMP", SqlFieldNameExt="TA__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("TA__TIMESTAMP", SqlFieldNameExt="TA__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Ta1Timestamp { get; set; }
+[Display(Name = "Ta1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("TA__CDATE", SqlFieldNameExt="TA__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Ta1Cdate { get; set; }
+[Display(Name = "Ta1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("TA__CTIME", SqlFieldNameExt="TA__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Ta1Ctime { get; set; }
+[Display(Name = "Ta1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("TA__CAGENT", SqlFieldNameExt="TA__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ta1Cagent { get; set; }
+[Display(Name = "Ta1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("TA__CUNIT", SqlFieldNameExt="TA__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ta1Cunit { get; set; }
+[Display(Name = "Ta1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("TA__MDATE", SqlFieldNameExt="TA__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Ta1Mdate { get; set; }
+[Display(Name = "Ta1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("TA__MTIME", SqlFieldNameExt="TA__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Ta1Mtime { get; set; }
+[Display(Name = "Ta1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("TA__MAGENT", SqlFieldNameExt="TA__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ta1Magent { get; set; }
+[Display(Name = "Ta1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("TA__MUNIT", SqlFieldNameExt="TA__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Ta1Munit { get; set; }
 [Display(Name = "Ta1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("TA__HOME", SqlFieldNameExt="TA__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("TA__HOME", SqlFieldNameExt="TA__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ta1Home { get; set; }
 [Display(Name = "Ta1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("TA__VERSION", SqlFieldNameExt="TA__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("TA__VERSION", SqlFieldNameExt="TA__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ta1Version { get; set; }
 [Display(Name = "Ta1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("TA__INACTIVE", SqlFieldNameExt="TA__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("TA__INACTIVE", SqlFieldNameExt="TA__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Ta1Inactive { get; set; }
 [Display(Name = "Ta1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("TA__EXTATT", SqlFieldNameExt="TA__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("TA__EXTATT", SqlFieldNameExt="TA__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Ta1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("TA_CODICE", SqlFieldNameExt="TA_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_ATTIVITA.TA__ICODE[TA__ICODE] {TA_CODICE=' '}) multbxref()")]
+[ErpDogField("TA_CODICE", SqlFieldNameExt="TA_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_ATTIVITA.TA__ICODE[TA__ICODE] {TA_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? TaCodice  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("TA_DESCRIZIONE", SqlFieldNameExt="TA_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TA_DESCRIZIONE", SqlFieldNameExt="TA_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]

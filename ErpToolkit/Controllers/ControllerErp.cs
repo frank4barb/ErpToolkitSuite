@@ -1,11 +1,12 @@
 using ErpToolkit.Helpers;
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using MongoDB.Driver;
+using System.Data.Entity.Infrastructure;
+using System.Text;
 using static ErpToolkit.Helpers.Db.DogFactory;
 
 namespace ErpToolkit.Controllers
@@ -18,7 +19,7 @@ namespace ErpToolkit.Controllers
 
         protected static NLog.ILogger _logger; //private readonly ILogger<HomeController> _logger;
 
-        public ControllerErp()
+        static ControllerErp()
         {
             //SetUpNLog();
             NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
@@ -34,16 +35,7 @@ namespace ErpToolkit.Controllers
         // VARIABILI GLOBALI
         //------------------
 
-        //Gestione opzioni conversione JSON, es: T objModel = System.Text.Json.JsonSerializer.Deserialize<T>((System.Text.Json.JsonElement)dataObj.data, jsonOptionsConverters);
-        System.Text.Json.JsonSerializerOptions jsonOptionsConverters = new System.Text.Json.JsonSerializerOptions()
-        {
-            Converters = {
-                new DateOnlyJsonConverter(),
-                new TimeOnlyJsonConverter()
-            }
-        };
-
-
+        private const bool VISUALIZZA_LISTA_CAMPI_ERRORE = true;   //se false non visualizza la lista dei campi errati nel messaggio di errore globale ma solo nei campi specifici
 
 
         //$$//public const string DbConnectionString = "#connectionString_SQLSLocal";
@@ -55,6 +47,129 @@ namespace ErpToolkit.Controllers
         //----------------------
 
         public ErpContext? ErpContextSession { get { return ErpContext.Session(HttpContext); } }   //questa variabile consente al Controller un accesso diretto alle variabili di sessione (restituisce null se non è stato fatto Login o la sessione è scaduta)
+
+
+        //==========================================================================================================
+        //==========================================================================================================
+
+        // VALIDAZIONE MODELLO
+        //---------------
+        
+        //Restituisce JSON di STATO del Modell con gestione Toasts e FieldErrors 
+        protected JsonResult ValidationResult(string? successMessage = null)
+        {
+            string[] InternalErrorList = { "LISTA_RECORD_AGGIORNATI" };
+
+            if (ModelState.IsValid)
+            {
+                return Json(new AjaxValidationResult
+                {
+                    success = true,
+                    message = successMessage
+                });
+            }
+
+            //estrae lista errori della maschera
+            var fieldErrors = ModelState
+                .Where(x => !string.IsNullOrEmpty(x.Key))
+                .Where(x => !InternalErrorList.Contains<string>(x.Key))
+                .Where(x => (x.Value?.Errors?.Any() ?? false) && (!string.IsNullOrWhiteSpace(x.Value?.Errors?.First().ErrorMessage)))
+                .Select(x => new AjaxFieldError
+                {
+                    field = x.Key,
+                    message = x.Value?.Errors.First().ErrorMessage ?? ""
+                });
+
+            //aggiunge lista errori della maschera
+            if (VISUALIZZA_LISTA_CAMPI_ERRORE) { addModelErrorList(fieldErrors); }
+
+            //rimuovo errori interni 
+            foreach (string ierr in InternalErrorList) { ModelState.Remove(ierr); }  // rimuovo questi campi virtuale dalla lista degli errori
+
+            // Messaggio globale (chiave vuota)
+            //var errorMessage = ModelState.TryGetValue("", out var globalErrors)
+            //    ? globalErrors.Errors.FirstOrDefault()?.ErrorMessage
+            //    : "Generic Error Found";
+            var errorMessage = ModelState.TryGetValue("", out var globalErrors)
+                ? ((globalErrors?.Errors != null) ? string.Join("\n", globalErrors.Errors.Select(e => e.ErrorMessage)) : "Empty Error Found")
+                : "Generic Error Found";
+
+            return Json(new AjaxValidationResult
+            {
+                success = false,
+                message = errorMessage,
+                fieldErrors = fieldErrors.Any() ? fieldErrors : null
+            });
+        }
+        private void addModelErrorList(IEnumerable<AjaxFieldError> fieldErrors)
+        {
+            //------------------------------------------------------------------------
+            // ----LISTA_RECORD_AGGIORNATI--------------------------------------------
+            //------------------------------------------------------------------------
+            // aggiunge all'errore principale l'elenco degli errori dei singoli campi
+            // ricongiungendo i campi con le informazioni salvate in LISTA_RECORD_AGGIORNATI
+
+            // 1. Parse lista: basePath -> descrizioneCampo
+            Dictionary<string, string>? lista_record_aggiornati = null;
+            if (ModelState.TryGetValue("LISTA_RECORD_AGGIORNATI", out var listErrors) &&
+                listErrors?.Errors != null)
+            {
+                lista_record_aggiornati = listErrors.Errors
+                    .Select(err =>
+                    {
+                        var parts = err.ErrorMessage.Split("--");
+                        return new
+                        {
+                            BasePath = parts[0].Trim(),
+                            Descrizione = parts.Length > 1 ? parts[1].Trim() : ""
+                        };
+                    })
+                    .ToDictionary(
+                        k => k.BasePath,
+                        v => v.Descrizione
+                    );
+            }
+
+            // 2. Raggruppo gli errori per basePath
+            var erroriPerPath = fieldErrors
+                .GroupBy(e =>
+                {
+                    var key = e.field;
+                    int idx = key.LastIndexOf('.');
+                    return idx > 0 ? key.Substring(0, idx) : key; // base path
+                })
+                .ToDictionary(
+                    g => (lista_record_aggiornati != null &&
+                          lista_record_aggiornati.ContainsKey(g.Key))
+                            ? $"{lista_record_aggiornati[g.Key]} -- {g.Key}"
+                            : $"XXX-{g.Key}",  // sostituisce "X" con una chiave UNIVOCA -- scarto se non è in lista_record_aggiornati (perchè non ho effettuato l'aggiornamento di quel record)
+                    g => g.Select(e =>
+                    {
+                        var key = e.field;
+                        int idx = key.LastIndexOf('.');
+                        return idx > 0 ? key[(idx + 1)..] : key;
+                    }).ToList()
+                );
+
+            // 3. Genero output
+            bool foundError = false;
+            StringBuilder sb = new("Verifica il valore dei campi.\n");
+            foreach (var kv in erroriPerPath) { if (!kv.Key.StartsWith("XXX-")) { sb.AppendLine($"    {kv.Key}: {string.Join(", ", kv.Value)}.\n"); foundError = true; } }
+            if (foundError) { ModelState.AddModelError(string.Empty, sb.ToString()); }
+        }
+
+
+        public class AjaxValidationResult
+        {
+            public bool success { get; set; }
+            public string? message { get; set; }
+            public IEnumerable<AjaxFieldError>? fieldErrors { get; set; }
+        }
+        public class AjaxFieldError
+        {
+            public string field { get; set; } = "";
+            public string message { get; set; } = "";
+        }
 
 
         //==========================================================================================================
@@ -83,15 +198,9 @@ namespace ErpToolkit.Controllers
         {
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO
             T objModel = (T)Activator.CreateInstance(typeof(T));
-            // verifica parametri
-            if (dataObj == null || dataObj.data == null)
-            {
-                ModelState.AddModelError(prefix ?? string.Empty, $"Oggetto {nameof(T)} non valido: null");
-                return objModel; //restiuisco oggetto vuoto
-            }
             // deserializza json
-            try { objModel = System.Text.Json.JsonSerializer.Deserialize<T>((System.Text.Json.JsonElement)dataObj.data, jsonOptionsConverters); }
-            catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Oggetto {nameof(T)} non deserializzato: " + ex.Message); return objModel; } //restiuisco oggetto vuoto 
+            try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).JsonSafeDeserialize<T>(dataObj, prefix: prefix); }
+            catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Oggetto {typeof(T).FullName} non deserializzato: " + ex.Message); return objModel; } //restiuisco oggetto vuoto 
             // verifica modello
             if (!TryValidateModel(objModel, prefix))
             {
@@ -141,12 +250,7 @@ namespace ErpToolkit.Controllers
         public T DeleteModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
         {
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
-            if (dataObj == null || dataObj.data == null)
-            {
-                ModelState.AddModelError(prefix ?? string.Empty, $"Oggetto {nameof(T)} non valido. null. E' necessario ricaricare l'oggetto");
-                return (T)Activator.CreateInstance(typeof(T)); //restiuisco oggetto vuoto
-            }
-            T objModel = System.Text.Json.JsonSerializer.Deserialize<T>((System.Text.Json.JsonElement)dataObj.data, jsonOptionsConverters);
+            T objModel = ErpContext.Instance.DogFactory.GetDog(dogId).JsonSafeDeserialize<T>(dataObj, prefix: prefix);
             if (objModel.action != 'D')
             {
                 ModelState.AddModelError(prefix ?? string.Empty, "L'azione impostata non è [D]. E' necessario ricaricare l'oggetto");
@@ -163,8 +267,220 @@ namespace ErpToolkit.Controllers
         //==========================================================================================================
         //==========================================================================================================
 
-        // GESTIONE LOGIN
+        // GESTIONE ICODE
         //---------------
+
+
+        [HttpGet]
+        public JsonResult GenerateIcode()
+        {
+            try
+            {
+                string icode = ErpContext.Instance.DogFactory.GetDog(dogId).GenerateIcode();
+                return Json(new { icode });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in GenerateIcode: " + ex.Message }); }
+        }
+
+
+        //==========================================================================================================
+        //==========================================================================================================
+
+        //---redefine vecchie funzioni---
+        public T redefine_ReadForEditModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
+        {
+            DogManager.DogCache dogCache = new DogManager.DogCache(); List<string> xrefFrom = null;
+            if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id)) return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'M');  
+            else return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'A');  
+        }
+        public T redefine_SaveModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
+        {
+            DogManager.DogCache dogCache = new DogManager.DogCache(); 
+            return SaveModel<T>(dataObj, ref dogCache, prefix: prefix, options: "[MAX_ONE_OBJ]"); 
+        }
+        public T redefine_ReadForDeleteModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
+        {
+            DogManager.DogCache dogCache = new DogManager.DogCache(); List<string> xrefFrom = null;
+            return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'D');  
+        }
+        public T redefine_DeleteModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
+        {
+            DogManager.DogCache dogCache = new DogManager.DogCache();
+            return SaveModel<T>(dataObj, ref dogCache, prefix: prefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]");  
+        }
+        //------------------------------
+
+        //-----------------------
+        // GESTIONE MODELLO CACHE
+        //-----------------------
+
+        public T ReadForEditModel<T>(ModelParam parms, List<string> xrefFrom, ref DogManager.DogCache dogCache, string? prefix = null, char action = 'X') where T : ModelErp
+        {
+            ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
+            T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
+            if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
+            {
+                if (!"XMD".Contains(action)) { ModelState.AddModelError(prefix ?? string.Empty, "Action [{action}] errata"); return null; ; }
+                try
+                {
+                    //objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, options: "[PLAIN] inserisco_primo_record_vuoto_per_fare_add_su_tabella_in_grafica_cshtml");   //[PLAIN] => non leggo le strutture relazionate
+                    objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, options: "[PLAIN] ");   //[PLAIN] => non leggo le strutture relazionate
+                }
+                catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
+                if (action == 'D') objModel.action = 'D'; //delete
+                else objModel.action = 'M'; //update (default action)
+            }
+            else
+            {
+                if (!"XA".Contains(action)) { ModelState.AddModelError(prefix ?? string.Empty, "Action [{action}] errata"); return null; ; }
+                objModel.action = 'A'; //add
+            }
+
+            return objModel;
+        }
+
+        public T SaveModel<T>(ModelObject dataObj, ref DogManager.DogCache dogCache, string? prefix = null, string? options = null) where T : ModelErp
+        {
+            string errMsg = "";
+            ModelState.Clear(); //FORZA RICONVALIDA MODELLO
+            T objModel = (T)Activator.CreateInstance(typeof(T));
+            try
+            {
+                errMsg = "Impossibile accedere al DB";
+                DogManager dogMng = ErpContext.Instance.DogFactory.GetDog(dogId);
+                if (dogMng == null) throw new Exception("dogMng==null");
+
+                //--------------------
+                // deserializza json
+                //--------------------
+                errMsg = "Errore nella deserializzazione della struttura JSON restituita dalla form";
+                objModel = dogMng.JsonSafeDeserialize<T>(dataObj, prefix: prefix);
+                if (objModel == null) throw new Exception("objModel==null");
+
+                //---------------------------------------------------------------------------------
+                //estrae la lista degli oggetti da aggiornare
+                // ie: devono contenere action[AMD] icode timestamp e deleted
+                //---------------------------------------------------------------------------------
+                errMsg = "Errore in estazione lista degli oggetti modificati nella form";
+                Dictionary<ModelErp, List<string>> objList = dogMng.GetListObjToMnt(objModel, prefix); //List<ModelErp> objList = dogMng.GetListObjToMnt(objModel);
+                if (objList == null) throw new Exception("objList==null");
+
+                //---------------------------------------------------------------------------------
+                //validate model
+                //---------------------------------------------------------------------------------
+                errMsg = "Verifica opzioni modello";
+                if (options != null)
+                {
+                    if (options.Contains("[MAX_ONE_OBJ]") && objList.Count > 1) throw new Exception($"Troppi oggetti modificati {objList.Count} (max 1)");
+                    foreach (ModelErp obj in objList.Keys)
+                    {
+                        if (options.Contains("[NO_ADD]") && obj.action == 'A') throw new Exception($"Azione {obj.action} non consentita");
+                        if (options.Contains("[NO_UPDATE]") && obj.action == 'M') throw new Exception($"Azione {obj.action} non consentita");
+                        if (options.Contains("[NO_DELETE]") && obj.action == 'D') throw new Exception($"Azione {obj.action} non consentita");
+                    }
+                }
+
+                //---------------------------------------------------------------------------------
+                //validate model
+                //---------------------------------------------------------------------------------
+                errMsg = "Errore nel processo di validazione degli oggetti modificati nella form";
+                bool validate = true;
+                foreach (ModelErp obj in objList.Keys)
+                {
+                    //recupera objOriginal dalla cache
+                    //var objOriginal = dogCache.dbCache[obj.GetType()][obj.getIcode()];  // objOriginal = null se non trovato
+                    var objOriginal = dogCache.GetObject(obj.GetType(), obj.getIcode());  // objOriginal = null se non trovato
+
+                    // Merge valore originale objOriginal con valore attuale objModel (DataForm)
+                    if (objOriginal != null)
+                    {
+                        var table = ErpContext.Instance.DogFactory.GetDog(dogId).getTable(obj.GetType());
+                        foreach (var field in table.fields)
+                        {
+                            if (field.optSYS) continue; //non confronto i campi di sistema   //if (!field.canUpdate) continue;
+                            var oldVal = field.GetValue(objOriginal);   //leggo il valore originale dalla cache 
+                            var newVal = field.GetValue(obj);
+                            if (newVal == null && oldVal != null) field.SetValue(obj, oldVal);  //se non è stato impostato lo prendo da objOriginal
+                        }
+                    }
+
+                    // verifica modello & verifica vincoli interni del modello & verifica action del modello
+                    if (!ErpToolkit.Helpers.UtilHelper.ValidateModelState<ModelErp>(obj, ModelState, objList[obj], prefix)) validate = false;
+                }
+                errMsg = "Le informazioni inserite nella form non sono valide e/o complete";
+                if (!validate) throw new Exception("Verificare i seguenti campi obbligatori");
+
+
+                //---------------------------------------------------------------------------------
+                //diff model: aggiorno solo i campi modificati
+                //---------------------------------------------------------------------------------
+                errMsg = "Errore nel processo di selezione degli effettivi campi modificati";
+                foreach (ModelErp obj in objList.Keys)
+                {
+                    //recupera objOriginal dalla cache
+                    var objOriginal = dogCache.GetObject(obj.GetType(), obj.getIcode());  // objOriginal = null se non trovato
+
+                    //calcola differenza rispetto all'originale per effettuare l'aggiornamento
+                    if (objOriginal != null)
+                    {
+                        var table = ErpContext.Instance.DogFactory.GetDog(dogId).getTable(obj.GetType());
+                        foreach (var field in table.fields)
+                        {
+                            var oldVal = field.GetValue(objOriginal);   //leggo sempre il valore originale dalla cache 
+                            //---FORZO DELETED E TIMESTAMP LETTO DALLA CACHE---
+                            if (field.optDEL) { field.SetValue(obj, oldVal); continue; }  //sovrascrivo sempre il campo deleted con il valore originale (non permetto di modificarlo da form)  
+                            if (field.optTMS) { field.SetValue(obj, oldVal); continue; }  //sovrascrivo sempre il campo timestamp con il valore originale (non permetto di modificarlo da form)  
+                            //-------------------------------------------------
+                            if (field.optSYS) continue; //non confronto i campi di sistema   //if (!field.canUpdate) continue;
+                            var newVal = field.GetValue(obj);
+                            if (newVal == oldVal && newVal != null) field.SetValue(obj, null);  //se uguali non effettuo aggiornamento del campo su DB
+                        }
+                    }
+                }
+
+
+                //---------------------------------------------------------------------------------
+                // salva su DB e rilettura dei record salvati e aggiornamento delle modifiche nella cache 
+                //---------------------------------------------------------------------------------
+                errMsg = "Impossibile effettuare le modifiche su DB";
+                List<DogManager.DogResult> objResults = dogMng.MntList(objList.Keys.ToList(), ref dogCache);
+                if (objResults == null) throw new Exception("objResults==null");
+
+                //--------------------
+                // estrae il record riletto nella cache
+                //--------------------
+                errMsg = "Impossibile estrarre dalla cache il record riletto";
+                Dictionary<object, ModelErp> cacheDict = dogCache.dbCache[typeof(T)];
+                ModelErp cacheObj = cacheDict[objModel.getIcode()];
+
+                //--------------------
+                // record truncate per passarlo alla pagina web
+                //--------------------
+                errMsg = "Errore nella ricomposizione dei dati da passare alla form";
+                T truncateObjModel = (T)dogMng.TruncateCloneModelErp(cacheObj, DogManager.DOG_MAX_OBJ_DEPTH, action: 'R');
+                if (truncateObjModel == null) throw new Exception("truncateObjModel==null");
+
+                //--------------------
+                // non ci sono errori
+                //--------------------
+
+                ModelState.Clear(); //PULISCO MODEL STATE PRIMA DI USCIRE
+                return truncateObjModel;
+            }
+            catch (Exception ex) { 
+                ModelState.AddModelError(string.Empty, $"ControllerErp.SaveModel: {typeof(T).FullName}: {errMsg}: {ex.Message}"); return objModel; //restiuisco oggetto vuoto
+            }  
+        }
+
+
+        //-----------------------------------------------
+
+
+        //==========================================================================================================
+        //==========================================================================================================
+
+            // GESTIONE LOGIN
+            //---------------
 
         public const string SessionReturnUrl = "_ReturnUrl";
 
@@ -350,47 +666,6 @@ namespace ErpToolkit.Controllers
         }
 
     }
-
-
-    //==========================================================================================================
-    //==========================================================================================================
-
-
-    // Definisci i convertitori come classi nidificate o in un file separato
-
-    public class DateOnlyJsonConverter : System.Text.Json.Serialization.JsonConverter<DateOnly?>
-    {
-        public override DateOnly? Read(ref System.Text.Json.Utf8JsonReader reader, Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
-        {
-            if (reader.TokenType == System.Text.Json.JsonTokenType.String && DateOnly.TryParse(reader.GetString(), out var dateOnly))
-            {
-                return dateOnly;
-            }
-            throw new System.Text.Json.JsonException($"The JSON value could not be converted to {Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert}. Value:{reader.GetString()}"); // Gestisci eventuali errori
-        }
-        public override void Write(System.Text.Json.Utf8JsonWriter writer, DateOnly? value, System.Text.Json.JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value?.ToString("yyyy-MM-dd"));
-        }
-    }
-
-    public class TimeOnlyJsonConverter : System.Text.Json.Serialization.JsonConverter<TimeOnly?>
-    {
-        public override TimeOnly? Read(ref System.Text.Json.Utf8JsonReader reader, Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
-        {
-            if (reader.TokenType == System.Text.Json.JsonTokenType.String && TimeOnly.TryParse(reader.GetString(), out var timeOnly))
-            {
-                return timeOnly;
-            }
-            throw new System.Text.Json.JsonException($"The JSON value could not be converted to {Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert}. Value:{reader.GetString()}"); // Gestisci eventuali errori
-        }
-        public override void Write(System.Text.Json.Utf8JsonWriter writer, TimeOnly? value, System.Text.Json.JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value?.ToString("HH:mm:ss"));
-        }
-    }
-
-
 
 
 

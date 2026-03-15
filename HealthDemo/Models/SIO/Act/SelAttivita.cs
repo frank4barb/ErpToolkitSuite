@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,21 +28,18 @@ public const string PREFIX = "Av"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
-//370-370//REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione> SelRelAttivitaTipoCampione4AcIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaTipoCampione>();
-//1131-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> SelRelAttivitaRichiestaDa4ArIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1179-1179//REL_ATTIVITA_USA.AU_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> SelRelAttivitaUsa4AuIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
-//1992-1992//REL_ATTIVITA_EROGATA_DA.AE_ID_ATTIVITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa> SelRelAttivitaErogataDa4AeIdAttivita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa>();
-//2203-2203//REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_PADRE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaContiene> SelRelAttivitaContiene4AaIdAttivitaPadre  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaContiene>();
-//2204-2203//REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_FIGLIO
-public List<HealthDemo.Models.SIO.Act.RelAttivitaContiene> SelRelAttivitaContiene4AaIdAttivitaFiglio  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaContiene>();
+//3-2//[N] PRESTAZIONE.PR_ID_ATTIVITA_RICHIESTA
+//4-2//[N] PRESTAZIONE.PR_ID_ATTIVITA_ESEGUITA
+//91-83//[N] ATTIVITA.AV_ID_GRUPPO
+//370-370//[Y] REL_ATTIVITA_TIPO_CAMPIONE.AC_ID_ATTIVITA
+//1131-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_ATTIVITA
+//1179-1179//[Y] REL_ATTIVITA_USA.AU_ID_ATTIVITA
+//1992-1992//[Y] REL_ATTIVITA_EROGATA_DA.AE_ID_ATTIVITA
+//2203-2203//[Y] REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_PADRE
+//2204-2203//[Y] REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_FIGLIO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("AV_CODICE", SqlFieldNameExt="AV_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(ATTIVITA.AV__ICODE[AV__ICODE] {AV_CODICE=' '}) multbxref()")]
@@ -100,7 +98,7 @@ public short? SelAvDurataMedia  { get; set; }
 public List<string> SelAvInEvidenza  { get; set; } = new List<string>();
 
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività predefinita", Prompt="")]
-[ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="AV_ID_TIPO_ATTIVITA", SqlFieldOptions="", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
+[ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="AV_ID_TIPO_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]

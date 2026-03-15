@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,13 +28,17 @@ public const string PREFIX = "Ts"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
-//126-124//REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> SelRelPrestazioneUsa4PuIdTipoRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
-//1181-1179//REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> SelRelAttivitaUsa4AuIdTipoRisorsa  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
+//126-124//[Y] REL_PRESTAZIONE_USA.PU_ID_TIPO_RISORSA
+//780-775//[N] FARMACO.FM_ID_TIPO_RISORSA
+//826-822//[N] ATTREZZATURA.AT_ID_TIPO_RISORSA
+//1063-1061//[N] SALA.SA_ID_TIPO_RISORSA
+//1096-1092//[N] MATERIALE.MT_ID_TIPO_RISORSA
+//1181-1179//[Y] REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA
+//2040-2036//[N] PERSONALE.PE_ID_TIPO_RISORSA
+//2136-2134//[N] TIPO_RISORSA.TS_ID_GRUPPO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("TS_CODICE", SqlFieldNameExt="TS_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS__ICODE[TS__ICODE] {TS_CODICE=' '}) multbxref()")]

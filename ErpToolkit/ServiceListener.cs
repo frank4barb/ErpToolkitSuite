@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-
+using ErpToolkit.Helpers.Db;
 
 namespace ErpToolkit
 {
@@ -110,6 +110,67 @@ namespace ErpToolkit
 
                 //// Add services to the container.
                 var controllersWithViews = builder.Services.AddControllersWithViews();
+
+                //!!!!!ATTENZIONE: NON FUNZIONA AUTOCOMPLETE CON QUESTE IMPOSTAZIONI
+                ////>>> Configura JsonOptions per ignorare il riferimento ciclico con ReferenceHandler.Preserve
+                //// Quando chiamo la funzione: System.Text.Json.JsonSerializer.Deserialize<T>((System.Text.Json.JsonElement)jsonObj, jsonOptionsConverters)
+                //// per evitare l'errore: System.Text.Json.JsonException: 'The JSON value could not be converted to System.Text.Json.Serialization.ReferenceHandler. Path: $.ReferenceHandler | LineNumber: 0 | BytePositionInLine: 0.'
+                //// Configura il ReferenceHandler per preservare i riferimenti ciclici
+                //// Attenzione: questo non "risolve" il ciclo — lo gestisce introducendo $id e $ref nel JSON per mantenere i riferimenti. È utile per API, ma non per le View Razor, che non gestiscono $ref.
+                //controllersWithViews.AddJsonOptions(options =>
+                //{
+                //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                //});
+                ////<<< Configura JsonOptions per ignorare il riferimento ciclico con ReferenceHandler.Preserve
+
+
+
+                //>>> Configura JsonOptions per troncare il riferimento ciclico manualmente (senza ReferenceHandler.Preserve)
+
+                //// System.Text.Json
+                //builder.Services.AddControllersWithViews()
+                //    .AddJsonOptions(options =>
+                //    {
+                //        //options.JsonSerializerOptions.TypeInfoResolver = new TruncatingTypeResolver(maxDepth: 2); // Imposta qui la profondità
+                //        //options.JsonSerializerOptions.ReferenceHandler = null; // disattiva ReferenceHandler.Preserve che crea $id/$ref e può interferire con i TagHelper
+                //        //                                                       //options.JsonSerializerOptions.Converters.Add(new ModelErpTruncateConverter(2)); // profondità 2
+
+                //        // Usa direttamente la variabile statica
+                //        options.JsonSerializerOptions.DefaultIgnoreCondition = DogManagerJson.jsonSerializerOptions.DefaultIgnoreCondition;
+                //        options.JsonSerializerOptions.PropertyNamingPolicy = DogManagerJson.jsonSerializerOptions.PropertyNamingPolicy;
+                //        options.JsonSerializerOptions.ReferenceHandler = DogManagerJson.jsonSerializerOptions.ReferenceHandler;
+
+                //        // Copia i converter uno per uno
+                //        foreach (var converter in DogManagerJson.jsonSerializerOptions.Converters)
+                //        {
+                //            options.JsonSerializerOptions.Converters.Add(converter);
+                //        }
+
+                //    });
+
+                // NewtonsoftJson 
+                builder.Services.AddControllersWithViews()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        // Copia le impostazioni dalla tua libreria
+                        options.SerializerSettings.NullValueHandling = DogManagerNewtonsoftJson.jsonSerializerSettings.NullValueHandling;
+                        options.SerializerSettings.ReferenceLoopHandling = DogManagerNewtonsoftJson.jsonSerializerSettings.ReferenceLoopHandling;
+                        options.SerializerSettings.Formatting = DogManagerNewtonsoftJson.jsonSerializerSettings.Formatting;
+                        //options.SerializerSettings.TypeNameHandling = DogManagerJson_Newtonsoft.jsonSerializerSettings.TypeNameHandling;
+                        options.SerializerSettings.ContractResolver = DogManagerNewtonsoftJson.jsonSerializerSettings.ContractResolver;
+
+                        // Copia anche i converter
+                        foreach (var conv in DogManagerNewtonsoftJson.jsonSerializerSettings.Converters)
+                        {
+                            options.SerializerSettings.Converters.Add(conv);
+                        }
+                    });
+
+                //<<< Configura JsonOptions per troncare il riferimento ciclico manualmente (senza ReferenceHandler.Preserve)
+
+
+
+
 
                 //>>> Configura Razor per caricare le Views incorporate
                 controllersWithViews.AddRazorRuntimeCompilation(options =>

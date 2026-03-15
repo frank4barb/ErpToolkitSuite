@@ -4,29 +4,30 @@ using System.Reflection;
 using System.Text;
 using System.Collections;
 using static ErpToolkit.Helpers.Db.DogManager;
-using static ErpToolkit.Helpers.Db.DatabaseFactory;
 
 
 namespace ErpToolkit.Helpers.Db
 {
     public static class DogManagerInt
     {
+
+
+/******************************************************************
+
+
+        private static readonly NLog.ILogger _logger;
+        static DogManagerInt()
+        {
+            NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
+            _logger = NLog.LogManager.GetCurrentClassLogger();  //SetUpNLog();
+        }
+        //******************************************************************************************************************
+
+
         private const bool IS_NULLABLE_ID = false; //=true se posso inserire NULL in tutti gli identifificatori univoci (serve per velocizzare gli indici)
         private const bool IS_NULLABLE_NUM = false; //=true se posso inserire NULL sui valori numerici
         private const bool IS_NULLABLE_INDEX = false; //=true se posso definire indici univoci con campi NULL
 
-        //configura NLog per la classe
-        public static NLog.Config.LoggingConfiguration GetNLogConfig()
-        {
-            var config = new NLog.Config.LoggingConfiguration();
-            // Targets where to log to: File and Console
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "backupclientlogfile_backupservice.txt" };
-            var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
-            // Rules for mapping loggers to targets            
-            config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
-            config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
-            return config;
-        }
 
         //******************************************************************************************************************
 
@@ -217,8 +218,8 @@ namespace ErpToolkit.Helpers.Db
         internal static string sqlWhereListXref(DogManager dogMng, object objModel, DogField fldXref, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
         {
             var sqlRowName = "";
-            if (rowIdList == null) { throw new ArgumentNullException("Null " + nameof(rowIdList)); }
-            if (rowIdList.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(rowIdList)); }
+            if (rowIdList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Null " + nameof(rowIdList)); }
+            //if (rowIdList.Count() == 0) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Empty " + nameof(rowIdList)); }
             if (fldXref == null)  // uso icode della tabella
             {
                 if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
@@ -231,6 +232,7 @@ namespace ErpToolkit.Helpers.Db
                 sqlRowName = fldXref.SqlFieldNameExt;
                 if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.SqlFieldName;
             }
+            if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
             return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
         }
 
@@ -263,14 +265,14 @@ namespace ErpToolkit.Helpers.Db
                 if (opts != null)
                 {
                     if (opts.ContainsKey("_db_cdate")) _db_cdate = opts["_db_cdate"];
-                    if (opts.ContainsKey("_db_ctime")) _db_cdate = opts["_db_ctime"];
-                    if (opts.ContainsKey("_db_cagent")) _db_cdate = opts["_db_cagent"];
-                    if (opts.ContainsKey("_db_cunit")) _db_cdate = opts["_db_cunit"];
+                    if (opts.ContainsKey("_db_ctime")) _db_ctime = opts["_db_ctime"];
+                    if (opts.ContainsKey("_db_cagent")) _db_cagent = opts["_db_cagent"];
+                    if (opts.ContainsKey("_db_cunit")) _db_cunit = opts["_db_cunit"];
                     //--
-                    if (opts.ContainsKey("_db_mdate")) _db_cdate = opts["_db_mdate"];
-                    if (opts.ContainsKey("_db_mtime")) _db_cdate = opts["_db_mtime"];
-                    if (opts.ContainsKey("_db_magent")) _db_cdate = opts["_db_magent"];
-                    if (opts.ContainsKey("_db_munit")) _db_cdate = opts["_db_munit"];
+                    if (opts.ContainsKey("_db_mdate")) _db_mdate = opts["_db_mdate"];
+                    if (opts.ContainsKey("_db_mtime")) _db_mtime = opts["_db_mtime"];
+                    if (opts.ContainsKey("_db_magent")) _db_magent = opts["_db_magent"];
+                    if (opts.ContainsKey("_db_munit")) _db_munit = opts["_db_munit"];
                 }
             }
 
@@ -632,7 +634,7 @@ namespace ErpToolkit.Helpers.Db
             return sb.ToString();
         }
 
-
+*******************************************************/
 
     }
 }

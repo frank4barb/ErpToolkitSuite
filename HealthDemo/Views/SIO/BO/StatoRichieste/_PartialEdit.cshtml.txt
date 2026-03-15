@@ -1,0 +1,759 @@
+﻿@model HealthDemo.Models.SIO.Act.Prestazione
+@{
+    // System.Diagnostics.Debugger.Break(); 
+    ViewData["Title"] = "Prestazione Edit [" + (Model?.action ?? ' ') + "]";
+}
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    @using (Html.BeginForm("Save", "StatoRichieste", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <!--GESTISCE AZIONI CLICK PULSANTE-->
+        @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
+        @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
+        @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.Hidden("jsonOriginal", @Html.Raw(ErpToolkit.Helpers.Db.DogManager.JsonSafeSerialize(Model)))
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" }) 
+        @Html.TextBox($"vars", @Html.Raw(ErpToolkit.Helpers.Db.DogManager.JsonSafeSerialize(Model?.vars)), new { type = "hidden", @class = "ModelVars" }) 
+        @Html.TextBox($"Pr1Icode", Model?.Pr1Icode, new { type = "hidden", @class = "ModelIcode" }) 
+        @Html.TextBox($"Pr1Deleted",Model?.Pr1Deleted, new { type = "hidden", @class = "ModelDeleted" }) 
+        @Html.TextBox($"Pr1Timestamp", @ErpToolkit.Helpers.UtilHelper.ByteArrayToHexString(Model?.Pr1Timestamp), new { type = "hidden", @class = "ModelTimestamp" }) 
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        <label asp-for="PrIdAttivitaRichiesta" class="control-label"></label>
+                        <input asp-for="PrIdAttivitaRichiesta" class="form-control" />
+                        <span asp-validation-for="PrIdAttivitaRichiesta" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdAttivitaEseguita" class="control-label"></label>
+                        <input asp-for="PrIdAttivitaEseguita" class="form-control" />
+                        <span asp-validation-for="PrIdAttivitaEseguita" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdGruppo" class="control-label"></label>
+                        <input asp-for="PrIdGruppo" class="form-control" />
+                        <span asp-validation-for="PrIdGruppo" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrInEvidenza" class="control-label"></label>
+                        <input asp-for="PrInEvidenza" class="form-control" />
+                        <span asp-validation-for="PrInEvidenza" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdPaziente" class="control-label"></label>
+                        <input asp-for="PrIdPaziente" class="form-control" />
+                        <span asp-validation-for="PrIdPaziente" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdEpisodio" class="control-label"></label>
+                        <input asp-for="PrIdEpisodio" class="form-control" />
+                        <span asp-validation-for="PrIdEpisodio" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrStatoPrestazione" class="control-label"></label>
+                        <input asp-for="PrStatoPrestazione" class="form-control" />
+                        <span asp-validation-for="PrStatoPrestazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdOperatoreRichiedente" class="control-label"></label>
+                        <input asp-for="PrIdOperatoreRichiedente" class="form-control" />
+                        <span asp-validation-for="PrIdOperatoreRichiedente" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdUnitaRichiedente" class="control-label"></label>
+                        <input asp-for="PrIdUnitaRichiedente" class="form-control" />
+                        <span asp-validation-for="PrIdUnitaRichiedente" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdPostazioneRichiedente" class="control-label"></label>
+                        <input asp-for="PrIdPostazioneRichiedente" class="form-control" />
+                        <span asp-validation-for="PrIdPostazioneRichiedente" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataRichiesta" class="control-label"></label>
+                        <input asp-for="PrDataRichiesta" class="form-control" />
+                        <span asp-validation-for="PrDataRichiesta" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraRichiesta" class="control-label"></label>
+                        <input asp-for="PrOraRichiesta" class="form-control" />
+                        <span asp-validation-for="PrOraRichiesta" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdRichiesta" class="control-label"></label>
+                        <input asp-for="PrIdRichiesta" class="form-control" />
+                        <span asp-validation-for="PrIdRichiesta" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataPropostaEsecuzione" class="control-label"></label>
+                        <input asp-for="PrDataPropostaEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrDataPropostaEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraPropostaEsecuzione" class="control-label"></label>
+                        <input asp-for="PrOraPropostaEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrOraPropostaEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDurataPrevista" class="control-label"></label>
+                        <input asp-for="PrDurataPrevista" class="form-control" />
+                        <span asp-validation-for="PrDurataPrevista" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrUrgenza" class="control-label"></label>
+                        <input asp-for="PrUrgenza" class="form-control" />
+                        <span asp-validation-for="PrUrgenza" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNoteRichiesta" class="control-label"></label>
+                        <input asp-for="PrNoteRichiesta" class="form-control" />
+                        <span asp-validation-for="PrNoteRichiesta" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrRoutine" class="control-label"></label>
+                        <input asp-for="PrRoutine" class="form-control" />
+                        <span asp-validation-for="PrRoutine" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataAppuntamento" class="control-label"></label>
+                        <input asp-for="PrDataAppuntamento" class="form-control" />
+                        <span asp-validation-for="PrDataAppuntamento" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraAppuntamento" class="control-label"></label>
+                        <input asp-for="PrOraAppuntamento" class="form-control" />
+                        <span asp-validation-for="PrOraAppuntamento" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNotePianificazione" class="control-label"></label>
+                        <input asp-for="PrNotePianificazione" class="form-control" />
+                        <span asp-validation-for="PrNotePianificazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataInizioEsecuzione" class="control-label"></label>
+                        <input asp-for="PrDataInizioEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrDataInizioEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraInizioEsecuzione" class="control-label"></label>
+                        <input asp-for="PrOraInizioEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrOraInizioEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataFineEsecuzione" class="control-label"></label>
+                        <input asp-for="PrDataFineEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrDataFineEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraFineEsecuzione" class="control-label"></label>
+                        <input asp-for="PrOraFineEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrOraFineEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataRefertazione" class="control-label"></label>
+                        <input asp-for="PrDataRefertazione" class="form-control" />
+                        <span asp-validation-for="PrDataRefertazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraRefertazione" class="control-label"></label>
+                        <input asp-for="PrOraRefertazione" class="form-control" />
+                        <span asp-validation-for="PrOraRefertazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdOperatoreEsecutore" class="control-label"></label>
+                        <input asp-for="PrIdOperatoreEsecutore" class="form-control" />
+                        <span asp-validation-for="PrIdOperatoreEsecutore" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdUnitaEsecutrice" class="control-label"></label>
+                        <input asp-for="PrIdUnitaEsecutrice" class="form-control" />
+                        <span asp-validation-for="PrIdUnitaEsecutrice" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdPostazioneEsecutrice" class="control-label"></label>
+                        <input asp-for="PrIdPostazioneEsecutrice" class="form-control" />
+                        <span asp-validation-for="PrIdPostazioneEsecutrice" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDurataEffettiva" class="control-label"></label>
+                        <input asp-for="PrDurataEffettiva" class="form-control" />
+                        <span asp-validation-for="PrDurataEffettiva" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrCostoPrestazione" class="control-label"></label>
+                        <input asp-for="PrCostoPrestazione" class="form-control" />
+                        <span asp-validation-for="PrCostoPrestazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNoteEsecuzione" class="control-label"></label>
+                        <input asp-for="PrNoteEsecuzione" class="form-control" />
+                        <span asp-validation-for="PrNoteEsecuzione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrIdOperatorePianificatore" class="control-label"></label>
+                        <input asp-for="PrIdOperatorePianificatore" class="form-control" />
+                        <span asp-validation-for="PrIdOperatorePianificatore" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrDataPianificazione" class="control-label"></label>
+                        <input asp-for="PrDataPianificazione" class="form-control" />
+                        <span asp-validation-for="PrDataPianificazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrOraPianificazione" class="control-label"></label>
+                        <input asp-for="PrOraPianificazione" class="form-control" />
+                        <span asp-validation-for="PrOraPianificazione" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrNote" class="control-label"></label>
+                        <input asp-for="PrNote" class="form-control" />
+                        <span asp-validation-for="PrNote" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrMobilita" class="control-label"></label>
+                        <input asp-for="PrMobilita" class="form-control" />
+                        <span asp-validation-for="PrMobilita" class="text-danger"></span>
+                    </div>
+                </div>
+                <br />
+
+                @if (Model != null)
+                {
+@*
+<style>
+/* Celle disabilitate della tabella */
+.td-disabled {
+    background-color: #f0f0f0;
+    pointer-events: none;  /* blocca interazioni su input */
+    opacity: 0.6;
+}
+
+/* Riabilita i pulsanti delete e modify anche se la cella è disabilitata */
+.td-disabled button.DeleteRow,
+.td-disabled button.ModifyRow {
+    pointer-events: auto;
+    opacity: 1;
+}
+</style>
+
+ 
+ <script>
+ let forceCounter = 1; // Contatore globale delle operazioni
+
+function disableRow(row) {
+    // Disabilita tutti i controlli tranne DeleteRow e ModifyRow
+    row.find('input, select, textarea, button')
+        .not('.DeleteRow, .ModifyRow')
+        .prop('disabled', true);
+
+    // Aggiunge classe di stile per la riga
+    row.find('td').addClass('td-disabled');
+}
+
+function enableRow(row) {
+    // Riabilita tutti i controlli tranne DeleteRow e ModifyRow
+    row.find('input, select, textarea, button')
+        .not('.DeleteRow, .ModifyRow')
+        .prop('disabled', false);
+
+    // Rimuove classe di stile
+    row.find('td').removeClass('td-disabled');
+}
+
+// Gestione DeleteRow
+function handleDeleteRow(button) {
+    const row = $(button).closest('tr');
+    const pc1Ienv = row.find('input[name$=".Pc1Ienv"]');
+
+    // Aggiorna campo con FORCE[n]
+    pc1Ienv.val("FORCE" + forceCounter++);
+    
+    // Rimuovi la riga dalla tabella
+    row.remove();
+}
+
+// Gestione ModifyRow
+function handleModifyRow(button) {
+    const row = $(button).closest('tr');
+    const pc1Ienv = row.find('input[name$=".Pc1Ienv"]');
+
+    if (row.hasClass('editing')) {
+        // Conferma modifica -> disabilita di nuovo la riga
+        row.removeClass('editing');
+        disableRow(row);
+        pc1Ienv.val("FORCE" + forceCounter++);
+    } else {
+        // Abilita modifica
+        row.addClass('editing');
+        enableRow(row);
+    }
+}
+
+// Gestione AddRow
+function handleAddRow(button) {
+    const table = $(button).closest('table');
+    const newRow = table.find('tr.template-row').clone().removeClass('template-row');
+
+    // Reset valori della riga
+    newRow.find('input, select, textarea').val('');
+    
+    // Aggiorna campo con FORCE[n]
+    const pc1Ienv = newRow.find('input[name$=".Pc1Ienv"]');
+    pc1Ienv.val("FORCE" + forceCounter++);
+
+    // Aggiunge la riga e disabilita di default
+    table.append(newRow);
+    disableRow(newRow);
+}
+</script>
+ *@
+
+
+
+
+
+
+@if(Model.XrefPcIdPrestazione != null) {
+<h4>RelPrestazioneCampione</h4>
+<table id="tblPrestazioni" class="table">
+<!-- table id="tblPrestazioni" class="table table-striped" -->
+    <thead>
+        <tr>
+            <th>Campione</th>
+            <th>Tipo Campione</th>
+            <th>Tipo</th>
+            <th>Note</th>
+            <th>IEnv</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 1; i < Model.XrefPcIdPrestazione.Count; i++)
+        {
+            <tr>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcIdCampione", Model.XrefPcIdPrestazione[i].PcIdCampione, new { type = "hidden" })
+                        <span>@Html.Raw(@Model.XrefPcIdPrestazione[i].PcIdCampioneObj?.ToHtml() ?? "")</span>
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcIdCampione" class="text-danger"></span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcIdTipoCampione", Model.XrefPcIdPrestazione[i].PcIdTipoCampione, new { type = "hidden" })
+                        <span>@Html.Raw(@Model.XrefPcIdPrestazione[i].getLabelForField("PcIdTipoCampione") ?? "")</span>
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcIdTipoCampione" class="text-danger"></span>
+
+
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcTipo", Model.XrefPcIdPrestazione[i].PcTipo, new { type = "hidden" })
+                        <span>@Model.XrefPcIdPrestazione[i].PcTipo</span>
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcTipo" class="text-danger"></span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcNote", Model.XrefPcIdPrestazione[i].PcNote, new { type = "hidden" })
+                        <span>@Model.XrefPcIdPrestazione[i].PcNote</span>
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcNote" class="text-danger"></span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].Pc1Ienv", Model.XrefPcIdPrestazione[i].Pc1Ienv, new { type = "hidden" })
+                        <span>@Model.XrefPcIdPrestazione[i].Pc1Ienv</span>
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].Pc1Ienv" class="text-danger"></span>
+                    </div>
+                </td>
+                <td class="action-buttons text-center">
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].action", Model.XrefPcIdPrestazione[i].action, new { type = "hidden", @class = "ModelAction" })
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].action" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].vars", @Html.Raw(ErpToolkit.Helpers.Db.DogManager.JsonSafeSerialize(Model.XrefPcIdPrestazione[i].vars)), new { type = "hidden", @class = "ModelVars" }) 
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].vars" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].Pc1Icode", Model.XrefPcIdPrestazione[i].Pc1Icode, new { type = "hidden", @class = "ModelIcode" })
+                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].Pc1Icode" class="text-danger"></span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary ModifyRow" onclick="handleModifyRow(this)"><i class="bi bi-pencil-square"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-danger DeleteRow" onclick="handleDeleteRow(this)"><i class="bi bi-trash3"></i></button>
+                    <button type="button" class="btn btn-sm btn-success SaveRow" style="display:none" onclick="handleSaveRow(this)"><i class="bi bi-save"></i></button>
+                    <button type="button" class="btn btn-sm btn-secondary CancelRow" style="display:none" onclick="handleCancelRow(this)"><i class="bi bi-x-circle"></i></button>
+                </td>
+            </tr>
+        }
+        <!-- Template nascosto per Add/Modify -->
+        <tr id="templateRow" style="display:none"> 
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcIdCampione" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcIdCampione" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcIdTipoCampione" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcIdTipoCampione" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcTipo" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcTipo" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcNote" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcNote" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].Pc1Ienv" class="pc1ienv form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].Pc1Ienv" class="text-danger"></span>
+                </div>
+            </td>
+            <td class="action-buttons text-center">
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].action" class="ModelAction" style="display:none;" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].action" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].vars" class="ModelVars" style="display:none;" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].vars" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione[0].Pc1Icode" class="ModelIcode" style="display:none;" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].Pc1Icode" class="text-danger"></span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary ModifyRow" style="display:none" onclick="handleModifyRow(this)"><i class="bi bi-pencil-square"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger DeleteRow" style="display:none" onclick="handleDeleteRow(this)"><i class="bi bi-trash3"></i></button>
+                <button type="button" class="btn btn-sm btn-success SaveRow" style="display:none" onclick="handleSaveRow(this)"><i class="bi bi-save"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary CancelRow" style="display:none" onclick="handleCancelRow(this)"><i class="bi bi-x-circle"></i></button>
+            </td>
+        </tr>    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6" class="text-end">
+                <button type="button" class="btn btn-sm btn-success mb-2" name="@Model.XrefPcIdPrestazione[0].Pc1Icode" onclick="handleAddRow(this)"><i class="bi bi-plus-lg"></i> Aggiungi riga</button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+<h4>RelPrestazioneCampione</h4>
+<table id="tblPrestazioni" class="table">
+<!-- table id="tblPrestazioni" class="table table-striped" -->
+    <thead>
+        <tr>
+            <th>Campione</th>
+            <th>Tipo Campione</th>
+            <th>Tipo</th>
+            <th>Note</th>
+            <th>IEnv</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; Model.XrefPcIdPrestazione != null && i < Model.XrefPcIdPrestazione.Count; i++)
+        {
+            <tr>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcIdCampione", Model.XrefPcIdPrestazione[i].PcIdCampione, new { type = "hidden" })
+                        <span>@Html.Raw(@Model.XrefPcIdPrestazione[i].PcIdCampioneObj?.ToHtml() ?? "")</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcIdTipoCampione", Model.XrefPcIdPrestazione[i].PcIdTipoCampione, new { type = "hidden" })
+                        <span>@Html.Raw(@Model.XrefPcIdPrestazione[i].getLabelForField("PcIdTipoCampione") ?? "")</span>
+
+
+
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcTipo", Model.XrefPcIdPrestazione[i].PcTipo, new { type = "hidden" })
+                        <span>@Model.XrefPcIdPrestazione[i].PcTipo</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcNote", Model.XrefPcIdPrestazione[i].PcNote, new { type = "hidden" })
+                        <span>@Model.XrefPcIdPrestazione[i].PcNote</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].Pc1Ienv", Model.XrefPcIdPrestazione[i].Pc1Ienv, new { type = "hidden" })
+                        <span>@Model.XrefPcIdPrestazione[i].Pc1Ienv</span>
+                    </div>
+                </td>
+                <td class="action-buttons text-center">
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].action", Model.XrefPcIdPrestazione[i].action, new { type = "hidden", @class = "ModelAction" })
+                    </div>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].vars", @Html.Raw(ErpToolkit.Helpers.Db.DogManager.JsonSafeSerialize(Model.XrefPcIdPrestazione[i].vars)), new { type = "hidden", @class = "ModelVars" }) 
+                    </div>
+                    <div class="form-group">
+                        @Html.TextBox($"XrefPcIdPrestazione[{i}].Pc1Icode", Model.XrefPcIdPrestazione[i].Pc1Icode, new { type = "hidden", @class = "ModelIcode" })
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary ModifyRow" onclick="handleModifyRow(this)"><i class="bi bi-pencil-square"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-danger DeleteRow" onclick="handleDeleteRow(this)"><i class="bi bi-trash3"></i></button>
+                    <button type="button" class="btn btn-sm btn-success SaveRow" style="display:none" onclick="handleSaveRow(this)"><i class="bi bi-save"></i></button>
+                    <button type="button" class="btn btn-sm btn-secondary CancelRow" style="display:none" onclick="handleCancelRow(this)"><i class="bi bi-x-circle"></i></button>
+                </td>
+            </tr>
+        }
+        <!-- Template nascosto per Add/Modify -->
+        <tr id="templateRow" style="display:none"> 
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.PcIdCampione" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione_New.PcIdCampione" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.PcIdTipoCampione" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione_New.PcIdTipoCampione" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.PcTipo" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione_New.PcTipo" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.PcNote" class="form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione_New.PcNote" class="text-danger"></span>
+                </div>
+            </td>
+            <td>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.Pc1Ienv" class="pc1ienv form-control form-control-sm" />
+                    <span asp-validation-for="@Model.XrefPcIdPrestazione_New.Pc1Ienv" class="text-danger"></span>
+                </div>
+            </td>
+            <td class="action-buttons text-center">
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.action" class="ModelAction" style="display:none;" />
+                </div>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.vars" class="ModelVars" style="display:none;" />
+                </div>
+                <div class="form-group">
+                    <input asp-for="@Model.XrefPcIdPrestazione_New.Pc1Icode" class="ModelIcode" style="display:none;" />
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary ModifyRow" style="display:none" onclick="handleModifyRow(this)"><i class="bi bi-pencil-square"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger DeleteRow" style="display:none" onclick="handleDeleteRow(this)"><i class="bi bi-trash3"></i></button>
+                <button type="button" class="btn btn-sm btn-success SaveRow" style="display:none" onclick="handleSaveRow(this)"><i class="bi bi-save"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary CancelRow" style="display:none" onclick="handleCancelRow(this)"><i class="bi bi-x-circle"></i></button>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6" class="text-end">
+                <button type="button" class="btn btn-sm btn-success mb-2" name="@Model.XrefPcIdPrestazione_New.Pc1Icode" onclick="handleAddRow(this)"><i class="bi bi-plus-lg"></i> Aggiungi riga</button>
+                <span asp-validation-for="@Model.XrefPcIdPrestazione_New.Pc1Icode" class="text-danger"></span>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+ *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+<pre>
+@Html.Raw(ErpToolkit.Helpers.Db.DogManager.JsonSafeSerialize(Model, "WriteIndented"))
+</pre>
+
+ *@
+
+
+
+
+@*                     var tabName = "RelPrestazioneCampione";  
+                    <h4>@tabName</h4>
+                    <table class="table table-bordered table-sm xref-table" data-tabname="Lista Campioni">
+                        <thead>
+                            <tr>
+                                <th>Campione</th>
+                                <th>Tipo Campione</th>
+                                <th>Tipo</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.XrefPcIdPrestazione.Count; i++) {
+                               <tr>
+                                  <td>
+                                        <div class="form-group">
+                                            <input asp-for="@Model.XrefPcIdPrestazione[i].PcIdCampione" class="form-control form-control-sm" />
+                                            <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcIdCampione" class="text-danger"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input asp-for="@Model.XrefPcIdPrestazione[i].PcIdTipoCampione" class="form-control form-control-sm" />
+                                            <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcIdTipoCampione" class="text-danger"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input asp-for="@Model.XrefPcIdPrestazione[i].PcTipo" class="form-control form-control-sm" />
+                                            <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcTipo" class="text-danger"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input asp-for="@Model.XrefPcIdPrestazione[i].PcNote" class="form-control form-control-sm" />
+                                            <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcNote" class="text-danger"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">🗑</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success btn-sm" onclick="addRow('@tabName')">➕ Aggiungi riga</button>
+ *@
+
+
+
+                }
+
+
+
+@* 
+                @if (Model != null && Model.xrefFrom != null && Model.xrefFrom.Any())
+                {
+                    @foreach (var xref in Model.xrefFrom)
+                    {
+                        var tabName = xref.Key;
+                        var records = xref.Value;
+
+                        <h4 class="mt-4">@tabName</h4>
+                        <table class="table table-bordered table-sm xref-table" data-tabname="@tabName">
+                            <thead>
+                                <tr>
+                                    @{
+                                        var recordType = records.Any()
+                                            ? records.First().GetType()
+                                            : Model.xrefFrom[tabName].GetType().GenericTypeArguments[0];
+
+                                        foreach (var prop in recordType.GetProperties())
+                                        {
+                                            <th>@prop.Name</th>
+                                        }
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < records.Count; i++)
+                                {
+                                    var item = records[i];
+                                    string prefix = $"xrefFrom[{tabName}][{i}]";
+
+                                    <tr>
+                                        @foreach (var prop in item.GetType().GetProperties())
+                                        {
+                                            <td>
+                                                @{
+                                                    string fullName = $"{prefix}.{prop.Name}";
+                                                    string value = prop.GetValue(item)?.ToString();
+                                                }
+                                                <!--input name="@fullName" class="form-control form-control-sm" value="@value" /-->
+                                            </td>
+                                        }
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">🗑</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <button type="button" class="btn btn-success btn-sm" onclick="addRow('@tabName')">➕ Aggiungi riga</button>
+                    }
+                }
+                else
+                {
+                    <p><em>Nessuna tabella collegata disponibile.</em></p>
+                }
+
+
+ *@
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm2(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale")'>Salva</button>
+            </div>
+        </div>
+    }
+</div>

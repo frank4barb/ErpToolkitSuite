@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,17 +28,21 @@ public const string PREFIX = "Cm"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
+//748-744//[N] DISTRETTO.DI_ID_COMUNE
+//1299-1286//[N] PAZIENTE.PA_ID_COMUNE_NASCITA
+//1307-1286//[N] PAZIENTE.PA_ID_COMUNE_RES
+//1318-1286//[N] PAZIENTE.PA_ID_COMUNE_DOM
 
 [Display(Name = "Codice", ShortName="", Description = "Codice nazionale della città", Prompt="")]
-[ErpDogField("CM_CODICE", SqlFieldNameExt="CM_CODICE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("CM_CODICE", SqlFieldNameExt="CM_CODICE", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelCmCodice  { get; set; }
 
 [Display(Name = "Nome", ShortName="", Description = "Nome esteso", Prompt="")]
-[ErpDogField("CM_NOME", SqlFieldNameExt="CM_NOME", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("CM_NOME", SqlFieldNameExt="CM_NOME", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelCmNome  { get; set; }
 

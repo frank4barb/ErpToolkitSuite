@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,9 +28,15 @@ public const string PREFIX = "Cc"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
+//478-473//[N] CATEGORIA_DATO_CLINICO.CC_ID_GRUPPO
+//847-845//[N] RISULTATO_ESAME.RE_ID_EPISODIO
+//952-946//[N] TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO
+//982-978//[N] STATO_SALUTE.SS_ID_GRUPPO_DATO_CLINICO
+//1200-1196//[N] DOCUMENTO_CLINICO.DC_ID_GRUPPO_DATO_CLINICO
+//2168-2164//[N] PARAMETRO_VITALE.PV_ID_GRUPPO_DATO_CLINICO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
 [ErpDogField("CC_CODICE", SqlFieldNameExt="CC_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(CATEGORIA_DATO_CLINICO.CC__ICODE[CC__ICODE] {CC_CODICE=' '}) multbxref()")]

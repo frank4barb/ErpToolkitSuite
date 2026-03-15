@@ -6,27 +6,40 @@ using Microsoft.AspNetCore.Mvc;
 using ErpToolkit.Controllers;
 using HealthDemo.Models.SIO.Costs;
 
+using static ErpToolkit.Helpers.Db.DogManager;
 namespace HealthDemo.Controllers.SIO.Costs
 {
     public class TipoDiagnosiController : ControllerErp
     {
+        private static readonly List<string> xrefTables = new List<string> {
+             "DgTipoDiagnosi"   //carico in cache tutti i dati di Diagnosi collegati
+            ,"TdIdGruppo"   //carico in cache tutti i dati di TipoDiagnosi collegati
+        };
+        private const string ErpContext_dogCache = "@HealthDemo.Controllers.SIO.Costs.TipoDiagnosi_dogCache";
+        private DogCache _dogCache = new DogCache();
+
         //private static NLog.ILogger _logger;
         public TipoDiagnosiController()
         {
             //SetUpNLog();
             NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
             _logger = NLog.LogManager.GetCurrentClassLogger();
-        }
 
+            this._dogCache = (DogCache)ErpContext.Instance.GetObject(ErpContext_dogCache); // Alloca le risorse cache
+        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) { }  // Rilascia le risorse gestite
+            ErpContext.Instance.Set(ErpContext_dogCache, this._dogCache);   // Rilascia le risorse non gestite (se presenti)
+            base.Dispose(disposing); // Chiama il metodo Dispose della classe base
+        }
 
         [HttpGet]
         public JsonResult AutocompleteGetAll()
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select TD_CODICE + {DogManager.addParam(" - ", ref parameters)} + TD_DESCRIZIONE as label, TD__ICODE as value from TIPO_DIAGNOSI where TD__DELETED = {DogManager.addParam("N", ref parameters)} ";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetAll<TipoDiagnosi>());
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetAll TipoDiagnosi: " + ex.Message }); }
         }
@@ -35,9 +48,7 @@ namespace HealthDemo.Controllers.SIO.Costs
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select TD_CODICE + {DogManager.addParam(" - ", ref parameters)} + TD_DESCRIZIONE as label, TD__ICODE as value from TIPO_DIAGNOSI where TD__DELETED = {DogManager.addParam("N", ref parameters)} and upper({DogManager.addParam(" ", ref parameters)} + TD_CODICE + {DogManager.addParam(" - ", ref parameters)} + TD_DESCRIZIONE + {DogManager.addParam(" ", ref parameters)}) like {DogManager.addParam("%" + term.ToUpper() + "%", ref parameters)} ";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<TipoDiagnosi>(term));
             }
             catch (Exception ex)  { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetSelect TipoDiagnosi: " + ex.Message }); }
         }
@@ -46,9 +57,7 @@ namespace HealthDemo.Controllers.SIO.Costs
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select TD_CODICE + {DogManager.addParam(" - ", ref parameters)} + TD_DESCRIZIONE as label, TD__ICODE as value from TIPO_DIAGNOSI where TD__DELETED = {DogManager.addParam("N", ref parameters)} and TD__ICODE in (" + string.Join(", ", DogManager.addListParam(values.ToList<object>(), ref parameters)) + ")";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompletePreLoad<TipoDiagnosi>(values));
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad TipoDiagnosi: " + ex.Message }); }
         }
@@ -65,6 +74,8 @@ namespace HealthDemo.Controllers.SIO.Costs
         [HttpGet]
         public IActionResult Index(string returnUrl = null)
         {
+            this._dogCache = new DogCache();    // Inizializza le risorse ...in caso di chiamata della pagina dall'esterno (ie: no reload)
+
             this.Select = new SelTipoDiagnosi();
             foreach (var key in Request.Query.Keys) DogManager.setPropertyValue(this.Select, key, Request.Query[key]); // carica parametri QueryString
             this.List = new List<TipoDiagnosi>();
@@ -89,7 +100,7 @@ namespace HealthDemo.Controllers.SIO.Costs
                 return View("~/Views/SIO/Costs/TipoDiagnosi/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<TipoDiagnosi>(this.Select); }
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<TipoDiagnosi>(this.Select, null, ref this._dogCache, ""); }  // non carico tabelle relazionate per la lista di selezione
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/Costs/TipoDiagnosi/Index.cshtml", this);
@@ -100,7 +111,7 @@ namespace HealthDemo.Controllers.SIO.Costs
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            TipoDiagnosi obj = this.ReadForEditModel<TipoDiagnosi>(parms, modelPrefix);
+            TipoDiagnosi obj = this.ReadForEditModel<TipoDiagnosi>(parms, xrefTables, ref this._dogCache, modelPrefix);
             return PartialView("~/Views/SIO/Costs/TipoDiagnosi/_PartialEdit.cshtml", obj);
         }
         [HttpPost]
@@ -108,11 +119,9 @@ namespace HealthDemo.Controllers.SIO.Costs
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            TipoDiagnosi obj = this.SaveModel<TipoDiagnosi>(dataObj, modelPrefix);
-            if (!TryValidateModel(obj, modelPrefix))
-            {
-                return PartialView("~/Views/SIO/Costs/TipoDiagnosi/_PartialEdit.cshtml", obj);
-            }
+            TipoDiagnosi obj = this.SaveModel<TipoDiagnosi>(dataObj, ref this._dogCache, prefix: modelPrefix);
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record aggiornato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";
@@ -126,7 +135,7 @@ namespace HealthDemo.Controllers.SIO.Costs
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            TipoDiagnosi obj = this.ReadForDeleteModel<TipoDiagnosi>(parms, modelPrefix);
+            TipoDiagnosi obj = this.ReadForEditModel<TipoDiagnosi>(parms, null, ref this._dogCache, modelPrefix, action: 'D');    // non carico tabelle relazionate per il delete
             return PartialView("~/Views/SIO/Costs/TipoDiagnosi/_PartialDelete.cshtml", obj);
         }
         [HttpPost]
@@ -134,11 +143,9 @@ namespace HealthDemo.Controllers.SIO.Costs
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            TipoDiagnosi obj = this.DeleteModel<TipoDiagnosi>(dataObj, modelPrefix);
-            if (ModelState.ErrorCount > 0)
-            {
-                return PartialView("~/Views/SIO/Costs/TipoDiagnosi/_PartialDelete.cshtml", obj);
-            }
+            TipoDiagnosi obj = this.SaveModel<TipoDiagnosi>(dataObj, ref this._dogCache, prefix: modelPrefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]");
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record cancellato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";

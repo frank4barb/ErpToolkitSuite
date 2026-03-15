@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 using Npgsql;
 using NpgsqlTypes;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -168,6 +169,64 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  PostgreSQL: accesso a pg_stat_activity; funzione pg_blocking_pids() disponibile da 9.6. [postgresql.org], [stackoverflow.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("SELECT pg_backend_pid();", conn);
+            if (conn.State != ConnectionState.Open) conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            const string sql = @"
+                                SELECT 1
+                                FROM pg_stat_activity
+                                WHERE pid = @pid AND state = 'active';";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@pid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            return rdr.Read();
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Snapshot live (piano stimato non live)
+            const string sql = @"
+                                SELECT 
+                                    query AS sql_text,
+                                    now() - query_start AS duration,
+                                    wait_event_type,
+                                    wait_event,
+                                    state
+                                FROM pg_stat_activity
+                                WHERE pid = @pid;";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@pid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read()) return null;
+
+            var sqlText = reader["sql_text"] as string;
+            long elapsedMs = 0;
+            if (reader["duration"] != DBNull.Value) elapsedMs = (long)((TimeSpan)reader["duration"]).TotalMilliseconds;
+
+            return new LiveSessionSnapshot
+            {
+                Status = reader["state"] as string ?? "active",
+                WaitType = reader["wait_event_type"] as string,
+                TotalElapsedMs = elapsedMs,
+                BlockingSessionId = null,
+                SqlText = sqlText,
+                QueryPlanXml = "-- Usa EXPLAIN (FORMAT TEXT) sulla stessa query per il piano stimato"
+            };
+        }
 
 
 

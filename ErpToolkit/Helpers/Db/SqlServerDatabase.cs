@@ -1,7 +1,11 @@
 
+using MongoDB.Driver.Core.Connections;
 using System.Data;
 using System.Data.Common;
+using System.Data.Entity;
 using System.Data.SqlClient;
+using System.Diagnostics;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -11,6 +15,8 @@ namespace ErpToolkit.Helpers.Db
         private string _connectionString;
         private SqlTransaction _transaction = null;
         private static readonly object _lock = new object();
+
+        private readonly bool sqlTrace = true;
 
         public SqlServerDatabase(string connectionString)
         {
@@ -34,6 +40,11 @@ namespace ErpToolkit.Helpers.Db
             {
                 connection = new SqlConnection(_connectionString);
                 connection.Open();
+
+                //---
+                if (sqlTrace) LogCommandInit(connection);       // TRACE !!!!!
+                //---
+
                 return connection;
             }
         }
@@ -71,9 +82,40 @@ namespace ErpToolkit.Helpers.Db
         {
             using (SqlDataAdapter adapter = new SqlDataAdapter((SqlCommand)command))
             {
+
+
+                //DataTable result = new DataTable();
+                //if (maxRecords < 0) adapter.Fill(result);
+                //else adapter.Fill(0, maxRecords, result); // restituisce maxRecords righe  
+                //return result;
+
+
+
+
                 DataTable result = new DataTable();
-                if (maxRecords < 0) adapter.Fill(result);
-                else adapter.Fill(0, maxRecords, result); // restituisce maxRecords righe  
+
+
+
+                Stopwatch stopwatch = null;
+                if (sqlTrace) stopwatch = LogCommandBefore((SqlCommand)command); //TRACE !!!!!
+                try
+                {
+
+                    if (maxRecords < 0) adapter.Fill(result);
+                    else adapter.Fill(0, maxRecords, result); // restituisce maxRecords righe  
+
+                    if (sqlTrace) LogCommandAfterOK(stopwatch); //TRACE !!!!!
+                }
+                catch (Exception ex)
+                {
+                    if (sqlTrace) LogCommandAfterKO(stopwatch, ex); //TRACE !!!!!
+                    throw;
+                }
+
+
+
+
+
                 return result;
             }
         }
@@ -164,6 +206,108 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+
+        private void LogCommandInit(SqlConnection _connection)
+        {
+
+            _connection.InfoMessage += Connection_InfoMessage;
+
+            // Esegui un comando che genera un messaggio informativo
+            SqlCommand command = new SqlCommand($@"
+                                        SET STATISTICS TIME ON;
+                                        SET STATISTICS IO ON;
+                                        PRINT 'Messaggio dopo l’associazione';
+                                                    ", _connection);
+            command.ExecuteNonQuery();
+        }
+
+
+        private Stopwatch LogCommandBefore(SqlCommand _command)
+        {
+            Console.WriteLine("----- Executing SQL Command -----");
+            Console.WriteLine(_command.CommandText);
+            foreach (IDataParameter param in _command.Parameters)
+            {
+                Console.WriteLine($"Param: {param.ParameterName} = {param.Value}");
+            }
+            Console.WriteLine($"Timeout: {_command.CommandTimeout} seconds");
+            Console.WriteLine("---------------------------------");
+            return Stopwatch.StartNew();
+        }
+        private void LogCommandAfterOK(Stopwatch stopwatch)
+        {
+            stopwatch.Stop();
+            Console.WriteLine($"[INFO] NonQuery executed in {stopwatch.ElapsedMilliseconds} ms");
+        }
+        private void LogCommandAfterKO(Stopwatch stopwatch, Exception ex)
+        {
+            stopwatch.Stop();
+            Console.WriteLine($"[ERROR] Exception after {stopwatch.ElapsedMilliseconds} ms: {ex.Message}");
+        }
+        // Metodo che gestisce l'evento InfoMessage
+        private static void Connection_InfoMessage(object sender, SqlInfoMessageEventArgs e)
+        {
+            Console.WriteLine("[SQL INFO MESSAGE] " + e.Message);
+        }
+
+
+
+        //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  SQL Server: VIEW SERVER STATE per DMV(istanza), o VIEW DATABASE STATE su Azure SQL; facoltativo SHOWPLAN per SET SHOWPLAN_XML. [learn.microsoft.com], [learn.microsoft.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("SELECT @@SPID;", conn);
+            if (conn.State != ConnectionState.Open) conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            const string sql = @"SELECT 1 FROM sys.dm_exec_requests WHERE session_id = @spid;";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@spid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            return rdr.Read();
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            const string sql = @"
+                                    SELECT 
+                                        r.status,
+                                        r.wait_type,
+                                        r.total_elapsed_time,
+                                        r.blocking_session_id,
+                                        st.text AS sql_text,
+                                        CAST(qp.query_plan AS NVARCHAR(MAX)) AS query_plan_xml
+                                    FROM sys.dm_exec_requests AS r
+                                    OUTER APPLY sys.dm_exec_sql_text(r.sql_handle) AS st
+                                    OUTER APPLY sys.dm_exec_query_plan(r.plan_handle) AS qp
+                                    WHERE r.session_id = @spid;";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@spid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read()) return null;
+            return new LiveSessionSnapshot
+            {
+                Status = reader["status"] as string,
+                WaitType = reader["wait_type"] as string,
+                TotalElapsedMs = reader["total_elapsed_time"] == DBNull.Value ? 0 : Convert.ToInt64(reader["total_elapsed_time"]),
+                BlockingSessionId = reader["blocking_session_id"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["blocking_session_id"]),
+                SqlText = reader["sql_text"] as string,
+                QueryPlanXml = reader["query_plan_xml"] == DBNull.Value ? null : (reader["query_plan_xml"] as string)
+            };
+        }
+
+
+
 
 
     }

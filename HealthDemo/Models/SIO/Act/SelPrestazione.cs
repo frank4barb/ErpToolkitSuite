@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,25 +28,24 @@ public const string PREFIX = "Pr"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
-//120-119//REL_PRESTAZIONE_CAMPIONE.PC_ID_PRESTAZIONE
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione> SelRelPrestazioneCampione4PcIdPrestazione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneCampione>();
-//124-124//REL_PRESTAZIONE_USA.PU_ID_PRESTAZIONE
-public List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa> SelRelPrestazioneUsa4PuIdPrestazione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelPrestazioneUsa>();
-//1027-1025//REL_PRESTAZIONE_DATO_CLINICO.PD_ID_PRESTAZIONE
-public List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico> SelRelPrestazioneDatoClinico4PdIdPrestazione  { get; set; } = new List<HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico>();
+//6-2//[N] PRESTAZIONE.PR_ID_GRUPPO
+//120-119//[Y] REL_PRESTAZIONE_CAMPIONE.PC_ID_PRESTAZIONE
+//124-124//[Y] REL_PRESTAZIONE_USA.PU_ID_PRESTAZIONE
+//660-593//[N] EPISODIO.EP_ID_ATTO_AMMINISTRATIVO
+//1027-1025//[Y] REL_PRESTAZIONE_DATO_CLINICO.PD_ID_PRESTAZIONE
 
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività", Prompt="")]
-[ErpDogField("PR_ID_TIPO_ATTIVITA", SqlFieldNameExt="PR_ID_TIPO_ATTIVITA", SqlFieldOptions="", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup(ATTIVITA.AV_ID_TIPO_ATTIVITA[PRESTAZIONE.PR_ID_ATTIVITA_ESEGUITA]) multbxref()")]
+[ErpDogField("PR_ID_TIPO_ATTIVITA", SqlFieldNameExt="PR_ID_TIPO_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup(ATTIVITA.AV_ID_TIPO_ATTIVITA[PRESTAZIONE.PR_ID_ATTIVITA_ESEGUITA]) multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelPrIdTipoAttivita  { get; set; } = new List<string>();
 
 [Display(Name = "Id Attivita Richiesta", ShortName="", Description = "Codice del tipo di attività richiesto dal richiedente", Prompt="")]
-[ErpDogField("PR_ID_ATTIVITA_RICHIESTA", SqlFieldNameExt="PR_ID_ATTIVITA_RICHIESTA", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
+[ErpDogField("PR_ID_ATTIVITA_RICHIESTA", SqlFieldNameExt="PR_ID_ATTIVITA_RICHIESTA", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("Attivita", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
@@ -99,7 +99,7 @@ public List<string> SelPrClasseEpisodio  { get; set; } = new List<string>();
 public List<string> SelPrTipoEpisodio  { get; set; } = new List<string>();
 
 [Display(Name = "Stato Prestazione", ShortName="", Description = "Stato dell'atto", Prompt="")]
-[ErpDogField("PR_STATO_PRESTAZIONE", SqlFieldNameExt="PR_STATO_PRESTAZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PR_STATO_PRESTAZIONE", SqlFieldNameExt="PR_STATO_PRESTAZIONE", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [MultipleChoices(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]

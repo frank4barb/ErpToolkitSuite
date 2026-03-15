@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,60 +28,103 @@ public const string PREFIX = "Tz"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Tz1Icode; } 
-public override string ToString() { return $"{TzCodice} - {TzDescrizione}"; } 
-public override string ToHtml() { return $"<strong>{HttpUtility.HtmlEncode(TzCodice)}</strong> {HttpUtility.HtmlEncode(TzDescrizione)}"; } 
+public override string labelText() { return $@"{TzCodice} - {TzDescrizione}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(TzCodice)}</strong> {HttpUtility.HtmlEncode(TzDescrizione)}"; }
 
-[Display(Name = "Tz1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("TZ__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Tz1Ienv { get; set; }
+//1777-1769//[N] ORGANIZZAZIONE.OR_TIPO_ASSISTENZA
+[Display(Name = "Organizzazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Common.Organizzazione>? XrefOrTipoAssistenza { get; set; } = null;
+//2132-2128//[N] TIPO_ORGANIZZAZIONE.TZ_GRUPPO
+[Display(Name = "TipoOrganizzazione", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.TipoOrganizzazione>? XrefTzGruppo { get; set; } = null;
 [Key]
 [Display(Name = "Tz1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("TZ__ICODE", SqlFieldNameExt="TZ__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__ICODE", SqlFieldNameExt="TZ__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Tz1Icode { get; set; }
 [Display(Name = "Tz1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("TZ__DELETED", SqlFieldNameExt="TZ__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__DELETED", SqlFieldNameExt="TZ__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Tz1Deleted { get; set; }
 [Display(Name = "Tz1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("TZ__TIMESTAMP", SqlFieldNameExt="TZ__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__TIMESTAMP", SqlFieldNameExt="TZ__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Tz1Timestamp { get; set; }
+[Display(Name = "Tz1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("TZ__CDATE", SqlFieldNameExt="TZ__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Tz1Cdate { get; set; }
+[Display(Name = "Tz1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("TZ__CTIME", SqlFieldNameExt="TZ__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Tz1Ctime { get; set; }
+[Display(Name = "Tz1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("TZ__CAGENT", SqlFieldNameExt="TZ__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Tz1Cagent { get; set; }
+[Display(Name = "Tz1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("TZ__CUNIT", SqlFieldNameExt="TZ__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Tz1Cunit { get; set; }
+[Display(Name = "Tz1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("TZ__MDATE", SqlFieldNameExt="TZ__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Tz1Mdate { get; set; }
+[Display(Name = "Tz1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("TZ__MTIME", SqlFieldNameExt="TZ__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Tz1Mtime { get; set; }
+[Display(Name = "Tz1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("TZ__MAGENT", SqlFieldNameExt="TZ__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Tz1Magent { get; set; }
+[Display(Name = "Tz1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("TZ__MUNIT", SqlFieldNameExt="TZ__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Tz1Munit { get; set; }
 [Display(Name = "Tz1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("TZ__HOME", SqlFieldNameExt="TZ__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__HOME", SqlFieldNameExt="TZ__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Tz1Home { get; set; }
 [Display(Name = "Tz1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("TZ__VERSION", SqlFieldNameExt="TZ__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__VERSION", SqlFieldNameExt="TZ__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Tz1Version { get; set; }
 [Display(Name = "Tz1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("TZ__INACTIVE", SqlFieldNameExt="TZ__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__INACTIVE", SqlFieldNameExt="TZ__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Tz1Inactive { get; set; }
 [Display(Name = "Tz1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("TZ__EXTATT", SqlFieldNameExt="TZ__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("TZ__EXTATT", SqlFieldNameExt="TZ__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Tz1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("TZ_CODICE", SqlFieldNameExt="TZ_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_ORGANIZZAZIONE.TZ__ICODE[TZ__ICODE] {TZ_CODICE=' '}) multbxref()")]
+[ErpDogField("TZ_CODICE", SqlFieldNameExt="TZ_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_ORGANIZZAZIONE.TZ__ICODE[TZ__ICODE] {TZ_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? TzCodice  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("TZ_DESCRIZIONE", SqlFieldNameExt="TZ_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TZ_DESCRIZIONE", SqlFieldNameExt="TZ_DESCRIZIONE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]

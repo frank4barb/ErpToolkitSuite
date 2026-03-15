@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Campione Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "Campione", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -95,6 +95,48 @@
                         <input asp-for="CpNoteCambiamentoStato" class="form-control" />
                         <span asp-validation-for="CpNoteCambiamentoStato" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefPcIdCampione != null)
+                    {
+                        <h5 class="mt-5">Vista su RelPrestazioneCampione per PcIdCampione</h5>
+                        <erp-table asp-for="XrefPcIdCampione" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="PcIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PcTipo"     label="Tipo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PcIdTipoCampione"     label="IdTipoCampione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PcIdCampione"  visible="false"   value="@Model.Cp1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="PcIdPrestazione">
+                                    <div class="form-group" data-prop="PcIdPrestazione">
+                                        <input asp-for='XrefPcIdCampione["0"].PcIdPrestazione' class="form-control" />
+                                        <span asp-validation-for='XrefPcIdCampione["0"].PcIdPrestazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PcTipo">
+                                    <div class="form-group" data-prop="PcTipo">
+                                        <input asp-for='XrefPcIdCampione["0"].PcTipo' class="form-control" />
+                                        <span asp-validation-for='XrefPcIdCampione["0"].PcTipo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PcNote">
+                                    <div class="form-group" data-prop="PcNote">
+                                        <input asp-for='XrefPcIdCampione["0"].PcNote' class="form-control" />
+                                        <span asp-validation-for='XrefPcIdCampione["0"].PcNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="PcIdTipoCampione">
+                                    <div class="form-group" data-prop="PcIdTipoCampione">
+                                        <input asp-for='XrefPcIdCampione["0"].PcIdTipoCampione' class="form-control" />
+                                        <span asp-validation-for='XrefPcIdCampione["0"].PcIdTipoCampione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "TipoDiagnosi Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "TipoDiagnosi", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -40,6 +40,104 @@
                         <input asp-for="TdIdGruppo" class="form-control" />
                         <span asp-validation-for="TdIdGruppo" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefDgTipoDiagnosi != null)
+                    {
+                        <h5 class="mt-5">Vista su Diagnosi per DgTipoDiagnosi</h5>
+                        <erp-table asp-for="XrefDgTipoDiagnosi" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="DgClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgTipoDrg"     label="TipoDrg" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgTipoIcd9"     label="TipoIcd9" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgTipoDiagnosi"  visible="false"   value="@Model.Td1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="DgClasse">
+                                    <div class="form-group" data-prop="DgClasse">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgClasse' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgClasse' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DgDescrizione">
+                                    <div class="form-group" data-prop="DgDescrizione">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DgNote">
+                                    <div class="form-group" data-prop="DgNote">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgNote' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DgCodice">
+                                    <div class="form-group" data-prop="DgCodice">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgCodice' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DgIdGruppo">
+                                    <div class="form-group" data-prop="DgIdGruppo">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgIdGruppo' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgIdGruppo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DgTipoDrg">
+                                    <div class="form-group" data-prop="DgTipoDrg">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgTipoDrg' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgTipoDrg' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="DgTipoIcd9">
+                                    <div class="form-group" data-prop="DgTipoIcd9">
+                                        <input asp-for='XrefDgTipoDiagnosi["0"].DgTipoIcd9' class="form-control" />
+                                        <span asp-validation-for='XrefDgTipoDiagnosi["0"].DgTipoIcd9' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefTdIdGruppo != null)
+                    {
+                        <h5 class="mt-5">Vista su TipoDiagnosi per TdIdGruppo</h5>
+                        <erp-table asp-for="XrefTdIdGruppo" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="TdCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TdDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TdNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TdIdGruppo"  visible="false"   value="@Model.Td1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="TdCodice">
+                                    <div class="form-group" data-prop="TdCodice">
+                                        <input asp-for='XrefTdIdGruppo["0"].TdCodice' class="form-control" />
+                                        <span asp-validation-for='XrefTdIdGruppo["0"].TdCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TdDescrizione">
+                                    <div class="form-group" data-prop="TdDescrizione">
+                                        <input asp-for='XrefTdIdGruppo["0"].TdDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefTdIdGruppo["0"].TdDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TdNote">
+                                    <div class="form-group" data-prop="TdNote">
+                                        <input asp-for='XrefTdIdGruppo["0"].TdNote' class="form-control" />
+                                        <span asp-validation-for='XrefTdIdGruppo["0"].TdNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

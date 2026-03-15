@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,23 +28,36 @@ public const string PREFIX = "Or"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
-//327-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_PADRE
-public List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene> SelRelOrganizzazioneContiene4OoIdOrganizzazionePadre  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>();
-//328-327//REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_FIGLIO
-public List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene> SelRelOrganizzazioneContiene4OoIdOrganizzazioneFiglio  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelOrganizzazioneContiene>();
-//1132-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_ISTITUTO
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> SelRelAttivitaRichiestaDa4ArIdIstituto  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1133-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_UNITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> SelRelAttivitaRichiestaDa4ArIdUnita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1134-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_POSTAZIONE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> SelRelAttivitaRichiestaDa4ArIdPostazione  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1135-1131//REL_ATTIVITA_RICHIESTA_DA.AR_ID_OPERATORE
-public List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa> SelRelAttivitaRichiestaDa4ArIdOperatore  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaRichiestaDa>();
-//1993-1992//REL_ATTIVITA_EROGATA_DA.AE_ID_UNITA
-public List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa> SelRelAttivitaErogataDa4AeIdUnita  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaErogataDa>();
+//19-2//[N] PRESTAZIONE.PR_ID_OPERATORE_RICHIEDENTE
+//20-2//[N] PRESTAZIONE.PR_ID_UNITA_RICHIEDENTE
+//21-2//[N] PRESTAZIONE.PR_ID_POSTAZIONE_RICHIEDENTE
+//44-2//[N] PRESTAZIONE.PR_ID_OPERATORE_ESECUTORE
+//45-2//[N] PRESTAZIONE.PR_ID_UNITA_ESECUTRICE
+//46-2//[N] PRESTAZIONE.PR_ID_POSTAZIONE_ESECUTRICE
+//57-2//[N] PRESTAZIONE.PR_ID_OPERATORE_PIANIFICATORE
+//327-327//[Y] REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_PADRE
+//328-327//[Y] REL_ORGANIZZAZIONE_CONTIENE.OO_ID_ORGANIZZAZIONE_FIGLIO
+//527-524//[N] RICHIESTA.RI_ID_UNITA_RICHIEDENTE
+//528-524//[N] RICHIESTA.RI_ID_POSTAZIONE_RICHIEDENTE
+//529-524//[N] RICHIESTA.RI_ID_ISTITUTO_RICHIEDENTE
+//532-524//[N] RICHIESTA.RI_ID_OPERATORE_RICHIEDENTE
+//601-593//[N] EPISODIO.EP_ID_UNITA_INGRESSO
+//615-593//[N] EPISODIO.EP_ID_CORSIA
+//616-593//[N] EPISODIO.EP_ID_REPARTO
+//666-593//[N] EPISODIO.EP_ID_REPARTO_LA
+//669-593//[N] EPISODIO.EP_ID_REPARTO_PREH
+//1132-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_ISTITUTO
+//1133-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_UNITA
+//1134-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_POSTAZIONE
+//1135-1131//[Y] REL_ATTIVITA_RICHIESTA_DA.AR_ID_OPERATORE
+//1740-1730//[N] CAMPIONE.CP_ID_POSIZIONE_ATTUALE
+//1792-1769//[N] ORGANIZZAZIONE.OR_ID_ISTITUTO
+//1793-1769//[N] ORGANIZZAZIONE.OR_ID_UNITA
+//1794-1769//[N] ORGANIZZAZIONE.OR_ID_POSTAZIONE
+//1993-1992//[Y] REL_ATTIVITA_EROGATA_DA.AE_ID_UNITA
 
 [Display(Name = "Classe Assistenza", ShortName="", Description = "Classe dell'agente: 0=Centro - 1=Unità - 2=Punto di Servizio (PS) - 3=Individuo 4=Agente SW (da A a Z, definito dall'utente)", Prompt="")]
 [ErpDogField("OR_CLASSE_ASSISTENZA", SqlFieldNameExt="OR_CLASSE_ASSISTENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
@@ -71,7 +85,7 @@ public string? SelOrNote  { get; set; }
 public string? SelOrEmail  { get; set; }
 
 [Display(Name = "Tipo Assistenza", ShortName="", Description = "Tipo dell'agente nella classificazione generale", Prompt="")]
-[ErpDogField("OR_TIPO_ASSISTENZA", SqlFieldNameExt="OR_TIPO_ASSISTENZA", SqlFieldOptions="", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
+[ErpDogField("OR_TIPO_ASSISTENZA", SqlFieldNameExt="OR_TIPO_ASSISTENZA", SqlFieldOptions="[MANDATORY]", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]

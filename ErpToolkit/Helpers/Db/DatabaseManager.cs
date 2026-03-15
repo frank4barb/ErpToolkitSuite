@@ -5,16 +5,29 @@ using System.Globalization;
 using System.Data.Common;
 using static ErpToolkit.Helpers.ErpError;
 using System.Text;
-using static ErpToolkit.Helpers.Db.DatabaseFactory;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using MongoDB.Driver;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
+using MongoDB.Driver.Core.Configuration;
+using Google.Api;
+using Google.Rpc;
+using MySqlX.XDevAPI;
+using System.Data.Entity;
+using System.Runtime.Intrinsics.X86;
+using System;
+using MySqlX.XDevAPI.Common;
 
 namespace ErpToolkit.Helpers.Db
 {
     // Funzioni di gestione accesso al Database, indipendentemente dal DBMS
     public class DatabaseManager : IDisposable
     {
+        public enum DbTyp { SqlServer, Sybase, MySql, PostgreSql, SQLite, Oracle, IRIS, MongoDb }
+
         private readonly DbTyp _databaseType;
         private readonly IDatabase _database;
+        private readonly string _connectionString;
         private static NLog.ILogger _logger;
 
         private Stack<string> _transactionStack = new Stack<string>();
@@ -26,15 +39,16 @@ namespace ErpToolkit.Helpers.Db
         // Proprietà configurabili
         public DbTyp DatabaseType { get { return _databaseType; } }
         public int PageSize { get; set; } = 1000;  //ReadBlob, WriteBlob
-        public int MaxRetries { get; set; } = 3;
+        public int MaxRetries { get; set; } = 2;
         public int DelayBetweenRetriesMs { get; set; } = 1000;
         public int TimeoutSeconds { get; set; } = 30;
         public int TransactionTimeoutSeconds { get; set; } = 60;
         public int MaxRecords { get; set; } = 10000;
         public bool EnableTrace { get; set; } = false;
+        public bool EnableTraceTimeout { get; set; } = true;
         public int MaxFileLengthBytes { get; set; } = 1024 * 1024 * 1024;  // 1 Gb
 
-        internal DatabaseManager(DbTyp databaseType, IDatabase database)
+        internal DatabaseManager(DbTyp databaseType, IDatabase database, string connectionString)
         {
             //SetUpNLog();
             NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
@@ -42,6 +56,7 @@ namespace ErpToolkit.Helpers.Db
             //set database
             _databaseType = databaseType;
             _database = database;
+            _connectionString = connectionString;
         }
         ~DatabaseManager()
         {
@@ -54,11 +69,47 @@ namespace ErpToolkit.Helpers.Db
         }
 
 
+
+        //private void TryReconnectDB()
+        //{
+        //    try
+        //    {
+        //        _logger.Info("Tentativo di reconnect al database...");
+
+        //        if (_transactionStack.Count == 0)
+        //        {
+        //            IDatabase newDatabase = DatabaseFactory.ConnectDB(_databaseType, _connectionString);
+        //            if (newDatabase != null)
+        //            {
+        //                _database?.Dispose();        // Chiudi la connessione attuale
+        //                _database = newDatabase;
+        //                _logger.Info("Reconnect completato con successo.");
+        //            }
+        //            else
+        //            {
+        //                _logger.Error("Errore durante il reconnect al database.[newDatabase==null]");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _logger.Info("Transazione attiva: skippo tentativo di reconnect al database...");
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex, "Errore durante il reconnect al database.");
+        //        // skip exception //throw;
+        //    }
+        //}
+
+
         //***************************************************************************************************************************************************
         //*** STATIC INTERNAL ULILS
         //***************************************************************************************************************************************************
 
 
+        //genera timestamp
         internal static byte[] GenerateTimestamp()
         {
             byte[] timestamp = new byte[8];
@@ -146,20 +197,105 @@ namespace ErpToolkit.Helpers.Db
 
         //public
 
-        // ExecuteScalar
+        public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, int maxRecords = 10000, string transactionId = null)
+        {
+            if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteQuery");
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
+            try
+            {
+                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passata nel NewCommand
+                {
+                    command.CommandTimeout = TimeoutSeconds;
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    //---
+                    DataTable result = _database.QueryReader(command, maxRecords); //eseguo senza retry
+                    if (result.Rows.Count > maxRecords)
+                    {
+                        throw new InvalidOperationException($"Query returned more than the allowed {maxRecords} records.");
+                    }
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.ExecuteQuery: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
+            }
+            finally { _database.ReleaseConnection(connection); } // si chiude se non c'è transazione
+        }
+        internal int ExecuteNonQuery(string sql, IDictionary<string, object> parameters, string transactionId = null)
+        {
+            if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteNonQuery");
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
+            try
+            {
+                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
+                {
+                    command.CommandTimeout = TimeoutSeconds;
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    //---
+                    int result = command.ExecuteNonQuery();
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.ExecuteNonQuery: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
+            }
+            finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
+        }
+
         public bool RecordExists(string tableName, string keyField, object keyValue, string transactionId = null)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("RecordExists");
             string sql = $"SELECT COUNT(1) FROM {tableName} WHERE {keyField} = @keyValue";
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
                     string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
-                    return (int)ExecuteScalarWithRetry(command) > 0;
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    //---
+                    bool result = (int)command.ExecuteScalar() > 0;
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
+                    return result;
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.RecordExists: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
@@ -169,14 +305,31 @@ namespace ErpToolkit.Helpers.Db
             int offset = pageNumber * PageSize;
             string sql = $"SELECT SUBSTRING({blobField}, {offset + 1}, {PageSize}) FROM {tableName} WHERE {keyField} = @keyValue";
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
                     string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
-                    return ExecuteScalarWithRetry(command) as byte[];
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    //---
+                    byte[] result = command.ExecuteScalar() as byte[];
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
+                    return result;
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.ReadBlob: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
@@ -187,36 +340,34 @@ namespace ErpToolkit.Helpers.Db
             int length = Math.Min(PageSize, data.Length - offset);
             string sql = $"UPDATE {tableName} SET {blobField}.WRITE(@data, {offset}, {length}) WHERE {keyField} = @keyValue";
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
                     string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "data", data.Skip(offset).Take(length).ToArray() }, { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
-                    int affectedRows = ExecuteNonQueryWithRetry(command);
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    //---
+                    int affectedRows = command.ExecuteNonQuery();
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
                 }
             }
-            finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
-        }
-
-        //ExecuteQuery
-        public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, int maxRecords = 10000, string transactionId = null)
-        {
-            if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteQuery");
-            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
-            try
+            catch (Exception ex)
             {
-                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
-                {
-                    command.CommandTimeout = TimeoutSeconds;
-                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
-                    return ExecuteReaderWithRetry(command, maxRecords);
-                }
+                System.Console.WriteLine($@"DatabaseManager.WriteBlob: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
 
-        //ExecNonQuery
         public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string transactionId = null)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("DeleteRecord");
@@ -230,14 +381,6 @@ namespace ErpToolkit.Helpers.Db
 
         //private
 
-        private object ExecuteScalarWithRetry(IDbCommand command)
-        {
-            return ExecuteWithRetry(() => command.ExecuteScalar());
-        }
-        private int ExecuteNonQueryWithRetry(IDbCommand command)
-        {
-            return ExecuteWithRetry(() => command.ExecuteNonQuery());
-        }
         //---
         private string AddParametersToCommand(IDbCommand command, IDictionary<string, object> parameters)
         {
@@ -268,8 +411,8 @@ namespace ErpToolkit.Helpers.Db
         private string ReplaceParameter(string sql, IDbDataParameter parameter)
         {
             string paramValue = "";
-            if (parameter.Value == null) { paramValue = "NULL"; } 
-            else if (parameter.Value is System.DBNull) { paramValue = "NULL"; } 
+            if (parameter.Value == null) { paramValue = "NULL"; }
+            else if (parameter.Value is System.DBNull) { paramValue = "NULL"; }
             else if (parameter.Value is string) { paramValue = $"'{parameter.Value.ToString().Replace("'", "''")}'"; }
             else if (parameter.Value is char) { paramValue = $"'{parameter.Value.ToString().Replace("'", "''")}'"; }
             else if (parameter.Value is DateTime) { paramValue = $"'{((DateTime)parameter.Value).ToString("yyyy-MM-dd HH:mm:ss")}'"; }
@@ -286,61 +429,37 @@ namespace ErpToolkit.Helpers.Db
             }
             else if (parameter.Value is char[] c)
             {
-                paramValue = "";  for(int i = 0; i < c.Length; i++) { if (i >= 8) { paramValue += "..."; break; } paramValue += c[i].ToString(); }
+                paramValue = ""; for (int i = 0; i < c.Length; i++) { if (i >= 8) { paramValue += "..."; break; } paramValue += c[i].ToString(); }
             }
             else { paramValue = "#!#_NOT_PRINTABLE_#!#"; }
             return Regex.Replace(sql, $@"{Regex.Escape(parameter.ParameterName)}(?!\d)", paramValue, RegexOptions.None); //return sql.Replace(parameter.ParameterName, paramValue);
         }
-        private DataTable ExecuteReaderWithRetry(IDbCommand command, int maxRecords)
-        {
-            return ExecuteWithRetry(() =>
-            {
-                DataTable result = _database.QueryReader(command, maxRecords);
-                if (result.Rows.Count > maxRecords)
-                {
-                    throw new InvalidOperationException($"Query returned more than the allowed {maxRecords} records.");
-                }
-                return result;
-            });
-        }
 
-        //---
-        internal int ExecuteNonQuery(string sql, IDictionary<string, object> parameters, string transactionId = null)
+        // esegue CHECKPOINT per liberare il transaction log di tipo SIMPLE in SqlServer e Sybase
+        public void CHECKPOINT(string tableName, string keyField, object keyValue, string transactionId = null)
         {
-            if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteNonQuery");
-            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            if (_transactionId != null) return; //posso eseguire solo fuori transazione
+            string sql = $"CHECKPOINT;";
+            IDbConnection connection = _database.NewConnection(); 
             try
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
-                    return ExecuteNonQueryWithRetry(command);
+                    command.ExecuteScalar();
+                    return;
                 }
+            }
+            catch (Exception ex)
+            {
+                ; //skip error
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
-        private T ExecuteWithRetry<T>(Func<T> operation)
-        {
-            int retryCount = 0;
-            while (true)
-            {
-                try
-                {
-                    return operation();
-                }
-                catch (DbException ex) when (retryCount < MaxRetries && _database.IsTransient((Exception)ex))  // IsTransient = true se è errore per cui conviene fare un retry
-                {
-                    retryCount++;
-                    Thread.Sleep(DelayBetweenRetriesMs);
-                }
-                catch (Exception ex)
-                {
-                    HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
-                    throw; // Rethrow to ensure we do not swallow the exception
-                }
-            }
-        }
+
+
+
+        //---
         private void HandleException(Exception ex, int errorCode, string message)
         {
             // --------------------------------------------------------------------
@@ -592,10 +711,122 @@ namespace ErpToolkit.Helpers.Db
             return parameters;
         }
 
+        //***************************************************************************************************************************************************
+        //*** AUDIT
+        //***************************************************************************************************************************************************
+
+        // Esegue una query SQL con monitoraggio della sessione in caso di timeout
+
+        /// <summary>
+        /// Avvia un thread che aspetta fino a T - delta; se la query è già finita (done.Set()), non fa nulla.
+        /// Altrimenti verifica che la sessione sia ancora attiva prima di fare l’audit.
+        /// </summary>
+        private void StartAuditMonitorIfStillRunning(IDbConnection workConn, int timeoutSeconds, int auditBeforeTimeoutSeconds,
+                                                     ManualResetEventSlim done, string originalSql)
+        {
+            // Ricava lo SPID corrente per SQL Server
+            object spid = _database.GetCommandSpid(workConn);
+
+            new Thread(() =>
+            {
+                IDbConnection monitorConn = null;
+                try
+                {
+                    // Attendi fino a pochi secondi prima del timeout, ma esci se la query termina prima
+                    int waitMs = Math.Max(0, (timeoutSeconds - auditBeforeTimeoutSeconds) * 1000);
+                    if (done.Wait(waitMs)) return; // la query ha terminato: NON eseguire audit
+
+                    // Double-check lato server: la richiesta è ancora attiva?
+                    monitorConn = _database.NewConnection();
+
+                    if (!_database.IsCommandRequestActive(monitorConn, spid))
+                    {
+                        // Non è più attiva: NON fare audit
+                        return;
+                    }
+
+                    // Esegui snapshot audit (wait info + SQL + piano XML)
+                    var snap = _database.GetCommandAuditSnapshot(monitorConn, spid);
+                    if (snap != null)
+                    {
+                        string sqlQuery = snap.SqlText ?? originalSql ?? "--(sql non disponibile)";
+                        string sqlPlan = string.IsNullOrEmpty(snap.QueryPlanXml) ? "--(non disponibile)" : snap.QueryPlanXml;
+
+                        // Info
+                        _logger.Trace($"Audit SQL Timeout:\n" +
+                            $"Query: {sqlQuery}\n" +
+                            $"Status: {snap.Status}\n" +
+                            $"WaitType: {snap.WaitType}\n" +
+                            $"ElapsedMs: {snap.TotalElapsedMs}\n" +
+                            $"BlockingSessionId: {snap.BlockingSessionId}\n" +
+                            $"SqlPlan: {sqlPlan}\n");
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // log soft: nessun impatto sulla query
+                    Console.Error.WriteLine($"[Audit] {ex.GetType().Name}: {ex.Message}");
+                }
+                finally { if (monitorConn != null) _database.ReleaseConnection(monitorConn); } // si chiude se non c'è transazione
+            })
+            {
+                IsBackground = true, // non blocca lo shutdown del processo
+                Name = "AuditMonitorThread"
+            }.Start();
+        }
+        public class LiveSessionSnapshot
+        {
+            public string Status { get; set; }
+            public string WaitType { get; set; }
+            public long TotalElapsedMs { get; set; }
+            public int? BlockingSessionId { get; set; }
+            public string SqlText { get; set; }
+            public string QueryPlanXml { get; set; }
+        }
+
+
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        //private Stopwatch LogCommandBefore(IDbCommand _command)
+        //{
+
+        //    _command.CommandText = $@"
+        //                                SET STATISTICS TIME ON;
+        //                                SET STATISTICS IO ON;
+        //                                {_command.CommandText};
+        //                                SET STATISTICS TIME OFF;
+        //                                SET STATISTICS IO OFF;
+        //                            ";
+
+
+        //    Console.WriteLine("----- Executing SQL Command -----");
+        //    Console.WriteLine(_command.CommandText);
+        //    foreach (IDataParameter param in _command.Parameters)
+        //    {
+        //        Console.WriteLine($"Param: {param.ParameterName} = {param.Value}");
+        //    }
+        //    Console.WriteLine($"Timeout: {_command.CommandTimeout} seconds");
+        //    Console.WriteLine("---------------------------------");
+        //    return Stopwatch.StartNew();
+        //}
+        //private void LogCommandAfterOK(IDbConnection _connection, Stopwatch stopwatch)
+        //{
+        //    stopwatch.Stop();
+        //    Console.WriteLine($"[INFO] NonQuery executed in {stopwatch.ElapsedMilliseconds} ms");
+        //    Console.WriteLine("[SQL INFO] " + _connection.);
+        //}
+        //private void LogCommandAfterKO(IDbConnection _connection, Stopwatch stopwatch, Exception ex)
+        //{
+        //    stopwatch.Stop();
+        //    Console.WriteLine($"[ERROR] Exception after {stopwatch.ElapsedMilliseconds} ms: {ex.Message}");
+        //}
 
 
 
-
+        //--------------------------------------------------------------------------------------------------------------
+        // ############################################################################################
 
 
 

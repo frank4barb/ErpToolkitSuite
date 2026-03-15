@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,55 +28,92 @@ public const string PREFIX = "Au"; //Table Prefix
 public const string LIVEDESC = "D"; //Table type: Live or Description
 public const string IS_RELTABLE = "Y"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Au1Icode; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $@""; }
+public override string labelHtml() { return $@""; }
 
-//1193-1179//REL_ATTIVITA_USA.AU_ID_GRUPPO
-public List<HealthDemo.Models.SIO.Act.RelAttivitaUsa> RelAttivitaUsa4AuIdGruppo  { get; set; } = new List<HealthDemo.Models.SIO.Act.RelAttivitaUsa>();
-[Display(Name = "Au1Ienv", ShortName="", Description = "Parametri dell'ambiente Ienv", Prompt="")]
-[ErpDogField("AU__IENV", SqlFieldNameExt="", SqlFieldProperties="")]
-[DataType(DataType.Text)]
-[StringLength(200, ErrorMessage = "Inserire massimo 200 caratteri")]
-public string? Au1Ienv { get; set; }
+//1193-1179//[Y] REL_ATTIVITA_USA.AU_ID_GRUPPO
+[Display(Name = "RelAttivitaUsa", ShortName = "", Description = "", Prompt = "")]
+[ErpTable(Options = " XXX ")]
+public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaUsa>? XrefAuIdGruppo { get; set; } = null;
 [Key]
 [Display(Name = "Au1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("AU__ICODE", SqlFieldNameExt="AU__ICODE", SqlFieldProperties="prop()")]
+[ErpDogField("AU__ICODE", SqlFieldNameExt="AU__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Icode { get; set; }
 [Display(Name = "Au1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("AU__DELETED", SqlFieldNameExt="AU__DELETED", SqlFieldProperties="prop()")]
+[ErpDogField("AU__DELETED", SqlFieldNameExt="AU__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Au1Deleted { get; set; }
 [Display(Name = "Au1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("AU__TIMESTAMP", SqlFieldNameExt="AU__TIMESTAMP", SqlFieldProperties="prop()")]
+[ErpDogField("AU__TIMESTAMP", SqlFieldNameExt="AU__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Au1Timestamp { get; set; }
+[Display(Name = "Au1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("AU__CDATE", SqlFieldNameExt="AU__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Au1Cdate { get; set; }
+[Display(Name = "Au1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
+[ErpDogField("AU__CTIME", SqlFieldNameExt="AU__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Au1Ctime { get; set; }
+[Display(Name = "Au1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("AU__CAGENT", SqlFieldNameExt="AU__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Au1Cagent { get; set; }
+[Display(Name = "Au1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
+[ErpDogField("AU__CUNIT", SqlFieldNameExt="AU__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Au1Cunit { get; set; }
+[Display(Name = "Au1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("AU__MDATE", SqlFieldNameExt="AU__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
+public string? Au1Mdate { get; set; }
+[Display(Name = "Au1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
+[ErpDogField("AU__MTIME", SqlFieldNameExt="AU__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
+public string? Au1Mtime { get; set; }
+[Display(Name = "Au1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("AU__MAGENT", SqlFieldNameExt="AU__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Au1Magent { get; set; }
+[Display(Name = "Au1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
+[ErpDogField("AU__MUNIT", SqlFieldNameExt="AU__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[DataType(DataType.Text)]
+[StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
+public string? Au1Munit { get; set; }
 [Display(Name = "Au1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("AU__HOME", SqlFieldNameExt="AU__HOME", SqlFieldProperties="prop()")]
+[ErpDogField("AU__HOME", SqlFieldNameExt="AU__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Home { get; set; }
 [Display(Name = "Au1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("AU__VERSION", SqlFieldNameExt="AU__VERSION", SqlFieldProperties="prop()")]
+[ErpDogField("AU__VERSION", SqlFieldNameExt="AU__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Version { get; set; }
 [Display(Name = "Au1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("AU__INACTIVE", SqlFieldNameExt="AU__INACTIVE", SqlFieldProperties="prop()")]
+[ErpDogField("AU__INACTIVE", SqlFieldNameExt="AU__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Au1Inactive { get; set; }
 [Display(Name = "Au1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("AU__EXTATT", SqlFieldNameExt="AU__EXTATT", SqlFieldProperties="prop()")]
+[ErpDogField("AU__EXTATT", SqlFieldNameExt="AU__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Au1Extatt { get; set; }
 
 
 [Display(Name = "Id Attivita", ShortName="", Description = "Codice del tipo di attività", Prompt="")]
-[ErpDogField("AU_ID_ATTIVITA", SqlFieldNameExt="AU_ID_ATTIVITA", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
+[ErpDogField("AU_ID_ATTIVITA", SqlFieldNameExt="AU_ID_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
@@ -83,7 +121,7 @@ public string? AuIdAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AuIdAttivitaObj  { get; set; }
 
 [Display(Name = "Classe Risorsa", ShortName="", Description = "Classe di risorsa: E[quipments] (Attrezzature) - L[ocations] (Luoghi) - S[taff] (Personale) - M[aterial] (Materiali) - B[ed] (Letti)", Prompt="")]
-[ErpDogField("AU_CLASSE_RISORSA", SqlFieldNameExt="AU_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA]) multbxref()")]
+[ErpDogField("AU_CLASSE_RISORSA", SqlFieldNameExt="AU_CLASSE_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA]) multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
@@ -91,7 +129,7 @@ public HealthDemo.Models.SIO.Act.Attivita? AuIdAttivitaObj  { get; set; }
 public string? AuClasseRisorsa  { get; set; }
 
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di risorsa", Prompt="")]
-[ErpDogField("AU_ID_TIPO_RISORSA", SqlFieldNameExt="AU_ID_TIPO_RISORSA", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
+[ErpDogField("AU_ID_TIPO_RISORSA", SqlFieldNameExt="AU_ID_TIPO_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]

@@ -6,27 +6,39 @@ using Microsoft.AspNetCore.Mvc;
 using ErpToolkit.Controllers;
 using HealthDemo.Models.SIO.Act;
 
+using static ErpToolkit.Helpers.Db.DogManager;
 namespace HealthDemo.Controllers.SIO.Act
 {
     public class CampioneController : ControllerErp
     {
+        private static readonly List<string> xrefTables = new List<string> {
+             "PcIdCampione"   //carico in cache tutti i dati di RelPrestazioneCampione collegati
+        };
+        private const string ErpContext_dogCache = "@HealthDemo.Controllers.SIO.Act.Campione_dogCache";
+        private DogCache _dogCache = new DogCache();
+
         //private static NLog.ILogger _logger;
         public CampioneController()
         {
             //SetUpNLog();
             NLog.LogManager.Configuration = UtilHelper.GetNLogConfig(); // Apply config
             _logger = NLog.LogManager.GetCurrentClassLogger();
-        }
 
+            this._dogCache = (DogCache)ErpContext.Instance.GetObject(ErpContext_dogCache); // Alloca le risorse cache
+        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) { }  // Rilascia le risorse gestite
+            ErpContext.Instance.Set(ErpContext_dogCache, this._dogCache);   // Rilascia le risorse non gestite (se presenti)
+            base.Dispose(disposing); // Chiama il metodo Dispose della classe base
+        }
 
         [HttpGet]
         public JsonResult AutocompleteGetSelect(string term)
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select CP_CODICE_ASSOLUTO + {DogManager.addParam(" - ", ref parameters)} + CP_DESCRIZIONE as label, CP__ICODE as value from CAMPIONE where CP__DELETED = {DogManager.addParam("N", ref parameters)} and upper({DogManager.addParam(" ", ref parameters)} + CP_CODICE_ASSOLUTO + {DogManager.addParam(" - ", ref parameters)} + CP_DESCRIZIONE + {DogManager.addParam(" ", ref parameters)}) like {DogManager.addParam("%" + term.ToUpper() + "%", ref parameters)} ";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<Campione>(term));
             }
             catch (Exception ex)  { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetSelect Campione: " + ex.Message }); }
         }
@@ -35,9 +47,7 @@ namespace HealthDemo.Controllers.SIO.Act
         {
             try
             {
-                IDictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = $"select CP_CODICE_ASSOLUTO + {DogManager.addParam(" - ", ref parameters)} + CP_DESCRIZIONE as label, CP__ICODE as value from CAMPIONE where CP__DELETED = {DogManager.addParam("N", ref parameters)} and CP__ICODE in (" + string.Join(", ", DogManager.addListParam(values.ToList<object>(), ref parameters)) + ")";
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).ExecuteQuery<Choice>(sql, parameters));
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompletePreLoad<Campione>(values));
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Campione: " + ex.Message }); }
         }
@@ -54,6 +64,8 @@ namespace HealthDemo.Controllers.SIO.Act
         [HttpGet]
         public IActionResult Index(string returnUrl = null)
         {
+            this._dogCache = new DogCache();    // Inizializza le risorse ...in caso di chiamata della pagina dall'esterno (ie: no reload)
+
             this.Select = new SelCampione();
             foreach (var key in Request.Query.Keys) DogManager.setPropertyValue(this.Select, key, Request.Query[key]); // carica parametri QueryString
             this.List = new List<Campione>();
@@ -78,7 +90,7 @@ namespace HealthDemo.Controllers.SIO.Act
                 return View("~/Views/SIO/Act/Campione/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Campione>(this.Select); }
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Campione>(this.Select, null, ref this._dogCache, ""); }  // non carico tabelle relazionate per la lista di selezione
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/Act/Campione/Index.cshtml", this);
@@ -89,7 +101,7 @@ namespace HealthDemo.Controllers.SIO.Act
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Campione obj = this.ReadForEditModel<Campione>(parms, modelPrefix);
+            Campione obj = this.ReadForEditModel<Campione>(parms, xrefTables, ref this._dogCache, modelPrefix);
             return PartialView("~/Views/SIO/Act/Campione/_PartialEdit.cshtml", obj);
         }
         [HttpPost]
@@ -97,11 +109,9 @@ namespace HealthDemo.Controllers.SIO.Act
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Campione obj = this.SaveModel<Campione>(dataObj, modelPrefix);
-            if (!TryValidateModel(obj, modelPrefix))
-            {
-                return PartialView("~/Views/SIO/Act/Campione/_PartialEdit.cshtml", obj);
-            }
+            Campione obj = this.SaveModel<Campione>(dataObj, ref this._dogCache, prefix: modelPrefix);
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record aggiornato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";
@@ -115,7 +125,7 @@ namespace HealthDemo.Controllers.SIO.Act
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Campione obj = this.ReadForDeleteModel<Campione>(parms, modelPrefix);
+            Campione obj = this.ReadForEditModel<Campione>(parms, null, ref this._dogCache, modelPrefix, action: 'D');    // non carico tabelle relazionate per il delete
             return PartialView("~/Views/SIO/Act/Campione/_PartialDelete.cshtml", obj);
         }
         [HttpPost]
@@ -123,11 +133,9 @@ namespace HealthDemo.Controllers.SIO.Act
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Campione obj = this.DeleteModel<Campione>(dataObj, modelPrefix);
-            if (ModelState.ErrorCount > 0)
-            {
-                return PartialView("~/Views/SIO/Act/Campione/_PartialDelete.cshtml", obj);
-            }
+            Campione obj = this.SaveModel<Campione>(dataObj, ref this._dogCache, prefix: modelPrefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]");
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record cancellato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";

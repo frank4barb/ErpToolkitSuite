@@ -37,8 +37,47 @@
     <!--script src="/wwwroot/js/ErpToolkit_site.js" asp-append-version="true"></script-->
     <script src="/wwwroot/js/ErpToolkit_site.js?v=@DateTime.Now.Ticks" asp-append-version="true"></script>
 
+
+    <!-- Overlay che riattiva l'interazione della pagina dopo il completamento del caricamento pagina -->
+    <script>
+        // Rimuovi blocker dopo il load della pagina principale
+        window.addEventListener('load', hidePageBlocker);
+    </script>
+
+
 </head>
 <body>
+
+    <!-- Overlay che blocca l'interazione della pagina fino a completamento del caricamento pagina -->
+    <div id="page-blocker" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.6);
+        z-index: 9999;
+        cursor: wait;
+    ">
+    </div>
+
+    <!-- Overlay che gestisce di errori se viene chiamata la funzione showSystemAlert -->
+    <div id="overlay-alert" class="overlay-alert d-none">
+        <div class="overlay-alert-box">
+            <div id="overlay-alert-icon" class="mb-2"></div>
+            <div id="overlay-alert-message" class="mb-3"></div>
+            <button class="btn btn-primary" id="overlay-alert-close">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Overlay che gestisce l'apparizione dei toasts se viene chiamata la funzione showToast -->
+    <div id="toast-container"
+         class="toast-container position-fixed top-0 end-0 p-3"
+         style="z-index: 2000;">
+    </div>
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">

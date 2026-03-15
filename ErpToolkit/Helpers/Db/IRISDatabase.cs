@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using InterSystems.Data.IRISClient;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -203,6 +204,65 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  IRIS: visibilità su %SYS.ProcessQuery; per esaminare altri processi può servire %Admin_Manage:Use. [docs.inter...ystems.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            // Euristico: PID del processo corrente in base a utente/namespace
+            const string sql = @"
+                                    SELECT Pid
+                                    FROM %SYS.ProcessQuery
+                                    WHERE UserName = USER AND NameSpace = DATABASE()
+                                    ORDER BY SecondsConnected DESC
+                                    FETCH FIRST 1 ROWS ONLY;";
+            using var cmd = this.NewCommand(sql, conn);
+            if (conn.State != ConnectionState.Open) conn.Open();
+            var o = cmd.ExecuteScalar();
+            return (o == null || o == DBNull.Value) ? null : Convert.ToInt32(o);
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            const string sql = @"SELECT 1 FROM %SYS.ProcessQuery WHERE Pid = @pid";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@pid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            return rdr.Read();
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Stato processo; piano solo via EXPLAIN sulla query (non live)
+            const string sql = @"
+                                SELECT 
+                                  Pid, UserName, NameSpace, State, Routine, CurrentSrcLine, SecondsConnected
+                                FROM %SYS.ProcessQuery
+                                WHERE Pid = @pid";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@pid"; p.Value = Convert.ToInt32(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            if (!rdr.Read()) return null;
+
+            var state = rdr["State"] as string;
+            long elapsedMs = rdr["SecondsConnected"] == DBNull.Value ? 0 : Convert.ToInt64(rdr["SecondsConnected"]) * 1000;
+
+            return new LiveSessionSnapshot
+            {
+                Status = state ?? "RUN",
+                WaitType = null,
+                TotalElapsedMs = elapsedMs,
+                BlockingSessionId = null,
+                SqlText = null,
+                QueryPlanXml = "-- Per il piano usa EXPLAIN sulla query originale"
+            };
+
+        }
 
 
     }

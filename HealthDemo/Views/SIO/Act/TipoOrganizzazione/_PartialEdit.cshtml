@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "TipoOrganizzazione Edit [" + (Model?.action ?? ' ') + "]";
 }
-<div class="modal-dialog" role="document">
+<div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     @using (Html.BeginForm("Save", "TipoOrganizzazione", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
@@ -45,6 +45,153 @@
                         <input asp-for="TzSequenza" class="form-control" />
                         <span asp-validation-for="TzSequenza" class="text-danger"></span>
                     </div>
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefOrTipoAssistenza != null)
+                    {
+                        <h5 class="mt-5">Vista su Organizzazione per OrTipoAssistenza</h5>
+                        <erp-table asp-for="XrefOrTipoAssistenza" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="OrClasseAssistenza"     label="ClasseAssistenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrEmail"     label="Email" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrTelefono"     label="Telefono" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrIdPersonale"     label="IdPersonale" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrIdIstituto"     label="IdIstituto" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrIdUnita"     label="IdUnita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrIdPostazione"     label="IdPostazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrPwdCrypt"     label="PwdCrypt" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrAttivo"     label="Attivo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrIdentificativo"     label="Identificativo" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrTipoAssistenza"  visible="false"   value="@Model.Tz1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="OrClasseAssistenza">
+                                    <div class="form-group" data-prop="OrClasseAssistenza">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrClasseAssistenza' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrClasseAssistenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrCodice">
+                                    <div class="form-group" data-prop="OrCodice">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrCodice' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrDescrizione">
+                                    <div class="form-group" data-prop="OrDescrizione">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrNote">
+                                    <div class="form-group" data-prop="OrNote">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrNote' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrEmail">
+                                    <div class="form-group" data-prop="OrEmail">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrEmail' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrEmail' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrTelefono">
+                                    <div class="form-group" data-prop="OrTelefono">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrTelefono' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrTelefono' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrIdPersonale">
+                                    <div class="form-group" data-prop="OrIdPersonale">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrIdPersonale' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrIdPersonale' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrIdIstituto">
+                                    <div class="form-group" data-prop="OrIdIstituto">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrIdIstituto' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrIdIstituto' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrIdUnita">
+                                    <div class="form-group" data-prop="OrIdUnita">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrIdUnita' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrIdUnita' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrIdPostazione">
+                                    <div class="form-group" data-prop="OrIdPostazione">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrIdPostazione' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrIdPostazione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrPwdCrypt">
+                                    <div class="form-group" data-prop="OrPwdCrypt">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrPwdCrypt' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrPwdCrypt' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrAttivo">
+                                    <div class="form-group" data-prop="OrAttivo">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrAttivo' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrAttivo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="OrIdentificativo">
+                                    <div class="form-group" data-prop="OrIdentificativo">
+                                        <input asp-for='XrefOrTipoAssistenza["0"].OrIdentificativo' class="form-control" />
+                                        <span asp-validation-for='XrefOrTipoAssistenza["0"].OrIdentificativo' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
+                    @* =============== TABELLA XREF =============== *@
+                    @if (Model?.XrefTzGruppo != null)
+                    {
+                        <h5 class="mt-5">Vista su TipoOrganizzazione per TzGruppo</h5>
+                        <erp-table asp-for="XrefTzGruppo" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
+                            <erp-table-columns>
+                                <erp-table-col for="TzCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TzDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TzNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TzSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TzGruppo"  visible="false"   value="@Model.Tz1Icode" />
+                            </erp-table-columns>
+                            <erp-table-edit-columns>
+                                <erp-table-edit-col for="TzCodice">
+                                    <div class="form-group" data-prop="TzCodice">
+                                        <input asp-for='XrefTzGruppo["0"].TzCodice' class="form-control" />
+                                        <span asp-validation-for='XrefTzGruppo["0"].TzCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TzDescrizione">
+                                    <div class="form-group" data-prop="TzDescrizione">
+                                        <input asp-for='XrefTzGruppo["0"].TzDescrizione' class="form-control" />
+                                        <span asp-validation-for='XrefTzGruppo["0"].TzDescrizione' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TzNote">
+                                    <div class="form-group" data-prop="TzNote">
+                                        <input asp-for='XrefTzGruppo["0"].TzNote' class="form-control" />
+                                        <span asp-validation-for='XrefTzGruppo["0"].TzNote' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TzSequenza">
+                                    <div class="form-group" data-prop="TzSequenza">
+                                        <input asp-for='XrefTzGruppo["0"].TzSequenza' class="form-control" />
+                                        <span asp-validation-for='XrefTzGruppo["0"].TzSequenza' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                            </erp-table-edit-columns>
+                            <erp-table-actions mode="all" />
+                        </erp-table>
+                    }
+
                 </div>
                 <br />
             </div>

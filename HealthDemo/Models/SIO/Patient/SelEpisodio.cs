@@ -2,6 +2,7 @@
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -27,9 +28,16 @@ public const string PREFIX = "Ep"; //Table Prefix
 public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return null; } 
-public override string ToString() { return $""; } 
-public override string ToHtml() { return $""; } 
+public override string labelText() { return $""; }
+public override string labelHtml() { return $""; }
 
+//10-2//[N] PRESTAZIONE.PR_ID_EPISODIO
+//563-524//[N] RICHIESTA.RI_ID_EPISODIO
+//848-845//[N] RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO
+//980-978//[N] STATO_SALUTE.SS_ID_EPISODIO
+//1198-1196//[N] DOCUMENTO_CLINICO.DC_ID_EPISODIO
+//1736-1730//[N] CAMPIONE.CP_ID_EPISODIO
+//2166-2164//[N] PARAMETRO_VITALE.PV_ID_EPISODIO
 
 [Display(Name = "Cod Episodio", ShortName="", Description = "Identificativo del contatto nell'organizzazione sanitaria", Prompt="")]
 [ErpDogField("EP_COD_EPISODIO", SqlFieldNameExt="EP_COD_EPISODIO", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(EPISODIO.EP__ICODE[EP__ICODE] {EP_COD_EPISODIO=' '}) multbxref()")]
@@ -37,7 +45,7 @@ public override string ToHtml() { return $""; }
 public string? SelEpCodEpisodio  { get; set; }
 
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente a cui si riferisce il contatto", Prompt="")]
-[ErpDogField("EP_ID_PAZIENTE", SqlFieldNameExt="EP_ID_PAZIENTE", SqlFieldOptions="", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
+[ErpDogField("EP_ID_PAZIENTE", SqlFieldNameExt="EP_ID_PAZIENTE", SqlFieldOptions="[MANDATORY]", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
 [DataType(DataType.Text)]
@@ -58,14 +66,14 @@ public List<string> SelEpSesso  { get; set; } = new List<string>();
 public List<string> SelEpClasseEpisodio  { get; set; } = new List<string>();
 
 [Display(Name = "Id Tipo Episodio", ShortName="", Description = "Codice del tipo di contatto", Prompt="")]
-[ErpDogField("EP_ID_TIPO_EPISODIO", SqlFieldNameExt="EP_ID_TIPO_EPISODIO", SqlFieldOptions="", Xref="Te1Icode", SqlFieldProperties="prop() xref(TIPO_EPISODIO.TE__ICODE) xdup() multbxref()")]
+[ErpDogField("EP_ID_TIPO_EPISODIO", SqlFieldNameExt="EP_ID_TIPO_EPISODIO", SqlFieldOptions="[MANDATORY]", Xref="Te1Icode", SqlFieldProperties="prop() xref(TIPO_EPISODIO.TE__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoEpisodio", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelEpIdTipoEpisodio  { get; set; } = new List<string>();
 
 [Display(Name = "Stato Episodio", ShortName="", Description = "Stato del contatto F[oreseen] - A[ctual, in progress] - C[ompleted] - D[eleted] - S[uspended]", Prompt="")]
-[ErpDogField("EP_STATO_EPISODIO", SqlFieldNameExt="EP_STATO_EPISODIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("EP_STATO_EPISODIO", SqlFieldNameExt="EP_STATO_EPISODIO", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [MultipleChoices(new[] { "F", "A", "C", "D", "S" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]

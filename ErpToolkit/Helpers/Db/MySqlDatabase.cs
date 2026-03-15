@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using MySql.Data.MySqlClient;
+using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
 namespace ErpToolkit.Helpers.Db
@@ -163,10 +164,79 @@ namespace ErpToolkit.Helpers.Db
 
 
         //*******************************************************************************************************
+        //*******************************************************************************************************
+
+        // AUDIT
+        //------
+
+        //  Permessi minimi per farlo funzionare
+        //  MySQL: PROCESS (PROCESSLIST) e permessi standard per EXPLAIN FOR CONNECTION. [dev.mysql.com]
+
+        public object GetCommandSpid(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("SELECT CONNECTION_ID();", conn);
+            if (conn.State != ConnectionState.Open) conn.Open();
+            return Convert.ToInt64(cmd.ExecuteScalar()); // BIGINT UNSIGNED
+        }
+
+        public bool IsCommandRequestActive(IDbConnection conn, object spid)
+        {
+            const string sql = @"
+                                SELECT 1
+                                FROM information_schema.PROCESSLIST
+                                WHERE ID = @id AND COMMAND = 'Query';";
+            using var cmd = this.NewCommand(sql, conn);
+            var p = cmd.CreateParameter(); p.ParameterName = "@id"; p.Value = Convert.ToInt64(spid); cmd.Parameters.Add(p);
+            using var rdr = cmd.ExecuteReader();
+            return rdr.Read();
+        }
+
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        {
+            // Due step: PROCESSLIST (stato + SQL); poi EXPLAIN FOR CONNECTION (piano JSON)
+            string sqlText = null; long elapsedMs = 0; string planJson = null;
+
+            const string pl = @"
+                                SELECT INFO AS sql_text, TIME AS elapsed_seconds, STATE
+                                FROM information_schema.PROCESSLIST
+                                WHERE ID = @id;";
+            using (var cmd = this.NewCommand(pl, conn))
+            {
+                var p = cmd.CreateParameter(); p.ParameterName = "@id"; p.Value = Convert.ToInt64(spid); cmd.Parameters.Add(p);
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    sqlText = reader["sql_text"] as string;
+                    elapsedMs = reader["elapsed_seconds"] == DBNull.Value ? 0 : Convert.ToInt64(reader["elapsed_seconds"]) * 1000;
+                }
+            }
+
+            const string exp = @"EXPLAIN FORMAT=JSON FOR CONNECTION @id;";
+            using (var cmd = this.NewCommand(exp, conn))
+            {
+                var p = cmd.CreateParameter(); p.ParameterName = "@id"; p.Value = Convert.ToInt64(spid); cmd.Parameters.Add(p);
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    // La prima colonna contiene il JSON
+                    planJson = reader.GetString(0);
+                }
+            }
+
+            return new LiveSessionSnapshot
+            {
+                Status = "ACTIVE",
+                WaitType = null,
+                TotalElapsedMs = elapsedMs,
+                BlockingSessionId = null,
+                SqlText = sqlText,
+                QueryPlanXml = planJson
+            };
+        }
+
+
 
     }
-
-
 }
 
 
