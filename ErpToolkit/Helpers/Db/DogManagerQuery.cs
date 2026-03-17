@@ -634,8 +634,11 @@ namespace ErpToolkit.Helpers.Db
                     }
                 }
             }
-            // Verifica condizioni
-            if (numParam == 0) throw new ErpException("Nessuna parametro inserito");
+            // Verifica condizioni: con *allowTouch* posso eseguire insert/update anche senza campi valorizzati, altrimenti è necessario almeno un campo da inserire/modificare
+            if (numParam == 0)
+            {
+                if (options.Contains("*allowTouch*") == false) throw new ErpException("Nessuna parametro inserito");
+            }
             //gestione icode e timestamp
             object? icode = tab.fldIcode?.GetValue(tabModel) ?? null;
             byte[] oldTimestamp = (byte[])(tab.fldTimestamp?.GetValue(tabModel) ?? new byte[8]);

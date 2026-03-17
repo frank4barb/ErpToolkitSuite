@@ -156,15 +156,15 @@
                         <h5 class="mt-5">Vista su Prestazione per PrIdEpisodio</h5>
                         <erp-table asp-for="XrefPrIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdAttivitaEseguita"     label="IdAttivitaEseguita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrTipoEpisodio"     label="TipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
@@ -467,7 +467,7 @@
                                 <erp-table-col for="RiOggetto"     label="Oggetto" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiStatoRichiesta"     label="StatoRichiesta" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiClasseRichiesta"     label="ClasseRichiesta" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="RiIdTipoRichiesta"     label="IdTipoRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="RiIdTipoRichiesta"     label="IdTipoRichiesta" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="RiIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiIdEpisodio"  visible="false"   value="@Model.Ep1Icode" />
                             </erp-table-columns>
@@ -556,9 +556,9 @@
                         <erp-table asp-for="XrefReIdTipoDatoClinico" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="ReClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="ReIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="ReIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="ReIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="ReIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="ReValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReValoreScelta"     label="ValoreScelta" sort="none" sortType="autocomplete" filter="true" />
@@ -682,8 +682,8 @@
                         <erp-table asp-for="XrefSsIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="SsClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="SsIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="SsIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SsIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="SsIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="SsIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SsValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SsValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
@@ -808,8 +808,8 @@
                         <erp-table asp-for="XrefDcIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="DcClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="DcIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="DcIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DcIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="DcIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="DcIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DcValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DcValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
@@ -933,7 +933,7 @@
                         <h5 class="mt-5">Vista su Campione per CpIdEpisodio</h5>
                         <erp-table asp-for="XrefCpIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="CpIdTipoCampione"     label="IdTipoCampione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpIdTipoCampione"     label="IdTipoCampione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="CpDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="CpCodiceUnivoco"     label="CodiceUnivoco" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="CpDataPrelievo"     label="DataPrelievo" sort="none" sortType="autocomplete" filter="true" />
@@ -1046,8 +1046,8 @@
                         <erp-table asp-for="XrefPvIdEpisodio" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="PvClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PvIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PvIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PvIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PvIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PvIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PvValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PvValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />

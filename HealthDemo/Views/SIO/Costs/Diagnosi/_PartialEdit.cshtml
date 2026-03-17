@@ -67,11 +67,11 @@
                         <erp-table asp-for="XrefEpIdDiagnosiAmmissione" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="EpCodEpisodio"     label="CodEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="EpIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="EpSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpIdTipoEpisodio"     label="IdTipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpStatoEpisodio"     label="StatoEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="EpIdTipoEpisodio"     label="IdTipoEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="EpStatoEpisodio"     label="StatoEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="EpIdUnitaIngresso"     label="IdUnitaIngresso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpDataInizio"     label="DataInizio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpOraInizio"     label="OraInizio" sort="none" sortType="autocomplete" filter="true" />
@@ -263,11 +263,11 @@
                         <erp-table asp-for="XrefEpIdDiagnosiDimissione" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="EpCodEpisodio"     label="CodEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="EpIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="EpSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpIdTipoEpisodio"     label="IdTipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpStatoEpisodio"     label="StatoEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="EpIdTipoEpisodio"     label="IdTipoEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="EpStatoEpisodio"     label="StatoEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="EpIdUnitaIngresso"     label="IdUnitaIngresso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpDataInizio"     label="DataInizio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpOraInizio"     label="OraInizio" sort="none" sortType="autocomplete" filter="true" />
@@ -459,7 +459,7 @@
                         <erp-table asp-for="XrefDgIdGruppo" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="DgTipoDiagnosi"     label="TipoDiagnosi" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="DgClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="DgClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="DgDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DgNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DgCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />

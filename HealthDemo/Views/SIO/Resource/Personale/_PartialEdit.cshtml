@@ -91,9 +91,9 @@
                         <h5 class="mt-5">Vista su RelPrestazioneUsa per PuIdRisorsa</h5>
                         <erp-table asp-for="XrefPuIdRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuDataInizioUso"     label="DataInizioUso" sort="none" sortType="autocomplete" filter="true" />
@@ -231,9 +231,9 @@
                         <h5 class="mt-5">Vista su RelAttivitaUsa per AuIdRisorsa</h5>
                         <erp-table asp-for="XrefAuIdRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="AuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="AuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuQuantitaMediaUsata"     label="QuantitaMediaUsata" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuQuantitaExtra"     label="QuantitaExtra" sort="none" sortType="autocomplete" filter="true" />
@@ -327,7 +327,7 @@
                                 <erp-table-col for="OrDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="OrNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="OrEmail"     label="Email" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="OrTipoAssistenza"     label="TipoAssistenza" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="OrTipoAssistenza"     label="TipoAssistenza" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="OrTelefono"     label="Telefono" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="OrIdIstituto"     label="IdIstituto" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="OrIdUnita"     label="IdUnita" sort="none" sortType="autocomplete" filter="true" />

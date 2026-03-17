@@ -188,6 +188,28 @@ table.erptbl tr.erptbl-deleted td.action-buttons * {
     opacity: 1;
 }
 
+/* Campo obbligatorio in edit (highlight soft) */
+.erptbl-mandatory {
+    box-shadow: inset 2px 0 0 0 orange;
+}
+
+/* Campo obbligatorio mancante al salvataggio (errore forte) */
+.erptbl-mandatory-error {
+    border: 2px solid #dc3545 !important;
+    background-color: #ffe6e6 !important;
+}
+
+
+/*.erptbl-mandatory {
+    box-shadow: inset 3px 0 0 0 orange;
+}
+
+.erptbl-mandatory-error {
+    box-shadow: inset 3px 0 0 0 red !important;
+    background-color: #fff4f4 !important;
+}
+*/
+
 
 /* end etkTable2 */
 

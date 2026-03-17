@@ -56,7 +56,7 @@
                         <h5 class="mt-5">Vista su RelPrestazioneUsa per PuIdTipoRisorsa</h5>
                         <erp-table asp-for="XrefPuIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuIdRisorsa"     label="IdRisorsa" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
@@ -197,7 +197,7 @@
                         <erp-table asp-for="XrefFmIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="FmCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="FmClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="FmClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="FmDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="FmCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="FmMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
@@ -344,7 +344,7 @@
                         <erp-table asp-for="XrefAtIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="AtCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="AtClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AtClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AtDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AtCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AtMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
@@ -463,7 +463,7 @@
                         <erp-table asp-for="XrefSaIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="SaCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="SaClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="SaClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="SaDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SaCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SaMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
@@ -561,7 +561,7 @@
                         <erp-table asp-for="XrefMtIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="MtCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="MtClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="MtClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="MtDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="MtCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="MtMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />
@@ -686,8 +686,8 @@
                         <h5 class="mt-5">Vista su RelAttivitaUsa per AuIdTipoRisorsa</h5>
                         <erp-table asp-for="XrefAuIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AuIdRisorsa"     label="IdRisorsa" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuQuantitaMediaUsata"     label="QuantitaMediaUsata" sort="none" sortType="autocomplete" filter="true" />
@@ -777,8 +777,8 @@
                         <h5 class="mt-5">Vista su Personale per PeIdTipoRisorsa</h5>
                         <erp-table asp-for="XrefPeIdTipoRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PeCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PeClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PeCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PeClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PeDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PeCostoUnitarioUso"     label="CostoUnitarioUso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PeMisuraUnitariaUso"     label="MisuraUnitariaUso" sort="none" sortType="autocomplete" filter="true" />

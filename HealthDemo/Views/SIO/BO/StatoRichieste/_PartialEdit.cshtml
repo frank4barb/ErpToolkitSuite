@@ -251,9 +251,9 @@
 
             <!-- Intestazioni/colonne in visualizzazione -->
             <erp-table-columns>
-                <erp-table-col for="PcIdCampione"     label="Campione" sort="none" sortType="autocomplete" filter="true" />
-                <erp-table-col for="PcIdTipoCampione" label="Tipo Campione" sort="desc2" sortType="autocomplete" filter="true" />
-                <erp-table-col for="PcTipo"           label="Tipo" sort="asc1" sortType="string" filter="true" />
+                <erp-table-col for="PcIdCampione"     label="Campione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                <erp-table-col for="PcIdTipoCampione" label="Tipo Campione" sort="desc2" sortType="autocomplete" filter="true" mandatory="true" />
+                <erp-table-col for="PcTipo"           label="Tipo" sort="asc1" sortType="string" filter="true" mandatory="true" />
                 <erp-table-col for="PcNote"           label="Note" sort="none" sortType="string" filter="true" />
                 <erp-table-col for="PcIdPrestazione"  visible="false"   value="@Model.Pr1Icode" />
             </erp-table-columns>
@@ -371,178 +371,6 @@
 
 
 
-@* =============== TABELLA VECCHIA FUNZIONANTE =============== *@
-
-
-@* 
-
-@if(Model.XrefPcIdPrestazione != null) {
-<h4>RelPrestazioneCampione</h4>
-<table id="tblPrestazioni" class="table">
-<!-- table id="tblPrestazioni" class="table table-striped" -->
-    <thead>
-        <tr>
-            <th>Campione</th>
-            <th>Tipo Campione</th>
-            <th>Tipo</th>
-            <th>Note</th>
-            <th>IEnv</th>
-            <th>Azioni</th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (int i = 1; i < Model.XrefPcIdPrestazione.Count; i++)
-        {
-            <tr>
-                <td>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcIdCampione", Model.XrefPcIdPrestazione[i].PcIdCampione, new { type = "hidden" })
-                        <span>@Html.Raw(@Model.XrefPcIdPrestazione[i].getLabelForField("PcIdCampione") ?? "")</span>
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcIdCampione" class="text-danger"></span>
-                    </div>
-                </td>
-                <td>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcIdTipoCampione", Model.XrefPcIdPrestazione[i].PcIdTipoCampione, new { type = "hidden" })
-                        <span>@Html.Raw(@Model.XrefPcIdPrestazione[i].getLabelForField("PcIdTipoCampione") ?? "")</span>
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcIdTipoCampione" class="text-danger"></span>
-                    </div>
-                </td>
-                <td>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcTipo", Model.XrefPcIdPrestazione[i].PcTipo, new { type = "hidden" })
-                        <span>@Model.XrefPcIdPrestazione[i].PcTipo</span>
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcTipo" class="text-danger"></span>
-                    </div>
-                </td>
-                <td>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].PcNote", Model.XrefPcIdPrestazione[i].PcNote, new { type = "hidden" })
-                        <span>@Model.XrefPcIdPrestazione[i].PcNote</span>
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].PcNote" class="text-danger"></span>
-                    </div>
-                </td>
-                <td>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].Pc1Ienv", Model.XrefPcIdPrestazione[i].Pc1Ienv, new { type = "hidden" })
-                        <span>@Model.XrefPcIdPrestazione[i].Pc1Ienv</span>
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].Pc1Ienv" class="text-danger"></span>
-                    </div>
-                </td>
-                <td class="action-buttons text-center">
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].action", Model.XrefPcIdPrestazione[i].action, new { type = "hidden", @class = "ModelAction" })
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].action" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].vars", @Html.Raw(ErpToolkit.Helpers.Db.DogManager.JsonSafeSerialize(Model.XrefPcIdPrestazione[i].vars)), new { type = "hidden", @class = "ModelVars" }) 
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].vars" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        @Html.TextBox($"XrefPcIdPrestazione[{i}].Pc1Icode", Model.XrefPcIdPrestazione[i].Pc1Icode, new { type = "hidden", @class = "ModelIcode" })
-                        <span asp-validation-for="@Model.XrefPcIdPrestazione[i].Pc1Icode" class="text-danger"></span>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary ModifyRow" onclick="handleModifyRow(this)"><i class="bi bi-pencil-square"></i></button>
-                    <button type="button" class="btn btn-sm btn-outline-danger DeleteRow" onclick="handleDeleteRow(this)"><i class="bi bi-trash3"></i></button>
-                    <button type="button" class="btn btn-sm btn-success SaveRow" style="display:none" onclick="handleSaveRow(this)"><i class="bi bi-save"></i></button>
-                    <button type="button" class="btn btn-sm btn-secondary CancelRow" style="display:none" onclick="handleCancelRow(this)"><i class="bi bi-x-circle"></i></button>
-                </td>
-            </tr>
-        }
-        <!-- Template nascosto per Add/Modify -->
-        <tr id="templateRow" style="display:none"> 
-            <td>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcIdCampione" class="form-control form-control-sm" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcIdCampione" class="text-danger"></span>
-                </div>
-            </td>
-            <td>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcIdTipoCampione" class="form-control form-control-sm" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcIdTipoCampione" class="text-danger"></span>
-                </div>
-            </td>
-            <td>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcTipo" class="form-control form-control-sm" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcTipo" class="text-danger"></span>
-                </div>
-            </td>
-            <td>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].PcNote" class="form-control form-control-sm" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].PcNote" class="text-danger"></span>
-                </div>
-            </td>
-            <td>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].Pc1Ienv" class="pc1ienv form-control form-control-sm" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].Pc1Ienv" class="text-danger"></span>
-                </div>
-            </td>
-            <td class="action-buttons text-center">
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].action" class="ModelAction" style="display:none;" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].action" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].vars" class="ModelVars" style="display:none;" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].vars" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <input asp-for="@Model.XrefPcIdPrestazione[0].Pc1Icode" class="ModelIcode" style="display:none;" />
-                    <span asp-validation-for="@Model.XrefPcIdPrestazione[0].Pc1Icode" class="text-danger"></span>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-primary ModifyRow" style="display:none" onclick="handleModifyRow(this)"><i class="bi bi-pencil-square"></i></button>
-                <button type="button" class="btn btn-sm btn-outline-danger DeleteRow" style="display:none" onclick="handleDeleteRow(this)"><i class="bi bi-trash3"></i></button>
-                <button type="button" class="btn btn-sm btn-success SaveRow" style="display:none" onclick="handleSaveRow(this)"><i class="bi bi-save"></i></button>
-                <button type="button" class="btn btn-sm btn-secondary CancelRow" style="display:none" onclick="handleCancelRow(this)"><i class="bi bi-x-circle"></i></button>
-            </td>
-        </tr>    </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="6" class="text-end">
-                <button type="button" class="btn btn-sm btn-success mb-2" name="@Model.XrefPcIdPrestazione[0].Pc1Icode" onclick="handleAddRow(this)"><i class="bi bi-plus-lg"></i> Aggiungi riga</button>
-            </td>
-        </tr>
-    </tfoot>
-</table>
-}
- *@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @* 
 <pre>
@@ -550,13 +378,6 @@
 </pre>
 
  *@
-
-
-
-
-
-
-
 
 
 

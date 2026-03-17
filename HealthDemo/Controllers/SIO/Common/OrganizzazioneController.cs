@@ -125,7 +125,7 @@ namespace HealthDemo.Controllers.SIO.Common
                 return View("~/Views/SIO/Common/Organizzazione/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Organizzazione>(this.Select, null, ref this._dogCache, ""); }  // non carico tabelle relazionate per la lista di selezione
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Organizzazione>(this.Select, xrefTables, ref this._dogCache, ""); }  // non carico tabelle relazionate per la lista di selezione
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/Common/Organizzazione/Index.cshtml", this);
@@ -136,7 +136,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, xrefTables, ref this._dogCache, modelPrefix);
+            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, xrefTables, ref this._dogCache, prefix: modelPrefix);
             return PartialView("~/Views/SIO/Common/Organizzazione/_PartialEdit.cshtml", obj);
         }
         [HttpPost]
@@ -144,7 +144,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "EDIT";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.SaveModel<Organizzazione>(dataObj, ref this._dogCache, prefix: modelPrefix);
+            Organizzazione obj = this.SaveModel<Organizzazione>(dataObj, ref this._dogCache, prefix: modelPrefix, options: "*allowTouch*");
             if (!ModelState.IsValid) { return this.ValidationResult(); }
 
             this.StatusMessage = "Record aggiornato!";
@@ -160,7 +160,7 @@ namespace HealthDemo.Controllers.SIO.Common
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, null, ref this._dogCache, modelPrefix, action: 'D');    // non carico tabelle relazionate per il delete
+            Organizzazione obj = this.ReadForEditModel<Organizzazione>(parms, null, ref this._dogCache, prefix: modelPrefix, action: 'D');    // non carico tabelle relazionate per il delete
             return PartialView("~/Views/SIO/Common/Organizzazione/_PartialDelete.cshtml", obj);
         }
         [HttpPost]

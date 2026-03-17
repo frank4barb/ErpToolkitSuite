@@ -339,7 +339,7 @@ namespace ErpToolkit.Controllers
             return objModel;
         }
 
-        public T SaveModel<T>(ModelObject dataObj, ref DogManager.DogCache dogCache, string? prefix = null, string? options = null) where T : ModelErp
+        public T SaveModel<T>(ModelObject dataObj, ref DogManager.DogCache dogCache, string? prefix = null, string options = "") where T : ModelErp
         {
             string errMsg = "";
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO
@@ -369,15 +369,12 @@ namespace ErpToolkit.Controllers
                 //validate model
                 //---------------------------------------------------------------------------------
                 errMsg = "Verifica opzioni modello";
-                if (options != null)
+                if (options.Contains("[MAX_ONE_OBJ]") && objList.Count > 1) throw new Exception($"Troppi oggetti modificati {objList.Count} (max 1)");
+                foreach (ModelErp obj in objList.Keys)
                 {
-                    if (options.Contains("[MAX_ONE_OBJ]") && objList.Count > 1) throw new Exception($"Troppi oggetti modificati {objList.Count} (max 1)");
-                    foreach (ModelErp obj in objList.Keys)
-                    {
-                        if (options.Contains("[NO_ADD]") && obj.action == 'A') throw new Exception($"Azione {obj.action} non consentita");
-                        if (options.Contains("[NO_UPDATE]") && obj.action == 'M') throw new Exception($"Azione {obj.action} non consentita");
-                        if (options.Contains("[NO_DELETE]") && obj.action == 'D') throw new Exception($"Azione {obj.action} non consentita");
-                    }
+                    if (options.Contains("[NO_ADD]") && obj.action == 'A') throw new Exception($"Azione {obj.action} non consentita");
+                    if (options.Contains("[NO_UPDATE]") && obj.action == 'M') throw new Exception($"Azione {obj.action} non consentita");
+                    if (options.Contains("[NO_DELETE]") && obj.action == 'D') throw new Exception($"Azione {obj.action} non consentita");
                 }
 
                 //---------------------------------------------------------------------------------
@@ -443,7 +440,7 @@ namespace ErpToolkit.Controllers
                 // salva su DB e rilettura dei record salvati e aggiornamento delle modifiche nella cache 
                 //---------------------------------------------------------------------------------
                 errMsg = "Impossibile effettuare le modifiche su DB";
-                List<DogManager.DogResult> objResults = dogMng.MntList(objList.Keys.ToList(), ref dogCache);
+                List<DogManager.DogResult> objResults = dogMng.MntList(objList.Keys.ToList(), ref dogCache, options: options);
                 if (objResults == null) throw new Exception("objResults==null");
 
                 //--------------------

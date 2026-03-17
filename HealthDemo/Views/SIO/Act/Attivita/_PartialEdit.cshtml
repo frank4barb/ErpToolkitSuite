@@ -101,7 +101,7 @@
                         <h5 class="mt-5">Vista su Prestazione per PrIdAttivitaRichiesta</h5>
                         <erp-table asp-for="XrefPrIdAttivitaRichiesta" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdAttivitaEseguita"     label="IdAttivitaEseguita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
@@ -109,7 +109,7 @@
                                 <erp-table-col for="PrIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrTipoEpisodio"     label="TipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
@@ -402,15 +402,15 @@
                         <h5 class="mt-5">Vista su Prestazione per PrIdAttivitaEseguita</h5>
                         <erp-table asp-for="XrefPrIdAttivitaEseguita" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrTipoEpisodio"     label="TipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
@@ -712,7 +712,7 @@
                                 <erp-table-col for="AvDurataValidita"     label="DurataValidita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AvDurataMedia"     label="DurataMedia" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AvInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="AvIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AvIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AvRoutine"     label="Routine" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AvNoteEstese"     label="NoteEstese" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AvAttributi1"     label="Attributi1" sort="none" sortType="autocomplete" filter="true" />
@@ -815,7 +815,7 @@
                         <h5 class="mt-5">Vista su RelAttivitaTipoCampione per AcIdAttivita</h5>
                         <erp-table asp-for="XrefAcIdAttivita" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AcIdTipoCampione"     label="IdTipoCampione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AcIdTipoCampione"     label="IdTipoCampione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AcTipo"     label="Tipo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AcCampionePreferenziale"     label="CampionePreferenziale" sort="none" sortType="autocomplete" filter="true" />
@@ -927,8 +927,8 @@
                         <h5 class="mt-5">Vista su RelAttivitaUsa per AuIdAttivita</h5>
                         <erp-table asp-for="XrefAuIdAttivita" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="AuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="AuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AuIdRisorsa"     label="IdRisorsa" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuQuantitaMediaUsata"     label="QuantitaMediaUsata" sort="none" sortType="autocomplete" filter="true" />
@@ -1018,7 +1018,7 @@
                         <h5 class="mt-5">Vista su RelAttivitaErogataDa per AeIdAttivita</h5>
                         <erp-table asp-for="XrefAeIdAttivita" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AeIdUnita"     label="IdUnita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AeIdUnita"     label="IdUnita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AeNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AeModalitaDiPianificazione"     label="ModalitaDiPianificazione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AeErogazioneFrequente"     label="ErogazioneFrequente" sort="none" sortType="autocomplete" filter="true" />

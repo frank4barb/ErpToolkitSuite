@@ -1268,6 +1268,10 @@ function etkAutocompleteInitialize(inputDOM) {
         etkRelatedHiddenVarsDeleteValue(input.data('name'), "FieldLabel", labelToRemove);
         //----------------------------------------------------------------------------
         toggleInputVisibility(input, selectedItemsDiv, maxSelections);
+
+
+        // ▼▼▼ AGGIUNGI: notifica change per ricalcolo mandatory ▼▼▼
+        try { (input instanceof jQuery ? input : $(input)).trigger('change'); } catch { }
     });
 
     function isItemAlreadySelected(value, selectedItemsDiv) {
@@ -1295,6 +1299,10 @@ function etkAutocompleteInitialize(inputDOM) {
         etkRelatedHiddenVarsAppendValue(input.data('name'), "FieldLabel", label, false);
         //----------------------------------------------------------------------------
         toggleInputVisibility(input, selectedItemsDiv, maxSelections);
+
+
+        // ▼▼▼ AGGIUNGI: forza evento per clear dell'errore mandatory ▼▼▼
+        try { (input instanceof jQuery ? input : $(input)).trigger('change'); } catch { }
     }
 
     function toggleInputVisibility(input, selectedItemsDiv, maxSelections) {
@@ -1410,6 +1418,178 @@ function etkTableInit() {
 
 
 //--------
+// MANDATORY: HELPERS
+//--------
+
+/** Ritorna il controllo "principale" dentro il TD (input/select/textarea o TagHelper input) */
+function etkPickInputFromTd(td) {
+    if (!td) return null;
+    // preferisci un controllo TagHelper noto
+    const thInput = td.querySelector('.autocomplete-input, .form-check-input, .datetime-picker, .time-picker, .toggle-switch');
+    if (thInput) return thInput;
+    // altrimenti un controllo standard
+    return td.querySelector('input, select, textarea');
+}
+
+/** True se l'elemento è visibilmente nascosto (non va validato) */
+function etkIsHidden(el) {
+    if (!el) return true;
+    if (el.offsetParent === null) return true; // display:none
+    const style = window.getComputedStyle(el);
+    return (style.visibility === 'hidden' || style.display === 'none');
+}
+
+/** Ottiene il "valore effettivo" del controllo, inclusi TagHelper click-based */
+function etkGetEffectiveValue(input) {
+    if (!input) return "";
+
+    // TagHelper: AUTOCOMPLETE
+    if (input.classList.contains('autocomplete-input') && typeof getSelectedValue === 'function') {
+        return (getSelectedValue(input.id) || "").toString().trim();
+    }
+
+    // TagHelper: SWITCH/RADIO (gruppi .form-check-input)
+    if (input.classList.contains('form-check-input')) {
+        // usa il name del gruppo
+        const group = document.querySelectorAll(`input[name="${CSS.escape(input.name)}"]:checked`);
+        return (group && group.length > 0) ? (group[0].value || "1") : "";
+    }
+
+    // TagHelper: TOGGLE (checkbox singolo)
+    if (input.classList.contains('toggle-switch')) {
+        return input.checked ? (input.value || "1") : "";
+    }
+
+    // Altri TagHelper (date/time/datetime) o standard: usa .value
+    return (input.value || "").toString().trim();
+}
+
+/** Evidenzia tutti i mandatory della template-row (edit: Add/Modify) */
+function etkMarkMandatoryIn(templateRow) {
+    if (!templateRow) return;
+    templateRow.querySelectorAll("td[data-mandatory='true']").forEach(td => {
+        const input = etkPickInputFromTd(td);
+        if (!input || etkIsHidden(input)) return; // se nascosto, non evidenziare
+        input.classList.add("erptbl-mandatory");
+        // se fosse già vuoto, evidenzia subito come errore "soft"
+        const val = etkGetEffectiveValue(input);
+        if (val === "") {
+            input.classList.add("erptbl-mandatory-error");
+        } else {
+            input.classList.remove("erptbl-mandatory-error");
+        }
+    });
+}
+
+/** Valida i mandatory della template-row; ritorna { ok: boolean, firstError?: HTMLElement } */
+function etkValidateMandatory(templateRow) {
+    let ok = true, first = null;
+    if (!templateRow) return { ok: true };
+
+    templateRow.querySelectorAll("td[data-mandatory='true']").forEach(td => {
+        const input = etkPickInputFromTd(td);
+        if (!input || etkIsHidden(input)) return; // ignora campi nascosti
+
+        const val = etkGetEffectiveValue(input);
+        if (val === "") {
+            ok = false;
+            input.classList.add("erptbl-mandatory-error");
+            if (!first) first = input;
+        } else {
+            input.classList.remove("erptbl-mandatory-error");
+        }
+    });
+
+    return { ok, firstError: first };
+}
+////////function etkValidateMandatory(templateRow) {
+////////    let ok = true, first = null;
+////////    if (!templateRow) return { ok: true };
+
+////////    templateRow.querySelectorAll("td[data-mandatory='true']").forEach(td => {
+////////        const input = etkPickInputFromTd(td);
+////////        if (!input || etkIsHidden(input)) return; // ignora campi nascosti
+
+////////        const val = etkGetEffectiveValue(input);
+
+////////        // ----- Caso speciale: gruppo radio/switch (form-check-input) -----
+////////        if (input.classList.contains('form-check-input')) {
+////////            const groupChecked = document.querySelectorAll(`input[name="${CSS.escape(input.name)}"]:checked`);
+////////            if (!groupChecked || groupChecked.length === 0) {
+////////                ok = false;
+////////                // evidenzia tutti gli elementi del gruppo
+////////                document.querySelectorAll(`input[name="${CSS.escape(input.name)}"]`)
+////////                    .forEach(el => el.classList.add("erptbl-mandatory-error"));
+////////                if (!first) first = input;
+////////                return;
+////////            } else {
+////////                // pulizia errore se presente
+////////                document.querySelectorAll(`input[name="${CSS.escape(input.name)}"]`)
+////////                    .forEach(el => el.classList.remove("erptbl-mandatory-error"));
+////////                return;
+////////            }
+////////        }
+
+////////        // ----- Altri TagHelper e input standard -----
+////////        if (val === "") {
+////////            ok = false;
+////////            input.classList.add("erptbl-mandatory-error");
+////////            if (!first) first = input;
+////////        } else {
+////////            input.classList.remove("erptbl-mandatory-error");
+////////        }
+////////    });
+
+////////    return { ok, firstError: first };
+////////}
+
+
+
+/** Pulisce l'errore mandatory quando il valore diventa non vuoto */
+////////function etkMaybeClearMandatoryError(input) {
+////////    if (!input) return;
+////////    if (!input.classList.contains('erptbl-mandatory') && !input.classList.contains('erptbl-mandatory-error')) return;
+
+////////    const val = etkGetEffectiveValue(input);
+////////    if (val !== "") {
+////////        input.classList.remove('erptbl-mandatory-error');
+////////    }
+////////}
+/** Pulisce l'errore mandatory quando il valore diventa non vuoto */
+function etkMaybeClearMandatoryError(input) {
+    if (!input) return;
+
+    // ✅ Caso speciale: switch-group / radio-group
+    if (input.classList.contains("form-check-input")) {
+        const groupName = input.name;
+        const group = document.querySelectorAll(`input[name="${CSS.escape(groupName)}"]`);
+        const anyChecked = Array.from(group).some(x => x.checked);
+
+        if (anyChecked) {
+            group.forEach(el => el.classList.remove("erptbl-mandatory-error"));
+        }
+        return;
+    }
+
+    // ✅ Toggle
+    if (input.classList.contains("toggle-switch")) {
+        if (input.checked) {
+            input.classList.remove("erptbl-mandatory-error");
+        }
+        return;
+    }
+
+    // ✅ Autocomplete / altri controlli click‑based
+    const val = etkGetEffectiveValue(input);
+    if (val !== "") {
+        input.classList.remove("erptbl-mandatory-error");
+    }
+}
+
+
+
+
+//--------
 // Utilità
 //--------
 
@@ -1508,6 +1688,9 @@ function etkGetTagHelperInputsInRow(row) {
                 if (input.classList.contains("ModelIndex") && icode) input.value = "";
             });
 
+            // === MANDATORY: evidenzia in ADD ===
+            etkMarkMandatoryIn(templateRow);
+
             // usa Icode come KEY
             templateRow.dataset.editKey = icode || "";
         });
@@ -1556,6 +1739,9 @@ function etkGetTagHelperInputsInRow(row) {
             }
         });
 
+        // === MANDATORY: evidenzia in MODIFY ===
+        etkMarkMandatoryIn(templateRow);
+
         row.style.display = "none";
         templateRow.dataset.editKey = key;
     };
@@ -1567,6 +1753,22 @@ function etkGetTagHelperInputsInRow(row) {
         const table = button.closest('table');
         const tbody = table.querySelector("tbody");
         const templateRow = etkFindTemplateRow(table);
+
+
+        // --------------- VALIDAZIONE OBBLIGATORI (Add/Modify) ---------------
+        const v = etkValidateMandatory(templateRow);
+        if (!v.ok) {
+            alert("È necessario compilare tutti i campi evidenziati");
+            // focus sul primo errore
+            ////////try { v.firstError?.focus(); } catch { }
+            try {
+                v.firstError?.focus();
+                v.firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch { }
+            return; // BLOCCA il salvataggio
+        }
+        // --------------------------------------------------------------------
+
 
         const key = templateRow.dataset.editKey || '';
         if (key == '') return;
@@ -2491,6 +2693,13 @@ function onModalContentLoaded(modalEl) {
     erpTableInitIn(modalEl);
 }
 
+
+// Input standard (text/select/textarea) e anche molti TagHelper emettono 'input'/'change'
+document.addEventListener('input', (ev) => etkMaybeClearMandatoryError(ev.target), true);
+document.addEventListener('change', (ev) => etkMaybeClearMandatoryError(ev.target), true);
+
+// AUTOCOMPLETE: quando selezioni o rimuovi una voce, emetti un 'change' sull'input
+// Patch minima dentro etkAutocompleteInitialize: dopo add/remove chiama input.trigger('change')
 
 
 //==============================================================================================

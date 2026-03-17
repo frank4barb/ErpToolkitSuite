@@ -1675,7 +1675,7 @@ namespace ErpToolkit.Helpers.Db
                 foreach (var tab in tabModelsTopologicalSorted)
                 {
                     if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
-                    sb.Append(DogManagerQuery.sqlMantain(this, tab, ref parameters, ref dogResults)).AppendLine("; ");
+                    sb.Append(DogManagerQuery.sqlMantain(this, tab, ref parameters, ref dogResults, options: options)).AppendLine("; ");
                 }
                 //access DB
                 string sql = sb.ToString();

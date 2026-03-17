@@ -86,8 +86,8 @@
                         <h5 class="mt-5">Vista su Prestazione per PrIdRichiesta</h5>
                         <erp-table asp-for="XrefPrIdRichiesta" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdAttivitaEseguita"     label="IdAttivitaEseguita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
@@ -95,7 +95,7 @@
                                 <erp-table-col for="PrIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrTipoEpisodio"     label="TipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PrIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />

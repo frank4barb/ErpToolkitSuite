@@ -56,8 +56,8 @@
                         <h5 class="mt-5">Vista su RelPrestazioneCampione per PcIdTipoCampione</h5>
                         <erp-table asp-for="XrefPcIdTipoCampione" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PcIdCampione"     label="IdCampione" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PcIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PcIdCampione"     label="IdCampione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PcIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="PcTipo"     label="Tipo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PcIdTipoCampione"  visible="false"   value="@Model.Tp1Icode" />
@@ -98,7 +98,7 @@
                         <h5 class="mt-5">Vista su RelAttivitaTipoCampione per AcIdTipoCampione</h5>
                         <erp-table asp-for="XrefAcIdTipoCampione" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AcIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AcIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="AcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AcTipo"     label="Tipo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AcCampionePreferenziale"     label="CampionePreferenziale" sort="none" sortType="autocomplete" filter="true" />
@@ -159,7 +159,7 @@
                                 <erp-table-col for="CpDataPrelievo"     label="DataPrelievo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="CpOraPrelievo"     label="OraPrelievo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="CpNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="CpIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="CpIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
                                 <erp-table-col for="CpIdPaziente"     label="IdPaziente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="CpCodiceAssoluto"     label="CodiceAssoluto" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="CpStatoCampione"     label="StatoCampione" sort="none" sortType="autocomplete" filter="true" />
