@@ -2,21 +2,11 @@ using CsvHelper.Configuration;
 using CsvHelper;
 using System.Data;
 using System.Globalization;
-using System.Data.Common;
 using static ErpToolkit.Helpers.ErpError;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
 using MongoDB.Driver;
-using static ErpToolkit.Helpers.Db.DatabaseManager;
-using MongoDB.Driver.Core.Configuration;
-using Google.Api;
-using Google.Rpc;
-using MySqlX.XDevAPI;
 using System.Data.Entity;
-using System.Runtime.Intrinsics.X86;
-using System;
-using MySqlX.XDevAPI.Common;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -126,9 +116,10 @@ namespace ErpToolkit.Helpers.Db
 
         //public
 
-        public string BeginTransaction(string transactionId, string transactionName = "")
+        public string BeginTransaction(string? transactionId, string transactionName = "")
         {
             if (String.IsNullOrEmpty(transactionName) || _transactionStack.Contains(transactionName)) transactionName = $"SAVEPOINT_{_transactionStack.Count}";
+            else transactionName = transactionName = transactionName.Length <= 32 ? transactionName : transactionName.Substring(0, 32);
             if (_transactionStack.Count == 0)
             {
                 _database.BeginTransaction(transactionName);
@@ -146,6 +137,7 @@ namespace ErpToolkit.Helpers.Db
         public void CommitTransaction(string transactionId, string transactionName = "")
         {
             if (String.IsNullOrEmpty(transactionName)) transactionName = $"SAVEPOINT_{_transactionStack.Count}";
+            else transactionName = transactionName = transactionName.Length <= 32 ? transactionName : transactionName.Substring(0, 32);
             if (_transactionStack.Count == 0 || _transactionId != transactionId || _transactionStack.Peek() != transactionName) RollBackDefaulTransaction("CommitTransaction");
 
             _transactionStack.Pop();  //elimina savepoint in coda
@@ -158,6 +150,7 @@ namespace ErpToolkit.Helpers.Db
         public void RollbackTransaction(string transactionId, string transactionName = "")
         {
             if (String.IsNullOrEmpty(transactionName)) transactionName = $"SAVEPOINT_{_transactionStack.Count}";
+            else transactionName = transactionName = transactionName.Length <= 32 ? transactionName : transactionName.Substring(0, 32);
             if (_transactionStack.Count == 0 || _transactionId != transactionId || _transactionStack.Peek() != transactionName) RollBackDefaulTransaction("RollbackTransaction");
 
             _transactionStack.Pop();   //elimina savepoint in coda
@@ -197,7 +190,7 @@ namespace ErpToolkit.Helpers.Db
 
         //public
 
-        public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, int maxRecords = 10000, string transactionId = null)
+        public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteQuery");
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
@@ -233,7 +226,7 @@ namespace ErpToolkit.Helpers.Db
             }
             finally { _database.ReleaseConnection(connection); } // si chiude se non c'è transazione
         }
-        internal int ExecuteNonQuery(string sql, IDictionary<string, object> parameters, string transactionId = null)
+        internal int ExecuteNonQuery(string sql, IDictionary<string, object> parameters, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteNonQuery");
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
@@ -266,7 +259,7 @@ namespace ErpToolkit.Helpers.Db
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
 
-        public bool RecordExists(string tableName, string keyField, object keyValue, string transactionId = null)
+        public bool RecordExists(string tableName, string keyField, object keyValue, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("RecordExists");
             string sql = $"SELECT COUNT(1) FROM {tableName} WHERE {keyField} = @keyValue";
@@ -299,7 +292,7 @@ namespace ErpToolkit.Helpers.Db
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
-        public byte[] ReadBlob(string tableName, string keyField, object keyValue, string blobField, int pageNumber, string transactionId = null)
+        public byte[] ReadBlob(string tableName, string keyField, object keyValue, string blobField, int pageNumber, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ReadBlob");
             int offset = pageNumber * PageSize;
@@ -333,7 +326,7 @@ namespace ErpToolkit.Helpers.Db
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
-        public void WriteBlob(string tableName, string keyField, object keyValue, string blobField, byte[] data, int pageNumber, string transactionId = null)
+        public void WriteBlob(string tableName, string keyField, object keyValue, string blobField, byte[] data, int pageNumber, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("WriteBlob");
             int offset = pageNumber * PageSize;
@@ -368,7 +361,7 @@ namespace ErpToolkit.Helpers.Db
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
 
-        public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string transactionId = null)
+        public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("DeleteRecord");
             string sql = $"DELETE FROM {tableName} WHERE {keyField} = @keyField";
@@ -435,30 +428,6 @@ namespace ErpToolkit.Helpers.Db
             return Regex.Replace(sql, $@"{Regex.Escape(parameter.ParameterName)}(?!\d)", paramValue, RegexOptions.None); //return sql.Replace(parameter.ParameterName, paramValue);
         }
 
-        // esegue CHECKPOINT per liberare il transaction log di tipo SIMPLE in SqlServer e Sybase
-        public void CHECKPOINT(string tableName, string keyField, object keyValue, string transactionId = null)
-        {
-            if (_transactionId != null) return; //posso eseguire solo fuori transazione
-            string sql = $"CHECKPOINT;";
-            IDbConnection connection = _database.NewConnection(); 
-            try
-            {
-                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
-                {
-                    command.CommandTimeout = TimeoutSeconds;
-                    command.ExecuteScalar();
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                ; //skip error
-            }
-            finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
-        }
-
-
-
         //---
         private void HandleException(Exception ex, int errorCode, string message)
         {
@@ -498,7 +467,7 @@ namespace ErpToolkit.Helpers.Db
             while (hasMoreData)
             {
                 string sql = $"SELECT * FROM {tableName} {(string.IsNullOrEmpty(whereClause) ? "" : "WHERE " + whereClause)} ORDER BY (SELECT NULL) OFFSET {offset} ROWS FETCH NEXT {chunkSize} ROWS ONLY";
-                var dataTable = ExecuteQuery(sql, new Dictionary<string, object>(), chunkSize, null);
+                var dataTable = ExecuteQuery(sql, new Dictionary<string, object>(), null, chunkSize, "");
                 string currentFilePath = fileCount == 1 ? filePath : $"{baseFilePath}_{fileCount}.csv";
 
                 WriteDataTableToCsv(dataTable, currentFilePath);
@@ -643,73 +612,73 @@ namespace ErpToolkit.Helpers.Db
         //***************************************************************************************************************************************************
 
 
-        public void MantainRecord(char action, string tableName, string keyField, string timestampField, string deleteField, IDictionary<string, object> fields, string options, string transactionId = null)
-        {
-            int recNum = 1;
-            VerifyTransactionId("MantainRecord", transactionId);
-            string sql = SqlMantain(recNum, action, tableName, keyField, timestampField, deleteField, ref fields, options);
-            var parameters = ParametersMantain(recNum, fields, options);
+        ////////public void MantainRecord(char action, string tableName, string keyField, string timestampField, string deleteField, IDictionary<string, object> fields, string options, string transactionId)
+        ////////{
+        ////////    int recNum = 1;
+        ////////    VerifyTransactionId("MantainRecord", transactionId);
+        ////////    string sql = SqlMantain(recNum, action, tableName, keyField, timestampField, deleteField, ref fields, options);
+        ////////    var parameters = ParametersMantain(recNum, fields, options);
 
-            int affectedRows = ExecuteNonQuery(sql, parameters, transactionId);
-            //if (affectedRows != recNum) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido o errore in insert/update.", null);
-            if (affectedRows != 1)
-            {
-                if (action == 'A') throw new DatabaseException(ERR_DB_ERROR, "Record non inserito.", null);
-                else throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido.", null);
-            }
-        }
-        private void VerifyTransactionId(string funcName, string transactionId)
-        {
-            if (_transactionId != transactionId) RollBackDefaulTransaction(funcName);
-        }
-        private string SqlMantain(int recNum, char action, string tableName, string keyField, string timestampField, string deleteField, ref IDictionary<string, object> fields, string options)
-        {
-            string sql;
+        ////////    int affectedRows = ExecuteNonQuery(sql, parameters, transactionId);
+        ////////    //if (affectedRows != recNum) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido o errore in insert/update.", null);
+        ////////    if (affectedRows != 1)
+        ////////    {
+        ////////        if (action == 'A') throw new DatabaseException(ERR_DB_ERROR, "Record non inserito.", null);
+        ////////        else throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non valido.", null);
+        ////////    }
+        ////////}
+        ////////private void VerifyTransactionId(string funcName, string transactionId)
+        ////////{
+        ////////    if (_transactionId != transactionId) RollBackDefaulTransaction(funcName);
+        ////////}
+        ////////private string SqlMantain(int recNum, char action, string tableName, string keyField, string timestampField, string deleteField, ref IDictionary<string, object> fields, string options)
+        ////////{
+        ////////    string sql;
 
-            if (!("AMD").Contains(action)) throw new DatabaseException(ERR_BAD_INPUT, "Valore azione errato.", null);
-            if (string.IsNullOrEmpty(tableName)) throw new DatabaseException(ERR_NO_INPUT, "Nome tabella non presente.", null);
-            if (!fields.ContainsKey(keyField)) throw new DatabaseException(ERR_NO_INPUT, "Identificativo univoco non presente.", null);
-            if (String.IsNullOrEmpty((string)fields[keyField])) throw new DatabaseException(ERR_BAD_IDEN, "Identificativo univoco vuoto.", null);
+        ////////    if (!("AMD").Contains(action)) throw new DatabaseException(ERR_BAD_INPUT, "Valore azione errato.", null);
+        ////////    if (string.IsNullOrEmpty(tableName)) throw new DatabaseException(ERR_NO_INPUT, "Nome tabella non presente.", null);
+        ////////    if (!fields.ContainsKey(keyField)) throw new DatabaseException(ERR_NO_INPUT, "Identificativo univoco non presente.", null);
+        ////////    if (String.IsNullOrEmpty((string)fields[keyField])) throw new DatabaseException(ERR_BAD_IDEN, "Identificativo univoco vuoto.", null);
 
-            if (action == 'A')  //Add
-            {
-                sql = $"INSERT INTO {tableName} ({string.Join(", ", fields.Keys)}) VALUES ({string.Join(", ", fields.Keys.Select(k => "@{k}__{recNum}"))})";
-            }
-            else if (action == 'M')  //Modify
-            {
-                if (!fields.ContainsKey(timestampField)) throw new DatabaseException(ERR_NO_INPUT, "Timestamp non presente.", null);
-                if (fields.ContainsKey($"OldTimestamp")) throw new DatabaseException(ERR_BAD_INPUT, "Il campo OldTimestamp non è consentito.", null);
+        ////////    if (action == 'A')  //Add
+        ////////    {
+        ////////        sql = $"INSERT INTO {tableName} ({string.Join(", ", fields.Keys)}) VALUES ({string.Join(", ", fields.Keys.Select(k => "@{k}__{recNum}"))})";
+        ////////    }
+        ////////    else if (action == 'M')  //Modify
+        ////////    {
+        ////////        if (!fields.ContainsKey(timestampField)) throw new DatabaseException(ERR_NO_INPUT, "Timestamp non presente.", null);
+        ////////        if (fields.ContainsKey($"OldTimestamp")) throw new DatabaseException(ERR_BAD_INPUT, "Il campo OldTimestamp non è consentito.", null);
 
-                sql = $"UPDATE {tableName} SET {string.Join(", ", fields.Where(f => f.Key != keyField).Select(f => $"{f.Key} = @{f.Key}__{recNum}"))} WHERE {keyField} = @{keyField}__{recNum} and {timestampField} = @OldTimestamp__{recNum}";
-                byte[] oldTimestamp = (byte[])fields[timestampField];  // salvo valore vecchi timestamp
-                fields[timestampField] = GenerateTimestamp(); // genero valore nuovo timestamp
-                fields[$"OldTimestamp"] = oldTimestamp;  // aggiungo il parametro relativo al vecchio timestamp
-            }
-            else if (action == 'D')  //Delete ==> Delete logico non fisico.
-                                     //La cancellazione logica consente di replicare in modo asincrono l'azione su altri DB.
-                                     //Per non vincolare l'integrità referenziale devo cancellare dal record tutte le chiavi esterne.  Assumo che queste cancellazioni siano passate nei fields 
-            {
-                if (!fields.ContainsKey(deleteField)) throw new DatabaseException(ERR_NO_INPUT, "Timestamp non presente.", null);
-                if (fields.ContainsKey($"OldTimestamp")) throw new DatabaseException(ERR_BAD_INPUT, "Il campo OldTimestamp non è consentito.", null);
+        ////////        sql = $"UPDATE {tableName} SET {string.Join(", ", fields.Where(f => f.Key != keyField).Select(f => $"{f.Key} = @{f.Key}__{recNum}"))} WHERE {keyField} = @{keyField}__{recNum} and {timestampField} = @OldTimestamp__{recNum}";
+        ////////        byte[] oldTimestamp = (byte[])fields[timestampField];  // salvo valore vecchi timestamp
+        ////////        fields[timestampField] = GenerateTimestamp(); // genero valore nuovo timestamp
+        ////////        fields[$"OldTimestamp"] = oldTimestamp;  // aggiungo il parametro relativo al vecchio timestamp
+        ////////    }
+        ////////    else if (action == 'D')  //Delete ==> Delete logico non fisico.
+        ////////                             //La cancellazione logica consente di replicare in modo asincrono l'azione su altri DB.
+        ////////                             //Per non vincolare l'integrità referenziale devo cancellare dal record tutte le chiavi esterne.  Assumo che queste cancellazioni siano passate nei fields 
+        ////////    {
+        ////////        if (!fields.ContainsKey(deleteField)) throw new DatabaseException(ERR_NO_INPUT, "Timestamp non presente.", null);
+        ////////        if (fields.ContainsKey($"OldTimestamp")) throw new DatabaseException(ERR_BAD_INPUT, "Il campo OldTimestamp non è consentito.", null);
 
-                sql = $"UPDATE {tableName} SET {deleteField} = 'Y', {string.Join(", ", fields.Where(f => f.Key != keyField && f.Key != deleteField).Select(f => $"{f.Key} = @{f.Key}__{recNum}"))} WHERE {keyField} = @{keyField}__{recNum} and {timestampField} = @OldTimestamp__{recNum}";
-                byte[] oldTimestamp = (byte[])fields[timestampField];  // salvo valore vecchi timestamp
-                fields[timestampField] = GenerateTimestamp(); // genero valore nuovo timestamp
-                fields[$"OldTimestamp"] = oldTimestamp;  // aggiungo il parametro relativo al vecchio timestamp
-            }
-            else throw new DatabaseException(ERR_BAD_INPUT, "Azione non presente.", null);
-            return sql;
-        }
-        private Dictionary<string, object> ParametersMantain(int recNum, IDictionary<string, object> fields, string options)
-        {
-            var parameters = new Dictionary<string, object>();
+        ////////        sql = $"UPDATE {tableName} SET {deleteField} = 'Y', {string.Join(", ", fields.Where(f => f.Key != keyField && f.Key != deleteField).Select(f => $"{f.Key} = @{f.Key}__{recNum}"))} WHERE {keyField} = @{keyField}__{recNum} and {timestampField} = @OldTimestamp__{recNum}";
+        ////////        byte[] oldTimestamp = (byte[])fields[timestampField];  // salvo valore vecchi timestamp
+        ////////        fields[timestampField] = GenerateTimestamp(); // genero valore nuovo timestamp
+        ////////        fields[$"OldTimestamp"] = oldTimestamp;  // aggiungo il parametro relativo al vecchio timestamp
+        ////////    }
+        ////////    else throw new DatabaseException(ERR_BAD_INPUT, "Azione non presente.", null);
+        ////////    return sql;
+        ////////}
+        ////////private Dictionary<string, object> ParametersMantain(int recNum, IDictionary<string, object> fields, string options)
+        ////////{
+        ////////    var parameters = new Dictionary<string, object>();
 
-            foreach (var field in fields)
-            {
-                parameters[$"@{field.Key}__{recNum}"] = field.Value;    // parameters[$"@{field.Key}__{recNum}"] = EncodeSpecialFields(field.Value);
-            }
-            return parameters;
-        }
+        ////////    foreach (var field in fields)
+        ////////    {
+        ////////        parameters[$"@{field.Key}__{recNum}"] = field.Value;    // parameters[$"@{field.Key}__{recNum}"] = EncodeSpecialFields(field.Value);
+        ////////    }
+        ////////    return parameters;
+        ////////}
 
         //***************************************************************************************************************************************************
         //*** AUDIT

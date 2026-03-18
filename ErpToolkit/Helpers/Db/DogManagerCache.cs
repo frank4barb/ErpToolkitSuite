@@ -4,6 +4,7 @@ using System.Collections;
 using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -160,12 +161,12 @@ namespace ErpToolkit.Helpers.Db
 
         // Integra in Cache tutti i riferimenti a Chiave Icode con Valore null.
         // A fine processo effettua l'abbinamento dei riferimenti Xref per tutti i record presenti nella Cache
-        internal static List<T> CacheFillNull<T>(DogManager dogMng, ref DogCache dogCache, List<object> mainObjKeyList, string options = "") where T : ModelErp
+        internal static List<T> CacheFillNull<T>(DogManager dogMng, ref DogCache dogCache, List<object> mainObjKeyList, string? transactionId, int maxRecords, string options = "") where T : ModelErp
         {
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            return CacheFillNull(dogMng, ref dogCache, objModel.GetType(), mainObjKeyList, options).OfType<T>().ToList(); //  OfType<T>() : filtra e fa cast solo se possibile (cioè solo se tipo T, atrimenti scarta la struttura);
+            return CacheFillNull(dogMng, ref dogCache, objModel.GetType(), mainObjKeyList, transactionId, maxRecords, options: options).OfType<T>().ToList(); //  OfType<T>() : filtra e fa cast solo se possibile (cioè solo se tipo T, atrimenti scarta la struttura);
         }
-        internal static List<ModelErp> CacheFillNull(DogManager dogMng, ref DogCache dogCache, System.Type mainObjType, List<object> mainObjKeyList, string options = "")
+        internal static List<ModelErp> CacheFillNull(DogManager dogMng, ref DogCache dogCache, System.Type mainObjType, List<object> mainObjKeyList, string? transactionId, int maxRecords, string options = "")
         {
             int recursiveCicle = 0; bool mustAddRecursiveObj = false;
             do
@@ -181,10 +182,10 @@ namespace ErpToolkit.Helpers.Db
                     IDictionary<string, object> objParameters = new Dictionary<string, object>();
                     List<object> nullKeyList = dogCache.dbCache[objType].Where(kvp => kvp.Value == null).Select(kvp => kvp.Key).ToList<object>(); // lista delle chiavi con valore null
                     if (nullKeyList.Count() == 0) continue; // Se non ci sono chiavi con valore null, salto il ciclo
-                    string objSql = sqlList(dogMng, obj, ref objParameters, null, null, nullKeyList, options);
+                    string objSql = sqlList(dogMng, obj, ref objParameters, null, null, nullKeyList, options: options);
                     //dogCache.dbCache[objType] = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, "[PLAIN] " + options); // non ricorsivo ?????
                     //Dictionary<object, ModelErp> outDict = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, options);
-                    Dictionary<object, ModelErp> outDict = dogMng.ExecuteQuery(null, objType, objSql, objParameters, options);
+                    Dictionary<object, ModelErp> outDict = dogMng.ExecuteQuery(null, objType, objSql, objParameters, transactionId, maxRecords, options: options);
                     foreach (var kv in outDict) { if (UtilHelper.IsNullOrEmptyObject(kv.Key) == false && kv.Value != null) { kv.Value.addDogCache(ref dogCache); dogCache.dbCache[objType][kv.Key] = kv.Value; } } //aggiorna o aggiungi alla cache
                 }
                 // ----------------------------------------------------------

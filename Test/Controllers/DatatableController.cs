@@ -38,7 +38,7 @@ namespace Test.Controllers
                 string sql = "SELECT PA__ICODE as CustomerID, PA_COD_SANITARIO as CompanyName, PA_COGNOME as ContactName, PA_NOME as ContactTitle,  PA_NOME as City,  PA_NOME as PostalCode, PA_NOME as Country, PA_NOME as Phone FROM PAZIENTE WHERE PA_COGNOME like 'BA%' ";
                 //$$//DataTable dt = ErpContext.Instance.getSQLSERVERHelper("#connectionString_SQLSLocal").execQuery(sql);
                 //$$//return SQLSERVERHelper.ConvertDataTable<Customers>(dt, "");
-                return ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery<Customers>(sql, null);
+                return ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery<Customers>(sql, null, null, -1);
                 //$$//
             }
         }
@@ -106,7 +106,7 @@ namespace Test.Controllers
                 //CustomerID CompanyName ContactName ContactTitle City PostalCode Country Phone
                 string sql = "SELECT PA__ICODE as CustomerID, PA_COD_SANITARIO as CompanyName, PA_COGNOME as ContactName, PA_NOME as ContactTitle,  PA_NOME as City,  PA_NOME as PostalCode, PA_NOME as Country, PA_NOME as Phone FROM PAZIENTE WHERE PA_COGNOME like 'BA%' ";
                 //$$//DataTable dt = ErpContext.Instance.getSQLSERVERHelper("#connectionString_SQLSLocal").execQuery(sql);
-                DataTable dt = ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery(sql, null);
+                DataTable dt = ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery(sql, null, null, -1);
                 //$$//
 
                 //applica Search + Sorting
@@ -174,7 +174,7 @@ namespace Test.Controllers
 
                 string sql = "SELECT PA__ICODE as CustomerID, PA_COD_SANITARIO as CompanyName, PA_COGNOME as ContactName, PA_NOME as ContactTitle,  PA_NOME as City,  PA_NOME as PostalCode, PA_NOME as Country, PA_NOME as Phone FROM PAZIENTE WHERE PA__ICODE='" + parms.Id + "' ";
                 //$$//DataTable dt = ErpContext.Instance.getSQLSERVERHelper("#connectionString_SQLSLocal").execQuery(sql);
-                DataTable dt = ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery(sql, null);
+                DataTable dt = ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery(sql, null, null, -1);
                 //$$//
                 if (dt.Rows.Count > 0)
                 {
@@ -220,7 +220,7 @@ namespace Test.Controllers
 
                 string sql = "SELECT PA__ICODE as CustomerID, PA_COD_SANITARIO as CompanyName, PA_COGNOME as ContactName, PA_NOME as ContactTitle,  PA_NOME as City,  PA_NOME as PostalCode, PA_NOME as Country, PA_NOME as Phone FROM PAZIENTE WHERE PA__ICODE='" + parms.Id + "' ";
                 //$$//DataTable dt = ErpContext.Instance.getSQLSERVERHelper("#connectionString_SQLSLocal").execQuery(sql);
-                DataTable dt = ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery(sql, null);
+                DataTable dt = ErpContext.Instance.DogFactory.GetDog("SIO", "", DbTyp.SqlServer, "#connectionString_SQLSLocal", "IU00", "sio_PROD").ExecuteQuery(sql, null, null, -1);
                 //$$//
                 if (dt.Rows.Count > 0)
                 {

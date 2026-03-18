@@ -1,8 +1,5 @@
 
-using MongoDB.Driver.Core.Connections;
 using System.Data;
-using System.Data.Common;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
@@ -31,7 +28,16 @@ namespace ErpToolkit.Helpers.Db
             try { RollbackTransaction("Dispose"); } catch (Exception ex) { /*skip*/ }
             GC.SuppressFinalize(this);
         }
- 
+
+        //init options after connection open
+        public void InitOptions(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("CHECKPOINT;", conn);  // esegue CHECKPOINT per liberare il transaction log di tipo SIMPLE in SqlServer e Sybase
+            if (conn.State != ConnectionState.Open) conn.Open();
+            cmd.ExecuteScalar();
+        }
+
+
         //Gestione connessione
         private SqlConnection OpenConnection()
         {
@@ -44,6 +50,8 @@ namespace ErpToolkit.Helpers.Db
                 //---
                 if (sqlTrace) LogCommandInit(connection);       // TRACE !!!!!
                 //---
+
+                InitOptions(connection);    //esegue opzioni iniziali dopo apertura connessione (es. CHECKPOINT per liberare transaction log SIMPLE in SqlServer)
 
                 return connection;
             }

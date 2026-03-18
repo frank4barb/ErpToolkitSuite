@@ -103,7 +103,7 @@ namespace HealthDemo.Controllers.SIO.HealthData
                 return View("~/Views/SIO/HealthData/TipoDatoClinico/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<TipoDatoClinico>(this.Select, xrefTables, ref this._dogCache, ""); }  // non carico tabelle relazionate per la lista di selezione
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<TipoDatoClinico>(this.Select, xrefTables, ref this._dogCache, null, -1); }  
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/HealthData/TipoDatoClinico/Index.cshtml", this);

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using MongoDB.Driver;
 using System.Data.Entity.Infrastructure;
 using System.Text;
+using System.Transactions;
 using static ErpToolkit.Helpers.Db.DogFactory;
 
 namespace ErpToolkit.Controllers
@@ -175,98 +176,100 @@ namespace ErpToolkit.Controllers
         //==========================================================================================================
         //==========================================================================================================
 
-        // GESTIONE MODELLO
+        //////////---------------
+        ////////// GESTIONE MODELLO
+        //////////---------------
+
+        ////////public T ReadForEditModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
+        ////////{
+        ////////    ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
+        ////////    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
+        ////////    if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
+        ////////    {
+        ////////        try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, null, options: "[PLAIN]"); }  //[PLAIN] => non leggo le strutture relazionete
+        ////////        catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
+        ////////        objModel.action = 'M'; //update
+        ////////    }
+        ////////    else
+        ////////    {
+        ////////        objModel.action = 'A'; //add
+        ////////    }
+        ////////    return objModel;
+        ////////}
+        ////////public T SaveModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
+        ////////{
+        ////////    ModelState.Clear(); //FORZA RICONVALIDA MODELLO
+        ////////    T objModel = (T)Activator.CreateInstance(typeof(T));
+        ////////    // deserializza json
+        ////////    try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).JsonSafeDeserialize<T>(dataObj, prefix: prefix); }
+        ////////    catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Oggetto {typeof(T).FullName} non deserializzato: " + ex.Message); return objModel; } //restiuisco oggetto vuoto 
+        ////////    // verifica modello
+        ////////    if (!TryValidateModel(objModel, prefix))
+        ////////    {
+        ////////        ModelState.AddModelError(prefix ?? string.Empty, "Verifica valore dei campi: " +
+        ////////            string.Join(", ",
+        ////////                ModelState.Where(ms => ms.Value.Errors.Any())
+        ////////                            .Select(kvp => kvp.Key)
+        ////////                            .ToArray()
+        ////////            )
+        ////////        );
+        ////////        return objModel;
+        ////////    }
+        ////////    //verifica vincoli interni del modello
+        ////////    if (!objModel.TryValidateInt(ModelState, prefix))
+        ////////    {
+        ////////        return objModel;
+        ////////    }
+        ////////    //verifica action del modello
+        ////////    if (objModel.action != 'A' && objModel.action != 'M')
+        ////////    {
+        ////////        ModelState.AddModelError(prefix ?? string.Empty, "L'azione impostata non è in [AM]. E' necessario ricaricare l'oggetto");
+        ////////        return objModel;
+        ////////    }
+        ////////    // salva su DB
+        ////////    try { DogManager.DogResult objResult = ErpContext.Instance.DogFactory.GetDog(dogId).Mnt<T>(objModel, null); }
+        ////////    catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Problemi in accesso al DB: Mnt[{objModel.action}]: " + ex.Message + " " + (ex.InnerException?.Message ?? "")); return objModel; }
+        ////////    //non ci sono errori
+        ////////    return objModel;
+        ////////}
+
+        ////////public T ReadForDeleteModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
+        ////////{
+        ////////    ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
+        ////////    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
+        ////////    if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
+        ////////    {
+        ////////        try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, null, options: "[PLAIN]"); } //[PLAIN] => non leggo le strutture relazionete
+        ////////        catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
+        ////////        objModel.action = 'D'; //update
+        ////////    }
+        ////////    else
+        ////////    {
+        ////////        ModelState.AddModelError(prefix ?? string.Empty, "Identificativo nullo. E' necessario ricaricare l'oggetto");
+        ////////    }
+        ////////    return objModel;
+        ////////}
+        ////////public T DeleteModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
+        ////////{
+        ////////    ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
+        ////////    T objModel = ErpContext.Instance.DogFactory.GetDog(dogId).JsonSafeDeserialize<T>(dataObj, prefix: prefix);
+        ////////    if (objModel.action != 'D')
+        ////////    {
+        ////////        ModelState.AddModelError(prefix ?? string.Empty, "L'azione impostata non è [D]. E' necessario ricaricare l'oggetto");
+        ////////        return objModel;
+        ////////    }
+        ////////    // cancella
+        ////////    try { DogManager.DogResult objResult = ErpContext.Instance.DogFactory.GetDog(dogId).Mnt<T>(objModel, null); }
+        ////////    catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Problemi in accesso al DB: Mnt[{objModel.action}]: " + ex.Message); return objModel; }
+        ////////    //non ci sono errori
+        ////////    return objModel;
+        ////////}
+
+
+        //==========================================================================================================
+        //==========================================================================================================
+
         //---------------
-
-        public T ReadForEditModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
-        {
-            ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
-            T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
-            {
-                try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, options: "[PLAIN]"); }  //[PLAIN] => non leggo le strutture relazionete
-                catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
-                objModel.action = 'M'; //update
-            }
-            else
-            {
-                objModel.action = 'A'; //add
-            }
-            return objModel;
-        }
-        public T SaveModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
-        {
-            ModelState.Clear(); //FORZA RICONVALIDA MODELLO
-            T objModel = (T)Activator.CreateInstance(typeof(T));
-            // deserializza json
-            try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).JsonSafeDeserialize<T>(dataObj, prefix: prefix); }
-            catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Oggetto {typeof(T).FullName} non deserializzato: " + ex.Message); return objModel; } //restiuisco oggetto vuoto 
-            // verifica modello
-            if (!TryValidateModel(objModel, prefix))
-            {
-                ModelState.AddModelError(prefix ?? string.Empty, "Verifica valore dei campi: " +
-                    string.Join(", ",
-                        ModelState.Where(ms => ms.Value.Errors.Any())
-                                    .Select(kvp => kvp.Key)
-                                    .ToArray()
-                    )
-                );
-                return objModel;
-            }
-            //verifica vincoli interni del modello
-            if (!objModel.TryValidateInt(ModelState, prefix))
-            {
-                return objModel;
-            }
-            //verifica action del modello
-            if (objModel.action != 'A' && objModel.action != 'M')
-            {
-                ModelState.AddModelError(prefix ?? string.Empty, "L'azione impostata non è in [AM]. E' necessario ricaricare l'oggetto");
-                return objModel;
-            }
-            // salva su DB
-            try { DogManager.DogResult objResult = ErpContext.Instance.DogFactory.GetDog(dogId).Mnt<T>(objModel); }
-            catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Problemi in accesso al DB: Mnt[{objModel.action}]: " + ex.Message + " " + (ex.InnerException?.Message ?? "")); return objModel; }
-            //non ci sono errori
-            return objModel;
-        }
-
-        public T ReadForDeleteModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
-        {
-            ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
-            T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id))
-            {
-                try { objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, options: "[PLAIN]"); } //[PLAIN] => non leggo le strutture relazionete
-                catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
-                objModel.action = 'D'; //update
-            }
-            else
-            {
-                ModelState.AddModelError(prefix ?? string.Empty, "Identificativo nullo. E' necessario ricaricare l'oggetto");
-            }
-            return objModel;
-        }
-        public T DeleteModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
-        {
-            ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
-            T objModel = ErpContext.Instance.DogFactory.GetDog(dogId).JsonSafeDeserialize<T>(dataObj, prefix: prefix);
-            if (objModel.action != 'D')
-            {
-                ModelState.AddModelError(prefix ?? string.Empty, "L'azione impostata non è [D]. E' necessario ricaricare l'oggetto");
-                return objModel;
-            }
-            // cancella
-            try { DogManager.DogResult objResult = ErpContext.Instance.DogFactory.GetDog(dogId).Mnt<T>(objModel); }
-            catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, $"Problemi in accesso al DB: Mnt[{objModel.action}]: " + ex.Message); return objModel; }
-            //non ci sono errori
-            return objModel;
-        }
-
-
-        //==========================================================================================================
-        //==========================================================================================================
-
         // GESTIONE ICODE
         //---------------
 
@@ -286,35 +289,38 @@ namespace ErpToolkit.Controllers
         //==========================================================================================================
         //==========================================================================================================
 
-        //---redefine vecchie funzioni---
-        public T redefine_ReadForEditModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
+
+        //-----------------------
+        // GESTIONE MODELLO
+        //-----------------------
+
+        public T ReadForEditModel<T>(ModelParam parms, string? prefix = null, string? transactionId = null) where T : ModelErp
         {
             DogManager.DogCache dogCache = new DogManager.DogCache(); List<string> xrefFrom = null;
             if (parms != null && !UtilHelper.IsNullOrEmptyObject(parms.Id)) return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'M');  
-            else return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'A');  
+            else return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'A', transactionId: transactionId);  
         }
-        public T redefine_SaveModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
+        public T SaveModel<T>(ModelObject dataObj, string? prefix = null, string? transactionId = null) where T : ModelErp
         {
             DogManager.DogCache dogCache = new DogManager.DogCache(); 
-            return SaveModel<T>(dataObj, ref dogCache, prefix: prefix, options: "[MAX_ONE_OBJ]"); 
+            return SaveModel<T>(dataObj, ref dogCache, prefix: prefix, options: "[MAX_ONE_OBJ]", transactionId: transactionId); 
         }
-        public T redefine_ReadForDeleteModel<T>(ModelParam parms, string? prefix = null) where T : ModelErp
+        public T ReadForDeleteModel<T>(ModelParam parms, string? prefix = null, string? transactionId = null) where T : ModelErp
         {
             DogManager.DogCache dogCache = new DogManager.DogCache(); List<string> xrefFrom = null;
-            return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'D');  
+            return ReadForEditModel<T>(parms, xrefFrom, ref dogCache, prefix: prefix, action: 'D', transactionId: transactionId);  
         }
-        public T redefine_DeleteModel<T>(ModelObject dataObj, string? prefix = null) where T : ModelErp
+        public T DeleteModel<T>(ModelObject dataObj, string? prefix = null, string? transactionId = null) where T : ModelErp
         {
             DogManager.DogCache dogCache = new DogManager.DogCache();
-            return SaveModel<T>(dataObj, ref dogCache, prefix: prefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]");  
+            return SaveModel<T>(dataObj, ref dogCache, prefix: prefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]", transactionId: transactionId);  
         }
-        //------------------------------
 
         //-----------------------
         // GESTIONE MODELLO CACHE
         //-----------------------
 
-        public T ReadForEditModel<T>(ModelParam parms, List<string> xrefFrom, ref DogManager.DogCache dogCache, string? prefix = null, char action = 'X') where T : ModelErp
+        public T ReadForEditModel<T>(ModelParam parms, List<string> xrefFrom, ref DogManager.DogCache dogCache, string? prefix = null, char action = 'X', string? transactionId = null) where T : ModelErp
         {
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO 
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
@@ -324,7 +330,7 @@ namespace ErpToolkit.Controllers
                 try
                 {
                     //objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, options: "[PLAIN] inserisco_primo_record_vuoto_per_fare_add_su_tabella_in_grafica_cshtml");   //[PLAIN] => non leggo le strutture relazionate
-                    objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, options: "[PLAIN] ");   //[PLAIN] => non leggo le strutture relazionate
+                    objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, transactionId, options: "[PLAIN] ");   //[PLAIN] => non leggo le strutture relazionate
                 }
                 catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
                 if (action == 'D') objModel.action = 'D'; //delete
@@ -339,9 +345,11 @@ namespace ErpToolkit.Controllers
             return objModel;
         }
 
-        public T SaveModel<T>(ModelObject dataObj, ref DogManager.DogCache dogCache, string? prefix = null, string options = "") where T : ModelErp
+        public T SaveModel<T>(ModelObject dataObj, ref DogManager.DogCache dogCache, string? prefix = null, string options = "", string? transactionId = null, int maxRecords = -1) where T : ModelErp
         {
-            string errMsg = "";
+            string errMsg = ""; 
+            string transactionName = $"{typeof(T).FullName}_XXX_{DateTime.Now.Ticks}"; bool isTransaction = false;
+
             ModelState.Clear(); //FORZA RICONVALIDA MODELLO
             T objModel = (T)Activator.CreateInstance(typeof(T));
             try
@@ -435,13 +443,25 @@ namespace ErpToolkit.Controllers
                     }
                 }
 
+                //---------------------------------------------------------------------------------
+                // Start Transaction 
+                //---------------------------------------------------------------------------------
+                transactionName = $"{typeof(T).FullName}_{objModel?.getIcode() ?? "XXX"}_{DateTime.Now.Ticks}";
+                transactionId = dogMng.BeginTransaction(transactionId, transactionName);
+                isTransaction = true;
 
                 //---------------------------------------------------------------------------------
                 // salva su DB e rilettura dei record salvati e aggiornamento delle modifiche nella cache 
                 //---------------------------------------------------------------------------------
                 errMsg = "Impossibile effettuare le modifiche su DB";
-                List<DogManager.DogResult> objResults = dogMng.MntList(objList.Keys.ToList(), ref dogCache, options: options);
+                List<DogManager.DogResult> objResults = dogMng.MntList(objList.Keys.ToList(), ref dogCache, transactionId, maxRecords, options: options);
                 if (objResults == null) throw new Exception("objResults==null");
+
+                //---------------------------------------------------------------------------------
+                // Commit Transaction 
+                //---------------------------------------------------------------------------------
+                dogMng.CommitTransaction(transactionId, transactionName);
+                isTransaction = false;
 
                 //--------------------
                 // estrae il record riletto nella cache
@@ -466,7 +486,17 @@ namespace ErpToolkit.Controllers
             }
             catch (Exception ex) { 
                 ModelState.AddModelError(string.Empty, $"ControllerErp.SaveModel: {typeof(T).FullName}: {errMsg}: {ex.Message}"); return objModel; //restiuisco oggetto vuoto
-            }  
+            }
+            finally
+            {
+                //---------------------------------------------------------------------------------
+                // RollBack Transaction 
+                //---------------------------------------------------------------------------------
+                if (isTransaction)
+                {
+                    try { ErpContext.Instance.DogFactory.GetDog(dogId).RollbackTransaction(transactionId, transactionName); } catch { }
+                }
+            }
         }
 
 

@@ -7,6 +7,8 @@ using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
 using Google.Protobuf.WellKnownTypes;
+using DnsClient.Protocol;
+using System.Transactions;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -35,10 +37,10 @@ namespace ErpToolkit.Helpers.Db
         // AUTOCOMPLETE
         //---------------
 
-        internal static List<Choice> AutocompleteGetAll<T>(DogManager dogMng, string? extraWhere = null) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetAll", extraWhere: extraWhere); }
-        internal static List<Choice> AutocompleteGetSelect<T>(DogManager dogMng, string term, bool caseInsensitive = true, string? extraWhere = null) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere); }
-        internal static List<Choice> AutocompletePreLoad<T>(DogManager dogMng, List<string> values, string? extraWhere = null) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "PreLoad", values: values, extraWhere: extraWhere); }
-        private static List<Choice> Autocomplete_Int<T>(DogManager dogMng, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null) where T : ModelErp, new()
+        internal static List<Choice> AutocompleteGetAll<T>(DogManager dogMng, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        internal static List<Choice> AutocompleteGetSelect<T>(DogManager dogMng, string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        internal static List<Choice> AutocompletePreLoad<T>(DogManager dogMng, List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "PreLoad", values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        private static List<Choice> Autocomplete_Int<T>(DogManager dogMng, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {
             //check init
             if (tpy == null) throw new Exception($"Autocomplete_Int: tpy == null.");
@@ -146,7 +148,7 @@ namespace ErpToolkit.Helpers.Db
             if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
 
             // Esegui la query
-            var listModel = dogMng.ExecuteQuery<T>(sb.ToString(), parameters);
+            var listModel = dogMng.ExecuteQuery<T>(sb.ToString(), parameters, transactionId, maxRecords);
 
             // Applica la formattazione dinamica
             var result = listModel.Select(p => { return new Choice { value = p.getIcode().ToString(), label = p.ToHtml() }; }).ToList<Choice>();

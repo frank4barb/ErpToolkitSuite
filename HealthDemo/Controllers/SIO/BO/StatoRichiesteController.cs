@@ -88,7 +88,7 @@ namespace HealthDemo.Controllers.SIO.BO
             }
             //carica lista
             //try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select); }
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select, xrefPrestazione, ref this._dogCache, ""); }
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select, xrefPrestazione, ref this._dogCache, null, -1); }
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/BO/StatoRichieste/Index.cshtml", this);
@@ -160,32 +160,30 @@ namespace HealthDemo.Controllers.SIO.BO
         //    return PartialView("~/Views/SIO/BO/StatoRichieste/_PartialEdit.cshtml", obj);
         //}
 
-
         [HttpPost]
-        public IActionResult ReadForDelete([FromBody] ModelParam parms)  
+        public IActionResult ReadForDelete([FromBody] ModelParam parms)
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Prestazione obj = this.ReadForDeleteModel<Prestazione>(parms, modelPrefix);
-            return PartialView("~/Views/SIO/BO/StatoRichieste/_PartialDelete.cshtml", obj);
+            Prestazione obj = this.ReadForEditModel<Prestazione>(parms, null, ref this._dogCache, prefix: modelPrefix, action: 'D');    // non carico tabelle relazionate per il delete
+            return PartialView("~/Views/SIO/Act/Prestazione/_PartialDelete.cshtml", obj);
         }
         [HttpPost]
         public IActionResult Delete([FromBody] ModelObject dataObj)
         {
             string modelPrefix = "DELETE";
             ViewData.TemplateInfo.HtmlFieldPrefix = modelPrefix;  //prefisso da applicare a id e name nei tag, se uso lo stesso @model più volte nella stessa pagina eg: <xx id="EDIT_IdPatient" name="EDIT.IdPatient" ..>
-            Prestazione obj = this.DeleteModel<Prestazione>(dataObj, modelPrefix);
-            if (ModelState.ErrorCount > 0)
-            {
-                return PartialView("~/Views/SIO/BO/StatoRichieste/_PartialDelete.cshtml", obj);
-            }
+            Prestazione obj = this.SaveModel<Prestazione>(dataObj, ref this._dogCache, prefix: modelPrefix, options: "[MAX_ONE_OBJ] [NO_ADD] [NO_UPDATE]");
+            if (!ModelState.IsValid) { return this.ValidationResult(); }
+
             this.StatusMessage = "Record cancellato!";
             //---GESTISCE AZIONI CLICK PULSANTE
             ViewData["IsModalACTION"] = "CLOSE";
             ViewData["IsPageACTION"] = "RELOAD";
             ViewData["IsPageREDIRECT"] = "";
             //---
-            return PartialView("~/Views/SIO/BO/StatoRichieste/_PartialDelete.cshtml", obj);
+            return PartialView("~/Views/SIO/Act/Prestazione/_PartialDelete.cshtml", obj);
         }
+
     }
 }

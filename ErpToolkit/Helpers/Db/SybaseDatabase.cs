@@ -28,6 +28,14 @@ namespace ErpToolkit.Helpers.Db
             GC.SuppressFinalize(this);
         }
 
+        //init options after connection open
+        public void InitOptions(IDbConnection conn)
+        {
+            using var cmd = this.NewCommand("CHECKPOINT;", conn);  // esegue CHECKPOINT per liberare il transaction log di tipo SIMPLE in SqlServer e Sybase
+            if (conn.State != ConnectionState.Open) conn.Open();
+            cmd.ExecuteScalar();
+        }
+
         //Gestione connessione
         private AseConnection OpenConnection()
         {
@@ -36,6 +44,9 @@ namespace ErpToolkit.Helpers.Db
             {
                 connection = new AseConnection(_connectionString);
                 connection.Open();
+
+                InitOptions(connection);    //esegue opzioni iniziali dopo apertura connessione (es. CHECKPOINT per liberare transaction log SIMPLE in SqlServer)
+
                 return connection;
             }
         }

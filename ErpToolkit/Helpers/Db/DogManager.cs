@@ -1,3 +1,4 @@
+using DnsClient.Protocol;
 using ErpToolkit.Models;
 using Microsoft.CodeAnalysis;
 using MongoDB.Driver;
@@ -9,6 +10,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Transactions;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.ErpError;
 
@@ -43,7 +45,9 @@ namespace ErpToolkit.Helpers.Db
         internal const long DB_LONG_EMPTY = (long)(-2147483647 - 1); //vuoto
         internal const double DB_DOUBLE_EMPTY = (double)(-2147483648.0000); //vuoto
         //---
-        internal const int DOG_MAX_OBJ_DEPTH = (int) 3; //massimo livello di profondità di inclusione degli oggetti. Serve per evitare loop infiniti in caso di inclusione di oggetti che si richiamano a vicenda, come ad esempio un cliente che ha un ordine, e l'ordine ha un cliente, e così via. Se il livello di profondità è maggiore di DOG_MAX_OBJ_DEPTH, allora l'oggetto non viene incluso.
+        internal const int DOG_MAX_OBJ_DEPTH = (int)3; //massimo livello di profondità di inclusione degli oggetti. Serve per evitare loop infiniti in caso di inclusione di oggetti che si richiamano a vicenda, come ad esempio un cliente che ha un ordine, e l'ordine ha un cliente, e così via. Se il livello di profondità è maggiore di DOG_MAX_OBJ_DEPTH, allora l'oggetto non viene incluso.
+        internal const int DOG_DEFAULT_QUERY_MAX_RECORDS = (int)10000; //numero massimo di record restituiti dalle query di selezione. Serve per evitare di caricare in memoria un numero eccessivo di record, che potrebbe causare problemi di performance o di memoria. Il valore può essere configurato tramite la proprietà MaxRecords del DogManager.
+        internal const int DOG_DEFAULT_XREF_CACHE_MAX_RECORDS = (int)100000; //numero massimo di record memorizzati nella cache delle tabelle di relazione (xref). Serve per evitare di caricare in memoria un numero eccessivo di record, che potrebbe causare problemi di performance o di memoria. Il valore può essere configurato tramite la proprietà MaxRecords del DogManager. Se il numero di record supera questo valore, allora la cache non viene utilizzata e le tabelle di relazione vengono caricate dinamicamente ad ogni accesso.
 
         //***************************************************************************************************************************************************
         //*** STRUTTURE STATICHE
@@ -1013,9 +1017,9 @@ namespace ErpToolkit.Helpers.Db
         //*** AUTOCOMPLETE
         //***************************************************************************************************************************************************
 
-        public List<Choice> AutocompleteGetAll<T>(string? extraWhere = null) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere); }
-        public List<Choice> AutocompleteGetSelect<T>(string term, bool caseInsensitive = true, string? extraWhere = null) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetSelect<T>(this, term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere); }
-        public List<Choice> AutocompletePreLoad<T>(List<string> values, string? extraWhere = null) where T : ModelErp, new() { return DogManagerQuery.AutocompletePreLoad<T>(this, values: values, extraWhere: extraWhere); }
+        public List<Choice> AutocompleteGetAll<T>(string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        public List<Choice> AutocompleteGetSelect<T>(string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetSelect<T>(this, term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        public List<Choice> AutocompletePreLoad<T>(List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return DogManagerQuery.AutocompletePreLoad<T>(this, values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
 
 
         //***************************************************************************************************************************************************
@@ -1024,7 +1028,7 @@ namespace ErpToolkit.Helpers.Db
 
         //public
 
-        public string BeginTransaction(string transactionId, string transactionName = "") { return _getDbMg().BeginTransaction(transactionId, transactionName); }
+        public string BeginTransaction(string? transactionId, string transactionName = "") { return _getDbMg().BeginTransaction(transactionId, transactionName); }
         public void CommitTransaction(string transactionId, string transactionName = "") { _getDbMg().CommitTransaction(transactionId, transactionName); }
         public void RollbackTransaction(string transactionId, string transactionName = "") { _getDbMg().RollbackTransaction(transactionId, transactionName); }
 
@@ -1036,44 +1040,54 @@ namespace ErpToolkit.Helpers.Db
         //public
 
         // ExecuteScalar
-        public bool RecordExists(string tableName, string keyField, object keyValue, string transactionId = null) 
-        { 
+        public bool RecordExists(string tableName, string keyField, object keyValue, string? transactionId) 
+        {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             return _getDbMg().RecordExists(tableName, keyField, keyValue, transactionId); 
         }
-        public byte[] ReadBlob(string tableName, string keyField, object keyValue, string blobField, int pageNumber, string transactionId = null)
+        public byte[] ReadBlob(string tableName, string keyField, object keyValue, string blobField, int pageNumber, string? transactionId)
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             return _getDbMg().ReadBlob(tableName, keyField, keyValue, blobField, pageNumber, transactionId);
         }
-        public void WriteBlob(string tableName, string keyField, object keyValue, string blobField, byte[] data, int pageNumber, string transactionId = null)
+        public void WriteBlob(string tableName, string keyField, object keyValue, string blobField, byte[] data, int pageNumber, string? transactionId)
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             _getDbMg().WriteBlob(tableName, keyField, keyValue, blobField, data, pageNumber, transactionId);
         }
 
         //ExecuteQuery
-        public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null)
+        public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "")
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
             if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
-            return DecodeSpecialTable(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
+            return DecodeSpecialTable(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
         }
-        public List<T> ExecuteQuery<T>(string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null) 
+        public List<T> ExecuteQuery<T>(string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "") 
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
             if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
-            return DecodeSpecialTable<T>(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
+            return DecodeSpecialTable<T>(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
         }
-        public Dictionary<object, ModelErp> ExecuteQuery(Dictionary<object, ModelErp> dict, System.Type modelType, string sql, IDictionary<string, object> parameters, string options = "", int maxRecords = 10000, string transactionId = null)
+        public Dictionary<object, ModelErp> ExecuteQuery(Dictionary<object, ModelErp> dict, System.Type modelType, string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "")
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
             if (dict == null) dict = new Dictionary<object, ModelErp>();
             if (modelType == null) { throw new ArgumentNullException(nameof(modelType)); }
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
             if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
-            return DecodeSpecialTable(dict, modelType, _getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), maxRecords, transactionId), options);
+            return DecodeSpecialTable(dict, modelType, _getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
         }
 
         //ExecNonQuery
-        public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string transactionId = null)
+        public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string? transactionId)
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             _getDbMg().DeleteRecord(tableName, keyField, fields, transactionId);
         }
 
@@ -1098,10 +1112,11 @@ namespace ErpToolkit.Helpers.Db
         //***************************************************************************************************************************************************
 
 
-        public void MantainRecord(char action, string tableName, string keyField, string timestampField, string deleteField, IDictionary<string, object> parameters, string options, string transactionId = null)
-        {
-            _getDbMg().MantainRecord(action, tableName, keyField, timestampField, deleteField, EncodeSpecialFields(parameters, options), options, transactionId);
-        }
+        ////////public void MantainRecord(char action, string tableName, string keyField, string timestampField, string deleteField, IDictionary<string, object> parameters, string? transactionId, string options = "")
+        ////////{
+        ////////    if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+        ////////    _getDbMg().MantainRecord(action, tableName, keyField, timestampField, deleteField, EncodeSpecialFields(parameters, options), options, transactionId);
+        ////////}
 
 
         //***************************************************************************************************************************************************
@@ -1371,161 +1386,37 @@ namespace ErpToolkit.Helpers.Db
         //***************************************************************************************************************************************************
 
 
-        ////carica list oggetti con il contenuto del DB in base alla struttura in selezione  
-        //public List<T> List<T>(object selModel, string options = "") where T : ModelErp
-        //{
-        //    if (selModel == null) { throw new ArgumentNullException(nameof(selModel)); }
-        //    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-        //    IDictionary<string, object> parameters = new Dictionary<string, object>();
-        //    StringBuilder sb = new StringBuilder(); List<T> outList;
-
-        //    string sqlFromWhere = objModel.ViewQueryFromWhere();
-        //    if (string.IsNullOrEmpty(sqlFromWhere))
-        //    {
-
-        //        sb.Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
-        //            .Append(DogManagerInt.sqlFrom(this, objModel, ref parameters))
-        //            .Append(DogManagerInt.sqlWhere(this, selModel, ref parameters));
-        //        //access DB
-        //        outList = this.ExecuteQuery<T>(sb.ToString(), parameters);
-
-        //    } 
-        //    else
-        //    {
-        //        sb.Append("SELECT * FROM ( \n")
-        //            .Append(DogManagerInt.sqlSelect(this, objModel, ref parameters))
-        //            .Append(sqlFromWhere)
-        //            .Append(") AS subquery \n")
-        //            .Append(DogManagerInt.sqlWhere(this, selModel, ref parameters, options: "[UsePropertyNameField]")); // Componi il filtro dinamicamente
-        //        string sql = DogManagerInt.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
-        //        //access DB
-        //        outList = this.ExecuteQuery<T>(sql, parameters);  //this.ExecuteQuery<T>(sql, parameters, options: "[skipCheckSqlParms]");
-        //    }
-        //    return outList;
-
-        //}
-
-
-        ////carica list oggetti con il contenuto del DB in base alla struttura in selezione  
-        //public List<T> List__OLD<T>(object selModel, string options = "") where T : ModelErp
-        //{
-        //    if (selModel == null) { throw new ArgumentNullException("Null " + nameof(selModel)); }
-        //    return List_int__OLD<T>(selModel, null, options);
-        //}
-        ////carica list oggetti con il contenuto del DB in base alla lista icode'  
-        //public List<T> List__OLD<T>(List<object> lstRowId, string options = "") where T : ModelErp
-        //{
-        //    if (lstRowId == null) { throw new ArgumentNullException("Null " + nameof(lstRowId)); }
-        //    if (lstRowId.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(lstRowId)); }
-        //    return List_int__OLD<T>(null, lstRowId, options);
-        //}
-        ////carica row con il contenuto del DB in base all'icode'  
-        //public T Row__OLD<T>(object icode, string options = "") where T : ModelErp
-        //{
-        //    if (UtilHelper.IsNullOrEmptyObject(icode)) { throw new ArgumentNullException(nameof(icode)); }
-        //    List<T> outList = List_int__OLD<T>(null, new List<object>() { icode }, options);
-        //    if (outList.Count() == 0) throw new DatabaseException(ERR_DB_BAD_IDEN, $"Nessun record corrispondente alla Chiave Primaria specificata [{icode}].", null);
-        //    else if (outList.Count() > 1) throw new DatabaseException(ERR_DB_AMBIGOUS, $"a Chiave Primaria specificata è ambiqua. Più di un record trovato  [{icode}].", null);
-        //    return outList[0];
-        //}
-
-        //private List<T> List_int__OLD<T>(object selModel, List<object> lstRowId, string options = "") where T : ModelErp
-        //{
-        //    List<T> outList;
-        //    if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
-        //    T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-        //    IDictionary<string, object> parameters = new Dictionary<string, object>();
-
-        //    string sql = sqlList(objModel, ref parameters, selModel, lstRowId, options);
-        //    outList = this.ExecuteQuery<T>(sql, parameters, options: options);
-
-        //    if (options.Contains("[PLAIN]") == false)  //if (options.Contains("[DecodeLabels]"))
-        //    {
-        //        if (this.tabTypes.ContainsKey(objModel.GetType()))
-        //        {
-        //            DogTable tab = this.tabTypes[objModel.GetType()];
-        //            foreach (var fld in tab.fields)
-        //            {
-        //                try
-        //                {
-        //                    var xrefObj = fld?.XrefObj;
-        //                    if (xrefObj == null) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
-        //                    string propertyName = fld.fieldName; // Get property name and value
-
-        //                    // Usa il tipo dell'oggetto per chiamare la funzione LIST_int generica
-        //                    MethodInfo method = typeof(DogManager).GetMethod("List_int__OLD", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(xrefObj.table.tableTpy);
-        //                    object propList = (IEnumerable)method.Invoke(this, new object[] { null, (List<object>)outList.Select(s => objModel.GetType().GetProperty(propertyName).GetValue(s)).ToList<object>(), "[PLAIN] " + options }); // non ricorsivo
-        //                    // Carico i risultati della tabella collegata
-        //                    Dictionary<object, ModelErp> propDict = new Dictionary<object, ModelErp>();
-        //                    foreach (var item in (IEnumerable)propList) { propDict.Add(((ModelErp)item).getIcode(), (ModelErp)item); } // Salvo i risultati della tabella collegata in un dizionario
-        //                    foreach (T rec in outList) // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
-        //                    {
-        //                        try { rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, propDict[rec.GetType().GetProperty(propertyName).GetValue(rec)]); }
-        //                        catch (Exception ex) { }  //skip exceptions (salta se la chiave non è valorizzata 
-        //                    }
-        //                }
-        //                catch (Exception ex) { }  //skip exceptions
-        //            }
-        //        }
-
-
-        //        ////ciclo sulle proprietà
-        //        //System.Type type = objModel.GetType();
-        //        //foreach (var property in type.GetProperties())
-        //        //{
-        //        //    try
-        //        //    {
-        //        //        string propertyName = property.Name; // Get property name and value
-        //        //        if (!this.tabProperties.ContainsKey(propertyName)) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
-        //        //        var fld = this.tabProperties[propertyName];
-        //        //        var xrefObj = fld?.XrefObj;
-        //        //        if (xrefObj == null) continue; //per applicare la condizione la proprietà deve avere un attributo [ErpDogField(..)]
-
-        //        //        // Usa il tipo dell'oggetto per chiamare la funzione LIST_int generica
-        //        //        MethodInfo method = typeof(DogManager).GetMethod("List_int", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(xrefObj.table.tableTpy);
-        //        //        object propList =(IEnumerable)method.Invoke(this, new object[] { null, (List<object>)outList.Select(s => property.GetValue(s)).ToList<object>(), "" });
-        //        //        // Carico i risultati della tabella collegata
-        //        //        Dictionary<object, ModelErp> propDict = new Dictionary<object, ModelErp>();
-        //        //        foreach (var item in (IEnumerable)propList) { propDict.Add(((ModelErp)item).getIcode(), (ModelErp)item); } // Salvo i risultati della tabella collegata in un dizionario
-        //        //        foreach (T rec in outList) { rec.GetType().GetProperty(propertyName + "Obj").SetValue(rec, propDict[property.GetValue(rec)]); }  // Assegno il record della tabella collegata ad ogni riga della tabella principale (campo + "Obj")
-        //        //    }
-        //        //    catch (Exception ex) { }  //skip exceptions
-        //        //}
-        //    }
-        //    return outList;
-        //}
-
-
-
         //carica list oggetti con il contenuto del DB in base alla struttura in selezione  
-        public List<T> List<T>(ModelErp selModel, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return List<T>(selModel, null, ref dogCache, options);  }
-        public List<T> List<T>(ModelErp selModel, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
+        public List<T> List<T>(ModelErp selModel, string? transactionId, int maxRecords, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return List<T>(selModel, null, ref dogCache, transactionId, maxRecords, options: options);  }
+        public List<T> List<T>(ModelErp selModel, List<string> xrefFrom, ref DogCache dogCache, string? transactionId, int maxRecords, string options = "") where T : ModelErp
         {
             if (selModel == null) { throw new ArgumentNullException("Null " + nameof(selModel)); }
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
-            return List_int<T>(selModel, null, xrefFrom, ref dogCache, options);
+            return List_int<T>(selModel, null, xrefFrom, ref dogCache, transactionId, maxRecords, options: options);
         }
-        public List<T> List<T>(List<object> lstRowId, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return List<T>(lstRowId, null, ref dogCache, options); }
-        public List<T> List<T>(List<object> lstRowId, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
+        public List<T> List<T>(List<object> lstRowId, string? transactionId, int maxRecords, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return List<T>(lstRowId, null, ref dogCache, transactionId, maxRecords, options: options); }
+        public List<T> List<T>(List<object> lstRowId, List<string> xrefFrom, ref DogCache dogCache, string? transactionId, int maxRecords, string options = "") where T : ModelErp
         {
             if (lstRowId == null) { throw new ArgumentNullException("Null " + nameof(lstRowId)); }
             if (lstRowId.Count() == 0) { throw new ArgumentNullException("Empty " + nameof(lstRowId)); }
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
-            return List_int<T>(null, lstRowId, xrefFrom, ref dogCache, options);
+            return List_int<T>(null, lstRowId, xrefFrom, ref dogCache, transactionId, maxRecords, options: options);
         }
         //carica row con il contenuto del DB in base all'icode'  
-        public T Row<T>(object icode, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return Row<T>(icode, null, ref dogCache, options); }
-        public T Row<T>(object icode, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
+        public T Row<T>(object icode, string? transactionId, string options = "") where T : ModelErp { DogCache dogCache = new DogCache(); return Row<T>(icode, null, ref dogCache, transactionId, options: options); }
+        public T Row<T>(object icode, List<string> xrefFrom, ref DogCache dogCache, string? transactionId, string options = "") where T : ModelErp
         {
             if (UtilHelper.IsNullOrEmptyObject(icode)) { throw new ArgumentNullException(nameof(icode)); }
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
-            List<T> outList = List_int<T>(null, new List<object>() { icode }, xrefFrom, ref dogCache, options);
+            List<T> outList = List_int<T>(null, new List<object>() { icode }, xrefFrom, ref dogCache, transactionId, 2, options: options);
             if (outList.Count() == 0) throw new DatabaseException(ERR_DB_BAD_IDEN, $"Nessun record corrispondente alla Chiave Primaria specificata [{icode}].", null);
             else if (outList.Count() > 1) throw new DatabaseException(ERR_DB_AMBIGOUS, $"La Chiave Primaria specificata è ambiqua. Più di un record trovato  [{icode}].", null);
             return outList[0];
         }
-        private List<T> List_int<T>(ModelErp selModel, List<object> lstRowId, List<string> xrefFrom, ref DogCache dogCache, string options = "") where T : ModelErp
+        private List<T> List_int<T>(ModelErp selModel, List<object> lstRowId, List<string> xrefFrom, ref DogCache dogCache, string? transactionId, int maxRecords, string options = "") where T : ModelErp
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
             List<object> outKeyList;
             if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
@@ -1558,7 +1449,7 @@ namespace ErpToolkit.Helpers.Db
             DogManagerCache.CacheFuncInit(this, ref dogCache, "List_int", 'R', objModel.GetType(), options: options); // Inizializzo la cache per il tipo di oggetto, in modo da poterla usare per le query successive.
 
             //outList = this.ExecuteQuery<T>(sql, parameters, options: options);
-            Dictionary<object, ModelErp> outDict = this.ExecuteQuery(null, objModel.GetType(), sql, parameters, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
+            Dictionary<object, ModelErp> outDict = this.ExecuteQuery(null, objModel.GetType(), sql, parameters, transactionId, maxRecords, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
             outKeyList = DogManagerCache.CacheAddDict(this, ref dogCache, objModel.GetType(), outDict, options: options);
 
             // se richiesto riempio i riferimenti all'oggetto referenziati nelle tabelle esterne
@@ -1575,12 +1466,12 @@ namespace ErpToolkit.Helpers.Db
                     ModelErp xrefFromObj = (ModelErp)Activator.CreateInstance(xrefFromType); // create an instance of that type
                     IDictionary<string, object> xrefFromParameters = new Dictionary<string, object>();
                     string xrefFromSql = DogManagerCache.sqlList(this, xrefFromObj, ref xrefFromParameters, null, fld, outKeyList, options);
-                    Dictionary<object, ModelErp> outDictFrom = ExecuteQuery(null, xrefFromType, xrefFromSql, xrefFromParameters, options: options);
+                    Dictionary<object, ModelErp> outDictFrom = this.ExecuteQuery(null, xrefFromType, xrefFromSql, xrefFromParameters, transactionId, maxRecords, options: options);
                     //carico nella cache i riferimenti per ogni record della lista
                     DogManagerCache.CacheAddDict(this, ref dogCache, xrefFromObj.GetType(), outDictFrom, options: options); // salvo i record estratti in cache
                 }
             }
-            List<T> outList = DogManagerCache.CacheFillNull<T>(this, ref dogCache, outKeyList, options: options);
+            List<T> outList = DogManagerCache.CacheFillNull<T>(this, ref dogCache, outKeyList, transactionId, maxRecords, options: options);
 
 
             //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1601,57 +1492,61 @@ namespace ErpToolkit.Helpers.Db
         //***************************************************************************************************************************************************
 
 
-        //salva su DB modifiche e nuovi record  
-        public DogResult Mnt<T>(T tablModel, string options = "", string transactionId = null) where T : ModelErp
-        {
-            List<ModelErp> tabModels = new List<ModelErp>() { tablModel };
-            List<DogResult> dogResults = MntList(tabModels, options, transactionId);
-            return dogResults.First();
-        }
+        //////////salva su DB modifiche e nuovi record  
+        ////////public DogResult Mnt<T>(T tablModel, string? transactionId, string options = "") where T : ModelErp
+        ////////{
+        ////////    if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+        ////////    List<ModelErp> tabModels = new List<ModelErp>() { tablModel };
+        ////////    List<DogResult> dogResults = MntList(tabModels, transactionId, options: options);
+        ////////    return dogResults.First();
+        ////////}
 
-        public List<DogResult> MntList(List<ModelErp> tabModels, string options = "", string transactionId = null)
-        {
-            if (tabModels == null) { throw new ArgumentNullException(nameof(tabModels)); }
-            List<DogResult> results = new List<DogResult>();
-            IDictionary<string, object> parameters = new Dictionary<string, object>();
-            StringBuilder sb = new StringBuilder();
-            foreach (var tab in tabModels)
-            {
-                if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
-                //^^//.Append(DogManagerInt.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
-                sb.Append(DogManagerQuery.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
+        ////////public List<DogResult> MntList(List<ModelErp> tabModels, string? transactionId, string options = "")
+        ////////{
+        ////////    if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+        ////////    if (tabModels == null) { throw new ArgumentNullException(nameof(tabModels)); }
+        ////////    List<DogResult> results = new List<DogResult>();
+        ////////    IDictionary<string, object> parameters = new Dictionary<string, object>();
+        ////////    StringBuilder sb = new StringBuilder();
+        ////////    foreach (var tab in tabModels)
+        ////////    {
+        ////////        if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
+        ////////        //^^//.Append(DogManagerInt.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
+        ////////        sb.Append(DogManagerQuery.sqlMantain(this, tab, ref parameters, ref results)).AppendLine("; ");
 
-            }
-            //access DB
-            string sql = sb.ToString();
-            if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
-            int affectedRows = _getDbMg().ExecuteNonQuery(sql, EncodeSpecialFields(parameters, options), transactionId);
-            if (affectedRows != results.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, $"Timestamp non valido o errore in insert/update. affectedRows: {affectedRows} resultsCount: {results.Count()}", null);
+        ////////    }
+        ////////    //access DB
+        ////////    string sql = sb.ToString();
+        ////////    if (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--")) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+        ////////    int affectedRows = _getDbMg().ExecuteNonQuery(sql, EncodeSpecialFields(parameters, options), transactionId);
+        ////////    if (affectedRows != results.Count()) throw new DatabaseException(ERR_DB_TIMESTAMP, $"Timestamp non valido o errore in insert/update. affectedRows: {affectedRows} resultsCount: {results.Count()}", null);
 
-            //se necessario rileggo i timestamp
-            if (_databaseType == DbTyp.SqlServer || _databaseType == DbTyp.Sybase)
-            {
-                IDictionary<string, object> parametersIcodeTimestamp = new Dictionary<string, object>();
-                //^^//string sqlIcodeTimestamp = DogManagerInt.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
-                string sqlIcodeTimestamp = DogManagerQuery.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
-                DataTable dtIcodeTimestamp = _getDbMg().ExecuteQuery(sqlIcodeTimestamp, EncodeSpecialFields(parametersIcodeTimestamp, options), results.Count(), transactionId);
-                for (int i = 0; i < results.Count(); i++)
-                {
-                    var row = dtIcodeTimestamp.AsEnumerable().FirstOrDefault(r => r.Field<string>("ICODE").Equals(results[i].Icode)); // Cerca la riga con ICODE uguale a results[i].Icode
-                    if (row == null) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non trovato o errore in insert/update.", null);
-                    results[i].Timestamp = row.Field<byte[]>("TIMESTAMP");
-                }
-            }
+        ////////    //se necessario rileggo i timestamp
+        ////////    if (_databaseType == DbTyp.SqlServer || _databaseType == DbTyp.Sybase)
+        ////////    {
+        ////////        IDictionary<string, object> parametersIcodeTimestamp = new Dictionary<string, object>();
+        ////////        //^^//string sqlIcodeTimestamp = DogManagerInt.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
+        ////////        string sqlIcodeTimestamp = DogManagerQuery.sqlSelectIcodeTimestamp(this, results, ref parametersIcodeTimestamp);
+        ////////        DataTable dtIcodeTimestamp = _getDbMg().ExecuteQuery(sqlIcodeTimestamp, EncodeSpecialFields(parametersIcodeTimestamp, options: options), transactionId, options, results.Count());
+        ////////        for (int i = 0; i < results.Count(); i++)
+        ////////        {
+        ////////            var row = dtIcodeTimestamp.AsEnumerable().FirstOrDefault(r => r.Field<string>("ICODE").Equals(results[i].Icode)); // Cerca la riga con ICODE uguale a results[i].Icode
+        ////////            if (row == null) throw new DatabaseException(ERR_DB_TIMESTAMP, "Timestamp non trovato o errore in insert/update.", null);
+        ////////            results[i].Timestamp = row.Field<byte[]>("TIMESTAMP");
+        ////////        }
+        ////////    }
 
-            return results;
-        }
+        ////////    return results;
+        ////////}
 
         // MntList con cache (ordina i modelli in base alle dipendenze topologiche e gestisce la cache)
         // generalmente gli oggetti ModelErp presenti in tabModels sono già tutti referenziati in cache (caricati in precedenza con List/Row)
         // in ogni caso, a seguito dell'aggiornamento, i record modificati vengono rimossi dalla cache (ie: [FORCE_CACHE_RELOAD_MNT])
         // in modo che alla prossima lettura vengano ricaricati da DB
-        public List<DogResult> MntList(List<ModelErp> tabModels, ref DogCache dogCache, string options = "", string transactionId = null)
+        public List<DogResult> MntList(List<ModelErp> tabModels, ref DogCache dogCache, string? transactionId, int maxRecords, string options = "")
         {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_XREF_CACHE_MAX_RECORDS;
             List<DogResult> dogResults = new List<DogResult>();
             if (tabModels == null) { throw new ArgumentNullException(nameof(tabModels)); }
             if (dogCache == null) { throw new ArgumentNullException(nameof(dogCache)); }
@@ -1698,7 +1593,7 @@ namespace ErpToolkit.Helpers.Db
                         dogCache.dbCache.Add(result.TabType, dizNewType);
                     }
                 }
-                DogManagerCache.CacheFillNull(this, ref dogCache, null, null, options: options);    //ricarico la cache con i record modificati (forza reload sulla cache)
+                DogManagerCache.CacheFillNull(this, ref dogCache, null, null, transactionId, maxRecords, options: options);    //ricarico la cache con i record modificati (forza reload sulla cache)
 
                 return dogResults;
             }
