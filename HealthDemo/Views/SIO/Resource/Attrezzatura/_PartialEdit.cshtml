@@ -10,6 +10,9 @@
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"At1Icode", Model?.At1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -32,7 +35,7 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="AtIdTipoRisorsa" class="control-label"></label>
-                        <input asp-for="AtIdTipoRisorsa" class="form-control" />
+                        <input asp-for="AtIdTipoRisorsa" class="form-control"  data-mandatory="true" />
                         <span asp-validation-for="AtIdTipoRisorsa" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -101,9 +104,9 @@
                         <h5 class="mt-5">Vista su RelPrestazioneUsa per PuIdRisorsa</h5>
                         <erp-table asp-for="XrefPuIdRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PuIdPrestazione"     label="IdPrestazione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PuDataInizioUso"     label="DataInizioUso" sort="none" sortType="autocomplete" filter="true" />
@@ -124,7 +127,7 @@
                             <erp-table-edit-columns>
                                 <erp-table-edit-col for="PuIdPrestazione">
                                     <div class="form-group" data-prop="PuIdPrestazione">
-                                        <input asp-for='XrefPuIdRisorsa["0"].PuIdPrestazione' class="form-control" />
+                                        <input asp-for='XrefPuIdRisorsa["0"].PuIdPrestazione' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPuIdRisorsa["0"].PuIdPrestazione' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -136,7 +139,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PuIdTipoRisorsa">
                                     <div class="form-group" data-prop="PuIdTipoRisorsa">
-                                        <input asp-for='XrefPuIdRisorsa["0"].PuIdTipoRisorsa' class="form-control" />
+                                        <input asp-for='XrefPuIdRisorsa["0"].PuIdTipoRisorsa' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPuIdRisorsa["0"].PuIdTipoRisorsa' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -241,9 +244,9 @@
                         <h5 class="mt-5">Vista su RelAttivitaUsa per AuIdRisorsa</h5>
                         <erp-table asp-for="XrefAuIdRisorsa" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="AuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="AuIdAttivita"     label="IdAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuClasseRisorsa"     label="ClasseRisorsa" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="AuIdTipoRisorsa"     label="IdTipoRisorsa" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuSequenza"     label="Sequenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuQuantitaMediaUsata"     label="QuantitaMediaUsata" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="AuQuantitaExtra"     label="QuantitaExtra" sort="none" sortType="autocomplete" filter="true" />
@@ -257,19 +260,19 @@
                             <erp-table-edit-columns>
                                 <erp-table-edit-col for="AuIdAttivita">
                                     <div class="form-group" data-prop="AuIdAttivita">
-                                        <input asp-for='XrefAuIdRisorsa["0"].AuIdAttivita' class="form-control" />
+                                        <input asp-for='XrefAuIdRisorsa["0"].AuIdAttivita' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefAuIdRisorsa["0"].AuIdAttivita' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="AuClasseRisorsa">
                                     <div class="form-group" data-prop="AuClasseRisorsa">
-                                        <input asp-for='XrefAuIdRisorsa["0"].AuClasseRisorsa' class="form-control" />
+                                        <input asp-for='XrefAuIdRisorsa["0"].AuClasseRisorsa' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefAuIdRisorsa["0"].AuClasseRisorsa' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="AuIdTipoRisorsa">
                                     <div class="form-group" data-prop="AuIdTipoRisorsa">
-                                        <input asp-for='XrefAuIdRisorsa["0"].AuIdTipoRisorsa' class="form-control" />
+                                        <input asp-for='XrefAuIdRisorsa["0"].AuIdTipoRisorsa' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefAuIdRisorsa["0"].AuIdTipoRisorsa' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -331,7 +334,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Salva</button>
+                <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale")'>Salva</button>
             </div>
         </div>
     }

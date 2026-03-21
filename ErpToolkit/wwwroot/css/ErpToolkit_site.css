@@ -200,15 +200,17 @@ table.erptbl tr.erptbl-deleted td.action-buttons * {
 }
 
 
-/*.erptbl-mandatory {
-    box-shadow: inset 3px 0 0 0 orange;
+/* cornice invisibile di default */
+.toggle-switch + .slider {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: outline-color .2s ease-in-out;
 }
 
-.erptbl-mandatory-error {
-    box-shadow: inset 3px 0 0 0 red !important;
-    background-color: #fff4f4 !important;
+/* quando il campo è mandatory e vuoto ? rosso */
+.toggle-switch.erptbl-mandatory-error + .slider {
+    outline-color: #dc3545 !important; /* rosso Bootstrap */
 }
-*/
 
 
 /* end etkTable2 */

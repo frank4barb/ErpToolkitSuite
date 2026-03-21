@@ -1,0 +1,92 @@
+
+// ErpToolkit_site.js - with advanced mandatory integrated
+// ... (rest of the unchanged code above remains here)
+
+// =============================
+// ✅ ADVANCED MANDATORY SECTION (UNIFIED)
+// =============================
+
+function etkIsHidden(el) {
+    if (!el) return true;
+    if (!['INPUT','SELECT','TEXTAREA'].includes(el.tagName)) return true;
+    const style = window.getComputedStyle(el);
+    if (style.display==='none' || style.visibility==='hidden') return true;
+    const rect = el.getBoundingClientRect();
+    if (rect.width===0 && rect.height===0) return true;
+    return false;
+}
+
+function etkGetEffectiveValue(input) {
+    if (!input) return '';
+    if (input.classList.contains('autocomplete-input') && typeof getSelectedValue==='function') {
+        return (getSelectedValue(input.id)||'').trim();
+    }
+    if (input.classList.contains('form-check-input')) {
+        const checked = document.querySelectorAll(`input[name="${CSS.escape(input.name)}"]:checked`);
+        return checked.length>0 ? (checked[0].value||'').trim() : '';
+    }
+    if (input.classList.contains('toggle-switch')) {
+        return input.checked ? (input.value||'1') : '';
+    }
+    let val = (input.value||'').trim();
+    if (val==='' && input.type==='hidden'){
+        const maybe=input.closest('.form-group')?.querySelector('input:not([type="hidden"])');
+        if (maybe) val=(maybe.value||'').trim();
+    }
+    return val;
+}
+
+function etkMarkMandatory(scope=document){
+    scope.querySelectorAll('[data-mandatory="true"]').forEach(el=>{
+        if (etkIsHidden(el)) return;
+        el.classList.add('erptbl-mandatory');
+        if (etkGetEffectiveValue(el)==='') el.classList.add('erptbl-mandatory-error');
+    });
+}
+
+function etkValidateMandatory(scope=document){
+    let ok=true, first=null;
+    scope.querySelectorAll('[data-mandatory="true"]').forEach(el=>{
+        if (etkIsHidden(el)) return;
+        const val=etkGetEffectiveValue(el);
+        if (el.classList.contains('form-check-input')){
+            const name=el.name;
+            const group=document.querySelectorAll(`input[name="${CSS.escape(name)}"]`);
+            const any=Array.from(group).some(x=>x.checked);
+            if (!any){ ok=false; group.forEach(x=>x.classList.add('erptbl-mandatory-error')); if(!first)first=el; }
+            else group.forEach(x=>x.classList.remove('erptbl-mandatory-error'));
+            return;
+        }
+        if (val===''){ ok=false; el.classList.add('erptbl-mandatory-error'); if(!first)first=el; }
+        else el.classList.remove('erptbl-mandatory-error');
+    });
+    return { ok, firstError:first };
+}
+
+document.addEventListener('input',ev=>etkMaybeClearMandatoryError(ev.target),true);
+document.addEventListener('change',ev=>etkMaybeClearMandatoryError(ev.target),true);
+
+function etkMaybeClearMandatoryError(input){
+    if (!input) return;
+    if (input.classList.contains('form-check-input')){
+        const name=input.name;
+        const group=document.querySelectorAll(`input[name="${CSS.escape(name)}"]`);
+        const any=Array.from(group).some(x=>x.checked);
+        if(any) group.forEach(x=>x.classList.remove('erptbl-mandatory-error'));
+        return;
+    }
+    if(input.classList.contains('toggle-switch')){
+        if(input.checked) input.classList.remove('erptbl-mandatory-error');
+        return;
+    }
+    if(etkGetEffectiveValue(input)!==''){ input.classList.remove('erptbl-mandatory-error'); }
+}
+
+document.addEventListener('submit',function(ev){
+    const form=ev.target.closest('form');
+    if(!form) return;
+    const v=etkValidateMandatory(form);
+    if(!v.ok){ ev.preventDefault(); alert('È necessario compilare tutti i campi obbligatori'); try{v.firstError?.focus(); v.firstError?.scrollIntoView({behavior:'smooth',block:'center'});}catch{} }
+});
+
+// ... (rest of the unchanged code continues below)

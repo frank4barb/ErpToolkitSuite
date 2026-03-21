@@ -1037,8 +1037,8 @@ namespace ErpToolkit.Helpers
         public ViewContext ViewContext { get; set; }
 
         [HtmlAttributeName("asp-for")]
-        public ModelExpression For { get; set; }
 
+        public ModelExpression For { get; set; }
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             var containerType = For.ModelExplorer.Metadata.ContainerType; //For.ModelExplorer.Container?.ModelType;
@@ -1050,6 +1050,12 @@ namespace ErpToolkit.Helpers
             var multipleChoicesAttribute = property.GetCustomAttributes(typeof(MultipleChoicesAttribute), false).FirstOrDefault() as MultipleChoicesAttribute;
             var attributeErpDogField = property.GetCustomAttributes(typeof(ErpDogFieldAttribute), false).FirstOrDefault() as ErpDogFieldAttribute;
             var attributeErpDogField_Xref = attributeErpDogField?.Xref ?? "";
+
+            // LEGGI data-mandatory SENZA BINDER
+            bool isMandatory =
+                context.AllAttributes.ContainsName("data-mandatory") &&
+                context.AllAttributes["data-mandatory"]?.Value?.ToString() == "true";
+
 
             if (multipleChoicesAttribute != null)
             {
@@ -1129,11 +1135,23 @@ namespace ErpToolkit.Helpers
                     string inputType = isMultiple ? "checkbox" : "radio";
                     string checkedAttr = selectedValues.Contains(value) ? "checked" : "";
 
-                    content.AppendLine($@"
+                    if (isMandatory)
+                    {
+                        content.AppendLine($@"
+                        <div class='form-check form-switch d-inline-block mb-2'>
+                            <input class='form-check-input' type='{inputType}' data-mandatory='true' name='{prefixInputName}' id='{id}' value='{value}' {checkedAttr} {readonlyAttr} onchange='handleMaxSelections(""{prefixInputName}"", {maxSelections})'>
+                            <label class='form-check-label' for='{id}'>{label}</label> &nbsp; &nbsp; 
+                        </div>");
+                    }
+                    else
+                    {
+                        content.AppendLine($@"
                         <div class='form-check form-switch d-inline-block mb-2'>
                             <input class='form-check-input' type='{inputType}' name='{prefixInputName}' id='{id}' value='{value}' {checkedAttr} {readonlyAttr} onchange='handleMaxSelections(""{prefixInputName}"", {maxSelections})'>
                             <label class='form-check-label' for='{id}'>{label}</label> &nbsp; &nbsp; 
                         </div>");
+                    }
+
                 }
 
                 content.AppendLine("</div>");
@@ -1517,7 +1535,7 @@ namespace ErpToolkit.Helpers
             // Filtro
             public bool Filterable { get; set; } = false;       // se true, partecipa al filtro client
             // Mandatory
-            public bool Mandatory { get; set; } = false;       // se true, partecipa il campo non può essere vuoto
+            //mm//public bool Mandatory { get; set; } = false;       // se true, partecipa il campo non può essere vuoto
         }
         [HtmlAttributeNotBound] public List<ColumnDef> ColumnDefinitions { get; set; } = new();
         [HtmlAttributeNotBound] public TagHelperContent ColumnsContent { get; set; } = new DefaultTagHelperContent();
@@ -1785,7 +1803,7 @@ namespace ErpToolkit.Helpers
                     var td = new TagBuilder("td");
 
                     // ⬇⬇⬇ AGGIUNGI QUESTA RIGA
-                    if (colDef.Mandatory) td.Attributes["data-mandatory"] = "true";
+                    //mm//if (colDef.Mandatory) td.Attributes["data-mandatory"] = "true";
 
                     // Usa il template custom se presente, altrimenti fallback
                     if (EditTemplates.TryGetValue(colDef.For, out var htmlTemplate) && !string.IsNullOrWhiteSpace(htmlTemplate))
@@ -2044,7 +2062,7 @@ namespace ErpToolkit.Helpers
                                                            : (col.SortSpecified ? col.Sort : "none");
                     th.Attributes["data-sort-type"] = col.SortType;
                     th.Attributes["data-filterable"] = col.Filterable ? "true" : "false";
-                    th.Attributes["data-mandatory"] = col.Mandatory ? "true" : "false";
+                    //mm//th.Attributes["data-mandatory"] = col.Mandatory ? "true" : "false";
 
                     header.AppendHtml(th);
                 }
@@ -2071,7 +2089,7 @@ namespace ErpToolkit.Helpers
         // filtro
         [HtmlAttributeName("filter")] public bool? Filter { get; set; }
         //mandatory
-        [HtmlAttributeName("mandatory")] public bool Mandatory { get; set; } = false;
+        //mm//[HtmlAttributeName("mandatory")] public bool Mandatory { get; set; } = false;
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -2093,8 +2111,8 @@ namespace ErpToolkit.Helpers
                     SortSpecified = sortSpecified,
                     ExclusiveSortSpecified = exclusiveSpecified,
                     SortType = SortType ?? "string",
-                    Filterable = Filter == true,
-                    Mandatory = Mandatory == true
+                    Filterable = Filter == true   //mm//,
+                    //mm//Mandatory = Mandatory == true
                 });
             }
             output.SuppressOutput();

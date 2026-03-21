@@ -10,6 +10,9 @@
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Pa1Icode", Model?.Pa1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -37,12 +40,12 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="PaCognome" class="control-label"></label>
-                        <input asp-for="PaCognome" class="form-control" />
+                        <input asp-for="PaCognome" class="form-control"  data-mandatory="true" />
                         <span asp-validation-for="PaCognome" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="PaSesso" class="control-label"></label>
-                        <input asp-for="PaSesso" class="form-control" />
+                        <input asp-for="PaSesso" class="form-control"  data-mandatory="true" />
                         <span asp-validation-for="PaSesso" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -166,15 +169,15 @@
                         <h5 class="mt-5">Vista su Prestazione per PrIdPaziente</h5>
                         <erp-table asp-for="XrefPrIdPaziente" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
-                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PrIdTipoAttivita"     label="IdTipoAttivita" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PrIdAttivitaRichiesta"     label="IdAttivitaRichiesta" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdAttivitaEseguita"     label="IdAttivitaEseguita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdGruppo"     label="IdGruppo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrInEvidenza"     label="InEvidenza" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrTipoEpisodio"     label="TipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PrStatoPrestazione"     label="StatoPrestazione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdOperatoreRichiedente"     label="IdOperatoreRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdUnitaRichiedente"     label="IdUnitaRichiedente" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PrIdPostazioneRichiedente"     label="IdPostazioneRichiedente" sort="none" sortType="autocomplete" filter="true" />
@@ -212,13 +215,13 @@
                             <erp-table-edit-columns>
                                 <erp-table-edit-col for="PrIdTipoAttivita">
                                     <div class="form-group" data-prop="PrIdTipoAttivita">
-                                        <input asp-for='XrefPrIdPaziente["0"].PrIdTipoAttivita' class="form-control" />
+                                        <input asp-for='XrefPrIdPaziente["0"].PrIdTipoAttivita' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPrIdPaziente["0"].PrIdTipoAttivita' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PrIdAttivitaRichiesta">
                                     <div class="form-group" data-prop="PrIdAttivitaRichiesta">
-                                        <input asp-for='XrefPrIdPaziente["0"].PrIdAttivitaRichiesta' class="form-control" />
+                                        <input asp-for='XrefPrIdPaziente["0"].PrIdAttivitaRichiesta' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPrIdPaziente["0"].PrIdAttivitaRichiesta' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -260,7 +263,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PrStatoPrestazione">
                                     <div class="form-group" data-prop="PrStatoPrestazione">
-                                        <input asp-for='XrefPrIdPaziente["0"].PrStatoPrestazione' class="form-control" />
+                                        <input asp-for='XrefPrIdPaziente["0"].PrStatoPrestazione' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPrIdPaziente["0"].PrStatoPrestazione' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -477,7 +480,7 @@
                                 <erp-table-col for="RiOggetto"     label="Oggetto" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiStatoRichiesta"     label="StatoRichiesta" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiClasseRichiesta"     label="ClasseRichiesta" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="RiIdTipoRichiesta"     label="IdTipoRichiesta" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="RiIdTipoRichiesta"     label="IdTipoRichiesta" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="RiIdPaziente"  visible="false"   value="@Model.Pa1Icode" />
                             </erp-table-columns>
@@ -544,7 +547,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="RiIdTipoRichiesta">
                                     <div class="form-group" data-prop="RiIdTipoRichiesta">
-                                        <input asp-for='XrefRiIdPaziente["0"].RiIdTipoRichiesta' class="form-control" />
+                                        <input asp-for='XrefRiIdPaziente["0"].RiIdTipoRichiesta' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefRiIdPaziente["0"].RiIdTipoRichiesta' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -568,8 +571,8 @@
                                 <erp-table-col for="EpCodEpisodio"     label="CodEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpClasseEpisodio"     label="ClasseEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="EpIdTipoEpisodio"     label="IdTipoEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="EpStatoEpisodio"     label="StatoEpisodio" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="EpIdTipoEpisodio"     label="IdTipoEpisodio" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="EpStatoEpisodio"     label="StatoEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpIdUnitaIngresso"     label="IdUnitaIngresso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpDataInizio"     label="DataInizio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="EpOraInizio"     label="OraInizio" sort="none" sortType="autocomplete" filter="true" />
@@ -614,13 +617,13 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="EpIdTipoEpisodio">
                                     <div class="form-group" data-prop="EpIdTipoEpisodio">
-                                        <input asp-for='XrefEpIdPaziente["0"].EpIdTipoEpisodio' class="form-control" />
+                                        <input asp-for='XrefEpIdPaziente["0"].EpIdTipoEpisodio' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefEpIdPaziente["0"].EpIdTipoEpisodio' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="EpStatoEpisodio">
                                     <div class="form-group" data-prop="EpStatoEpisodio">
-                                        <input asp-for='XrefEpIdPaziente["0"].EpStatoEpisodio' class="form-control" />
+                                        <input asp-for='XrefEpIdPaziente["0"].EpStatoEpisodio' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefEpIdPaziente["0"].EpStatoEpisodio' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -764,7 +767,7 @@
                                 <erp-table-col for="ReClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="ReIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="ReIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="ReValoreScelta"     label="ValoreScelta" sort="none" sortType="autocomplete" filter="true" />
@@ -800,7 +803,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="ReIdGruppoDatoClinico">
                                     <div class="form-group" data-prop="ReIdGruppoDatoClinico">
-                                        <input asp-for='XrefReIdPaziente["0"].ReIdGruppoDatoClinico' class="form-control" />
+                                        <input asp-for='XrefReIdPaziente["0"].ReIdGruppoDatoClinico' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefReIdPaziente["0"].ReIdGruppoDatoClinico' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -889,7 +892,7 @@
                             <erp-table-columns>
                                 <erp-table-col for="SsClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SsIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="SsIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="SsIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SsIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SsValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="SsValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
@@ -920,7 +923,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="SsIdTipoDatoClinico">
                                     <div class="form-group" data-prop="SsIdTipoDatoClinico">
-                                        <input asp-for='XrefSsIdPaziente["0"].SsIdTipoDatoClinico' class="form-control" />
+                                        <input asp-for='XrefSsIdPaziente["0"].SsIdTipoDatoClinico' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefSsIdPaziente["0"].SsIdTipoDatoClinico' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -1015,7 +1018,7 @@
                             <erp-table-columns>
                                 <erp-table-col for="DcClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DcIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="DcIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="DcIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DcIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DcValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="DcValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
@@ -1046,7 +1049,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="DcIdTipoDatoClinico">
                                     <div class="form-group" data-prop="DcIdTipoDatoClinico">
-                                        <input asp-for='XrefDcIdPaziente["0"].DcIdTipoDatoClinico' class="form-control" />
+                                        <input asp-for='XrefDcIdPaziente["0"].DcIdTipoDatoClinico' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefDcIdPaziente["0"].DcIdTipoDatoClinico' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -1141,7 +1144,7 @@
                             <erp-table-columns>
                                 <erp-table-col for="PvClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PvIdEpisodio"     label="IdEpisodio" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PvIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PvIdTipoDatoClinico"     label="IdTipoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PvIdGruppoDatoClinico"     label="IdGruppoDatoClinico" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PvValoreMinimo"     label="ValoreMinimo" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PvValoreMassimo"     label="ValoreMassimo" sort="none" sortType="autocomplete" filter="true" />
@@ -1172,7 +1175,7 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PvIdTipoDatoClinico">
                                     <div class="form-group" data-prop="PvIdTipoDatoClinico">
-                                        <input asp-for='XrefPvIdPaziente["0"].PvIdTipoDatoClinico' class="form-control" />
+                                        <input asp-for='XrefPvIdPaziente["0"].PvIdTipoDatoClinico' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPvIdPaziente["0"].PvIdTipoDatoClinico' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -1264,7 +1267,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Salva</button>
+                <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale")'>Salva</button>
             </div>
         </div>
     }

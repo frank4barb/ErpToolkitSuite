@@ -10,6 +10,9 @@
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Cm1Icode", Model?.Cm1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -22,12 +25,12 @@
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                     <div class="form-group">
                         <label asp-for="CmCodice" class="control-label"></label>
-                        <input asp-for="CmCodice" class="form-control" />
+                        <input asp-for="CmCodice" class="form-control"  data-mandatory="true" />
                         <span asp-validation-for="CmCodice" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="CmNome" class="control-label"></label>
-                        <input asp-for="CmNome" class="form-control" />
+                        <input asp-for="CmNome" class="form-control"  data-mandatory="true" />
                         <span asp-validation-for="CmNome" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -84,8 +87,8 @@
                                 <erp-table-col for="PaCodFiscale"     label="CodFiscale" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaCodSanitario"     label="CodSanitario" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaNome"     label="Nome" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaDataNascita"     label="DataNascita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaOraNascita"     label="OraNascita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaIdNazioneNascita"     label="IdNazioneNascita" sort="none" sortType="autocomplete" filter="true" />
@@ -131,13 +134,13 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PaCognome">
                                     <div class="form-group" data-prop="PaCognome">
-                                        <input asp-for='XrefPaIdComuneNascita["0"].PaCognome' class="form-control" />
+                                        <input asp-for='XrefPaIdComuneNascita["0"].PaCognome' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPaIdComuneNascita["0"].PaCognome' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PaSesso">
                                     <div class="form-group" data-prop="PaSesso">
-                                        <input asp-for='XrefPaIdComuneNascita["0"].PaSesso' class="form-control" />
+                                        <input asp-for='XrefPaIdComuneNascita["0"].PaSesso' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPaIdComuneNascita["0"].PaSesso' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -287,8 +290,8 @@
                                 <erp-table-col for="PaCodFiscale"     label="CodFiscale" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaCodSanitario"     label="CodSanitario" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaNome"     label="Nome" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaDataNascita"     label="DataNascita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaOraNascita"     label="OraNascita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaIdComuneNascita"     label="IdComuneNascita" sort="none" sortType="autocomplete" filter="true" />
@@ -334,13 +337,13 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PaCognome">
                                     <div class="form-group" data-prop="PaCognome">
-                                        <input asp-for='XrefPaIdComuneRes["0"].PaCognome' class="form-control" />
+                                        <input asp-for='XrefPaIdComuneRes["0"].PaCognome' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPaIdComuneRes["0"].PaCognome' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PaSesso">
                                     <div class="form-group" data-prop="PaSesso">
-                                        <input asp-for='XrefPaIdComuneRes["0"].PaSesso' class="form-control" />
+                                        <input asp-for='XrefPaIdComuneRes["0"].PaSesso' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPaIdComuneRes["0"].PaSesso' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -490,8 +493,8 @@
                                 <erp-table-col for="PaCodFiscale"     label="CodFiscale" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaCodSanitario"     label="CodSanitario" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaNome"     label="Nome" sort="none" sortType="autocomplete" filter="true" />
-                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
-                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" mandatory="true" />
+                                <erp-table-col for="PaCognome"     label="Cognome" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="PaSesso"     label="Sesso" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaDataNascita"     label="DataNascita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaOraNascita"     label="OraNascita" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="PaIdComuneNascita"     label="IdComuneNascita" sort="none" sortType="autocomplete" filter="true" />
@@ -537,13 +540,13 @@
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PaCognome">
                                     <div class="form-group" data-prop="PaCognome">
-                                        <input asp-for='XrefPaIdComuneDom["0"].PaCognome' class="form-control" />
+                                        <input asp-for='XrefPaIdComuneDom["0"].PaCognome' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPaIdComuneDom["0"].PaCognome' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="PaSesso">
                                     <div class="form-group" data-prop="PaSesso">
-                                        <input asp-for='XrefPaIdComuneDom["0"].PaSesso' class="form-control" />
+                                        <input asp-for='XrefPaIdComuneDom["0"].PaSesso' class="form-control" data-mandatory="true" />
                                         <span asp-validation-for='XrefPaIdComuneDom["0"].PaSesso' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
@@ -689,7 +692,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-primary" onclick='updateModalWithContentForm(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale", @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model)))'>Salva</button>
+                <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "EditModale")'>Salva</button>
             </div>
         </div>
     }
