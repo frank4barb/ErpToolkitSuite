@@ -1255,7 +1255,7 @@ namespace ErpToolkit.Helpers
 
 
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public sealed class QuillEditorAttribute : Attribute
+    public sealed class ErpQuillEditorAttribute : Attribute
     {
         public string Height { get; set; } = "300px";                           // Altezza predefinita
         public int MaxLength { get; set; } = 10000;                             // Lunghezza massima predefinita
@@ -1268,7 +1268,7 @@ namespace ErpToolkit.Helpers
         };
         public bool AllowCopyPaste { get; set; } = true;                        // Opzione per abilitare/disabilitare copia-incolla
 
-        public QuillEditorAttribute() { }
+        public ErpQuillEditorAttribute() { }
     }
 
 
@@ -1286,7 +1286,7 @@ namespace ErpToolkit.Helpers
             if (property == null) { output.SuppressOutput(); return; }  // oppure log errore
             //??//var property = For.Metadata.ContainerType.GetProperty(For.Name);
 
-            var quillEditorAttr = property?.GetCustomAttribute<QuillEditorAttribute>();
+            var quillEditorAttr = property?.GetCustomAttribute<ErpQuillEditorAttribute>();
 
             if (quillEditorAttr == null)
             {
@@ -1346,7 +1346,106 @@ namespace ErpToolkit.Helpers
     }
 
 
+    //stessa versione, ma non abbinabile ad un campo del DB tramite il tag <input>
+    // ie: questa la posso usare indiscriminatamente su tutti i campi testo del db e/o su campi non abbinati al DB
+    [HtmlTargetElement("erp-quill-editor", Attributes = "asp-for")]
+    public class ErpQuillEditorTagHelper : TagHelper
+    {
+        // --- Attributi comuni ---
+        [HtmlAttributeName("asp-readonly")] public char? Readonly { get; set; }
+        [HtmlAttributeName("asp-visible")] public char? Visible { get; set; }
 
+        [ViewContext][HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+        [HtmlAttributeName("asp-for")] public ModelExpression For { get; set; }
+
+        [HtmlAttributeName("height")] public string Height { get; set; } = "300px";                           // Altezza predefinita
+        [HtmlAttributeName("max-length")] public int MaxLength { get; set; } = 10000;                             // Lunghezza massima predefinita
+        [HtmlAttributeName("allow-images")] public bool AllowImages { get; set; } = true;                           // Possibilità di inserire immagini
+        [HtmlAttributeName("toolbar-options")] public string[] ToolbarOptions { get; set; } = new string[]             // Opzioni di formattazione predefinite
+                                            {
+                                                "bold", "italic", "underline", "strike", "blockquote",
+                                                "code-block", "header", "list", "script", "indent", "direction",
+                                                "size", "color", "background", "font", "align", "link", "image", "video"
+                                            };
+        [HtmlAttributeName("allow-copy-paste")] public bool AllowCopyPaste { get; set; } = true;                        // Opzione per abilitare/disabilitare copia-incolla
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            // --- Dati riflessioni / attributi modello ---
+            var containerType = For.ModelExplorer.Metadata.ContainerType;
+            var propertyName = For.ModelExplorer.Metadata.PropertyName;
+            var property = containerType?.GetProperty(propertyName);
+            var attrErpQuillEditor = property?.GetCustomAttributes(typeof(ErpQuillEditorAttribute), false).FirstOrDefault() as ErpQuillEditorAttribute;
+
+            // --- Prefix per i name/id degli input ---
+            var prefix = (ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix ?? "").Trim();
+            var prefixInputName = ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(For.Name);
+            var prefixInputId = TagBuilder.CreateSanitizedId(prefixInputName, "_");
+
+            // --- Visibilità/readonly dal tuo sistema ---
+            DogManager.FieldAttr attrField = UtilHelper.fieldAttrTagHelper(prefix, For.Name, "", ViewContext);
+            char readonlyFlag = Readonly ?? attrField.Readonly;
+            char visibleFlag = Visible ?? attrField.Visible;
+
+            // gestione attributi di default
+            var height = Height;
+            var maxLength = MaxLength;
+            var allowImages = AllowImages ? "true" : "false";
+            var toolbarOptions = string.Join(", ", ToolbarOptions.Select(o => $"'{o}'"));
+            var allowCopyPaste = AllowCopyPaste ? "true" : "false";
+            if (attrErpQuillEditor != null) // se definiti prendo quelli del modello
+            {
+                height = attrErpQuillEditor.Height;
+                maxLength = attrErpQuillEditor.MaxLength;
+                allowImages = attrErpQuillEditor.AllowImages ? "true" : "false";
+                toolbarOptions = string.Join(", ", attrErpQuillEditor.ToolbarOptions.Select(o => $"'{o}'"));
+                allowCopyPaste = attrErpQuillEditor.AllowCopyPaste ? "true" : "false";
+            }
+
+            var value = For.Model?.ToString() ?? string.Empty;
+
+            output.TagName = "div";
+            output.Attributes.SetAttribute("id", prefixInputId);
+            output.Attributes.SetAttribute("style", $"height: {height};");
+
+            output.PostElement.SetHtmlContent($@"
+            <script>
+                var quill_{prefixInputId} = new Quill('#{prefixInputId}', {{
+                    theme: 'snow',
+                    modules: {{
+                        toolbar: [{toolbarOptions}],
+                        imageDrop: {allowImages},
+                    }},
+                    readOnly: false
+                }});
+
+                quill_{prefixInputId}.on('text-change', function(delta, oldDelta, source) {{
+                    var text = quill_{prefixInputId}.getText();
+                    if (text.length > {maxLength}) {{
+                        quill_{prefixInputId}.deleteText({maxLength}, text.length);
+                    }}
+                    document.querySelector('input[name=""{prefixInputName}""]').value = quill_{prefixInputId}.root.innerHTML;
+                }});
+
+                // Gestione del copia-incolla
+                if ({allowCopyPaste} === false) {{
+                    quill_{prefixInputId}.root.addEventListener('copy', function(e) {{
+                        e.preventDefault();
+                    }});
+                    quill_{prefixInputId}.root.addEventListener('paste', function(e) {{
+                        e.preventDefault();
+                    }});
+                    quill_{prefixInputId}.root.addEventListener('cut', function(e) {{
+                        e.preventDefault();
+                    }});
+                }}
+
+                quill_{prefixInputId}.root.innerHTML = `{value}`;
+            </script>
+            <input type='hidden' name='{prefixInputName}' value='{value}' />
+            ");
+        }
+    }
 
 
 
@@ -2176,12 +2275,6 @@ namespace ErpToolkit.Helpers
     }
 
 
-
-
-
-
-
-
     // ===================================================================
     // NOTA: I tag <erp-table-col> e <erp-table-edit-col> vengono processati
     // direttamente tramite parsing HTML nei loro parent TagHelper
@@ -2189,6 +2282,50 @@ namespace ErpToolkit.Helpers
     // ===================================================================
 
 
+
+    [HtmlTargetElement("erp-speech-to-text", Attributes = "asp-for")]
+    public class ErpSpeechToText : TagHelper
+    {
+        [HtmlAttributeName("asp-for")]
+        public ModelExpression For { get; set; }
+
+        [HtmlAttributeNotBound]
+        [ViewContext]
+        public ViewContext ViewContext { get; set; }
+
+        // Pass-through optional attributes (class, rows, placeholder, etc.)
+        [HtmlAttributeName("class")]
+        public string CssClass { get; set; } = "form-control";
+
+        [HtmlAttributeName("rows")]
+        public int Rows { get; set; } = 4;
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            var fullName = ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(For.Name);
+            var fullId = TagBuilder.CreateSanitizedId(fullName, "_");
+
+            output.TagName = "div";
+            output.Attributes.SetAttribute("class", "textarea-microfono-wrapper position-relative");
+
+            // TEXTAREA
+            string textarea = $@"
+                                <textarea id=""{fullId}"" 
+                                        name=""{fullName}""
+                                        class=""{CssClass}"" 
+                                        rows=""{Rows}"">{For.Model}</textarea>";
+
+            // BOTTONE MICROFONO
+            string micBtn = $@"
+                                <button type=""button""
+                                        class=""etk-mic-btn""
+                                        data-target=""{fullId}""
+                                        title=""Dettatura vocale"">
+                                    <i class=""bi bi-mic-fill""></i>
+                                </button>";
+            output.Content.SetHtmlContent(textarea + micBtn);
+        }
+    }
 
 
 

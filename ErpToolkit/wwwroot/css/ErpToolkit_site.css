@@ -215,4 +215,30 @@ table.erptbl tr.erptbl-deleted td.action-buttons * {
 
 /* end etkTable2 */
 
+/* start etkTextareaMic */
 
+.textarea-microfono-wrapper {
+    position: relative;
+}
+
+.etk-mic-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    background: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #333;
+}
+
+.etk-mic-btn.etk-mic-active {
+    color: red;
+}
+
+textarea {
+    overflow: hidden !important; /* niente scrollbar */
+    resize: none; /* opzionale: impedisce resize manuale */
+}
+
+/* end etkTextareaMic */

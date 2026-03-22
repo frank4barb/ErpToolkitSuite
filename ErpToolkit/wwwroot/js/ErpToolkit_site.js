@@ -2723,6 +2723,84 @@ function etkValidateAndSubmitModal(btn, prefix, modalDialogId) {
 
 
 
+// ===============================================
+// ✅ Speech To Text per tutti i textarea microfono
+// ===============================================
+function etkStartSpeechToText(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+
+    let Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Speech) {
+        alert("Il riconoscimento vocale non è supportato dal browser.");
+        return;
+    }
+
+    const recognition = new Speech();
+    recognition.lang = "it-IT";
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onresult = function (event) {
+        let text = event.results[0][0].transcript;
+        textarea.value = (textarea.value + " " + text).trim();
+
+        // trigger eventi JS di validazione mandatory
+        textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        textarea.dispatchEvent(new Event("change", { bubbles: true }));
+
+    ////////    // ✅ auto resize immediato
+    ////////    etkAutoResize(textarea);
+    };
+
+    recognition.start();
+}
+
+// =====================================================
+// ✅ EVENTO GLOBALE per tutte le icone microfono create
+// =====================================================
+document.addEventListener("click", function (ev) {
+    const btn = ev.target.closest(".etk-mic-btn");
+    if (!btn) return;
+
+    const targetId = btn.getAttribute("data-target");
+
+    // Effetto visivo ON/OFF
+    btn.classList.add("etk-mic-active");
+
+    etkStartSpeechToText(targetId);
+
+    // ritorna al colore normale quando finisce
+    setTimeout(() => btn.classList.remove("etk-mic-active"), 1500);
+});
+
+// ===========================================
+// ✅ AUTO-RESIZE TEXTAREA (1 riga → auto espansa)
+// ===========================================
+////////function etkAutoResize(textarea) {
+////////    if (!textarea) return;
+
+////////    // reset per calcolare altezza reale
+////////    textarea.style.height = "auto";
+
+////////    // calcola nuova altezza
+////////    textarea.style.height = (textarea.scrollHeight) + "px";
+////////}
+
+// ===========================================
+// ✅ Attivazione automatica su tutti i textarea
+// ===========================================
+////////document.addEventListener("input", function (ev) {
+////////    if (ev.target.tagName === "TEXTAREA") {
+////////        etkAutoResize(ev.target);
+////////    }
+////////});
+
+
+//==============================================================================================
+//==============================================================================================
+//==============================================================================================
+
 
 
 

@@ -10,6 +10,24 @@
         <div class="container">
             <div class="row justify-content-between align-items-end">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+
+@* 
+                <div class="form-group">
+                    <label asp-for="SelPrNoteRichiesta" class="control-label"></label>
+                    <erp-speech-to-text asp-for="SelPrNoteRichiesta" rows="1" class="form-control"></erp-speech-to-text>
+                    <span asp-validation-for="SelPrNoteRichiesta" class="text-danger"></span>
+                </div>
+
+ *@                
+                <div class="form-group">
+                    <label asp-for="SelPrNoteRichiesta" class="control-label"></label>
+                    <erp-quill-editor asp-for="SelPrNoteRichiesta" rows="1" class="form-control"></erp-quill-editor>
+                    <span asp-validation-for="SelPrNoteRichiesta" class="text-danger"></span>
+                </div>
+
+
+
                 <div class="form-group">
                     <label asp-for="SelPrIdAttivitaRichiesta" class="control-label"></label>
                     <input asp-for="SelPrIdAttivitaRichiesta" class="form-control" />
@@ -95,12 +113,12 @@
                     <input asp-for="SelPrUrgenza" class="form-control" />
                     <span asp-validation-for="SelPrUrgenza" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+@*                 <div class="form-group">
                     <label asp-for="SelPrNoteRichiesta" class="control-label"></label>
                     <input asp-for="SelPrNoteRichiesta" class="form-control" />
                     <span asp-validation-for="SelPrNoteRichiesta" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+ *@                <div class="form-group">
                     <label asp-for="SelPrRoutine" class="control-label"></label>
                     <input asp-for="SelPrRoutine" class="form-control" />
                     <span asp-validation-for="SelPrRoutine" class="text-danger"></span>
