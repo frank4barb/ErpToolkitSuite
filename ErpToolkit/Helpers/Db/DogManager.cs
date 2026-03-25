@@ -1021,7 +1021,7 @@ namespace ErpToolkit.Helpers.Db
         public List<Choice> AutocompleteGetAll<T>(string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
         public List<Choice> AutocompleteGetSelect<T>(string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return DogManagerQuery.AutocompleteGetSelect<T>(this, term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
         public List<Choice> AutocompletePreLoad<T>(List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return DogManagerQuery.AutocompletePreLoad<T>(this, values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
-        public List<Choice> AutocompleteQuery(string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "") { return ExecuteQuery<Choice>(sql, parameters, transactionId, maxRecords, options); }
+        public List<Choice> AutocompleteQuery(string sql, IDictionary<string, object> parameters, string? transactionId = null, int maxRecords = -1, string options = "") { return ExecuteQuery<Choice>(sql, parameters, transactionId, maxRecords, options); }
 
         //***************************************************************************************************************************************************
         //*** TRANSAZIONI
