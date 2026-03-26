@@ -251,7 +251,7 @@ namespace ErpToolkit.Helpers.Db
             foreach (var fld in tab.fields )
             {
                 string propertyName = fld.fieldName;
-                var sqlFieldNameExt = fld.SqlFieldNameExt?.Trim() ?? "";
+                var sqlFieldNameExt = fld.SqlFieldName?.Trim() ?? "";
                 if (sqlFieldNameExt != "") { sb.AppendLine($" {sqlFieldNameExt} as {propertyName},"); }
             }
             // terminatore di select
@@ -285,7 +285,7 @@ namespace ErpToolkit.Helpers.Db
             foreach (var selFld in sel.fields)
             {
                 string propertyName = selFld.fieldName;
-                var sqlFieldNameExt = selFld.SqlFieldNameExt?.Trim() ?? "";
+                var sqlFieldNameExt = selFld.SqlFieldName?.Trim() ?? "";
                 if (sqlFieldNameExt == "") { throw new Exception($"sqlWhereSelection: sqlFieldNameExt is empty."); }
                 object propertyValue = selFld.GetValue((ModelErp)selModel);    //property.GetValue(selModel);
                 //---
@@ -380,7 +380,7 @@ namespace ErpToolkit.Helpers.Db
             string SqlTableProperties = sel.SqlTableProperties?.Trim() ?? "";
             if (SqlTableProperties.Contains("[NoSysFields]") == false)
             {  // escludo filtro XX__DELETED='N' se il campo non è previsto per la Tabella
-                string delField = sel.tabSelection?.fldDeleted?.SqlFieldNameExt?.Trim() ?? "";
+                string delField = sel.tabSelection?.fldDeleted?.SqlFieldName?.Trim() ?? "";
                 if (delField != "") sb.AppendLine($" {delField} = {DogManager.addParam("N", ref parameters)} ");      //__DELETED
             }
             else
@@ -411,12 +411,12 @@ namespace ErpToolkit.Helpers.Db
                 if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFrom: Classe {objModel.GetType()} non trovata.");
                 DogTable tab = dogMng.tabTypes[objModel.GetType()];
                 if (tab == null) throw new Exception($"sqlFrom: tab [{objModel.GetType()}] == null.");
-                sqlRowName = tab.SqlRowIdNameExt?.Trim() ?? "";
+                sqlRowName = tab.SqlRowIdName?.Trim() ?? "";
                 if (options.Contains("[UsePropertyNameField]")) sqlRowName = tab.RowIdName?.Trim() ?? "";
             }
             else
             {
-                sqlRowName = fldXref.SqlFieldNameExt;
+                sqlRowName = fldXref.SqlFieldName;
                 if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.fieldName;
             }
             if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
@@ -493,7 +493,7 @@ namespace ErpToolkit.Helpers.Db
                     if (action == 'A' && propertyValue == null)
                     {
                         // esiste una condizione
-                        var sqlFieldNameExt = fld.SqlFieldNameExt?.Trim() ?? "";
+                        var sqlFieldNameExt = fld.SqlFieldName?.Trim() ?? "";
                         if (sqlFieldNameExt != "")
                         {
                             //escludo campi di sistema
@@ -557,7 +557,7 @@ namespace ErpToolkit.Helpers.Db
                         if (propertyValue == null) continue;  //  <<<<<<<<<<<<<<<<<<<<<< SALTO I CAMPI NULL
 
                         // esiste una condizione
-                        var sqlFieldNameExt = fld.SqlFieldNameExt?.Trim() ?? "";
+                        var sqlFieldNameExt = fld.SqlFieldName?.Trim() ?? "";
                         if (sqlFieldNameExt != "")
                         {
                             //escludo campi di sistema
@@ -629,7 +629,7 @@ namespace ErpToolkit.Helpers.Db
                     foreach (var fld in tab.fields)
                     {
                         string propertyName = fld.fieldName; // Get property name and value
-                        var sqlFieldNameExt = fld.SqlFieldNameExt?.Trim() ?? "";
+                        var sqlFieldNameExt = fld.SqlFieldName?.Trim() ?? "";
                         if (sqlFieldNameExt != "")
                         {
                             if (fld.optUID || fld.optXID || fld.optXREF) { sb.AppendLine($"{sqlFieldNameExt} = {DogManager.addParam(DBNull.Value, ref parameters)}, "); }
@@ -656,16 +656,16 @@ namespace ErpToolkit.Helpers.Db
                 //--
                 if (dogMng.DatabaseType != DbTyp.SqlServer && dogMng.DatabaseType != DbTyp.Sybase)
                 {
-                    sb.AppendLine($"{tab.fldTimestamp.SqlFieldNameExt}, ");
+                    sb.AppendLine($"{tab.fldTimestamp.SqlFieldName}, ");
                     sbValues.AppendLine($"{DogManager.addParam(newTimestamp, ref parameters)}, ");
                 }
-                sb.AppendLine($"{tab.fldIcode.SqlFieldNameExt}, {tab.fldDeleted.SqlFieldNameExt}, {tab.fldHome.SqlFieldNameExt}, ");
+                sb.AppendLine($"{tab.fldIcode.SqlFieldName}, {tab.fldDeleted.SqlFieldName}, {tab.fldHome.SqlFieldName}, ");
                 sbValues.AppendLine($"{DogManager.addParam(icode, ref parameters)}, {DogManager.addParam("N", ref parameters)}, {DogManager.addParam(dogMng.DbHome, ref parameters)}, ");
                 //---
-                sb.AppendLine($"{tab.fldCdate.SqlFieldNameExt}, {tab.fldCtime.SqlFieldNameExt}, {tab.fldCagent.SqlFieldNameExt}, {tab.fldCunit.SqlFieldNameExt}, ");
+                sb.AppendLine($"{tab.fldCdate.SqlFieldName}, {tab.fldCtime.SqlFieldName}, {tab.fldCagent.SqlFieldName}, {tab.fldCunit.SqlFieldName}, ");
                 sbValues.AppendLine($"{DogManager.addParam(_db_cdate, ref parameters)}, {DogManager.addParam(_db_ctime, ref parameters)}, {DogManager.addParam(_db_cagent, ref parameters)}, {DogManager.addParam(_db_cunit, ref parameters)}, ");
                 //--
-                sb.AppendLine($"{tab.fldMdate.SqlFieldNameExt}, {tab.fldMtime.SqlFieldNameExt}, {tab.fldMagent.SqlFieldNameExt}, {tab.fldMunit.SqlFieldNameExt}");
+                sb.AppendLine($"{tab.fldMdate.SqlFieldName}, {tab.fldMtime.SqlFieldName}, {tab.fldMagent.SqlFieldName}, {tab.fldMunit.SqlFieldName}");
                 sbValues.AppendLine($"{DogManager.addParam(_db_mdate, ref parameters)}, {DogManager.addParam(_db_mtime, ref parameters)}, {DogManager.addParam(_db_magent, ref parameters)}, {DogManager.addParam(_db_munit, ref parameters)}");
                 //---
                 sb.AppendLine(") values (").Append(sbValues.ToString()).Append(") ");
@@ -674,14 +674,14 @@ namespace ErpToolkit.Helpers.Db
             {
                 if (dogMng.DatabaseType != DbTyp.SqlServer && dogMng.DatabaseType != DbTyp.Sybase)
                 {
-                    sb.AppendLine($"{tab.fldTimestamp.SqlFieldNameExt} = {DogManager.addParam(newTimestamp, ref parameters)}, ");
+                    sb.AppendLine($"{tab.fldTimestamp.SqlFieldName} = {DogManager.addParam(newTimestamp, ref parameters)}, ");
                 }
                 //--
-                sb.AppendLine($"{tab.fldMdate.SqlFieldNameExt} = {DogManager.addParam(_db_mdate, ref parameters)}, {tab.fldMtime.SqlFieldNameExt} = {DogManager.addParam(_db_mtime, ref parameters)}, ");
-                sb.AppendLine($"{tab.fldMagent.SqlFieldNameExt} = {DogManager.addParam(_db_magent, ref parameters)}, {tab.fldMunit.SqlFieldNameExt} = {DogManager.addParam(_db_munit, ref parameters)}");
+                sb.AppendLine($"{tab.fldMdate.SqlFieldName} = {DogManager.addParam(_db_mdate, ref parameters)}, {tab.fldMtime.SqlFieldName} = {DogManager.addParam(_db_mtime, ref parameters)}, ");
+                sb.AppendLine($"{tab.fldMagent.SqlFieldName} = {DogManager.addParam(_db_magent, ref parameters)}, {tab.fldMunit.SqlFieldName} = {DogManager.addParam(_db_munit, ref parameters)}");
                 //--
-                sb.AppendLine($" where {tab.fldIcode.SqlFieldNameExt} = {DogManager.addParam(icode, ref parameters)} and {tab.fldDeleted.SqlFieldNameExt} = {DogManager.addParam("N", ref parameters)}");
-                if (options.Contains("*noTms*") == false) sb.Append($" and {tab.fldTimestamp.SqlFieldNameExt} = {DogManager.addParam(oldTimestamp, ref parameters)}");
+                sb.AppendLine($" where {tab.fldIcode.SqlFieldName} = {DogManager.addParam(icode, ref parameters)} and {tab.fldDeleted.SqlFieldName} = {DogManager.addParam("N", ref parameters)}");
+                if (options.Contains("*noTms*") == false) sb.Append($" and {tab.fldTimestamp.SqlFieldName} = {DogManager.addParam(oldTimestamp, ref parameters)}");
             }
 
             //result
@@ -708,7 +708,7 @@ namespace ErpToolkit.Helpers.Db
                 //sb.Append($"select {tab.SqlPrefix}_ICODE as ICODE, {tab.SqlPrefix}_TIMESTAMP as TIMESTAMP from {tab.SqlTableName} where {tab.SqlPrefix}_ICODE in (")
                 //    .Append(string.Join(", ", DogManager.addListParam(tabList[tpy].Select(obj => UtilHelper.TrimEndObject(obj)).ToList<object>(), ref parameters)))
                 //    .AppendLine(") "); ;
-                sb.Append($"select {tab.fldIcode.SqlFieldNameExt} as ICODE, {tab.fldTimestamp.SqlFieldNameExt} as TIMESTAMP from {tab.SqlTableName} where {tab.fldIcode.SqlFieldNameExt} in (")
+                sb.Append($"select {tab.fldIcode.SqlFieldName} as ICODE, {tab.fldTimestamp.SqlFieldName} as TIMESTAMP from {tab.SqlTableName} where {tab.fldIcode.SqlFieldName} in (")
                     .Append(string.Join(", ", DogManager.addListParam(tabList[tpy].Select(obj => UtilHelper.TrimEndObject(obj)).ToList<object>(), ref parameters)))
                     .AppendLine(") "); ;
             }
