@@ -417,7 +417,7 @@ namespace ErpToolkit.Helpers.Db
             else
             {
                 sqlRowName = fldXref.SqlFieldNameExt;
-                if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.SqlFieldName;
+                if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.fieldName;
             }
             if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
             return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
