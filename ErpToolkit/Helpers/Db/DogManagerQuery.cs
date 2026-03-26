@@ -85,7 +85,8 @@ namespace ErpToolkit.Helpers.Db
                 if (fieldNames.Count() > 0) sb.Append($@",");  
                 sb.Append($@" {tab.fldIcode.SqlFieldName} as {tab.fldIcode.fieldName} ");  // devo aggiungere anche icode, se non presente
             }
-            sb.Append($@" FROM {tab.SqlTableName} WHERE {tab.fldDeleted.SqlFieldName} = {DogManager.addParam("N", ref parameters)} ");
+            if (tab.fldDeleted == null) { sb.Append($@" FROM {tab.SqlTableName} WHERE 1=1 "); }
+            else { sb.Append($@" FROM {tab.SqlTableName} WHERE {tab.fldDeleted.SqlFieldName} = {DogManager.addParam("N", ref parameters)} "); }
 
             if (tpy == "GetAll")
             {
