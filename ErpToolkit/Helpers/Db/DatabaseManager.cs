@@ -696,53 +696,59 @@ namespace ErpToolkit.Helpers.Db
             // Ricava lo SPID corrente per SQL Server
             object spid = _database.GetCommandSpid(workConn);
 
-            new Thread(() =>
+            if (spid != null)   // Audit solo se != null
             {
-                IDbConnection monitorConn = null;
-                try
+
+                new Thread(() =>
                 {
-                    // Attendi fino a pochi secondi prima del timeout, ma esci se la query termina prima
-                    int waitMs = Math.Max(0, (timeoutSeconds - auditBeforeTimeoutSeconds) * 1000);
-                    if (done.Wait(waitMs)) return; // la query ha terminato: NON eseguire audit
-
-                    // Double-check lato server: la richiesta è ancora attiva?
-                    monitorConn = _database.NewConnection();
-
-                    if (!_database.IsCommandRequestActive(monitorConn, spid))
+                    IDbConnection monitorConn = null;
+                    try
                     {
-                        // Non è più attiva: NON fare audit
-                        return;
-                    }
+                        // Attendi fino a pochi secondi prima del timeout, ma esci se la query termina prima
+                        int waitMs = Math.Max(0, (timeoutSeconds - auditBeforeTimeoutSeconds) * 1000);
+                        if (done.Wait(waitMs)) return; // la query ha terminato: NON eseguire audit
 
-                    // Esegui snapshot audit (wait info + SQL + piano XML)
-                    var snap = _database.GetCommandAuditSnapshot(monitorConn, spid);
-                    if (snap != null)
+                        // Double-check lato server: la richiesta è ancora attiva?
+                        monitorConn = _database.NewConnection();
+
+                        if (!_database.IsCommandRequestActive(monitorConn, spid))
+                        {
+                            // Non è più attiva: NON fare audit
+                            return;
+                        }
+
+                        // Esegui snapshot audit (wait info + SQL + piano XML)
+                        var snap = _database.GetCommandAuditSnapshot(monitorConn, spid);
+                        if (snap != null)
+                        {
+                            string sqlQuery = snap.SqlText ?? originalSql ?? "--(sql non disponibile)";
+                            string sqlPlan = string.IsNullOrEmpty(snap.QueryPlanXml) ? "--(non disponibile)" : snap.QueryPlanXml;
+
+                            // Info
+                            _logger.Trace($"Audit SQL Timeout:\n" +
+                                $"Query: {sqlQuery}\n" +
+                                $"Status: {snap.Status}\n" +
+                                $"WaitType: {snap.WaitType}\n" +
+                                $"ElapsedMs: {snap.TotalElapsedMs}\n" +
+                                $"BlockingSessionId: {snap.BlockingSessionId}\n" +
+                                $"SqlPlan: {sqlPlan}\n");
+
+                        }
+                    }
+                    catch (Exception ex)
                     {
-                        string sqlQuery = snap.SqlText ?? originalSql ?? "--(sql non disponibile)";
-                        string sqlPlan = string.IsNullOrEmpty(snap.QueryPlanXml) ? "--(non disponibile)" : snap.QueryPlanXml;
-
-                        // Info
-                        _logger.Trace($"Audit SQL Timeout:\n" +
-                            $"Query: {sqlQuery}\n" +
-                            $"Status: {snap.Status}\n" +
-                            $"WaitType: {snap.WaitType}\n" +
-                            $"ElapsedMs: {snap.TotalElapsedMs}\n" +
-                            $"BlockingSessionId: {snap.BlockingSessionId}\n" +
-                            $"SqlPlan: {sqlPlan}\n");
-
+                        // log soft: nessun impatto sulla query
+                        Console.Error.WriteLine($"[Audit] {ex.GetType().Name}: {ex.Message}");
                     }
-                }
-                catch (Exception ex)
+                    finally { if (monitorConn != null) _database.ReleaseConnection(monitorConn); } // si chiude se non c'è transazione
+                })
                 {
-                    // log soft: nessun impatto sulla query
-                    Console.Error.WriteLine($"[Audit] {ex.GetType().Name}: {ex.Message}");
-                }
-                finally { if (monitorConn != null) _database.ReleaseConnection(monitorConn); } // si chiude se non c'è transazione
-            })
-            {
-                IsBackground = true, // non blocca lo shutdown del processo
-                Name = "AuditMonitorThread"
-            }.Start();
+                    IsBackground = true, // non blocca lo shutdown del processo
+                    Name = "AuditMonitorThread"
+                }.Start();
+
+            }
+
         }
         public class LiveSessionSnapshot
         {
