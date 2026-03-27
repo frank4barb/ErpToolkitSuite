@@ -196,7 +196,7 @@ namespace ErpToolkit.Helpers.Db
 
         public readonly Dictionary<string, DogTable> tables = new Dictionary<string, DogTable>();
         public readonly Dictionary<System.Type, DogTable> tabTypes = new Dictionary<System.Type, DogTable>();
-        public readonly Dictionary<string, DogTable> tabPrefixes = new Dictionary<string, DogTable>();
+        //%%//public readonly Dictionary<string, DogTable> tabPrefixes = new Dictionary<string, DogTable>();
         public readonly Dictionary<int, DogTable> tabIntcodes = new Dictionary<int, DogTable>();
         public readonly Dictionary<string, DogField> tabProperties = new Dictionary<string, DogField>();
         public readonly Dictionary<string, DogField> tabFields = new Dictionary<string, DogField>();
@@ -685,11 +685,11 @@ namespace ErpToolkit.Helpers.Db
                                 {
                                     case "TAB":
                                         tabProperties.Add(fld.fieldName, fld);  
-                                        tabFields.Add(fld.SqlFieldName, fld);
+                                        tabFields.Add($"{fld.table.SqlTableName}.{fld.SqlFieldName}", fld);   //tabFields.Add(fld.SqlFieldName, fld);
                                         break;
                                     case "SEL":
                                         selProperties.Add(fld.fieldName, fld);
-                                        selFields.Add(fld.SqlFieldName, fld);
+                                        selFields.Add($"{fld.table.SqlTableName}.{fld.SqlFieldName}", fld);   //selFields.Add(fld.SqlFieldName, fld);
                                         break;
                                 }
                             }
@@ -700,7 +700,7 @@ namespace ErpToolkit.Helpers.Db
                             case "TAB":
                                 tables.Add(tab.SqlTableName, tab);
                                 tabTypes.Add(tab.tableTpy, tab);
-                                tabPrefixes.Add(tab.SqlPrefix, tab);
+                                //%%//tabPrefixes.Add(tab.SqlPrefix, tab);
                                 tabIntcodes.Add(tab.INTCODE, tab);
                                 break;
                             case "SEL":
@@ -898,7 +898,7 @@ namespace ErpToolkit.Helpers.Db
             // Rilascia risorse non gestite
             if (tables != null) { tables.Clear(); }
             if (tabTypes != null) { tabTypes.Clear(); }
-            if (tabPrefixes != null) { tabPrefixes.Clear();  }
+            //%%//if (tabPrefixes != null) { tabPrefixes.Clear();  }
             if (tabIntcodes != null) { tabIntcodes.Clear();  }
             if (tabProperties != null) { tabProperties.Clear(); }
             if (tabFields != null) { tabFields.Clear(); }
@@ -1141,7 +1141,7 @@ namespace ErpToolkit.Helpers.Db
         }
         private DataTable DecodeSpecialTable(DataTable dataTable, string options = "")  //DecodeSpecialFields
         {
-            String Key = "", Value = "";
+            string Key = "", Value = ""; string tbName = "#TABLE_UNKNOWN#";
             try
             { 
                 if (dataTable == null) return null;
@@ -1150,7 +1150,7 @@ namespace ErpToolkit.Helpers.Db
                     foreach (DataColumn column in row.Table.Columns)
                     {
                         Key = column.ColumnName; Value = row[column]?.ToString() ?? "";
-                        row[column] = DecodeSpecialField(null, column.ColumnName, row[column], options + " [ToDataRow]"); // in caso di DataRow => uso DBNull
+                        row[column] = DecodeSpecialField(null, tbName, column.ColumnName, row[column], options + " [ToDataRow]"); // in caso di DataRow => uso DBNull
                         Key = ""; Value = "";
                     }
                 }
@@ -1202,7 +1202,7 @@ namespace ErpToolkit.Helpers.Db
         }
         public T DecodeSpecialRow<T>(DataRow dr, string options = "") 
         {
-            String Key = "", Value = "";
+            string Key = "", Value = ""; string tbName = "#TABLE_UNKNOWN#";
             try
             {
                 System.Type temp = typeof(T);
@@ -1215,13 +1215,14 @@ namespace ErpToolkit.Helpers.Db
                     {
                         DataColumn column = dr.Table.Columns[i];
                         Key = column.ColumnName; Value = dr[column.ColumnName]?.ToString() ?? "";
-                        objArr[i] = DecodeSpecialField(null, column.ColumnName, dr[column.ColumnName], options);
+                        objArr[i] = DecodeSpecialField(null, tbName, column.ColumnName, dr[column.ColumnName], options);
                         Key = ""; Value = "";
                     }
                     return (T)(Object)objArr;
                 }
                 //decode in object model
                 T obj = Activator.CreateInstance<T>();
+                if (this.tabTypes.ContainsKey(temp)) tbName = this.tabTypes[temp].SqlTableName;
                 for (int i = 0; i < dr.Table.Columns.Count; i++)
                 {
                     DataColumn column = dr.Table.Columns[i];
@@ -1230,7 +1231,7 @@ namespace ErpToolkit.Helpers.Db
                         if (pro.Name == column.ColumnName)
                         {
                             Key = column.ColumnName; Value = dr[column.ColumnName]?.ToString() ?? "";
-                            pro.SetValue(obj, DecodeSpecialField(pro.PropertyType, column.ColumnName, dr[column.ColumnName], options), null);
+                            pro.SetValue(obj, DecodeSpecialField(pro.PropertyType, tbName, column.ColumnName, dr[column.ColumnName], options), null);
                             Key = ""; Value = "";
                         }
                     }
@@ -1314,8 +1315,9 @@ namespace ErpToolkit.Helpers.Db
         }
 
         //CODIFICHE: da DB a STRUTTURA (type = tipo campo in struttura [string/short/int/long/double/DateOnly/TimeOnly/DateTime/byte[]/bool])
-        private object DecodeSpecialField(System.Type type, string colName, object value, string options = "")
+        private object DecodeSpecialField(System.Type type, string tabName, string colName, object value, string options = "")
         {
+            string tabcolName = $"{tabName}.{colName}";
             try
             {
                 if (value == null || value.GetType() == typeof(System.DBNull))
@@ -1326,39 +1328,39 @@ namespace ErpToolkit.Helpers.Db
                 if (value.GetType() == typeof(string))
                 {
                     string strVal = ((string)value).Trim();
-                    if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATE == true))
+                    if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optDATE == true))
                     {
                         if (strVal == "" || strVal == "/  /" || strVal == DB_DATE_MIN) return DateOnly.MinValue;
                         if (strVal == DB_DATE_MAX) return DateOnly.MaxValue;
                         if (DateOnly.TryParseExact((string)value, DB_FORMAT_DATE, null, DateTimeStyles.None, out DateOnly date)) return date;
                     }
-                    if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optTIME == true))
+                    if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optTIME == true))
                     {
                         if (strVal == "" || strVal == ":  :" || strVal == DB_TIME_EMPTY) return null;
                         if (TimeOnly.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out TimeOnly time)) return time;
                     }
-                    if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATETIME == true))
+                    if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optDATETIME == true))
                     {
                         if (strVal == "" || strVal == "/  /" || strVal == "/  /     :  :") return DateTime.MinValue;
-                        if (this.tabFields[colName]?.optDATE == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATE, null, DateTimeStyles.None, out DateTime datetimeDate)) return datetimeDate;
-                        else if (this.tabFields[colName]?.optTIME == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out DateTime datetimeTime)) return datetimeTime;
+                        if (this.tabFields[tabcolName]?.optDATE == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATE, null, DateTimeStyles.None, out DateTime datetimeDate)) return datetimeDate;
+                        else if (this.tabFields[tabcolName]?.optTIME == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out DateTime datetimeTime)) return datetimeTime;
                         else if (DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATETIME, null, DateTimeStyles.None, out DateTime datetime)) return datetime;
                     }
                 }
                 if (value.GetType() == typeof(System.DateTime) || value.GetType() == typeof(System.DateTime?))
                 {
-                    if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATE == true))
+                    if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optDATE == true))
                     {
                         DateOnly dt = DateOnly.FromDateTime((DateTime)value); return dt;
                     }
-                    if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optDATETIME == true))
+                    if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optDATETIME == true))
                     {
                         return (DateTime?)value;
                     }
                 }
                 if (value.GetType() == typeof(System.TimeSpan) || value.GetType() == typeof(System.TimeSpan?))
                 {
-                    if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(colName) && this.tabFields[colName]?.optTIME == true))
+                    if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optTIME == true))
                     {
                         TimeOnly tm = TimeOnly.FromTimeSpan((TimeSpan)value); return tm;
                     }
@@ -1377,7 +1379,7 @@ namespace ErpToolkit.Helpers.Db
             }
             catch (System.Exception ex)
             {
-                throw new InvalidCastException($"DecodeSpecialField[{colName}={value?.ToString() ?? ""}]: Errore nella decodifica del campo -- {ex.Message}.");
+                throw new InvalidCastException($"DecodeSpecialField[{tabcolName}={value?.ToString() ?? ""}]: Errore nella decodifica del campo -- {ex.Message}.");
             }
         }
 
