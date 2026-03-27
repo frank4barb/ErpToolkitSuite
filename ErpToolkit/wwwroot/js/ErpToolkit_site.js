@@ -763,10 +763,10 @@ function etkHiddenVarsAppendValue(varTagHtmlName, varKey, value, createIfMissing
     if (value === null) { return; }
     const valueList = etkHiddenVarsGet(varTagHtmlName, varKey);
     if (valueList === null) {
-        etkHiddenVarsPut(varTagHtmlName, varKey, value.trim(), createIfMissing);
+        etkHiddenVarsPut(varTagHtmlName, varKey, value.toString().trim(), createIfMissing);
         return;
     }
-    etkHiddenVarsPut(varTagHtmlName, varKey, valueList.trim() + etkSeparatoreDiLista + value.trim(), createIfMissing);  // accoda con etkSeparatoreDiLista
+    etkHiddenVarsPut(varTagHtmlName, varKey, valueList.trim() + etkSeparatoreDiLista + value.toString().trim(), createIfMissing);  // accoda con etkSeparatoreDiLista
 }
 /**
  * Elimina la chiave dalla lista separata da etkSeparatoreDiLista, se esiste
