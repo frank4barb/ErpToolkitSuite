@@ -196,7 +196,7 @@ namespace ErpToolkit.Helpers.Db
             return false;
         }
 
-        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters)
         {
             // Nessun piano/request live: ritorna snapshot minimale
             return new LiveSessionSnapshot

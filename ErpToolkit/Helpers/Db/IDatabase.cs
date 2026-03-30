@@ -26,7 +26,7 @@ namespace ErpToolkit.Helpers.Db
         //audit
         object GetCommandSpid(IDbConnection conn);
         bool IsCommandRequestActive(IDbConnection conn, object spid);
-        LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid);
+        LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters);
     }
 }
 

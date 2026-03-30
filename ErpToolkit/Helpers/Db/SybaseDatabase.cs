@@ -221,7 +221,7 @@ namespace ErpToolkit.Helpers.Db
             return rdr.Read();
         }
 
-        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters)
         {
             // Stato + wait da monProcess; SQL corrente da monProcessStatement (se installata); piano via sp_showplan (non sempre catturabile come resultset)
             const string sql = @"

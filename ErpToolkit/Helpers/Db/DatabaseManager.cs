@@ -25,6 +25,7 @@ namespace ErpToolkit.Helpers.Db
         private string _transactionId = null;
 
         private string _dumpLastSql = "";
+        private readonly int _auditBeforeTimeoutSeconds = 5;
 
         // Proprietà configurabili
         public DbTyp DatabaseType { get { return _databaseType; } }
@@ -205,7 +206,7 @@ namespace ErpToolkit.Helpers.Db
                     command.CommandTimeout = TimeoutSeconds;
                     string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                     //---
                     DataTable result = _database.QueryReader(command, maxRecords); //eseguo senza retry
                     if (result.Rows.Count > maxRecords)
@@ -241,7 +242,7 @@ namespace ErpToolkit.Helpers.Db
                     command.CommandTimeout = TimeoutSeconds;
                     string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                     //---
                     int result = command.ExecuteNonQuery();
                     //--- Segnala completamento (audit non partirà)
@@ -263,6 +264,7 @@ namespace ErpToolkit.Helpers.Db
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("RecordExists");
             string sql = $"SELECT COUNT(1) FROM {tableName} WHERE {keyField} = @keyValue";
+            Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             //--- Segnaleremo il completamento della query con questo handle
             ManualResetEventSlim done = null;
@@ -273,9 +275,9 @@ namespace ErpToolkit.Helpers.Db
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                     //---
                     bool result = (int)command.ExecuteScalar() > 0;
                     //--- Segnala completamento (audit non partirà)
@@ -297,6 +299,7 @@ namespace ErpToolkit.Helpers.Db
             if (_transactionId != transactionId) RollBackDefaulTransaction("ReadBlob");
             int offset = pageNumber * PageSize;
             string sql = $"SELECT SUBSTRING({blobField}, {offset + 1}, {PageSize}) FROM {tableName} WHERE {keyField} = @keyValue";
+            Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             //--- Segnaleremo il completamento della query con questo handle
             ManualResetEventSlim done = null;
@@ -307,9 +310,9 @@ namespace ErpToolkit.Helpers.Db
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                     //---
                     byte[] result = command.ExecuteScalar() as byte[];
                     //--- Segnala completamento (audit non partirà)
@@ -332,6 +335,7 @@ namespace ErpToolkit.Helpers.Db
             int offset = pageNumber * PageSize;
             int length = Math.Min(PageSize, data.Length - offset);
             string sql = $"UPDATE {tableName} SET {blobField}.WRITE(@data, {offset}, {length}) WHERE {keyField} = @keyValue";
+            IDictionary<string, object> parameters = new Dictionary<string, object> { { "data", data.Skip(offset).Take(length).ToArray() }, { "keyValue", keyValue } };
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             //--- Segnaleremo il completamento della query con questo handle
             ManualResetEventSlim done = null;
@@ -342,9 +346,9 @@ namespace ErpToolkit.Helpers.Db
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
                 {
                     command.CommandTimeout = TimeoutSeconds;
-                    string _dumpSql = AddParametersToCommand(command, new Dictionary<string, object> { { "data", data.Skip(offset).Take(length).ToArray() }, { "keyValue", keyValue } }); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, auditBeforeTimeoutSeconds: 5, done, originalSql: _dumpSql);
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                     //---
                     int affectedRows = command.ExecuteNonQuery();
                     //--- Segnala completamento (audit non partirà)
@@ -691,7 +695,7 @@ namespace ErpToolkit.Helpers.Db
         /// Altrimenti verifica che la sessione sia ancora attiva prima di fare l’audit.
         /// </summary>
         private void StartAuditMonitorIfStillRunning(IDbConnection workConn, int timeoutSeconds, int auditBeforeTimeoutSeconds,
-                                                     ManualResetEventSlim done, string originalSql)
+                                                     ManualResetEventSlim done, string originalSql, string sqlText, IDictionary<string, object> parameters)
         {
             // Ricava lo SPID corrente per SQL Server
             object spid = _database.GetCommandSpid(workConn);
@@ -718,7 +722,7 @@ namespace ErpToolkit.Helpers.Db
                         }
 
                         // Esegui snapshot audit (wait info + SQL + piano XML)
-                        var snap = _database.GetCommandAuditSnapshot(monitorConn, spid);
+                        var snap = _database.GetCommandAuditSnapshot(monitorConn, spid, sqlText, parameters);
                         if (snap != null)
                         {
                             string sqlQuery = snap.SqlText ?? originalSql ?? "--(sql non disponibile)";

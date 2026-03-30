@@ -195,7 +195,7 @@ namespace ErpToolkit.Helpers.Db
             return rdr.Read();
         }
 
-        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters)
         {
             // Recupera sql_id/child_number e piano con DBMS_XPLAN.DISPLAY_CURSOR
             const string s = @"

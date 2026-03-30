@@ -285,7 +285,7 @@ namespace ErpToolkit.Helpers.Db
             return rdr.Read();
         }
 
-        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters)
         {
             const string sql = @"
                                     SELECT 

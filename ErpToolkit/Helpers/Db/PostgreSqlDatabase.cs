@@ -196,7 +196,7 @@ namespace ErpToolkit.Helpers.Db
             return rdr.Read();
         }
 
-        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters)
         {
             // Snapshot live (piano stimato non live)
             const string sql = @"
@@ -213,7 +213,7 @@ namespace ErpToolkit.Helpers.Db
             using var reader = cmd.ExecuteReader();
             if (!reader.Read()) return null;
 
-            var sqlText = reader["sql_text"] as string;
+            var sql_Text = reader["sql_text"] as string;
             long elapsedMs = 0;
             if (reader["duration"] != DBNull.Value) elapsedMs = (long)((TimeSpan)reader["duration"]).TotalMilliseconds;
 
@@ -223,7 +223,7 @@ namespace ErpToolkit.Helpers.Db
                 WaitType = reader["wait_event_type"] as string,
                 TotalElapsedMs = elapsedMs,
                 BlockingSessionId = null,
-                SqlText = sqlText,
+                SqlText = sql_Text,
                 QueryPlanXml = "-- Usa EXPLAIN (FORMAT TEXT) sulla stessa query per il piano stimato"
             };
         }

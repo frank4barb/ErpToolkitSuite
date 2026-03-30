@@ -191,10 +191,10 @@ namespace ErpToolkit.Helpers.Db
             return rdr.Read();
         }
 
-        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid)
+        public LiveSessionSnapshot GetCommandAuditSnapshot(IDbConnection conn, object spid, string sqlText, IDictionary<string, object> parameters)
         {
             // Due step: PROCESSLIST (stato + SQL); poi EXPLAIN FOR CONNECTION (piano JSON)
-            string sqlText = null; long elapsedMs = 0; string planJson = null;
+            string sql_Text = null; long elapsedMs = 0; string planJson = null;
 
             const string pl = @"
                                 SELECT INFO AS sql_text, TIME AS elapsed_seconds, STATE
@@ -206,7 +206,7 @@ namespace ErpToolkit.Helpers.Db
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    sqlText = reader["sql_text"] as string;
+                    sql_Text = reader["sql_text"] as string;
                     elapsedMs = reader["elapsed_seconds"] == DBNull.Value ? 0 : Convert.ToInt64(reader["elapsed_seconds"]) * 1000;
                 }
             }
@@ -229,7 +229,7 @@ namespace ErpToolkit.Helpers.Db
                 WaitType = null,
                 TotalElapsedMs = elapsedMs,
                 BlockingSessionId = null,
-                SqlText = sqlText,
+                SqlText = sql_Text,
                 QueryPlanXml = planJson
             };
         }
