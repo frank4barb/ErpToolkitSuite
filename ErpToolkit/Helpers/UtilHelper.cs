@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MySqlX.XDevAPI.Common;
 using NLog;
+using NLog.Targets;
 using System.Buffers.Text;
 using System.ComponentModel.DataAnnotations;
 using System.DirectoryServices;
@@ -26,22 +27,55 @@ namespace ErpToolkit.Helpers
         }
         //******************************************************************************************************************
         //configura NLog per la classe
+        //////public static NLog.Config.LoggingConfiguration GetNLogConfig()
+        //////{
+
+        //////    NLog.GlobalDiagnosticsContext.Set("SessionLog", ErpContext.Session);
+
+        //////    var config = new NLog.Config.LoggingConfiguration();
+        //////    // Targets where to log to: File and Console
+        //////    //var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "ErpToolkit.log" };  //{ FileName = "backupclientlogfile_backupservice.txt" };
+        //////    var logfile = new NLog.Targets.FileTarget("logfile") { 
+        //////        FileName = "ErpToolkit.log",
+        //////        Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${exception:format=tostring}"
+        //////    };  
+        //////    var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+        //////    // Rules for mapping loggers to targets            
+        //////    config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
+        //////    config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
+        //////    return config;
+        //////}
         public static NLog.Config.LoggingConfiguration GetNLogConfig()
         {
+            // Directory base: EXE in produzione, progetto in sviluppo
+            string baseDir = ErpContext.CurrentDirectory; // <-- il tuo helper
+            string logDir = Path.Combine(baseDir, "logs");
+            Directory.CreateDirectory(logDir);
 
             NLog.GlobalDiagnosticsContext.Set("SessionLog", ErpContext.Session);
 
             var config = new NLog.Config.LoggingConfiguration();
-            // Targets where to log to: File and Console
-            //var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "ErpToolkit.log" };  //{ FileName = "backupclientlogfile_backupservice.txt" };
-            var logfile = new NLog.Targets.FileTarget("logfile") { 
-                FileName = "ErpToolkit.log",
-                Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${exception:format=tostring}"
-            };  
+
+            var logfile = new NLog.Targets.FileTarget("logfile")
+            {
+                FileName = Path.Combine(logDir, "ErpToolkit.log"),
+                Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${exception:format=tostring}",
+
+                ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
+                ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Date,
+                ArchiveDateFormat = "yyyyMMdd",
+                MaxArchiveFiles = 30,
+
+                ConcurrentWrites = true,
+                KeepFileOpen = false
+            };
+
             var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+
             // Rules for mapping loggers to targets            
             config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
             config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
+
             return config;
         }
         //******************************************************************************************************************

@@ -10,6 +10,7 @@ using System.Reflection;
 using ErpToolkit.Controllers;
 using MySqlX.XDevAPI;
 using static ErpToolkit.Helpers.Db.DogManager;
+using System.Diagnostics;
 
 
 namespace ErpToolkit.Helpers
@@ -34,8 +35,9 @@ namespace ErpToolkit.Helpers
         private IDictionary<string, object> _itemsObject = new Dictionary<string, object>();  // <<<<--- gli oggetti non vengono clonati
 
         //propietà pubbliche
-        public string CurrentDirectory = Environment.CurrentDirectory;
-        public string PathIniFile = Environment.CurrentDirectory + "\\" + "ERPdesktop.ini";
+        public static bool IsDevelopment = false;
+        public static string CurrentDirectory = AppContext.BaseDirectory;
+        public string PathIniFile = ErpContext.CurrentDirectory + "\\" + "ERPdesktop.ini";
         public DateTime StartTime = DateTime.Now;
         public DateTime LastUpdateTime = DateTime.Now;
         //-- VARIABILI DI SESSIONE
@@ -105,13 +107,28 @@ namespace ErpToolkit.Helpers
             if (_instance == null)
             {
                 _instance = new ErpContext();
+
+                ErpContext.IsDevelopment = Debugger.IsAttached || Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") == "Development";
+                if (ErpContext.IsDevelopment)
+                {
+                    ErpContext.CurrentDirectory = Environment.CurrentDirectory;
+                    _instance.PathIniFile = ErpContext.CurrentDirectory + "\\" + "ERPdesktop.ini";
+                }
                 // check INI file
-                if (!File.Exists(_instance.PathIniFile)) { _instance.PathIniFile = Environment.CurrentDirectory + "\\..\\" + "ERPdesktop.ini"; }
-                if (!File.Exists(_instance.PathIniFile)) { _instance.PathIniFile = Environment.CurrentDirectory + "\\..\\..\\" + "ERPdesktop.ini"; }
+                if (!File.Exists(_instance.PathIniFile)) { _instance.PathIniFile = ErpContext.CurrentDirectory + "\\..\\" + "ERPdesktop.ini"; }
+                if (!File.Exists(_instance.PathIniFile)) { _instance.PathIniFile = ErpContext.CurrentDirectory + "\\..\\..\\" + "ERPdesktop.ini"; }
                 if (!File.Exists(_instance.PathIniFile)) { throw new ErpException("Impossibile caricare il file di inizializzazione: " + _instance.PathIniFile); }
                 //Load Context
                 _instance._itemsString = readIniFile(_instance.PathIniFile, _instance._itemsString);  //load DHEdesktop.ini
-                                                                                                      //_instanceCLONE = UtilHelper.DeepCopy<ErpContext>(_instance); // crea una copia da assegnare alla sessione
+
+                //////////////////////////////////////////////////////////////////////////////
+
+                _logger.Info($"------> Caricato Contesto del Server {_instance.GetString("@AppName")}");
+                _logger.Info($"PathIniFile: {_instance.PathIniFile}");
+                _logger.Info($"ErpContext.IsDevelopment: {ErpContext.IsDevelopment}");
+                _logger.Info($"");
+
+                //_instanceCLONE = UtilHelper.DeepCopy<ErpContext>(_instance); // crea una copia da assegnare alla sessione
 
                 _sessions = new Dictionary<string, ErpContext>();    //inizializza sessioni del server
                 _instance.ScheduledCleanSessionJob();   // attiva la schedulazione del task di cancellazione delle sessioni scadute

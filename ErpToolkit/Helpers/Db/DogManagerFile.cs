@@ -15,7 +15,7 @@ namespace ErpToolkit.Helpers.Db
         public static void CreateInitFile(DogManager dogMng)
         {
             Console.WriteLine($"Genera File all'avvio");
-            DbInstall(dogMng, $"{ErpContext.Instance.CurrentDirectory}\\DbInstall.sql");
+            DbInstall(dogMng, $"{ErpContext.CurrentDirectory}\\DbInstall.sql");
         }
 
 

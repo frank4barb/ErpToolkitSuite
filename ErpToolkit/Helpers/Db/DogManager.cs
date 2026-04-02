@@ -926,6 +926,33 @@ namespace ErpToolkit.Helpers.Db
             return match;
         }
 
+        public void dumpModel() 
+        {
+            _logger.Info("");
+            _logger.Info("TABLES");
+            foreach (var tab in this.tables.Values)
+            {
+                if (tab == null) { _logger.Info("!!!ERROR: tab == null"); continue; }
+                _logger.Info($"TABLE: {tab.tableTpy.FullName} {tab.TBAREA ?? "null"} {tab.SqlTableName ?? "null"} {tab.SqlPrefix ?? "null"} {tab.LIVEDESC ?? "null"} {tab.IS_RELTABLE ?? "null"} {tab.fldIcode?.SqlFieldName ?? "null"}");
+                foreach (var fld in tab.fields)
+                {
+                    if (fld == null) { _logger.Info("!!!ERROR: fld == null"); continue; }
+                    _logger.Info($"FIELD: {fld.fieldTyp.Name} {fld.fieldName ?? "null"} ({fld.fieldObjTyp?.FullName ?? "null"})  {fld.SqlFieldName ?? "null"}");
+                }
+            }
+            _logger.Info("FILTERS");
+            foreach (var sel in this.selfilters.Values)
+            {
+                if (sel == null) { _logger.Info("!!!ERROR: sel == null"); continue; }
+                _logger.Info($"SELECTION: {sel.tableTpy.FullName} {sel.TBAREA ?? "null"} {sel.SqlTableName ?? "null"} {sel.SqlPrefix ?? "null"} {sel.LIVEDESC ?? "null"} {sel.IS_RELTABLE ?? "null"} {sel.fldIcode?.SqlFieldName ?? "null"}");
+                foreach (var fld in sel.fields)
+                {
+                    if (fld == null) { _logger.Info("!!!ERROR: fld == null"); continue; }
+                    _logger.Info($"FIELD: {fld.fieldTyp.Name} {fld.fieldName ?? "null"} ({fld.fieldObjTyp?.FullName ?? "null"})  {fld.SqlFieldName ?? "null"}");
+                }
+            }
+        }
+
         //***************************************************************************************************************************************************
         //*** ModelErp COPY & CLONE
         //***************************************************************************************************************************************************

@@ -5,7 +5,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<WindowsService>true</WindowsService>
+
+	  <!-- IMPORTANTE -->
+	  <PublishTrimmed>false</PublishTrimmed>
+	  <PublishSingleFile>false</PublishSingleFile>
+	  <PreserveCompilationContext>true</PreserveCompilationContext>
+
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.5" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ErpToolkit\ErpToolkit.csproj" />
@@ -15,6 +26,33 @@
     <None Update="ERPdesktop.ini.sample">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InstallService_runasAdmin.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="UninstallService_runasAdmin.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
+
+
+
+	<!-- Copia TUTTE le View .cshtml nella cartella PUBLISH e nella OUTPUT -->
+	<ItemGroup>
+		<Content Update="Views\**\*.cshtml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+<Target Name="CopyViewsAfterPublish" AfterTargets="Publish">
+  <ItemGroup>
+    <ViewsToCopy Include="Views\**\*.cshtml" />
+  </ItemGroup>
+
+  <Copy 
+      SourceFiles="@(ViewsToCopy)" 
+      DestinationFolder="$(PublishDir)Views\%(RecursiveDir)" 
+      SkipUnchangedFiles="false" />
+</Target>
 
 </Project>

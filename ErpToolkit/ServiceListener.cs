@@ -23,11 +23,16 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using ErpToolkit.Helpers.Db;
+using static ErpToolkit.Helpers.Db.DogFactory;
+using Microsoft.Extensions.Logging;
 
 namespace ErpToolkit
 {
     public class ServiceListener : IHostedService
     {
+        private Task? _webTask;
+        private CancellationTokenSource? _cts;
+        
         private static NLog.ILogger _logger;
         public ServiceListener()
         {
@@ -40,17 +45,26 @@ namespace ErpToolkit
         {
             try
             {
-            //ATTIVA SERVER WEB INTERNO Kestrel IIS in base a quanto presente in configurazione appsettings.json
-            //https://learn.microsoft.com/it-it/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-8.0
-            //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/web-host?view=aspnetcore-8.0
-            //https://learn.microsoft.com/it-it/dotnet/architecture/microservices/multi-container-microservice-net-applications/background-tasks-with-ihostedservice
-            //https://learn.microsoft.com/it-it/aspnet/core/fundamentals/environments?view=aspnetcore-8.0
-            //swagger
-            //https://learn.microsoft.com/it-it/aspnet/core/grpc/json-transcoding-openapi?view=aspnetcore-8.0
+                //ATTIVA SERVER WEB INTERNO Kestrel IIS in base a quanto presente in configurazione appsettings.json
+                //https://learn.microsoft.com/it-it/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-8.0
+                //https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/web-host?view=aspnetcore-8.0
+                //https://learn.microsoft.com/it-it/dotnet/architecture/microservices/multi-container-microservice-net-applications/background-tasks-with-ihostedservice
+                //https://learn.microsoft.com/it-it/aspnet/core/fundamentals/environments?view=aspnetcore-8.0
+                //swagger
+                //https://learn.microsoft.com/it-it/aspnet/core/grpc/json-transcoding-openapi?view=aspnetcore-8.0
 
 
 
-                var builder = WebApplication.CreateBuilder(); //var builder = WebApplication.CreateBuilder(args);
+                // var builder = WebApplication.CreateBuilder(); //var builder = WebApplication.CreateBuilder(args);
+
+
+                var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+                {
+                    //Args = args,
+                    ContentRootPath = ErpContext.CurrentDirectory,  // <<< QUESTA È LA CHIAVE DEL PROBLEMA
+                    WebRootPath = Path.Combine(ErpContext.CurrentDirectory, "wwwroot")
+                });
+
 
                 //inserisco autenticazione custom (LDAP)
 
@@ -205,6 +219,12 @@ namespace ErpToolkit
                 // Registra IHttpContextAccessor
                 builder.Services.AddHttpContextAccessor();
 
+
+                //------------------------------------
+                //------------------------------------
+                //------------------------------------
+
+
                 var app = builder.Build();
 
                 //>>>Gestisci i file statici incorporati nella directory wwwroot
@@ -255,7 +275,70 @@ namespace ErpToolkit
                 //<<<
 
 
-                app.Run();
+                ///////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////
+
+                // VERIFICO CARICAMENTO VIEW 
+                //var loadedViewAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                //    .Where(a => a.GetName().Name!.EndsWith(".Views")).ToArray();
+                //_logger.Info($">>>Lista View caricate:");
+                //foreach (var asm in loadedViewAssemblies) { _logger.Info($"assembly loaded: {asm.FullName}"); }
+                //if (loadedViewAssemblies.Length == 0) { _logger.Info("ATTENZIONE: NESSUNA View Assembly caricata."); }
+                string viewsPath = Path.Combine(app.Environment.ContentRootPath, "Views");
+                _logger.Info($">>>Lista View caricate:");
+                if (!Directory.Exists(viewsPath)) _logger.Info("ATTENZIONE: Cartella Views NON trovata!");
+                else 
+                {
+                    var loadedView = Directory.GetFiles(viewsPath, "*.cshtml", SearchOption.AllDirectories);
+                    foreach (var fname in loadedView) { _logger.Info($"file loaded: {fname}"); }
+                }
+
+                // VERIFICO CARICAMENTO CONTROLLER 
+                var controllers = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes())
+                    .Where(t => typeof(Controller).IsAssignableFrom(t)).ToList();
+                _logger.Info($">>>Lista Controller caricati:");
+                foreach (var c in controllers) { _logger.Info($"assembly loaded: {c.FullName}"); }
+
+                // FORZO LETTURA MODELLO
+                _logger.Info($">>>Lista Modelli caricati:\n");
+                DogId dogId = new DogId(ErpContext.Instance.GetString("#defaultServerDOG"), ErpContext.Instance.GetString("#defaultDbRoot"));
+                ErpContext.Instance.DogFactory.GetDog(dogId).dumpModel();
+
+                // Log porte e URL del server
+                app.Lifetime.ApplicationStarted.Register(() =>
+                {
+                    _logger.Info($"");
+                    _logger.Info($"---------------------------------------------------------------------------------------- ");
+                    _logger.Info($"--------- ");
+                    _logger.Info($"---------> Server AVVIATO!!");
+                    _logger.Info($"--------- ");
+                    foreach (var url in app.Urls) { _logger.Info($"---------> Server listening on: {url}", url); }
+                    _logger.Info($"--------- ");
+                    _logger.Info($"---------> ContentRootPath: {app.Environment.ContentRootPath}");
+                    _logger.Info($"---------> WebRootPath: {app.Environment.WebRootPath}");
+                    _logger.Info($"--------- ");
+                    _logger.Info($"---------------------------------------------------------------------------------------- \n");
+
+                    //da questo momento in produzione disabilito l'output della console
+                    if(!ErpContext.IsDevelopment)
+                    {
+                        Console.SetOut(TextWriter.Null);
+                        Console.SetError(TextWriter.Null);
+                    }
+
+                });
+
+                ///////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////
+
+                //app.Run();
+                _cts = new CancellationTokenSource();
+                _webTask = Task.Run(async () =>
+                {
+                    await app.RunAsync(_cts.Token);
+                });
 
 
             }
@@ -264,10 +347,23 @@ namespace ErpToolkit
                 _logger.Error(new ErpConfigurationException(ex.Message));
             }
         }
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            return Task.CompletedTask;
+            try
+            {
+                _cts?.Cancel();
+                if (_webTask != null)
+                    await _webTask;
+            }
+            catch
+            {
+                // ignora eccezioni da cancellazione
+            }
         }
+        //public Task StopAsync(CancellationToken cancellationToken)
+        //{
+        //    return Task.CompletedTask;
+        //}
 
     }
 
