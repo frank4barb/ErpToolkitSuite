@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "TipoRisorsa", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "TipoRisorsa", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Ts1Icode", Model?.Ts1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,30 +24,30 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="TsCodice" class="control-label"></label>
-                        <input asp-for="TsCodice" class="form-control" />
+                        <label asp-for="TsCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TsCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TsClasseRisorsa" class="control-label"></label>
-                        <input asp-for="TsClasseRisorsa" class="form-control" />
+                        <label asp-for="TsClasseRisorsa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TsClasseRisorsa)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TsIdGruppo" class="control-label"></label>
-                        <input asp-for="TsIdGruppo" class="form-control" />
+                        <label asp-for="TsIdGruppo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TsIdGruppoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TsDescrizione" class="control-label"></label>
-                        <input asp-for="TsDescrizione" class="form-control" />
+                        <label asp-for="TsDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TsDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TsNote" class="control-label"></label>
-                        <input asp-for="TsNote" class="form-control" />
+                        <label asp-for="TsNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TsNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TsUnitaDiMisura" class="control-label"></label>
-                        <input asp-for="TsUnitaDiMisura" class="form-control" />
+                        <label asp-for="TsUnitaDiMisura" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TsUnitaDiMisura)</span>
                     </div>
                 </div>
                 <br />
@@ -54,5 +57,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

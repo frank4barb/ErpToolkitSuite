@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Attivita", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Attivita", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Av1Icode", Model?.Av1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,66 +24,66 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="AvCodice" class="control-label"></label>
-                        <input asp-for="AvCodice" class="form-control" />
+                        <label asp-for="AvCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvDescrizione" class="control-label"></label>
-                        <input asp-for="AvDescrizione" class="form-control" />
+                        <label asp-for="AvDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvNote" class="control-label"></label>
-                        <input asp-for="AvNote" class="form-control" />
+                        <label asp-for="AvNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvFiltroRegimeErogazione" class="control-label"></label>
-                        <input asp-for="AvFiltroRegimeErogazione" class="form-control" />
+                        <label asp-for="AvFiltroRegimeErogazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvFiltroRegimeErogazione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvCostoMedio" class="control-label"></label>
-                        <input asp-for="AvCostoMedio" class="form-control" />
+                        <label asp-for="AvCostoMedio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvCostoMedio)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvIdGruppo" class="control-label"></label>
-                        <input asp-for="AvIdGruppo" class="form-control" />
+                        <label asp-for="AvIdGruppo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvIdGruppoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvAttivitaPreferenziale" class="control-label"></label>
-                        <input asp-for="AvAttivitaPreferenziale" class="form-control" />
+                        <label asp-for="AvAttivitaPreferenziale" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvAttivitaPreferenziale)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvDurataValidita" class="control-label"></label>
-                        <input asp-for="AvDurataValidita" class="form-control" />
+                        <label asp-for="AvDurataValidita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvDurataValidita)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvDurataMedia" class="control-label"></label>
-                        <input asp-for="AvDurataMedia" class="form-control" />
+                        <label asp-for="AvDurataMedia" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvDurataMedia)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvInEvidenza" class="control-label"></label>
-                        <input asp-for="AvInEvidenza" class="form-control" />
+                        <label asp-for="AvInEvidenza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvInEvidenza)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvIdTipoAttivita" class="control-label"></label>
-                        <input asp-for="AvIdTipoAttivita" class="form-control" />
+                        <label asp-for="AvIdTipoAttivita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvIdTipoAttivitaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvRoutine" class="control-label"></label>
-                        <input asp-for="AvRoutine" class="form-control" />
+                        <label asp-for="AvRoutine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvRoutine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvNoteEstese" class="control-label"></label>
-                        <input asp-for="AvNoteEstese" class="form-control" />
+                        <label asp-for="AvNoteEstese" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvNoteEstese)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvAttributi1" class="control-label"></label>
-                        <input asp-for="AvAttributi1" class="form-control" />
+                        <label asp-for="AvAttributi1" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvAttributi1)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="AvAttributi2" class="control-label"></label>
-                        <input asp-for="AvAttributi2" class="form-control" />
+                        <label asp-for="AvAttributi2" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.AvAttributi2)</span>
                     </div>
                 </div>
                 <br />
@@ -90,5 +93,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

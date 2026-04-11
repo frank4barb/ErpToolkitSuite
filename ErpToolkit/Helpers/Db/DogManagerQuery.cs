@@ -24,9 +24,9 @@ namespace ErpToolkit.Helpers.Db
         //******************************************************************************************************************
 
 
-        private const bool IS_NULLABLE_ID = true; //=true se posso inserire NULL in tutti gli identifificatori univoci (serve per velocizzare gli indici)
+        private const bool IS_NULLABLE_ID = false; //=true se posso inserire NULL in tutti gli identifificatori univoci (serve per velocizzare gli indici)
         private const bool IS_NULLABLE_NUM = false; //=true se posso inserire NULL sui valori numerici
-        private const bool IS_NULLABLE_INDEX = true; //=true se posso definire indici univoci con campi NULL
+        private const bool IS_NULLABLE_INDEX = false; //=true se posso definire indici univoci con campi NULL
 
 
 
@@ -624,6 +624,7 @@ namespace ErpToolkit.Helpers.Db
             {
                 //DELETED
                 sb.AppendLine($"{tab.fldDeleted.SqlFieldName} = {DogManager.addParam("Y", ref parameters)}, ");
+                numParam = 1; 
                 if (IS_NULLABLE_INDEX && IS_NULLABLE_ID)
                 {  //se cancello il record elimino i campi chiave per evitare problemi di integrita referenziale
                     foreach (var fld in tab.fields)

@@ -23,7 +23,7 @@ namespace HealthDemo
         {
             try
             {
-                bool isStartup = true;
+                bool isStartup = true; StreamWriter fileWriter = null;
                 bool isService = WindowsServiceHelpers.IsWindowsService();  //var isDebugging = Debugger.IsAttached || args.Contains("--console");
                 if (isService) //disattiva ouput su console 
                 {
@@ -31,7 +31,7 @@ namespace HealthDemo
                     {
                         var logPath = Path.Combine(AppContext.BaseDirectory, "startup.log");
                         Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
-                        var fileWriter = new StreamWriter(logPath, append: true)
+                        fileWriter = new StreamWriter(logPath, append: true)
                         {
                             AutoFlush = true
                         };
@@ -45,7 +45,8 @@ namespace HealthDemo
                     }
 
                 }
-                Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Start");
+                Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] \n\n\n\n\n\n");
+                Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ********** Starting Windows Service *************************************************************");
 
                 ErpContext.Init(Assembly.GetExecutingAssembly()); // Init Erp Model before start services
                 Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ErpContext.Init");
@@ -68,6 +69,19 @@ namespace HealthDemo
                     Console.WriteLine("Modalità Windows Service...");
                     builder.UseWindowsService();
                     Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] UseWindowsService");
+
+                    // Intercetta gli eventi di stop del servizio per loggare lo stato
+                    ServiceBaseLifetimeExtension.RegisterStopCallback((status) =>
+                    {
+                        if (fileWriter != null)
+                        {
+                            fileWriter.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] >>> {status}");
+                            fileWriter.Flush();
+                        }
+                    });
+
+
+
                     await builder.RunTheServiceAsync();  //await builder.Build().RunAsync();
                     Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] RunTheServiceAsync");
 

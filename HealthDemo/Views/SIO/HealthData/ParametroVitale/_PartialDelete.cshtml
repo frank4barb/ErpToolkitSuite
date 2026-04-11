@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "ParametroVitale", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "ParametroVitale", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Pv1Icode", Model?.Pv1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,70 +24,70 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="PvClasse" class="control-label"></label>
-                        <input asp-for="PvClasse" class="form-control" />
+                        <label asp-for="PvClasse" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvClasse)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvIdPaziente" class="control-label"></label>
-                        <input asp-for="PvIdPaziente" class="form-control" />
+                        <label asp-for="PvIdPaziente" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvIdPazienteObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvIdEpisodio" class="control-label"></label>
-                        <input asp-for="PvIdEpisodio" class="form-control" />
+                        <label asp-for="PvIdEpisodio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvIdEpisodioObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvIdTipoDatoClinico" class="control-label"></label>
-                        <input asp-for="PvIdTipoDatoClinico" class="form-control" />
+                        <label asp-for="PvIdTipoDatoClinico" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvIdTipoDatoClinicoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvValoreMinimo" class="control-label"></label>
-                        <input asp-for="PvValoreMinimo" class="form-control" />
+                        <label asp-for="PvValoreMinimo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvValoreMinimo)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvValoreMassimo" class="control-label"></label>
-                        <input asp-for="PvValoreMassimo" class="form-control" />
+                        <label asp-for="PvValoreMassimo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvValoreMassimo)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvValoreScelta" class="control-label"></label>
-                        <input asp-for="PvValoreScelta" class="form-control" />
+                        <label asp-for="PvValoreScelta" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvValoreScelta)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvValoreTesto" class="control-label"></label>
-                        <input asp-for="PvValoreTesto" class="form-control" />
+                        <label asp-for="PvValoreTesto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvValoreTesto)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvNote" class="control-label"></label>
-                        <input asp-for="PvNote" class="form-control" />
+                        <label asp-for="PvNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvCodiceReferto" class="control-label"></label>
-                        <input asp-for="PvCodiceReferto" class="form-control" />
+                        <label asp-for="PvCodiceReferto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvCodiceReferto)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvDataAcquisizione" class="control-label"></label>
-                        <input asp-for="PvDataAcquisizione" class="form-control" />
+                        <label asp-for="PvDataAcquisizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvDataAcquisizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvOraAcquisizione" class="control-label"></label>
-                        <input asp-for="PvOraAcquisizione" class="form-control" />
+                        <label asp-for="PvOraAcquisizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvOraAcquisizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvStatoDatoClinico" class="control-label"></label>
-                        <input asp-for="PvStatoDatoClinico" class="form-control" />
+                        <label asp-for="PvStatoDatoClinico" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvStatoDatoClinico)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvDataValidazione" class="control-label"></label>
-                        <input asp-for="PvDataValidazione" class="form-control" />
+                        <label asp-for="PvDataValidazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvDataValidazione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvOraValidazione" class="control-label"></label>
-                        <input asp-for="PvOraValidazione" class="form-control" />
+                        <label asp-for="PvOraValidazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvOraValidazione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PvSequenza" class="control-label"></label>
-                        <input asp-for="PvSequenza" class="form-control" />
+                        <label asp-for="PvSequenza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PvSequenza)</span>
                     </div>
                 </div>
                 <br />
@@ -94,5 +97,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

@@ -1080,6 +1080,7 @@ namespace ErpToolkit.Helpers.Db
         }
         public void WriteBlob(string tableName, string keyField, object keyValue, string blobField, byte[] data, int pageNumber, string? transactionId)
         {
+            if (_modelMode == "FREE") throw new InvalidOperationException("WriteBlob non disponibile in modalità FREE.");  // WriteBlob non è disponibile in modalità FREE, perché è strettamente legata alla gestione della cache e delle dipendenze tra tabelle, che in modalità FREE sono limitate o assenti.
             if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             _getDbMg().WriteBlob(tableName, keyField, keyValue, blobField, data, pageNumber, transactionId);
         }
@@ -1115,6 +1116,7 @@ namespace ErpToolkit.Helpers.Db
         //ExecNonQuery
         public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string? transactionId)
         {
+            if (_modelMode == "FREE") throw new InvalidOperationException("DeleteRecord non disponibile in modalità FREE.");  // DeleteRecord non è disponibile in modalità FREE, perché è strettamente legata alla gestione della cache e delle dipendenze tra tabelle, che in modalità FREE sono limitate o assenti.
             if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             _getDbMg().DeleteRecord(tableName, keyField, fields, transactionId);
         }
@@ -1132,6 +1134,7 @@ namespace ErpToolkit.Helpers.Db
         }
         public void ImportCsvToTable(string tableName, string filePath)
         {
+            if (_modelMode == "FREE") throw new InvalidOperationException("ImportCsvToTable non disponibile in modalità FREE.");  // ImportCsvToTable non è disponibile in modalità FREE, perché è strettamente legata alla gestione della cache e delle dipendenze tra tabelle, che in modalità FREE sono limitate o assenti.
             _getDbMg().ImportCsvToTable(tableName, filePath);
         }
 
@@ -1575,6 +1578,8 @@ namespace ErpToolkit.Helpers.Db
         // in modo che alla prossima lettura vengano ricaricati da DB
         public List<DogResult> MntList(List<ModelErp> tabModels, ref DogCache dogCache, string? transactionId, int maxRecords, string options = "")
         {
+            if (_modelMode == "FREE") throw new InvalidOperationException("MntList non disponibile in modalità FREE.");  // MntList non è disponibile in modalità FREE, perché è strettamente legata alla gestione della cache e delle dipendenze tra tabelle, che in modalità FREE sono limitate o assenti.
+
             if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             if (maxRecords < 0) maxRecords = DOG_DEFAULT_XREF_CACHE_MAX_RECORDS;
             List<DogResult> dogResults = new List<DogResult>();

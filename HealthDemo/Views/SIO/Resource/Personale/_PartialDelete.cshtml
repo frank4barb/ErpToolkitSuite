@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Personale", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Personale", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Pe1Icode", Model?.Pe1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,58 +24,58 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="PeCodice" class="control-label"></label>
-                        <input asp-for="PeCodice" class="form-control" />
+                        <label asp-for="PeCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeDescrizione" class="control-label"></label>
-                        <input asp-for="PeDescrizione" class="form-control" />
+                        <label asp-for="PeDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeIdTipoRisorsa" class="control-label"></label>
-                        <input asp-for="PeIdTipoRisorsa" class="form-control" />
+                        <label asp-for="PeIdTipoRisorsa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeIdTipoRisorsaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeCostoUnitarioUso" class="control-label"></label>
-                        <input asp-for="PeCostoUnitarioUso" class="form-control" />
+                        <label asp-for="PeCostoUnitarioUso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeCostoUnitarioUso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeMisuraUnitariaUso" class="control-label"></label>
-                        <input asp-for="PeMisuraUnitariaUso" class="form-control" />
+                        <label asp-for="PeMisuraUnitariaUso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeMisuraUnitariaUso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeNote" class="control-label"></label>
-                        <input asp-for="PeNote" class="form-control" />
+                        <label asp-for="PeNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeDisponibilita" class="control-label"></label>
-                        <input asp-for="PeDisponibilita" class="form-control" />
+                        <label asp-for="PeDisponibilita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeDisponibilita)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeTelefono" class="control-label"></label>
-                        <input asp-for="PeTelefono" class="form-control" />
+                        <label asp-for="PeTelefono" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeTelefono)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeCellulare" class="control-label"></label>
-                        <input asp-for="PeCellulare" class="form-control" />
+                        <label asp-for="PeCellulare" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeCellulare)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeNome" class="control-label"></label>
-                        <input asp-for="PeNome" class="form-control" />
+                        <label asp-for="PeNome" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeNome)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeCognome" class="control-label"></label>
-                        <input asp-for="PeCognome" class="form-control" />
+                        <label asp-for="PeCognome" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeCognome)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeCodiceFiscale" class="control-label"></label>
-                        <input asp-for="PeCodiceFiscale" class="form-control" />
+                        <label asp-for="PeCodiceFiscale" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeCodiceFiscale)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PeEmail" class="control-label"></label>
-                        <input asp-for="PeEmail" class="form-control" />
+                        <label asp-for="PeEmail" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PeEmail)</span>
                     </div>
                 </div>
                 <br />
@@ -82,5 +85,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

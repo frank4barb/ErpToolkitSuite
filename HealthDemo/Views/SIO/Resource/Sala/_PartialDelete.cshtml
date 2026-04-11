@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Sala", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Sala", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Sa1Icode", Model?.Sa1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,54 +24,54 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="SaCodice" class="control-label"></label>
-                        <input asp-for="SaCodice" class="form-control" />
+                        <label asp-for="SaCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaIdTipoRisorsa" class="control-label"></label>
-                        <input asp-for="SaIdTipoRisorsa" class="form-control" />
+                        <label asp-for="SaIdTipoRisorsa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaIdTipoRisorsaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaDescrizione" class="control-label"></label>
-                        <input asp-for="SaDescrizione" class="form-control" />
+                        <label asp-for="SaDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaCostoUnitarioUso" class="control-label"></label>
-                        <input asp-for="SaCostoUnitarioUso" class="form-control" />
+                        <label asp-for="SaCostoUnitarioUso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaCostoUnitarioUso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaMisuraUnitariaUso" class="control-label"></label>
-                        <input asp-for="SaMisuraUnitariaUso" class="form-control" />
+                        <label asp-for="SaMisuraUnitariaUso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaMisuraUnitariaUso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaNote" class="control-label"></label>
-                        <input asp-for="SaNote" class="form-control" />
+                        <label asp-for="SaNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaDisponibilita" class="control-label"></label>
-                        <input asp-for="SaDisponibilita" class="form-control" />
+                        <label asp-for="SaDisponibilita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaDisponibilita)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaTelefonoFornitore" class="control-label"></label>
-                        <input asp-for="SaTelefonoFornitore" class="form-control" />
+                        <label asp-for="SaTelefonoFornitore" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaTelefonoFornitore)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaDataUltimaManutenzione" class="control-label"></label>
-                        <input asp-for="SaDataUltimaManutenzione" class="form-control" />
+                        <label asp-for="SaDataUltimaManutenzione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaDataUltimaManutenzione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaFrequenzaManutenzione" class="control-label"></label>
-                        <input asp-for="SaFrequenzaManutenzione" class="form-control" />
+                        <label asp-for="SaFrequenzaManutenzione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaFrequenzaManutenzione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaUsoMedioGiornaliero" class="control-label"></label>
-                        <input asp-for="SaUsoMedioGiornaliero" class="form-control" />
+                        <label asp-for="SaUsoMedioGiornaliero" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaUsoMedioGiornaliero)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="SaDataProssimaManutenzione" class="control-label"></label>
-                        <input asp-for="SaDataProssimaManutenzione" class="form-control" />
+                        <label asp-for="SaDataProssimaManutenzione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.SaDataProssimaManutenzione)</span>
                     </div>
                 </div>
                 <br />
@@ -78,5 +81,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

@@ -12,6 +12,26 @@
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 
+
+
+<erp-llama-chat
+    placeholder="Parla con il modello..."
+    endpoint="http://localhost:8033/v1/chat/completions" />
+
+<erp-llama-chat
+    placeholder="Seconda chat indipendente"
+    endpoint="http://localhost:8033/v1/chat/completions" />
+
+
+
+
+
+
+
+
+
+
+
 @* 
                 <div class="form-group">
                     <label asp-for="SelPrNoteRichiesta" class="control-label"></label>

@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "RisultatoEsame", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "RisultatoEsame", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Re1Icode", Model?.Re1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,70 +24,70 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="ReClasse" class="control-label"></label>
-                        <input asp-for="ReClasse" class="form-control" />
+                        <label asp-for="ReClasse" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReClasse)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReIdPaziente" class="control-label"></label>
-                        <input asp-for="ReIdPaziente" class="form-control" />
+                        <label asp-for="ReIdPaziente" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReIdPazienteObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReIdTipoDatoClinico" class="control-label"></label>
-                        <input asp-for="ReIdTipoDatoClinico" class="form-control" />
+                        <label asp-for="ReIdTipoDatoClinico" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReIdTipoDatoClinicoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReIdGruppoDatoClinico" class="control-label"></label>
-                        <input asp-for="ReIdGruppoDatoClinico" class="form-control" />
+                        <label asp-for="ReIdGruppoDatoClinico" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReIdGruppoDatoClinicoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReValoreMinimo" class="control-label"></label>
-                        <input asp-for="ReValoreMinimo" class="form-control" />
+                        <label asp-for="ReValoreMinimo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReValoreMinimo)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReValoreMassimo" class="control-label"></label>
-                        <input asp-for="ReValoreMassimo" class="form-control" />
+                        <label asp-for="ReValoreMassimo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReValoreMassimo)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReValoreScelta" class="control-label"></label>
-                        <input asp-for="ReValoreScelta" class="form-control" />
+                        <label asp-for="ReValoreScelta" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReValoreScelta)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReValoreTesto" class="control-label"></label>
-                        <input asp-for="ReValoreTesto" class="form-control" />
+                        <label asp-for="ReValoreTesto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReValoreTesto)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReNote" class="control-label"></label>
-                        <input asp-for="ReNote" class="form-control" />
+                        <label asp-for="ReNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReCodiceReferto" class="control-label"></label>
-                        <input asp-for="ReCodiceReferto" class="form-control" />
+                        <label asp-for="ReCodiceReferto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReCodiceReferto)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReDataAcquisizione" class="control-label"></label>
-                        <input asp-for="ReDataAcquisizione" class="form-control" />
+                        <label asp-for="ReDataAcquisizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReDataAcquisizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReOraAcquisizione" class="control-label"></label>
-                        <input asp-for="ReOraAcquisizione" class="form-control" />
+                        <label asp-for="ReOraAcquisizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReOraAcquisizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReStatoDatoClinico" class="control-label"></label>
-                        <input asp-for="ReStatoDatoClinico" class="form-control" />
+                        <label asp-for="ReStatoDatoClinico" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReStatoDatoClinico)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReDataValidazione" class="control-label"></label>
-                        <input asp-for="ReDataValidazione" class="form-control" />
+                        <label asp-for="ReDataValidazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReDataValidazione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReOraValidazione" class="control-label"></label>
-                        <input asp-for="ReOraValidazione" class="form-control" />
+                        <label asp-for="ReOraValidazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReOraValidazione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReSequenza" class="control-label"></label>
-                        <input asp-for="ReSequenza" class="form-control" />
+                        <label asp-for="ReSequenza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.ReSequenza)</span>
                     </div>
                 </div>
                 <br />
@@ -94,5 +97,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

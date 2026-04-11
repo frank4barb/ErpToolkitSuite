@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Farmaco", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Farmaco", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Fm1Icode", Model?.Fm1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,82 +24,82 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="FmCodice" class="control-label"></label>
-                        <input asp-for="FmCodice" class="form-control" />
+                        <label asp-for="FmCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmDescrizione" class="control-label"></label>
-                        <input asp-for="FmDescrizione" class="form-control" />
+                        <label asp-for="FmDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmIdTipoRisorsa" class="control-label"></label>
-                        <input asp-for="FmIdTipoRisorsa" class="form-control" />
+                        <label asp-for="FmIdTipoRisorsa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmIdTipoRisorsaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmCostoUnitarioUso" class="control-label"></label>
-                        <input asp-for="FmCostoUnitarioUso" class="form-control" />
+                        <label asp-for="FmCostoUnitarioUso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmCostoUnitarioUso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmMisuraUnitariaUso" class="control-label"></label>
-                        <input asp-for="FmMisuraUnitariaUso" class="form-control" />
+                        <label asp-for="FmMisuraUnitariaUso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmMisuraUnitariaUso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmNote" class="control-label"></label>
-                        <input asp-for="FmNote" class="form-control" />
+                        <label asp-for="FmNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmDisponibilita" class="control-label"></label>
-                        <input asp-for="FmDisponibilita" class="form-control" />
+                        <label asp-for="FmDisponibilita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmDisponibilita)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmQuantitaDisponibile" class="control-label"></label>
-                        <input asp-for="FmQuantitaDisponibile" class="form-control" />
+                        <label asp-for="FmQuantitaDisponibile" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmQuantitaDisponibile)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmQuantitaMinimaMagazzino" class="control-label"></label>
-                        <input asp-for="FmQuantitaMinimaMagazzino" class="form-control" />
+                        <label asp-for="FmQuantitaMinimaMagazzino" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmQuantitaMinimaMagazzino)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmUsoMedioGiornaliero" class="control-label"></label>
-                        <input asp-for="FmUsoMedioGiornaliero" class="form-control" />
+                        <label asp-for="FmUsoMedioGiornaliero" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmUsoMedioGiornaliero)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmDataUltimoOrdine" class="control-label"></label>
-                        <input asp-for="FmDataUltimoOrdine" class="form-control" />
+                        <label asp-for="FmDataUltimoOrdine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmDataUltimoOrdine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmQuantitaUltimoOrdine" class="control-label"></label>
-                        <input asp-for="FmQuantitaUltimoOrdine" class="form-control" />
+                        <label asp-for="FmQuantitaUltimoOrdine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmQuantitaUltimoOrdine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmDataProssimoOrdine" class="control-label"></label>
-                        <input asp-for="FmDataProssimoOrdine" class="form-control" />
+                        <label asp-for="FmDataProssimoOrdine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmDataProssimoOrdine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmQuantitaMediaOrdine" class="control-label"></label>
-                        <input asp-for="FmQuantitaMediaOrdine" class="form-control" />
+                        <label asp-for="FmQuantitaMediaOrdine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmQuantitaMediaOrdine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmRiferimentiFornitore" class="control-label"></label>
-                        <input asp-for="FmRiferimentiFornitore" class="form-control" />
+                        <label asp-for="FmRiferimentiFornitore" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmRiferimentiFornitore)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmCodiceNazionale" class="control-label"></label>
-                        <input asp-for="FmCodiceNazionale" class="form-control" />
+                        <label asp-for="FmCodiceNazionale" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmCodiceNazionale)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmCodiceAic" class="control-label"></label>
-                        <input asp-for="FmCodiceAic" class="form-control" />
+                        <label asp-for="FmCodiceAic" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmCodiceAic)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmDataInizioAutorizzazione" class="control-label"></label>
-                        <input asp-for="FmDataInizioAutorizzazione" class="form-control" />
+                        <label asp-for="FmDataInizioAutorizzazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmDataInizioAutorizzazione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FmDataFineAutorizzazione" class="control-label"></label>
-                        <input asp-for="FmDataFineAutorizzazione" class="form-control" />
+                        <label asp-for="FmDataFineAutorizzazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.FmDataFineAutorizzazione)</span>
                     </div>
                 </div>
                 <br />
@@ -106,5 +109,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

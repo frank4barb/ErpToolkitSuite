@@ -2797,6 +2797,111 @@ document.addEventListener("click", function (ev) {
 ////////});
 
 
+
+
+//==============================================================================================
+//==============================================================================================
+//==============================================================================================
+
+
+
+// =======================================================
+// ✅ LLaMA – Toggle Text To Speech (per singola istanza)
+// =======================================================
+document.addEventListener("change", function (ev) {
+    const chk = ev.target.closest(".llama-tts-toggle");
+    if (!chk) return;
+
+    const uid = chk.dataset.target;
+    const wrapper = chk.closest("[data-llama]");
+    if (!wrapper) return;
+
+    wrapper.dataset.tts = chk.checked ? "1" : "0";
+});
+
+// =======================================================
+// ✅ Browser Text‑to‑Speech
+// =======================================================
+function etkSpeakText(text) {
+    if (!window.speechSynthesis) return;
+
+    window.speechSynthesis.cancel(); // interrompe eventuale parlato precedente
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "it-IT";
+    utter.rate = 1;
+    utter.pitch = 1;
+
+    window.speechSynthesis.speak(utter);
+}
+
+
+// =======================================================
+// ✅ Integrazione con lo streaming LLaMA
+// =======================================================
+async function etkLlamaSend(wrapper) {
+    const endpoint = wrapper.dataset.endpoint;
+    const sessionId = wrapper.dataset.sessionId;
+    const enableTts = wrapper.dataset.tts === "1";
+
+    const textarea = wrapper.querySelector("textarea");
+    const output = wrapper.querySelector(".llama-response");
+
+    const prompt = textarea.value.trim();
+    if (!prompt) return;
+
+    output.textContent = "";
+    let fullText = "";
+
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            model: "local-model",
+            stream: true,
+            session_id: sessionId,
+            messages: [{ role: "user", content: prompt }]
+        })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        chunk.split("\n").forEach(line => {
+            if (!line.startsWith("data: ")) return;
+            const data = line.substring(6);
+            if (data === "[DONE]") return;
+
+            try {
+                const json = JSON.parse(data);
+                const token = json.choices?.[0]?.delta?.content;
+                if (token) {
+                    output.textContent += token;
+                    fullText += token;
+                }
+            } catch { }
+        });
+    }
+
+    // ✅ SOLO SE l'utente ha abilitato TTS
+    if (enableTts && fullText.trim() !== "") {
+        etkSpeakText(fullText);
+    }
+}
+
+
+
+
+
+
+
+
+
 //==============================================================================================
 //==============================================================================================
 //==============================================================================================

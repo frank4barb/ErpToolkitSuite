@@ -2329,6 +2329,55 @@ namespace ErpToolkit.Helpers
 
 
 
+    [HtmlTargetElement("erp-llama-chat")]
+    public class ErpLlamaChatTagHelper : TagHelper
+    {
+        public string Placeholder { get; set; } = "Scrivi o parla…";
+        public int Rows { get; set; } = 4;
+        public string Endpoint { get; set; } = "http://localhost:8080/v1/chat/completions";
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            var uid = "llama_" + Guid.NewGuid().ToString("N");
+
+            output.TagName = "div";
+            output.Attributes.SetAttribute("class", "llama-chat-wrapper");
+            output.Attributes.SetAttribute("data-llama", "1");
+            output.Attributes.SetAttribute("data-endpoint", Endpoint);
+            output.Attributes.SetAttribute("data-session-id", Guid.NewGuid().ToString());
+            output.Attributes.SetAttribute("data-tts", "0"); // ❌ default OFF
+
+            output.Content.SetHtmlContent($@"
+                <div class='llama-input'>
+                    <textarea id='{uid}_prompt'
+                              class='form-control'
+                              rows='{Rows}'
+                              placeholder='{Placeholder}'></textarea>
+
+                    <button type='button'
+                            class='etk-mic-btn'
+                            data-target='{uid}_prompt'>🎤</button>
+
+                    <button type='button'
+                            class='llama-send-btn'
+                            data-target='{uid}'>➤</button>
+                </div>
+
+                <label class='form-check mt-1'>
+                    <input type='checkbox'
+                           class='form-check-input llama-tts-toggle'
+                           data-target='{uid}'>
+                    🔊 Leggi la risposta
+                </label>
+
+                <pre id='{uid}_response' class='llama-response'></pre>
+            ");
+        }
+    }
+
+
+
+
 
     //*****************************************************************************************************************************************************
     //*****************************************************************************************************************************************************

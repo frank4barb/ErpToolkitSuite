@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "TipoDatoClinico", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "TipoDatoClinico", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Tc1Icode", Model?.Tc1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,42 +24,42 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="TcCodice" class="control-label"></label>
-                        <input asp-for="TcCodice" class="form-control" />
+                        <label asp-for="TcCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcDescrizione" class="control-label"></label>
-                        <input asp-for="TcDescrizione" class="form-control" />
+                        <label asp-for="TcDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcNote" class="control-label"></label>
-                        <input asp-for="TcNote" class="form-control" />
+                        <label asp-for="TcNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcIdCategoriaDatoClinico" class="control-label"></label>
-                        <input asp-for="TcIdCategoriaDatoClinico" class="form-control" />
+                        <label asp-for="TcIdCategoriaDatoClinico" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcIdCategoriaDatoClinicoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcUnitaDiMisura" class="control-label"></label>
-                        <input asp-for="TcUnitaDiMisura" class="form-control" />
+                        <label asp-for="TcUnitaDiMisura" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcUnitaDiMisura)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcIdGruppo" class="control-label"></label>
-                        <input asp-for="TcIdGruppo" class="form-control" />
+                        <label asp-for="TcIdGruppo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcIdGruppoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcSequenza" class="control-label"></label>
-                        <input asp-for="TcSequenza" class="form-control" />
+                        <label asp-for="TcSequenza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcSequenza)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcAttributi1" class="control-label"></label>
-                        <input asp-for="TcAttributi1" class="form-control" />
+                        <label asp-for="TcAttributi1" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcAttributi1)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TcAttributi2" class="control-label"></label>
-                        <input asp-for="TcAttributi2" class="form-control" />
+                        <label asp-for="TcAttributi2" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.TcAttributi2)</span>
                     </div>
                 </div>
                 <br />
@@ -66,5 +69,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

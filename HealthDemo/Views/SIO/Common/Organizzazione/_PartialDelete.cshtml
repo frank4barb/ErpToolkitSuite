@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Organizzazione", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Organizzazione", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Or1Icode", Model?.Or1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,62 +24,62 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="OrClasseAssistenza" class="control-label"></label>
-                        <input asp-for="OrClasseAssistenza" class="form-control" />
+                        <label asp-for="OrClasseAssistenza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrClasseAssistenza)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrCodice" class="control-label"></label>
-                        <input asp-for="OrCodice" class="form-control" />
+                        <label asp-for="OrCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrDescrizione" class="control-label"></label>
-                        <input asp-for="OrDescrizione" class="form-control" />
+                        <label asp-for="OrDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrNote" class="control-label"></label>
-                        <input asp-for="OrNote" class="form-control" />
+                        <label asp-for="OrNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrEmail" class="control-label"></label>
-                        <input asp-for="OrEmail" class="form-control" />
+                        <label asp-for="OrEmail" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrEmail)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrTipoAssistenza" class="control-label"></label>
-                        <input asp-for="OrTipoAssistenza" class="form-control" />
+                        <label asp-for="OrTipoAssistenza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrTipoAssistenzaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrTelefono" class="control-label"></label>
-                        <input asp-for="OrTelefono" class="form-control" />
+                        <label asp-for="OrTelefono" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrTelefono)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrIdPersonale" class="control-label"></label>
-                        <input asp-for="OrIdPersonale" class="form-control" />
+                        <label asp-for="OrIdPersonale" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrIdPersonaleObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrIdIstituto" class="control-label"></label>
-                        <input asp-for="OrIdIstituto" class="form-control" />
+                        <label asp-for="OrIdIstituto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrIdIstitutoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrIdUnita" class="control-label"></label>
-                        <input asp-for="OrIdUnita" class="form-control" />
+                        <label asp-for="OrIdUnita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrIdUnitaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrIdPostazione" class="control-label"></label>
-                        <input asp-for="OrIdPostazione" class="form-control" />
+                        <label asp-for="OrIdPostazione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrIdPostazioneObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrPwdCrypt" class="control-label"></label>
-                        <input asp-for="OrPwdCrypt" class="form-control" />
+                        <label asp-for="OrPwdCrypt" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrPwdCrypt)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrAttivo" class="control-label"></label>
-                        <input asp-for="OrAttivo" class="form-control" />
+                        <label asp-for="OrAttivo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrAttivo)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OrIdentificativo" class="control-label"></label>
-                        <input asp-for="OrIdentificativo" class="form-control" />
+                        <label asp-for="OrIdentificativo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.OrIdentificativo)</span>
                     </div>
                 </div>
                 <br />
@@ -86,5 +89,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

@@ -25,6 +25,7 @@ using Microsoft.OpenApi.Models;
 using ErpToolkit.Helpers.Db;
 using static ErpToolkit.Helpers.Db.DogFactory;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ErpToolkit
 {
@@ -64,6 +65,22 @@ namespace ErpToolkit
                     ContentRootPath = ErpContext.CurrentDirectory,  // <<< QUESTA È LA CHIAVE DEL PROBLEMA
                     WebRootPath = Path.Combine(ErpContext.CurrentDirectory, "wwwroot")
                 });
+
+
+                // FORZO IP E PORTA DI ASCOLTO DEL SERVER WEB INTERNO Kestrel (se non specificato in appsettings.json)
+                //
+                // ATTENZIONE: se specificato in appsettings.json allora sovrascrive questa configurazione, quindi è importante che in appsettings.json sia presente la configurazione di Kestrel con l'endpoint Http e la porta di ascolto, altrimenti il server non si avvia.
+                //{
+                //    "Kestrel": {
+                //        "Endpoints": {
+                //            "Http": {
+                //                "Url": "http://0.0.0.0:8080"
+                //            }
+                //        }
+                //    }
+                //}
+                string webServerUrl = ErpContext.Instance.GetString("#webServerUrl");  //formato: "http://0.0.0.0:8080"
+                if (!string.IsNullOrWhiteSpace(webServerUrl)) { builder.WebHost.UseUrls(webServerUrl); }
 
 
                 //inserisco autenticazione custom (LDAP)

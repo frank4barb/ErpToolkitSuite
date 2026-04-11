@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Episodio", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Episodio", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Ep1Icode", Model?.Ep1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,110 +24,110 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="EpCodEpisodio" class="control-label"></label>
-                        <input asp-for="EpCodEpisodio" class="form-control" />
+                        <label asp-for="EpCodEpisodio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpCodEpisodio)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdPaziente" class="control-label"></label>
-                        <input asp-for="EpIdPaziente" class="form-control" />
+                        <label asp-for="EpIdPaziente" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdPazienteObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpSesso" class="control-label"></label>
-                        <input asp-for="EpSesso" class="form-control" />
+                        <label asp-for="EpSesso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpSesso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdTipoEpisodio" class="control-label"></label>
-                        <input asp-for="EpIdTipoEpisodio" class="form-control" />
+                        <label asp-for="EpIdTipoEpisodio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdTipoEpisodioObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpStatoEpisodio" class="control-label"></label>
-                        <input asp-for="EpStatoEpisodio" class="form-control" />
+                        <label asp-for="EpStatoEpisodio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpStatoEpisodio)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdUnitaIngresso" class="control-label"></label>
-                        <input asp-for="EpIdUnitaIngresso" class="form-control" />
+                        <label asp-for="EpIdUnitaIngresso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdUnitaIngressoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpDataInizio" class="control-label"></label>
-                        <input asp-for="EpDataInizio" class="form-control" />
+                        <label asp-for="EpDataInizio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpDataInizio)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpOraInizio" class="control-label"></label>
-                        <input asp-for="EpOraInizio" class="form-control" />
+                        <label asp-for="EpOraInizio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpOraInizio)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpDataFine" class="control-label"></label>
-                        <input asp-for="EpDataFine" class="form-control" />
+                        <label asp-for="EpDataFine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpDataFine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpOraFine" class="control-label"></label>
-                        <input asp-for="EpOraFine" class="form-control" />
+                        <label asp-for="EpOraFine" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpOraFine)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpCartellaPs" class="control-label"></label>
-                        <input asp-for="EpCartellaPs" class="form-control" />
+                        <label asp-for="EpCartellaPs" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpCartellaPs)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdCorsia" class="control-label"></label>
-                        <input asp-for="EpIdCorsia" class="form-control" />
+                        <label asp-for="EpIdCorsia" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdCorsiaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdReparto" class="control-label"></label>
-                        <input asp-for="EpIdReparto" class="form-control" />
+                        <label asp-for="EpIdReparto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdReparto)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpLetto" class="control-label"></label>
-                        <input asp-for="EpLetto" class="form-control" />
+                        <label asp-for="EpLetto" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpLetto)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpStanza" class="control-label"></label>
-                        <input asp-for="EpStanza" class="form-control" />
+                        <label asp-for="EpStanza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpStanza)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdDiagnosiAmmissione" class="control-label"></label>
-                        <input asp-for="EpIdDiagnosiAmmissione" class="form-control" />
+                        <label asp-for="EpIdDiagnosiAmmissione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdDiagnosiAmmissioneObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdDiagnosiDimissione" class="control-label"></label>
-                        <input asp-for="EpIdDiagnosiDimissione" class="form-control" />
+                        <label asp-for="EpIdDiagnosiDimissione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdDiagnosiDimissioneObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpNote" class="control-label"></label>
-                        <input asp-for="EpNote" class="form-control" />
+                        <label asp-for="EpNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdAttoAmministrativo" class="control-label"></label>
-                        <input asp-for="EpIdAttoAmministrativo" class="form-control" />
+                        <label asp-for="EpIdAttoAmministrativo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdAttoAmministrativoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpDataInizioLa" class="control-label"></label>
-                        <input asp-for="EpDataInizioLa" class="form-control" />
+                        <label asp-for="EpDataInizioLa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpDataInizioLa)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpOraInizioLa" class="control-label"></label>
-                        <input asp-for="EpOraInizioLa" class="form-control" />
+                        <label asp-for="EpOraInizioLa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpOraInizioLa)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdRepartoLa" class="control-label"></label>
-                        <input asp-for="EpIdRepartoLa" class="form-control" />
+                        <label asp-for="EpIdRepartoLa" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdRepartoLaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpDataInizioPreh" class="control-label"></label>
-                        <input asp-for="EpDataInizioPreh" class="form-control" />
+                        <label asp-for="EpDataInizioPreh" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpDataInizioPreh)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpOraInizioPreh" class="control-label"></label>
-                        <input asp-for="EpOraInizioPreh" class="form-control" />
+                        <label asp-for="EpOraInizioPreh" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpOraInizioPreh)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpIdRepartoPreh" class="control-label"></label>
-                        <input asp-for="EpIdRepartoPreh" class="form-control" />
+                        <label asp-for="EpIdRepartoPreh" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpIdRepartoPrehObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="EpFaseEpisodio" class="control-label"></label>
-                        <input asp-for="EpFaseEpisodio" class="form-control" />
+                        <label asp-for="EpFaseEpisodio" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.EpFaseEpisodio)</span>
                     </div>
                 </div>
                 <br />
@@ -134,5 +137,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

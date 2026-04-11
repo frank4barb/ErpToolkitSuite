@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Paziente", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Paziente", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Pa1Icode", Model?.Pa1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,118 +24,118 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="PaCodFiscale" class="control-label"></label>
-                        <input asp-for="PaCodFiscale" class="form-control" />
+                        <label asp-for="PaCodFiscale" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaCodFiscale)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaCodSanitario" class="control-label"></label>
-                        <input asp-for="PaCodSanitario" class="form-control" />
+                        <label asp-for="PaCodSanitario" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaCodSanitario)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaNome" class="control-label"></label>
-                        <input asp-for="PaNome" class="form-control" />
+                        <label asp-for="PaNome" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaNome)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaCognome" class="control-label"></label>
-                        <input asp-for="PaCognome" class="form-control" />
+                        <label asp-for="PaCognome" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaCognome)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaSesso" class="control-label"></label>
-                        <input asp-for="PaSesso" class="form-control" />
+                        <label asp-for="PaSesso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaSesso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaDataNascita" class="control-label"></label>
-                        <input asp-for="PaDataNascita" class="form-control" />
+                        <label asp-for="PaDataNascita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaDataNascita)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaOraNascita" class="control-label"></label>
-                        <input asp-for="PaOraNascita" class="form-control" />
+                        <label asp-for="PaOraNascita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaOraNascita)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdComuneNascita" class="control-label"></label>
-                        <input asp-for="PaIdComuneNascita" class="form-control" />
+                        <label asp-for="PaIdComuneNascita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdComuneNascitaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdNazioneNascita" class="control-label"></label>
-                        <input asp-for="PaIdNazioneNascita" class="form-control" />
+                        <label asp-for="PaIdNazioneNascita" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdNazioneNascitaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdCittadinanza" class="control-label"></label>
-                        <input asp-for="PaIdCittadinanza" class="form-control" />
+                        <label asp-for="PaIdCittadinanza" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdCittadinanzaObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIndirizzoRes" class="control-label"></label>
-                        <input asp-for="PaIndirizzoRes" class="form-control" />
+                        <label asp-for="PaIndirizzoRes" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIndirizzoRes)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaNumCivicoRes" class="control-label"></label>
-                        <input asp-for="PaNumCivicoRes" class="form-control" />
+                        <label asp-for="PaNumCivicoRes" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaNumCivicoRes)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaCapRes" class="control-label"></label>
-                        <input asp-for="PaCapRes" class="form-control" />
+                        <label asp-for="PaCapRes" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaCapRes)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdComuneRes" class="control-label"></label>
-                        <input asp-for="PaIdComuneRes" class="form-control" />
+                        <label asp-for="PaIdComuneRes" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdComuneResObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdDistrettoRes" class="control-label"></label>
-                        <input asp-for="PaIdDistrettoRes" class="form-control" />
+                        <label asp-for="PaIdDistrettoRes" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdDistrettoResObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdNazioneDom" class="control-label"></label>
-                        <input asp-for="PaIdNazioneDom" class="form-control" />
+                        <label asp-for="PaIdNazioneDom" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdNazioneDomObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaMail" class="control-label"></label>
-                        <input asp-for="PaMail" class="form-control" />
+                        <label asp-for="PaMail" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaMail)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIndirizzoDom" class="control-label"></label>
-                        <input asp-for="PaIndirizzoDom" class="form-control" />
+                        <label asp-for="PaIndirizzoDom" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIndirizzoDom)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaNumCivicoDom" class="control-label"></label>
-                        <input asp-for="PaNumCivicoDom" class="form-control" />
+                        <label asp-for="PaNumCivicoDom" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaNumCivicoDom)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaCapDom" class="control-label"></label>
-                        <input asp-for="PaCapDom" class="form-control" />
+                        <label asp-for="PaCapDom" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaCapDom)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdComuneDom" class="control-label"></label>
-                        <input asp-for="PaIdComuneDom" class="form-control" />
+                        <label asp-for="PaIdComuneDom" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdComuneDomObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaTelefono" class="control-label"></label>
-                        <input asp-for="PaTelefono" class="form-control" />
+                        <label asp-for="PaTelefono" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaTelefono)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaCellulare" class="control-label"></label>
-                        <input asp-for="PaCellulare" class="form-control" />
+                        <label asp-for="PaCellulare" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaCellulare)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdDistrettoDom" class="control-label"></label>
-                        <input asp-for="PaIdDistrettoDom" class="form-control" />
+                        <label asp-for="PaIdDistrettoDom" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdDistrettoDomObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaNote" class="control-label"></label>
-                        <input asp-for="PaNote" class="form-control" />
+                        <label asp-for="PaNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaDataDecesso" class="control-label"></label>
-                        <input asp-for="PaDataDecesso" class="form-control" />
+                        <label asp-for="PaDataDecesso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaDataDecesso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaOraDecesso" class="control-label"></label>
-                        <input asp-for="PaOraDecesso" class="form-control" />
+                        <label asp-for="PaOraDecesso" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaOraDecesso)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PaIdNazioneRes" class="control-label"></label>
-                        <input asp-for="PaIdNazioneRes" class="form-control" />
+                        <label asp-for="PaIdNazioneRes" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.PaIdNazioneResObj?.ToHtml() ?? "")</span>
                     </div>
                 </div>
                 <br />
@@ -142,5 +145,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>

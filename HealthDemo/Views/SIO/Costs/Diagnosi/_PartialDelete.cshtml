@@ -4,13 +4,16 @@
     ViewData["TagHelper__READONLY_PAGE"] = "Y";
 }
 <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-    @using (Html.BeginForm("Delete", "Diagnosi", FormMethod.Post))
+    @using (Html.BeginForm("Delete", "Diagnosi", FormMethod.Post)) { @if (Model != null)
     {
         @Html.AntiForgeryToken()
         <!--GESTISCE AZIONI CLICK PULSANTE-->
         @Html.Hidden("IsModalACTION", @ViewData["IsModalACTION"])
         @Html.Hidden("IsPageACTION", @ViewData["IsPageACTION"])
         @Html.Hidden("IsPageREDIRECT", @ViewData["IsPageREDIRECT"])
+        @Html.TextBox($"action", Model?.action, new { type = "hidden", @class = "ModelAction" })
+        @Html.TextBox($"vars", @ErpToolkit.Helpers.Db.DogManager.JsonSafeSerializeToBase64Url(Model?.vars), new { type = "hidden", @class = "ModelVars" })
+        @Html.TextBox($"Dg1Icode", Model?.Dg1Icode, new { type = "hidden", @class = "ModelIcode" })
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titolo">@ViewData["Title"]</h5>
@@ -21,38 +24,38 @@
             <div class="modal-body">
                 <div class="container">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    Sei proprio sicuro di voler cancellare il seguente record?
+                    Sei proprio sicuro di voler cancellare il seguente record?<br><p>.</p>
                     <div class="form-group">
-                        <label asp-for="DgTipoDiagnosi" class="control-label"></label>
-                        <input asp-for="DgTipoDiagnosi" class="form-control" />
+                        <label asp-for="DgTipoDiagnosi" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgTipoDiagnosiObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgClasse" class="control-label"></label>
-                        <input asp-for="DgClasse" class="form-control" />
+                        <label asp-for="DgClasse" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgClasse)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgDescrizione" class="control-label"></label>
-                        <input asp-for="DgDescrizione" class="form-control" />
+                        <label asp-for="DgDescrizione" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgDescrizione)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgNote" class="control-label"></label>
-                        <input asp-for="DgNote" class="form-control" />
+                        <label asp-for="DgNote" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgNote)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgCodice" class="control-label"></label>
-                        <input asp-for="DgCodice" class="form-control" />
+                        <label asp-for="DgCodice" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgCodice)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgIdGruppo" class="control-label"></label>
-                        <input asp-for="DgIdGruppo" class="form-control" />
+                        <label asp-for="DgIdGruppo" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgIdGruppoObj?.ToHtml() ?? "")</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgTipoDrg" class="control-label"></label>
-                        <input asp-for="DgTipoDrg" class="form-control" />
+                        <label asp-for="DgTipoDrg" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgTipoDrg)</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DgTipoIcd9" class="control-label"></label>
-                        <input asp-for="DgTipoIcd9" class="form-control" />
+                        <label asp-for="DgTipoIcd9" class="control-label"></label>:  
+                        <span>@Html.Raw(@Model.DgTipoIcd9)</span>
                     </div>
                 </div>
                 <br />
@@ -62,5 +65,5 @@
                 <button type="button" class="btn btn-primary" onclick='etkValidateAndSubmitModal(this, "@ViewData.TemplateInfo.HtmlFieldPrefix", "DeleteModale")'>Elimina</button>
             </div>
         </div>
-    }
+    } }
 </div>
