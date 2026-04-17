@@ -761,6 +761,72 @@ namespace ErpToolkit.Helpers
 
 
 
+        //--------------------------------------------------------------
+        //--------- Detect Mime From Bin -------------------------------------
+
+        public static string DetectMime(byte[] data)
+        {
+            if (data == null || data.Length < 4)
+                return "application/octet-stream";
+
+            // ---------- PDF ----------
+            if (StartsWith(data, "%PDF"))
+                return "application/pdf";
+
+            // ---------- IMMAGINI ----------
+            if (StartsWith(data, new byte[] { 0xFF, 0xD8, 0xFF }))
+                return "image/jpeg";
+
+            if (StartsWith(data, new byte[] { 0x89, 0x50, 0x4E, 0x47 }))
+                return "image/png";
+
+            if (StartsWith(data, "GIF8"))
+                return "image/gif";
+
+            if (StartsWith(data, "BM"))
+                return "image/bmp";
+
+            if (IsWebP(data))
+                return "image/webp";
+
+            // ---------- AUDIO ----------
+            if (StartsWith(data, "ID3") || (data[0] == 0xFF && (data[1] & 0xE0) == 0xE0))
+                return "audio/mpeg";
+
+            if (IsRiff(data, "WAVE"))
+                return "audio/wav";
+
+            if (StartsWith(data, "OggS"))
+                return "audio/ogg";
+
+            // ---------- VIDEO ----------
+            if (IsMp4(data))
+                return "video/mp4";
+
+            if (StartsWith(data, new byte[] { 0x1A, 0x45, 0xDF, 0xA3 }))
+                return "video/x-matroska";
+
+            // ---------- TESTO ----------
+            if (LooksLikeText(data))
+                return "text/plain";
+
+            return "application/octet-stream";
+        }
+        // HELPER
+        private static bool StartsWith(byte[] data, string s) => data.Length >= s.Length && Encoding.ASCII.GetString(data, 0, s.Length) == s;
+        private static bool StartsWith(byte[] data, byte[] signature) => data.Length >= signature.Length && signature.SequenceEqual(data.Take(signature.Length));
+        private static bool IsRiff(byte[] data, string type) => StartsWith(data, "RIFF") && Encoding.ASCII.GetString(data, 8, type.Length) == type;
+        private static bool IsMp4(byte[] data) => data.Length > 12 && Encoding.ASCII.GetString(data, 4, 4) == "ftyp";
+        private static bool IsWebP(byte[] data) => IsRiff(data, "WEBP");
+        private static bool LooksLikeText(byte[] data)
+        {
+            // controlla se i primi byte sono stampabili UTF‑8 / ASCII
+            int sample = Math.Min(data.Length, 128);
+            for (int i = 0; i < sample; i++) { byte b = data[i]; if (b == 0) return false; if (b < 0x09) return false; }
+            return true;
+        }
+
+
 
     }
 }

@@ -334,6 +334,18 @@
                         </erp-table>
                     }
 
+                    @* =============== TABELLA XDATA =============== *@
+                    @if (Model?.Xdata != null && Model.Xdata.Any())
+                    {
+                        <br />
+                        @foreach (var kvp in Model.Xdata)
+                        {
+                            var x = kvp.Value;
+                            <h6>@x.Descr</h6>
+                            <div class="mb-3"><erp-document-viewer controller-name="Materiale" blob-id="@x.Icode" content-type="@x._mime" height="500"></erp-document-viewer></div>
+                        }
+                    }
+                
                 </div>
                 <br />
             </div>

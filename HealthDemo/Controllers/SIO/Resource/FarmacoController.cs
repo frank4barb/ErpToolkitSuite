@@ -61,6 +61,13 @@ namespace HealthDemo.Controllers.SIO.Resource
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Farmaco: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<Farmaco>(icode);
+        }
+
         [BindProperty]
         public SelFarmaco Select { get; set; }
         [BindProperty]

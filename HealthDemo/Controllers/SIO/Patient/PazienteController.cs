@@ -57,6 +57,13 @@ namespace HealthDemo.Controllers.SIO.Patient
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Paziente: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<Paziente>(icode);
+        }
+
         [BindProperty]
         public SelPaziente Select { get; set; }
         [BindProperty]

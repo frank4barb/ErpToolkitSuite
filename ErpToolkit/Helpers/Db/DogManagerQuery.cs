@@ -9,6 +9,7 @@ using ErpToolkit.Models;
 using Google.Protobuf.WellKnownTypes;
 using DnsClient.Protocol;
 using System.Transactions;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -244,9 +245,9 @@ namespace ErpToolkit.Helpers.Db
             StringBuilder sb = new StringBuilder("select ");
             if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
             if (dogMng == null) throw new Exception($"sqlSelect: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlSelect: Classe {objModel.GetType()} non trovata.");
+            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlSelect: Classe {objModel.GetType().FullName} non trovata.");
             DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlSelect: tab [{objModel.GetType()}] == null.");
+            if (tab == null) throw new Exception($"sqlSelect: tab [{objModel.GetType().FullName}] == null.");
             //ciclo sui campi della tabella
             foreach (var fld in tab.fields )
             {
@@ -263,9 +264,9 @@ namespace ErpToolkit.Helpers.Db
         {
             if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
             if (dogMng == null) throw new Exception($"sqlFrom: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFrom: Classe {objModel.GetType()} non trovata.");
+            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFrom: Classe {objModel.GetType().FullName} non trovata.");
             DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlFrom: tab [{objModel.GetType()}] == null.");
+            if (tab == null) throw new Exception($"sqlFrom: tab [{objModel.GetType().FullName}] == null.");
             //recupero nome tabella
             var sqlTableNameExt = tab.SqlTableNameExt?.Trim() ?? "";
             return $"from {sqlTableNameExt} \n";
@@ -407,12 +408,12 @@ namespace ErpToolkit.Helpers.Db
             if (fldXref == null)  // uso icode della tabella
             {
                 if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
-                if (dogMng == null) throw new Exception($"sqlFrom: dogMng == null.");
-                if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFrom: Classe {objModel.GetType()} non trovata.");
+                if (dogMng == null) throw new Exception($"sqlWhereListXref: dogMng == null.");
+                if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlWhereListXref: Classe {objModel.GetType().FullName} non trovata.");
                 DogTable tab = dogMng.tabTypes[objModel.GetType()];
-                if (tab == null) throw new Exception($"sqlFrom: tab [{objModel.GetType()}] == null.");
-                sqlRowName = tab.SqlRowIdName?.Trim() ?? "";
-                if (options.Contains("[UsePropertyNameField]")) sqlRowName = tab.RowIdName?.Trim() ?? "";
+                if (tab == null) throw new Exception($"sqlWhereListXref: tab [{objModel.GetType().FullName}] == null.");
+                sqlRowName = tab.fldIcode?.SqlFieldName?.Trim() ?? "";
+                if (options.Contains("[UsePropertyNameField]")) sqlRowName = tab.fldIcode?.fieldName?.Trim() ?? "";
             }
             else
             {
@@ -424,13 +425,108 @@ namespace ErpToolkit.Helpers.Db
         }
 
 
+        //----------------------------------------------------------------------------------------
+
+
+        //crea SELECT per l'oggetto Xdata del modello 'objModel'
+        internal static string sqlSelectXdata(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
+        {
+            StringBuilder sb = new StringBuilder("select ");
+            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
+            if (dogMng == null) throw new Exception($"sqlSelectXdata: dogMng == null.");
+            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlSelectXdata: Classe {objModel.GetType().FullName} non trovata.");
+            DogTable tab = dogMng.tabTypes[objModel.GetType()];
+            if (tab == null) throw new Exception($"sqlSelectXdata: tab [{objModel.GetType().FullName}] == null.");
+            //lista campi Xdata
+            sb.AppendLine($" {tab.SqlXdataIcodeName} as Icode,");
+            sb.AppendLine($" {tab.SqlXdataDeletedName} as Deleted,");
+            sb.AppendLine($" {tab.SqlXdataTimestampName} as Timestamp,");
+            sb.AppendLine($" {tab.SqlXdataCdateName} as Cdate,");
+            sb.AppendLine($" {tab.SqlXdataCtimeName} as Ctime,");
+            sb.AppendLine($" {tab.SqlXdataCagentName} as Cagent,");
+            sb.AppendLine($" {tab.SqlXdataCunitName} as Cunit,");
+            sb.AppendLine($" {tab.SqlXdataMdateName} as Mdate,");
+            sb.AppendLine($" {tab.SqlXdataMtimeName} as Mtime,");
+            sb.AppendLine($" {tab.SqlXdataMagentName} as Magent,");
+            sb.AppendLine($" {tab.SqlXdataMunitName} as Munit,");
+            sb.AppendLine($" {tab.SqlXdataHomeName} as Home,");
+            sb.AppendLine($" {tab.SqlXdataVersionName} as Version,");
+            sb.AppendLine($" {tab.SqlXdataInactiveName} as Inactive,");
+            sb.AppendLine($" {tab.SqlXdataExtattName} as Extatt,");
+
+            sb.AppendLine($" {tab.SqlXdataMrefName} as Mref,");
+            sb.AppendLine($" {tab.SqlXdataSeqName} as Seq,");
+            sb.AppendLine($" {tab.SqlXdataDescrName} as Descr,");
+            sb.AppendLine($" {tab.SqlXdataFmtName} as Fmt,");
+            sb.AppendLine($" {tab.SqlXdataXdurlName} as Xdurl,");
+            sb.AppendLine($" {tab.SqlXdataXdatumName} as Xdatum,");
+            // terminatore di select
+            sb.AppendLine($" 0 as ErpTerm ");
+            return sb.ToString();
+        }
+        //crea FROM per l'oggetto Xdata del modello 'objModel'
+        internal static string sqlFromXdata(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
+        {
+            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
+            if (dogMng == null) throw new Exception($"sqlFromXdata: dogMng == null.");
+            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFromXdata: Classe {objModel.GetType().FullName} non trovata.");
+            DogTable tab = dogMng.tabTypes[objModel.GetType()];
+            if (tab == null) throw new Exception($"sqlFromXdata: tab [{objModel.GetType().FullName}] == null.");
+            //recupero nome tabella
+            var sqlTableNameExt = tab.SqlTableNameExt?.Trim() ?? "";
+            return $"from {tab.SqlXdataTableName} \n";
+        }
+        //crea WHERE per l'oggetto Xdata del modello 'objModel' in base all'icode
+        internal static string sqlWhereXdataIcode(DogManager dogMng, ModelErp objModel, object icode, ref IDictionary<string, object> parameters, string options = "")
+        {
+            return sqlWhereXdataListIcode(dogMng, objModel, new List<object>() { icode }, new List<string>() { }, ref parameters, options: options);
+        }
+        internal static string sqlWhereXdataListIcode(DogManager dogMng, ModelErp objModel, List<object> rowIdList, List<string> fmtList, ref IDictionary<string, object> parameters, string options = "")
+        {
+            return sqlWhereXdataListMref(dogMng, objModel, false, rowIdList, fmtList, ref parameters, options: options);
+        }
+        internal static string sqlWhereXdataListMref(DogManager dogMng, ModelErp objModel, bool isMref, List<object> rowIdList, List<string> fmtList, ref IDictionary<string, object> parameters, string options = "")
+        {
+            string sqlRowName = "", sqlRowFmtName = "";
+            if (rowIdList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereXdataListMref: Null " + nameof(rowIdList)); }
+            if (fmtList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereXdataListMref: Null " + nameof(fmtList)); }
+            //if (rowIdList.Count() == 0) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Empty " + nameof(rowIdList)); }
+            if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
+            if (dogMng == null) throw new Exception($"sqlWhereXdataListMref: dogMng == null.");
+            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlWhereXdataListMref: Classe {objModel.GetType().FullName} non trovata.");
+            DogTable tab = dogMng.tabTypes[objModel.GetType()];
+            if (tab == null) throw new Exception($"sqlWhereXdataListMref: tab [{objModel.GetType().FullName}] == null.");
+
+            if (isMref == false)  // uso icode della tabella
+            {
+                sqlRowName = tab.SqlXdataIcodeName?.Trim() ?? "";
+                sqlRowFmtName = tab.SqlXdataFmtName?.Trim() ?? "";
+                if (options.Contains("[UsePropertyNameField]")) { sqlRowName = "Icode"; sqlRowFmtName = "Fmt"; }
+            }
+            else   // uso mref della tabella
+            {
+                sqlRowName = tab.SqlXdataMrefName;
+                sqlRowFmtName = tab.SqlXdataFmtName?.Trim() ?? "";
+                if (options.Contains("[UsePropertyNameField]")) { sqlRowName = "Mref"; sqlRowFmtName = "Fmt"; }
+            }
+            if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
+            if (fmtList.Count() > 0) return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) and {sqlRowFmtName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
+            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
+        }
+
+
+
+
+
+
+
         //==========================================================================================================
         //==========================================================================================================
 
-        // SQL MANTAIN
-        //---------------
+                // SQL MANTAIN
+                //---------------
 
-        //crea INSERT, UPDATE, DELETE(logico) per l'oggetto del modello 'tabModel' (SOLO PER TABELLE)
+                //crea INSERT, UPDATE, DELETE(logico) per l'oggetto del modello 'tabModel' (SOLO PER TABELLE)
         internal static string sqlMantain(DogManager dogMng, ModelErp tabModel, ref IDictionary<string, object> parameters, ref List<DogResult> results, string options = "")
         {
             StringBuilder sb = new StringBuilder(), sbValues = new StringBuilder();

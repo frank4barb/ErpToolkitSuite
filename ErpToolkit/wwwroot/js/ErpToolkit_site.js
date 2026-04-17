@@ -2804,6 +2804,28 @@ document.addEventListener("click", function (ev) {
 //==============================================================================================
 
 
+// =======================================================
+// ✅ DocViewer – visuallizzazione rapida di documenti e immagini (es. da documenti collegati)
+// =======================================================
+window.ErpDocViewer = {
+    init: function () {
+        document
+            .querySelectorAll('.erp-doc-image')
+            .forEach(img => {
+                img.addEventListener('click', () => {
+                    window.open(img.src, '_blank');
+                });
+            });
+    }
+};
+
+document.addEventListener('DOMContentLoaded', ErpDocViewer.init);
+
+
+//==============================================================================================
+//==============================================================================================
+//==============================================================================================
+
 
 // =======================================================
 // ✅ LLaMA – Toggle Text To Speech (per singola istanza)

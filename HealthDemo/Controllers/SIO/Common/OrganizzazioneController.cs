@@ -86,6 +86,13 @@ namespace HealthDemo.Controllers.SIO.Common
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Organizzazione: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<Organizzazione>(icode);
+        }
+
         [BindProperty]
         public SelOrganizzazione Select { get; set; }
         [BindProperty]

@@ -51,6 +51,13 @@ namespace HealthDemo.Controllers.SIO.HealthData
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad StatoSalute: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<StatoSalute>(icode);
+        }
+
         [BindProperty]
         public SelStatoSalute Select { get; set; }
         [BindProperty]

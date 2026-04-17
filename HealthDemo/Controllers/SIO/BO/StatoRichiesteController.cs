@@ -46,6 +46,57 @@ namespace HealthDemo.Controllers.SIO.BO
 
 
 
+
+
+
+
+        ////[Authorize]
+        ////[HttpGet("ViewBlob/{table}/{fileExtension}/{id}")]
+        //[HttpGet]
+        //public IActionResult ViewBlob(string table, string fileExtension, string id)
+        //{
+
+        //    FileContentResult file = null;
+        //    try { file = ErpContext.Instance.DogFactory.GetDog(dogId).ReadBlob<HealthDemo.Models.SIO.HealthData.RisultatoEsame>("IU047HXZLC6R"); } 
+        //    catch (Exception ex) { return BadRequest("Problemi in accesso al DB: ViewBlob: " + ex.Message); }
+        //    if (file == null) { return NotFound(); }
+        //    Response.Headers["Content-Disposition"] = "inline";
+        //    return file;
+
+        //}
+
+
+        //[Authorize]
+        //[HttpGet]
+        //public IActionResult ViewBlobStreaming(string idx) 
+        //{
+        //    try
+        //    {
+        //        string id = "IU047HXZLC6R";
+        //        var blob = ErpContext.Instance.DogFactory.GetDog(dogId).OpenBlobStream<HealthDemo.Models.SIO.HealthData.RisultatoEsame>(id, 0);
+
+        //        Response.Headers["Content-Disposition"] = "inline";
+
+        //        return new FileStreamResult(blob.Stream, blob.ContentType)
+        //        {
+        //            EnableRangeProcessing = true   // FONDAMENTALE
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest("Errore ViewBlobStreaming: " + ex.Message);
+        //    }
+        //}
+
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode) { 
+            return base.ViewBlobModel<HealthDemo.Models.SIO.HealthData.RisultatoEsame>("IU047HXZLC6R"); 
+        } //{ return this.ViewBlob<HealthDemo.Models.SIO.HealthData.RisultatoEsame>("IU047HXZLC6R");  }
+
+
+
         [BindProperty]
         public SelPrestazione Select { get; set; }
         [BindProperty]

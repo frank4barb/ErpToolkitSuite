@@ -51,6 +51,13 @@ namespace HealthDemo.Controllers.SIO.HealthData
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad ParametroVitale: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<ParametroVitale>(icode);
+        }
+
         [BindProperty]
         public SelParametroVitale Select { get; set; }
         [BindProperty]

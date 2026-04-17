@@ -61,6 +61,13 @@ namespace HealthDemo.Controllers.SIO.Resource
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Attrezzatura: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<Attrezzatura>(icode);
+        }
+
         [BindProperty]
         public SelAttrezzatura Select { get; set; }
         [BindProperty]

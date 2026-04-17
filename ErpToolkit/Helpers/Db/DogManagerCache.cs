@@ -78,6 +78,33 @@ namespace ErpToolkit.Helpers.Db
             return sql;
         }
 
+        internal static string sqlListXdata(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters, bool isMref, List<object> lstRowId, List<string> lstFmt, string options = "")
+        {
+            string sql = "";
+            if (lstRowId == null) { throw new ArgumentNullException(nameof(lstRowId)); }
+            if (lstFmt == null) { throw new ArgumentNullException(nameof(lstFmt)); }
+            StringBuilder sb = new StringBuilder();
+
+            string sqlFromWhere = objModel.ViewQueryXdataFromWhere();
+            if (string.IsNullOrEmpty(sqlFromWhere))
+            {
+                sb.Append(DogManagerQuery.sqlSelectXdata(dogMng, objModel, ref parameters))
+                    .Append(DogManagerQuery.sqlFromXdata(dogMng, objModel, ref parameters));
+                sb.Append(DogManagerQuery.sqlWhereXdataListMref(dogMng, objModel, isMref, lstRowId, lstFmt, ref parameters, options: options));  
+                sql = sb.ToString();
+            }
+            else
+            {
+                sb.Append("SELECT * FROM ( \n")
+                    .Append(DogManagerQuery.sqlSelectXdata(dogMng, objModel, ref parameters))
+                    .Append(sqlFromWhere)
+                    .Append(") AS subquery \n");
+                sb.Append(DogManagerQuery.sqlWhereXdataListMref(dogMng, objModel, isMref, lstRowId, lstFmt, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
+                sql = DogManagerQuery.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
+            }
+            return sql;
+        }
+
 
         ////***************************************************************************************************************************************************
         ////*** Gestione CACHE

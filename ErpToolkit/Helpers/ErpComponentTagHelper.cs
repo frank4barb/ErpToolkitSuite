@@ -2327,6 +2327,76 @@ namespace ErpToolkit.Helpers
         }
     }
 
+    
+
+    [HtmlTargetElement("erp-document-viewer")]
+    public class ErpDocumentViewerTagHelper : TagHelper
+    {
+        public string ControllerName { get; set; }
+        //public string BlobTable { get; set; }
+        public string BlobId { get; set; }
+        public string ContentType { get; set; } = string.Empty;
+        public int Height { get; set; } = 500;
+        public bool Controls { get; set; } = true;
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            var fileExtension = MimeMapping.GetDefaultExtensionFromMime(ContentType);
+            //var src = $"/StatoRichieste/ViewBlob/{BlobTable}/{fileExtension}/{BlobId}";
+            //var src = $"/StatoRichieste/ViewBlob";
+            var src = $"/{ControllerName}/ViewBlob?icode={Uri.EscapeDataString(BlobId)}";
+            output.TagName = "div";
+            output.Attributes.SetAttribute("class", "erp-docviewer");
+
+            if (ContentType.StartsWith("image/"))
+            {
+                output.Content.SetHtmlContent($"""
+                    <img src="{src}" class="erp-doc-image" />
+                """);
+            }
+            else if (ContentType == "application/pdf")
+            {
+                output.Content.SetHtmlContent($"""
+                    <object data="{src}"
+                            type="application/pdf"
+                            width="100%"
+                            height="{Height}">
+                    </object>
+                """);
+            }
+            else if (ContentType.StartsWith("audio/"))
+            {
+                output.Content.SetHtmlContent($"""
+                    <audio src="{src}" controls />
+                """);
+            }
+            else if (ContentType.StartsWith("video/"))
+            {
+                output.Content.SetHtmlContent($"""
+                    <video src="{src}" controls style="max-width:100%;height:{Height}px"></video>
+                """);
+            }
+            else if (ContentType.StartsWith("text/"))
+            {
+                output.Content.SetHtmlContent($"""
+                    <iframe src="{src}"
+                            class="erp-doc-text"
+                            style="width:100%;height:{Height}px">
+                    </iframe>
+                """);
+            }
+            else
+            {
+                output.Content.SetHtmlContent("""
+                    <div class="erp-doc-unsupported">
+                        Formato non supportato
+                    </div>
+                """);
+            }
+        }
+    }
+
+
 
 
     [HtmlTargetElement("erp-llama-chat")]

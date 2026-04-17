@@ -1,5 +1,7 @@
 using DnsClient.Protocol;
 using ErpToolkit.Models;
+using K4os.Hash.xxHash;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -187,7 +189,7 @@ namespace ErpToolkit.Helpers.Db
         public int TransactionTimeoutSeconds { get { return _getDbMg().TransactionTimeoutSeconds; } set { _getDbMg().TransactionTimeoutSeconds = value; } }
         public int MaxRecords { get { return _getDbMg().MaxRecords; } set { _getDbMg().MaxRecords = value; } }
         public bool EnableTrace { get { return _getDbMg().EnableTrace; } set { _getDbMg().EnableTrace = value; } }
-        public int MaxFileLengthBytes { get { return _getDbMg().MaxFileLengthBytes; } set { _getDbMg().MaxFileLengthBytes = value; } }
+        public long MaxFileLengthBytes { get { return _getDbMg().MaxFileLengthBytes; } set { _getDbMg().MaxFileLengthBytes = value; } }
 
 
         //***************************************************************************************************************************************************
@@ -222,13 +224,36 @@ namespace ErpToolkit.Helpers.Db
             public string SqlTableName = "";
             public string SqlTableNameExt = "";
             public string SqlTableProperties = "";
-            public string RowIdName = "";
-            public string SqlRowIdName = "";
-            public string SqlRowIdNameExt = "";
+            //public string RowIdName = "";
+            //public string SqlRowIdName = "";
+            //public string SqlRowIdNameExt = "";
             public string SqlPrefix = "";
             public string SqlPrefixExt = "";
+            //---
             public string SqlXdataTableName = "";
+            public string SqlXdataIcodeName = "";
+            public string SqlXdataDeletedName = "";
+            public string SqlXdataTimestampName = "";
+            public string SqlXdataCdateName = "";
+            public string SqlXdataCtimeName = "";
+            public string SqlXdataCagentName = "";
+            public string SqlXdataCunitName = "";
+            public string SqlXdataMdateName = "";
+            public string SqlXdataMtimeName = "";
+            public string SqlXdataMagentName = "";
+            public string SqlXdataMunitName = "";
+            public string SqlXdataHomeName = "";
+            public string SqlXdataVersionName = "";
+            public string SqlXdataInactiveName = "";
+            public string SqlXdataExtattName = "";
+            public string SqlXdataMrefName = "";
+            public string SqlXdataSeqName = "";
+            public string SqlXdataDescrName = "";
+            public string SqlXdataFmtName = "";
+            public string SqlXdataXdurlName = "";
+            public string SqlXdataXdatumName = "";
             public string SqlXdataTableNameExt = "";
+            //--
             public string MODEL = ""; //Nome Modello es: SIO
             public string CATEG = ""; //Categoria Oggetto es: TAB=Table, SEL=Selection, ecc.
             public int INTCODE = 0; //Internal Table Code
@@ -538,13 +563,36 @@ namespace ErpToolkit.Helpers.Db
                         tab.SqlTableName = objType.GetField("SqlTableName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableNameExt = objType.GetField("SqlTableNameExt")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableProperties = objType.GetField("SqlTableProperties")?.GetRawConstantValue()?.ToString() ?? "";
-                        tab.RowIdName = objType.GetField("RowIdName")?.GetRawConstantValue()?.ToString() ?? "";
-                        tab.SqlRowIdName = objType.GetField("SqlRowIdName")?.GetRawConstantValue()?.ToString() ?? "";
-                        tab.SqlRowIdNameExt = objType.GetField("SqlRowIdNameExt")?.GetRawConstantValue()?.ToString() ?? "";
+                        //tab.RowIdName = objType.GetField("RowIdName")?.GetRawConstantValue()?.ToString() ?? "";
+                        //tab.SqlRowIdName = objType.GetField("SqlRowIdName")?.GetRawConstantValue()?.ToString() ?? "";
+                        //tab.SqlRowIdNameExt = objType.GetField("SqlRowIdNameExt")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlPrefix = objType.GetField("SqlPrefix")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlPrefixExt = objType.GetField("SqlPrefixExt")?.GetRawConstantValue()?.ToString() ?? "";
+                        //--
                         tab.SqlXdataTableName = objType.GetField("SqlXdataTableName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataIcodeName = objType.GetField("SqlXdataIcodeName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataDeletedName = objType.GetField("SqlXdataDeletedName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataTimestampName = objType.GetField("SqlXdataTimestampName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataCdateName = objType.GetField("SqlXdataCdateName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataCtimeName = objType.GetField("SqlXdataCtimeName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataCagentName = objType.GetField("SqlXdataCagentName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataCunitName = objType.GetField("SqlXdataCunitName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataMdateName = objType.GetField("SqlXdataMdateName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataMtimeName = objType.GetField("SqlXdataMtimeName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataMagentName = objType.GetField("SqlXdataMagentName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataMunitName = objType.GetField("SqlXdataMunitName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataHomeName = objType.GetField("SqlXdataHomeName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataVersionName = objType.GetField("SqlXdataVersionName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataInactiveName = objType.GetField("SqlXdataInactiveName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataExtattName = objType.GetField("SqlXdataExtattName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataMrefName = objType.GetField("SqlXdataMrefName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataSeqName = objType.GetField("SqlXdataSeqName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataDescrName = objType.GetField("SqlXdataDescrName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataFmtName = objType.GetField("SqlXdataFmtName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataXdurlName = objType.GetField("SqlXdataXdurlName")?.GetRawConstantValue()?.ToString() ?? "";
+                        tab.SqlXdataXdatumName = objType.GetField("SqlXdataXdatumName")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlXdataTableNameExt = objType.GetField("SqlXdataTableNameExt")?.GetRawConstantValue()?.ToString() ?? "";
+                        //--
                         tab.MODEL = modNameVal;
                         tab.CATEG = categNameVal;
                         tab.INTCODE = Convert.ToInt32(objType.GetField("INTCODE")?.GetRawConstantValue());
@@ -916,14 +964,20 @@ namespace ErpToolkit.Helpers.Db
 
         //public
 
-        public string? getRowIdName(ModelErp obj) { return (this.tabTypes.ContainsKey(obj.GetType())) ? this.tabTypes[obj.GetType()].RowIdName : null; }
+        public string? getIcodeName(ModelErp obj) { return (this.tabTypes.ContainsKey(obj.GetType())) ? this.tabTypes[obj.GetType()].fldIcode?.fieldName : null; }
 
+        //public DogTable getTable(System.Type t)
+        //{
+        //    // cerca per Type
+        //    var match = tables.Values.FirstOrDefault(tab => tab.tableTpy == t);
+        //    if (match == null) throw new InvalidOperationException($"Nessuna tabella trovata per il tipo {t.Name}");
+        //    return match;
+        //}
         public DogTable getTable(System.Type t)
         {
             // cerca per Type
-            var match = tables.Values.FirstOrDefault(tab => tab.tableTpy == t);
-            if (match == null) throw new InvalidOperationException($"Nessuna tabella trovata per il tipo {t.Name}");
-            return match;
+            if (this.tabTypes.ContainsKey(t)) return this.tabTypes[t];
+            throw new InvalidOperationException($"Nessuna tabella trovata per il tipo {t.Name}");
         }
 
         public void dumpModel() 
@@ -1040,6 +1094,57 @@ namespace ErpToolkit.Helpers.Db
 
         public string GenerateIcode() { return $"{this._dbRoot}{GenCodeHelper.EpochIcode()}"; }
 
+        //***************************************************************************************************************************************************
+        //*** BLOB
+        //***************************************************************************************************************************************************
+
+        //public         
+
+        //public FileContentResult ReadBlob<T>(string icode) where T : ModelErp
+        //{
+        //    if (!this.tabTypes.ContainsKey(typeof(T))) throw new Exception($"ReadBlob: Classe {typeof(T).FullName} non trovata.");
+        //    DogTable tab = this.tabTypes[typeof(T)];
+        //    if (tab == null) throw new Exception($"ReadBlob: tab [{typeof(T).FullName}] == null.");
+        //    if (string.IsNullOrWhiteSpace(tab.SqlXdataTableName)) throw new Exception($"ReadBlob: tab [{typeof(T).FullName}] SqlXdataTableName is empty.");
+        //    if (string.IsNullOrWhiteSpace(tab.SqlXdataIcodeName)) throw new Exception($"ReadBlob: tab [{typeof(T).FullName}] SqlXdataIcodeName is empty.");
+        //    if (string.IsNullOrWhiteSpace(tab.SqlXdataXdatumName)) throw new Exception($"ReadBlob: tab [{typeof(T).FullName}] SqlXdataXdatumName is empty.");
+        //    // Read byte[]
+        //    byte[] data = ReadBlob(tab.SqlXdataTableName, tab.SqlXdataIcodeName, icode, tab.SqlXdataXdatumName, -1, null);  //  byte[] data = ReadBlob("XA_XDATA", "XA_X__ICODE", "IU047HXZLC6R", "XA_X__XDATUM", -1, null);
+        //    if (data == null) throw new Exception($"ReadBlob: tab [{typeof(T).FullName}] data is null.");
+        //    string mime = UtilHelper.DetectMime(data);
+        //    return new FileContentResult(data, mime) { EnableRangeProcessing = true };
+        //}
+
+
+        public sealed class BlobStreamResult
+        {
+            public Stream Stream { get; init; } = default!;
+            public byte[] Bytes { get; init; } = default!;
+            public string ContentType { get; init; } = "application/octet-stream";
+            public long Length { get; init; }
+        }
+        public BlobStreamResult OpenBlobStream(string modelTableName, object blobIcode, long offset) {
+            if (!this.tables.ContainsKey(modelTableName)) throw new Exception($"OpenBlobStream: modelTableName {modelTableName} non trovata.");
+            DogTable tab = this.tables[modelTableName];
+            if (tab == null) throw new Exception($"OpenBlobStream: tab [{modelTableName}] == null.");
+            return _OpenBlobStream(tab, blobIcode, offset);
+        }
+        public BlobStreamResult OpenBlobStream<T>(object blobIcode, long offset) where T : ModelErp
+        {
+            if (!this.tabTypes.ContainsKey(typeof(T))) throw new Exception($"OpenBlobStream: Classe {typeof(T).FullName} non trovata.");
+            DogTable tab = this.tabTypes[typeof(T)];
+            if (tab == null) throw new Exception($"OpenBlobStream: tab [{typeof(T).FullName}] == null.");
+            return _OpenBlobStream(tab, blobIcode, offset);
+        }
+        private BlobStreamResult _OpenBlobStream(DogTable tab, object blobIcode, long offset) 
+        {
+            if (string.IsNullOrWhiteSpace(tab.SqlXdataTableName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataTableName is empty.");
+            if (string.IsNullOrWhiteSpace(tab.SqlXdataIcodeName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataIcodeName is empty.");
+            if (string.IsNullOrWhiteSpace(tab.SqlXdataXdatumName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataXdatumName is empty.");
+            //  Open Blob Stream
+            return _getDbMg().OpenBlobStream(tab.SqlXdataTableName, tab.SqlXdataIcodeName, blobIcode, tab.SqlXdataXdatumName, offset);
+        }
+
 
         //***************************************************************************************************************************************************
         //*** AUTOCOMPLETE
@@ -1102,7 +1207,7 @@ namespace ErpToolkit.Helpers.Db
             if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable<T>(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
         }
-        public Dictionary<object, ModelErp> ExecuteQuery(Dictionary<object, ModelErp> dict, System.Type modelType, string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "")
+        public Dictionary<object, ModelErp> ExecuteQuery(Dictionary<object, ModelErp>? dict, System.Type modelType, string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "")
         {
             if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
@@ -1112,6 +1217,40 @@ namespace ErpToolkit.Helpers.Db
             if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable(dict, modelType, _getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
         }
+        public Dictionary<object, ModelErp> ExecuteQueryEx(Dictionary<object, ModelErp>? dict, System.Type modelType, string sql, IDictionary<string, object> parameters, bool fillXdata, List<string> fmtList, string? transactionId, int maxRecords, string options = "")
+        {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
+            if (dict == null) dict = new Dictionary<object, ModelErp>();
+            if (modelType == null) { throw new ArgumentNullException(nameof(modelType)); }
+            if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
+            if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            Dictionary<object, ModelErp> dict2 = DecodeSpecialTable(dict, modelType, _getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
+            if (fillXdata)  //riempo i dati estesi solo se richiesto, altrimenti lascio la proprietà Xdata a null. In ogni caso: NON CARICO IL CONTENUTO DEI BLOB (maxBlobSize = 0)
+            {
+                List<object> rowIdList = new List<object>();
+                foreach (var value in dict2.Values) { if (value.Xdata == null) { rowIdList.Add(value.getIcode()); value.Xdata = new Dictionary<object, ModelXdata>(); } }
+                Dictionary<object, ModelXdata> xdataDict = ExecuteQueryXdata(null, modelType, true, rowIdList, fmtList, transactionId, maxRecords, (long)0, options: options);
+                foreach (var value in xdataDict.Values) { dict2[value.Mref].Xdata[value.Icode] = value; }
+            }
+            return dict2;
+        }
+
+        public Dictionary<object, ModelXdata> ExecuteQueryXdata(Dictionary<object, ModelXdata>? dict, System.Type modelType, bool isMrefRowIdList, List<object> rowIdList, List<string> fmtList, string? transactionId, int maxRecords, long maxBlobSize, string options = "")
+        {
+            if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
+            if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
+            if (dict == null) dict = new Dictionary<object, ModelXdata>();
+            if (modelType == null) { throw new ArgumentNullException(nameof(modelType)); }
+            if (rowIdList == null) { throw new ArgumentNullException(nameof(rowIdList)); }
+            if (fmtList == null) { fmtList = new List<string> { }; }
+            ModelErp modelObj = (ModelErp)Activator.CreateInstance(modelType); // create an instance of that type
+            IDictionary<string, object> xdataParameters = new Dictionary<string, object>();
+            string xdataSql = DogManagerCache.sqlListXdata(this, modelObj, ref xdataParameters, isMrefRowIdList, rowIdList, fmtList, options: options);
+            if (options.Contains("[skipCheckSqlParms]") == false && (xdataSql.Contains('\'') || xdataSql.Contains('#') || xdataSql.Contains("--"))) { throw new FormatException(nameof(xdataSql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            return _getDbMg().ExecuteQueryXdata(dict, xdataSql, EncodeSpecialFields(xdataParameters, options), transactionId, maxRecords, maxBlobSize, options);
+        }
+
 
         //ExecNonQuery
         public void DeleteRecord(string tableName, string keyField, IDictionary<string, object> fields, string? transactionId)
@@ -1482,7 +1621,12 @@ namespace ErpToolkit.Helpers.Db
             DogManagerCache.CacheFuncInit(this, ref dogCache, "List_int", 'R', objModel.GetType(), options: options); // Inizializzo la cache per il tipo di oggetto, in modo da poterla usare per le query successive.
 
             //outList = this.ExecuteQuery<T>(sql, parameters, options: options);
-            Dictionary<object, ModelErp> outDict = this.ExecuteQuery(null, objModel.GetType(), sql, parameters, transactionId, maxRecords, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
+
+            //???//Dictionary<object, ModelErp> outDict = this.ExecuteQuery(null, objModel.GetType(), sql, parameters, transactionId, maxRecords, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
+            bool fillXdata = true; List<string> fmtList = null;
+            Dictionary<object, ModelErp> outDict = this.ExecuteQueryEx(null, objModel.GetType(), sql, parameters, fillXdata, fmtList, transactionId, maxRecords, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
+            //???//
+
             outKeyList = DogManagerCache.CacheAddDict(this, ref dogCache, objModel.GetType(), outDict, options: options);
 
             // se richiesto riempio i riferimenti all'oggetto referenziati nelle tabelle esterne

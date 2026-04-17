@@ -61,6 +61,13 @@ namespace HealthDemo.Controllers.SIO.Costs
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad TipoDiagnosi: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<TipoDiagnosi>(icode);
+        }
+
         [BindProperty]
         public SelTipoDiagnosi Select { get; set; }
         [BindProperty]

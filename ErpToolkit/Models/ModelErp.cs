@@ -43,10 +43,10 @@ namespace ErpToolkit.Models {
 
         //[Vars("XML")]
         //public Dictionary<string, string> vars { get; set; } = new Dictionary<string, string>();  // @xxxx variabili volatili per passare parametri vari (es. @Lang, @UserId, @CompanyId, ecc.)
-                                                                                                  //                                                                                         // xxxxx variabili permanenti che vengono salvate su DB in _extatt
+        //                                                                                         // xxxxx variabili permanenti che vengono salvate su DB in _extatt
 
         private IDictionary<string, string> _vars = new Dictionary<string, string>(); // @xxxx variabili volatili per passare parametri vari (es. @Lang, @UserId, @CompanyId, ecc.)
-                                                                                     //
+
         [Vars("XML")]
         public IDictionary<string, string> vars
         {
@@ -64,6 +64,8 @@ namespace ErpToolkit.Models {
             return null;  //return new List<RelPrestazioneCampione>();
         }
 
+        //lista di dati estesi (Xdata) che sono associati all'oggetto
+        public Dictionary<object, ModelXdata>? Xdata { get; set; } = null;
 
 
         //metodi obbligatori
@@ -82,6 +84,10 @@ namespace ErpToolkit.Models {
             return true;
         }
         public virtual string ViewQueryFromWhere()
+        {
+            return "";
+        }
+        public virtual string ViewQueryXdataFromWhere()
         {
             return "";
         }

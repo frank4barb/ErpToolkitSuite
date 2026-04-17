@@ -61,6 +61,13 @@ namespace HealthDemo.Controllers.SIO.Patient
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Distretto: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<Distretto>(icode);
+        }
+
         [BindProperty]
         public SelDistretto Select { get; set; }
         [BindProperty]

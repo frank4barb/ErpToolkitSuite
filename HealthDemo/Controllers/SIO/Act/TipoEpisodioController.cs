@@ -61,6 +61,13 @@ namespace HealthDemo.Controllers.SIO.Act
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad TipoEpisodio: " + ex.Message }); }
         }
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlob(string icode)
+        {
+            return base.ViewBlobModel<TipoEpisodio>(icode);
+        }
+
         [BindProperty]
         public SelTipoEpisodio Select { get; set; }
         [BindProperty]

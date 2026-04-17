@@ -81,6 +81,18 @@ namespace ErpToolkit.Helpers.Db
                 }
             }
 
+            //copia Xdata
+            if (source.Xdata != null)
+            {
+                clone.Xdata = new Dictionary<object, ModelXdata>();
+                foreach (var kvp in source.Xdata)
+                {
+                    var key = kvp.Key;
+                    var value = kvp.Value.CloneTruncate();
+                    clone.Xdata[key] = value;
+                }
+            }
+
             //copia valore delle tabelle referenziate
             if (maxDepth > depth + 1)  //evito di clonare le tabelle referenziate se ho già raggiunto la profondità massima
             {
@@ -203,6 +215,17 @@ namespace ErpToolkit.Helpers.Db
                     ModelErp? sourceObjValue = (ModelErp?)fld.GetObjValue(source); //dump generato da CloneModelErp(..)
                     object? cloneSourceObjValue = (object?) (deepXref ? CloneModelErp(dogMng, sourceObjValue, deepXref, visited, updated, depth + 1, $"{namePath}{fld.fieldName}") : sourceObjValue);
                     fld.SetObjValue(clone, cloneSourceObjValue);
+                }
+            }
+            //copia Xdata
+            if (source.Xdata != null)
+            {
+                clone.Xdata = new Dictionary<object, ModelXdata>();
+                foreach (var kvp in source.Xdata)
+                {
+                    var key = kvp.Key;
+                    var value = kvp.Value.Clone();
+                    clone.Xdata[key] = value;
                 }
             }
             //copia valore delle tabelle referenziate

@@ -7,6 +7,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using MongoDB.Driver;
 using System.Data.Entity;
+using ErpToolkit.Models;
+using System.Collections.Concurrent;
+using System.IO;
+using System;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -37,7 +41,7 @@ namespace ErpToolkit.Helpers.Db
         public int MaxRecords { get; set; } = 10000;
         public bool EnableTrace { get; set; } = false;
         public bool EnableTraceTimeout { get; set; } = true;
-        public int MaxFileLengthBytes { get; set; } = 1024 * 1024 * 1024;  // 1 Gb
+        public long MaxFileLengthBytes { get; set; } = 100 * 1024 * 1024;  // 100 Mb
 
         internal DatabaseManager(DbTyp databaseType, IDatabase database, string connectionString)
         {
@@ -227,6 +231,128 @@ namespace ErpToolkit.Helpers.Db
             }
             finally { _database.ReleaseConnection(connection); } // si chiude se non c'è transazione
         }
+        //ExecuteQueryXdata: i campi della select sql devono essere nello stesso ordine di ModelXdata (es. SELECT Icode, Deleted, Timestamp, Cdate, Ctime, Cagent, Cunit, Mdate, Mtime, Magent, Munit, Home, Version, Inactive, Extatt, Mref, Seq, Descr, Fmt, Xdurl, Xdatum FROM MyTable)
+        public Dictionary<object, ModelXdata> ExecuteQueryXdata(Dictionary<object, ModelXdata> dict, string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, long maxBlobSize, string options)
+        {
+            if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteQueryXdata");
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
+            try
+            {
+                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passata nel NewCommand
+                {
+                    command.CommandTimeout = TimeoutSeconds;
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+                    //---
+                    //DataTable result = _database.QueryReader(command, maxRecords); //eseguo senza retry
+                    //if (result.Rows.Count > maxRecords)
+                    //{
+                    //    throw new InvalidOperationException($"Query returned more than the allowed {maxRecords} records.");
+                    //}
+                    using var reader = command.ExecuteReader(CommandBehavior.SequentialAccess);
+                    if (dict == null) { dict = new Dictionary<object, ModelXdata>(); }
+                    int i = 0;
+                    while (reader.Read())
+                    {
+                        if (i++ >= maxRecords) break;
+                        //  1. Campi NON blob
+                        object? icode = reader.IsDBNull(0) ? null : reader.GetValue(0); if (icode is string icodeStr) icode = icodeStr.TrimEnd(); // trim solo per stringhe, non per altri tipi (es. numerici o guid)
+                        string? deleted = reader.IsDBNull(1) ? null : reader.GetString(1)?.TrimEnd() ?? " "; if (deleted == null || deleted != "Y") deleted = "N"; 
+                        byte[]? timestamp = new byte[8]; long timestampBytesRead = reader.GetBytes(2, 0, timestamp, 0, timestamp.Length);
+                        string? cdate = reader.IsDBNull(3) ? null : reader.GetString(3) ?? "    /  /  ";
+                        string? ctime = reader.IsDBNull(4) ? null : reader.GetString(4) ?? "  :  :  ";
+                        string? cagent = reader.IsDBNull(5) ? null : reader.GetString(5)?.TrimEnd() ?? "";
+                        string? cunit = reader.IsDBNull(6) ? null : reader.GetString(6)?.TrimEnd() ?? "";
+                        string? mdate = reader.IsDBNull(7) ? null : reader.GetString(7) ?? "    /  /  ";
+                        string? mtime = reader.IsDBNull(8) ? null : reader.GetString(8) ?? "  :  :  ";
+                        string? magent = reader.IsDBNull(9) ? null : reader.GetString(9)?.TrimEnd() ?? "";
+                        string? munit = reader.IsDBNull(10) ? null : reader.GetString(10)?.TrimEnd() ?? "";
+                        string? home = reader.IsDBNull(11) ? null : reader.GetString(11)?.TrimEnd() ?? "";
+                        string? version = reader.IsDBNull(12) ? null : reader.GetString(12)?.TrimEnd() ?? "";
+                        string? inactive = reader.IsDBNull(13) ? null : reader.GetString(13)?.TrimEnd() ?? " ";
+                        string? extatt = reader.IsDBNull(14) ? null : reader.GetString(14)?.TrimEnd() ?? "";
+                        object? mref = reader.IsDBNull(15) ? null : reader.GetValue(15); if (mref is string mrefStr) mref = mrefStr.TrimEnd(); // trim solo per stringhe, non per altri tipi (es. numerici o guid)
+                        short? seq = reader.IsDBNull(16) ? null : reader.GetInt16(16);
+                        string? descr = reader.IsDBNull(17) ? null : reader.GetString(17)?.TrimEnd() ?? "";
+                        string? fmt = reader.IsDBNull(18) ? null : reader.GetString(18)?.TrimEnd() ?? "";
+                        string? xdurl = reader.IsDBNull(19) ? null : reader.GetString(19)?.TrimEnd() ?? "";
+
+                        long blobSize = -1; byte[] xdatum = null; string mimeOfXdatum = "";
+                        if (!reader.IsDBNull(20))
+                        {
+                            //  2. Lettura parziale del blob (es. primi 16 byte)
+                            blobSize = reader.GetBytes(20, 0, null, 0, 0); // ottieni la dimensione totale del blob
+                            long bytesToReadLong = (maxBlobSize == -1) ? blobSize : (maxBlobSize == 0) ? (long)16: Math.Min(blobSize, maxBlobSize); //Decidi quanti byte leggere davvero
+                            if (bytesToReadLong > int.MaxValue) throw new InvalidOperationException($"Blob troppo grande ({bytesToReadLong} bytes) per essere caricato in memoria."); // Protezione fondamentale (array size)
+                            if (bytesToReadLong > MaxFileLengthBytes) throw new InvalidOperationException($"Blob ({bytesToReadLong} bytes) supera il limite massimo MaxFileLengthBytes ({MaxFileLengthBytes})."); // Protezione fondamentale (array size)
+                            int bytesToRead = (int)bytesToReadLong; xdatum = new byte[bytesToRead]; //  Alloca SOLO lo spazio necessario
+                            long bytesRead = reader.GetBytes(20, 0, xdatum, 0, xdatum.Length);  // Leggi il blob (tutto o parziale)
+                            if (bytesRead != xdatum.Length) throw new InvalidOperationException("Lettura blob incompleta."); // 6) (opzionale) verifica
+                            //  3. Scrittura campi derivati
+                            mimeOfXdatum = UtilHelper.DetectMime(xdatum);
+                            if (maxBlobSize == 0) { xdatum = null; }    // se maxBlobSize=0, allora non voglio caricare il blob, ma solo sapere se esiste e qual è il suo tipo (mime), quindi lo setto a null per risparmiare memoria
+                        }
+
+
+                        //  4. Controlli
+                        if (icode == null) throw new InvalidOperationException($"Xdata.Icode non può essere null.");
+                        if (mref == null) throw new InvalidOperationException($"Xdata.Mref non può essere null.");
+                        if (fmt == null) throw new InvalidOperationException($"Xdata.Fmt non può essere null.");
+                        dict[icode] = new ModelXdata
+                        {
+                            Icode = icode,
+                            Deleted = deleted,
+                            Timestamp = timestamp,
+                            Cdate = cdate,
+                            Ctime = ctime,
+                            Cagent = cagent,
+                            Cunit = cunit,
+                            Mdate = mdate,
+                            Mtime = mtime,
+                            Magent = magent,
+                            Munit = munit,
+                            Home = home,
+                            Version = version,
+                            Inactive = inactive,
+                            Extatt = extatt,
+                            Mref = mref,
+                            Seq = seq,
+                            Descr = descr,
+                            Fmt = fmt,
+                            Xdurl = xdurl,
+                            Xdatum = xdatum,
+                            _mime = mimeOfXdatum,
+                            _size = blobSize,
+                        };
+
+                        // ora puoi passare alla riga successiva
+                    }
+
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
+                    return dict;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.ExecuteQueryXdata: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
+            }
+            finally { _database.ReleaseConnection(connection); } // si chiude se non c'è transazione
+        }
+
+
+
+
+
         internal int ExecuteNonQuery(string sql, IDictionary<string, object> parameters, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteNonQuery");
@@ -297,8 +423,9 @@ namespace ErpToolkit.Helpers.Db
         public byte[] ReadBlob(string tableName, string keyField, object keyValue, string blobField, int pageNumber, string transactionId)
         {
             if (_transactionId != transactionId) RollBackDefaulTransaction("ReadBlob");
-            int offset = pageNumber * PageSize;
-            string sql = $"SELECT SUBSTRING({blobField}, {offset + 1}, {PageSize}) FROM {tableName} WHERE {keyField} = @keyValue";
+            int offset = pageNumber * PageSize; string sql = "";
+            if (pageNumber < 0) { sql = $"SELECT {blobField} FROM {tableName} WHERE {keyField} = @keyValue"; }
+            else { sql = $"SELECT SUBSTRING({blobField}, {offset + 1}, {PageSize}) FROM {tableName} WHERE {keyField} = @keyValue"; }
             Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             //--- Segnaleremo il completamento della query con questo handle
@@ -451,7 +578,7 @@ namespace ErpToolkit.Helpers.Db
                 _logger.Error(ex, $"{ex1.Message} ErrorCode: {ex1.ErrorCode} HResult: {ex.HResult} \nDbmsMess: {dbmsMessage} \nSQL: {_dumpLastSql}\n\n");
                 throw; // Rethrow to ensure we do not swallow the exception
             }
-            throw new DatabaseException(ERR_DB_ERROR, "{message} ({errorCode})", ex);
+            throw new DatabaseException(ERR_DB_ERROR, $"{message} ({errorCode})", ex);
         }
 
 
@@ -609,6 +736,156 @@ namespace ErpToolkit.Helpers.Db
             }
         }
 
+        //***************************************************************************************************************************************************
+        //*** STREAMING
+        //***************************************************************************************************************************************************
+
+        public DogManager.BlobStreamResult OpenBlobStream(string tableName, string keyField, object keyValue, string blobField, long startOffset)
+        {
+            if (_transactionId != null) throw new InvalidOperationException("Lettura Blob in streaming durante transazione ({_transactionId}).");
+            string sql = $"SELECT {blobField} FROM {tableName} WHERE {keyField} = @keyValue";
+            Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
+            try
+            {
+                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
+                {
+                    command.CommandTimeout = TimeoutSeconds;
+                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                    //--- Avvia audit cancellabile
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+                    //---
+                    //byte[] result = command.ExecuteScalar() as byte[];
+                    using IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
+                    if (!reader.Read()) throw new InvalidOperationException("Blob non trovato");
+                    //DetectMimeFromHeader
+
+
+                    //const int HEADER_SIZE = 16;
+                    //byte[] header = new byte[HEADER_SIZE];
+                    //reader.GetBytes(0, 0, header, 0, header.Length);
+                    //string blobMime = UtilHelper.DetectMime(header);
+
+                    string blobMime = "";
+
+                    //GetBlobSize
+                    long blobSize = reader.GetBytes(0, 0, null, 0, 0);
+                    // STREAM UNIVERSALE (fallback GetBytes)
+                    Stream blobStream = null; byte[] blobBytes = null;
+
+                    const int DOCUMENT_SIZE = 1024 * 1024;  // se blobSize < 1 Mb carico il documento tutto insieme, altrimenti vado in streaming
+                    if (blobSize < DOCUMENT_SIZE)
+                    {
+                        blobBytes = new byte[blobSize]; reader.GetBytes(0, 0, blobBytes, 0, blobBytes.Length);
+                        blobMime = UtilHelper.DetectMime(blobBytes);    //DetectMimeFromHeader
+                    }
+                    else
+                    {
+                        //DetectMimeFromHeader
+                        const int HEADER_SIZE = 16;
+                        byte[] header = new byte[HEADER_SIZE];
+                        reader.GetBytes(0, 0, header, 0, header.Length);
+                        blobMime = UtilHelper.DetectMime(header);
+                        // get Stream
+                        blobStream = CreateUniversalBlobStream(reader, 0, header, startOffset);
+                    }
+
+                    //--- Segnala completamento (audit non partirà)
+                    if (EnableTraceTimeout) done.Set();
+                    //---
+                    return new DogManager.BlobStreamResult
+                    {
+                        Stream = blobStream,
+                        Bytes = blobBytes,
+                        ContentType = blobMime,
+                        Length = blobSize
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.OpenBlobStream: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
+            }
+        }
+        private static Stream CreateUniversalBlobStream(IDataReader reader, int blobOrdinal, byte[] header, long startOffset)
+        {
+            var stream = new BlockingStream();
+            Task.Run(() =>
+            {
+                try
+                {
+                    // -------------------------------------------------
+                    // 1) Restituisci SOLO la parte utile dell'header
+                    // -------------------------------------------------
+                    if (startOffset < header.Length)
+                    {
+                        int headerStart = (int)startOffset;
+                        int headerCount = header.Length - headerStart;
+
+                        stream.Write(header, headerStart, headerCount);
+                    }
+
+                    // -------------------------------------------------
+                    // 2) Continua dal DB al primo byte NON coperto dall'header
+                    // -------------------------------------------------
+                    const int BUFFER_SIZE = 81920; // 80 KB
+                    byte[] buffer = new byte[BUFFER_SIZE];
+
+                    long offset = Math.Max(startOffset, header.Length);
+                    long read;
+                    while ((read = reader.GetBytes(blobOrdinal, offset, buffer, 0, buffer.Length)) > 0)
+                    {
+                        stream.Write(buffer, 0, (int)read);
+                        offset += read;
+                    }
+                }
+                finally { stream.Complete(); }
+            });
+            return stream;
+        }
+
+        private sealed class BlockingStream : Stream
+        {
+            private readonly BlockingCollection<byte[]> _queue = new BlockingCollection<byte[]>();
+            private byte[]? _current; private int _offset;
+            public override bool CanRead => true;
+            public override bool CanSeek => false;
+            public override bool CanWrite => true;
+            public override long Length => throw new NotSupportedException();
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                var chunk = new byte[count];
+                Buffer.BlockCopy(buffer, offset, chunk, 0, count);
+                _queue.Add(chunk);
+            }
+
+            public void Complete() => _queue.CompleteAdding();
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                if (_current == null || _offset >= _current.Length)
+                {
+                    if (!_queue.TryTake(out _current)) return 0;
+                    _offset = 0;
+                }
+                int bytes = Math.Min(count, _current.Length - _offset);
+                Buffer.BlockCopy(_current, _offset, buffer, offset, bytes);
+                _offset += bytes;
+                return bytes;
+            }
+
+            public override void Flush() { }
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+        }
 
 
         //***************************************************************************************************************************************************

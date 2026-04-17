@@ -1,6 +1,7 @@
 using ErpToolkit.Helpers;
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -9,6 +10,7 @@ using System.Data.Entity.Infrastructure;
 using System.Text;
 using System.Transactions;
 using static ErpToolkit.Helpers.Db.DogFactory;
+using static ErpToolkit.Helpers.Db.DogManager;
 
 namespace ErpToolkit.Controllers
 {
@@ -285,6 +287,37 @@ namespace ErpToolkit.Controllers
             catch (Exception ex) { return Json(new { error = "Problemi in GenerateIcode: " + ex.Message }); }
         }
 
+
+        //---------------
+        // GESTIONE BLOB
+        //---------------
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult ViewBlobTable(string modelTableName, object blobIcode)
+        {
+            try
+            {
+                BlobStreamResult blob = ErpContext.Instance.DogFactory.GetDog(dogId).OpenBlobStream(modelTableName, blobIcode, 0);
+                Response.Headers["Content-Disposition"] = "inline";
+
+                if (blob.Bytes != null) return new FileContentResult(blob.Bytes, blob.ContentType) { EnableRangeProcessing = true };
+                else return new FileStreamResult(blob.Stream, blob.ContentType) { EnableRangeProcessing = true };
+            }
+            catch (Exception ex) { return BadRequest("Errore ViewBlob: " + ex.Message); }
+        }
+        protected IActionResult ViewBlobModel<T>(object blobIcode) where T : ModelErp
+        {
+            try
+            {
+                BlobStreamResult blob = ErpContext.Instance.DogFactory.GetDog(dogId).OpenBlobStream<T>(blobIcode, 0);
+                Response.Headers["Content-Disposition"] = "inline";
+
+                if (blob.Bytes != null) return new FileContentResult(blob.Bytes, blob.ContentType) { EnableRangeProcessing = true };
+                else return new FileStreamResult(blob.Stream, blob.ContentType) { EnableRangeProcessing = true };
+            }
+            catch (Exception ex) { return BadRequest("Errore ViewBlob: " + ex.Message); }
+        }
 
         //==========================================================================================================
         //==========================================================================================================

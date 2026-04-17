@@ -242,3 +242,29 @@ textarea {
 }
 
 /* end etkTextareaMic */
+
+/* start ErpDocViewer  */
+
+.erp-docviewer {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.erp-doc-image {
+    max-width: 100%;
+    display: block;
+    margin: auto;
+}
+
+.erp-doc-text {
+    border: none;
+}
+
+.erp-doc-unsupported {
+    padding: 1rem;
+    color: #888;
+    text-align: center;
+}
+
+/* end ErpDocViewer  */
