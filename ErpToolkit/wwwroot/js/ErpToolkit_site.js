@@ -1048,7 +1048,7 @@ function etkAutocompleteInitialize(inputDOM) {
 
             $.get('/' + controller + '/' + action, function (data) {
                 if (data.error) {
-                    showValidationMessage(input.data('name'), data.error);
+                    showValidationMessage(input.data('name'), data.message);
                 } else {
                     allChoices = data;
                     console.log('All choices loaded:', allChoices);
@@ -1192,7 +1192,7 @@ function etkAutocompleteInitialize(inputDOM) {
                 var action = input.data('action'); var term = '%';
                 $.get('/' + controller + '/' + action, { term: term }, function (data) {
                     if (data.error) {
-                        showValidationMessage(input.data('name'), data.error);
+                        showValidationMessage(input.data('name'), data.message);
                     } else {
                         showResults(data);
                     }
