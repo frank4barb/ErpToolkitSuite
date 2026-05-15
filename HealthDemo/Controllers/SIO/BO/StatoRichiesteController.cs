@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ErpToolkit.Controllers;
 using HealthDemo.Models.SIO.Act;
 using static ErpToolkit.Helpers.Db.DogManager;
+using HealthDemo.Models.SIO.HealthData;
 
 namespace HealthDemo.Controllers.SIO.BO
 {
@@ -92,8 +93,8 @@ namespace HealthDemo.Controllers.SIO.BO
         [Authorize]
         [HttpGet]
         public IActionResult ViewBlob(string icode) { 
-            return base.ViewBlobModel<HealthDemo.Models.SIO.HealthData.RisultatoEsame>("IU047HXZLC6R"); 
-        } //{ return this.ViewBlob<HealthDemo.Models.SIO.HealthData.RisultatoEsame>("IU047HXZLC6R");  }
+            return base.ViewXdataTable("RisultatoEsame", "IU047HXZLC6R"); 
+        } 
 
 
 
@@ -110,6 +111,11 @@ namespace HealthDemo.Controllers.SIO.BO
         [HttpGet]
         public IActionResult Index(string returnUrl = null)
         {
+            ////---TEST----------------------------------
+            //var xxx = XdataTest(null);
+            ////-----------------------------------------
+
+
             // Inizializza le risorse ...in caso di chiamata della pagina dall'esterno (ie: no reload)
             this._dogCache = new DogCache();
             //---
@@ -139,7 +145,7 @@ namespace HealthDemo.Controllers.SIO.BO
             }
             //carica lista
             //try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select); }
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select, xrefPrestazione, ref this._dogCache, null, -1); }
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select, xrefPrestazione, false, null, ref this._dogCache, null, -1); }
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/BO/StatoRichieste/Index.cshtml", this);
@@ -235,6 +241,328 @@ namespace HealthDemo.Controllers.SIO.BO
             //---
             return PartialView("~/Views/SIO/Act/Prestazione/_PartialDelete.cshtml", obj);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ////////// ============================================================
+        //////////  AGGIUNGERE in RisultatoEsameController.cs
+        //////////  (dentro la classe RisultatoEsameController)
+        ////////// ============================================================
+
+        ////////#region ── TEST XDATA ────────────────────────────────────────
+
+        /////////// <summary>
+        /////////// Pagina HTML che esegue il test write→read del blob Xdata.
+        /////////// Raggiungibile via GET  /RisultatoEsame/XdataTest
+        /////////// </summary>
+        ////////[Authorize(AuthenticationSchemes = "Cookies")]
+        ////////[HttpGet]
+        ////////public IActionResult XdataTest()
+        ////////{
+        ////////    //return View("~/Views/SIO/HealthData/RisultatoEsame/XdataTest.cshtml");
+        ////////    return View("~/Views/SIO/BO/StatoRichieste/Index.cshtml");
+        ////////}
+
+        /////////// <summary>
+        /////////// Esegue il test completo:
+        ///////////   1. Genera un PDF minimo in memoria (o usa il file caricato)
+        ///////////   2. Chiama MntXdataBlobStreamAsync action='A'  (INSERT)
+        ///////////   3. Rilegge il blob con OpenBlobStream
+        ///////////   4. Confronta byte per byte
+        ///////////   5. Fa DELETE del record inserito (cleanup)
+        ///////////   6. Restituisce JSON con il dettaglio dei risultati
+        ///////////
+        /////////// POST /RisultatoEsame/XdataTest
+        /////////// body: multipart/form-data  oppure  nessun body (usa PDF sintetico)
+        /////////// </summary>
+        /////////// 
+
+
+        ////////public byte[] FileToByteArray(string fileName)
+        ////////{
+        ////////    byte[] buff = null;
+        ////////    FileStream fs = new FileStream(fileName,
+        ////////                                   FileMode.Open,
+        ////////                                   FileAccess.Read);
+        ////////    BinaryReader br = new BinaryReader(fs);
+        ////////    long numBytes = new FileInfo(fileName).Length;
+        ////////    buff = br.ReadBytes((int)numBytes);
+        ////////    return buff;
+        ////////}
+
+
+
+        ////////[HttpPost]
+        ////////public async Task<IActionResult> XdataTest(IFormFile? file)
+        ////////{
+        ////////    var steps = new List<object>();          // log step-by-step
+        ////////    string? insertedIcode = null;            // icode del record inserito (per cleanup)
+
+        ////////    try
+        ////////    {
+        ////////        // ── STEP 1 · Prepara i byte originali ─────────────────────────────
+        ////////        byte[] originalBytes;
+        ////////        string fileName;
+
+        ////////        if (file != null && file.Length > 0)
+        ////////        {
+        ////////            // Legge il file uploadato in modo ASINCRONO (best-practice)
+        ////////            using var uploadMs = new MemoryStream();
+        ////////            await file.CopyToAsync(uploadMs);
+        ////////            originalBytes = uploadMs.ToArray();
+        ////////            fileName = file.FileName;
+        ////////        }
+        ////////        else
+        ////////        {
+        ////////            // Genera un PDF sintetico minimo (header PDF valido, 1 pagina vuota)
+
+
+        ////////            //originalBytes = BuildMinimalPdf();
+        ////////            originalBytes = FileToByteArray("C:\\_FRANK\\test.pdf");
+                    
+        ////////            fileName = "test_synthetic.pdf";
+        ////////        }
+
+        ////////        steps.Add(new
+        ////////        {
+        ////////            step = 1,
+        ////////            label = "Bytes originali pronti",
+        ////////            ok = true,
+        ////////            detail = $"File: {fileName} | Dimensione: {originalBytes.Length} byte | " +
+        ////////                     $"Primi 8 byte: {ToHex(originalBytes, 8)}"
+        ////////        });
+
+        ////////        // ── STEP 2 · INSERT via MntXdataBlobStreamAsync ───────────────────
+        ////////        // Usa un Mref fittizio: prende il primo Icode disponibile (o usa 0/1 se numerico)
+        ////////        // ATTENZIONE: sostituire "TEST_MREF" con un Icode valido della tabella padre
+        ////////        //             oppure usare un record di test già esistente.
+        ////////        const string TEST_MREF = "IUF18CSNJKBI";   // <── adatta a un Icode padre valido
+        ////////        const string TEST_DESCR = "[XDATA-TEST] Documento di test automatico";
+        ////////        const string TEST_FMT = "PDF";
+
+        ////////        ModelXdata insertResult;
+        ////////        using (var writeStream = new MemoryStream(originalBytes))
+        ////////        {
+        ////////            insertResult = await ErpContext.Instance.DogFactory.GetDog(dogId)
+        ////////                .MntXdataBlobStreamAsync<RisultatoEsame>(
+        ////////                    action: 'A',
+        ////////                    icodeStr: null,
+        ////////                    timestampHex: null,
+        ////////                    mrefStr: TEST_MREF,
+        ////////                    descr: TEST_DESCR,
+        ////////                    fmt: TEST_FMT,
+        ////////                    dataStream: writeStream,
+        ////////                    transactionId: null);
+        ////////        }
+
+        ////////        insertedIcode = insertResult?.Icode?.ToString();
+
+        ////////        steps.Add(new
+        ////////        {
+        ////////            step = 2,
+        ////////            label = "INSERT MntXdataBlobStreamAsync",
+        ////////            ok = insertedIcode != null,
+        ////////            detail = insertedIcode != null
+        ////////                ? $"Icode inserito: {insertedIcode} | Timestamp: {ToHex(insertResult!.Timestamp, 8)}"
+        ////////                : "Icode null — INSERT non riuscito"
+        ////////        });
+
+        ////////        if (insertedIcode == null)
+        ////////            return Json(new { success = false, steps });
+
+        ////////        // ── STEP 3 · READ via OpenBlobStream ──────────────────────────────
+        ////////        BlobStreamResult blob = ErpContext.Instance.DogFactory.GetDog(dogId)
+        ////////            .OpenBlobStream<RisultatoEsame>(insertedIcode, 0);
+
+        ////////        byte[] readBytes;
+        ////////        if (blob.Bytes != null)
+        ////////        {
+        ////////            readBytes = blob.Bytes;
+        ////////        }
+        ////////        else if (blob.Stream != null)
+        ////////        {
+        ////////            using var readMs = new MemoryStream();
+        ////////            await blob.Stream.CopyToAsync(readMs);
+        ////////            readBytes = readMs.ToArray();
+        ////////        }
+        ////////        else
+        ////////        {
+        ////////            readBytes = Array.Empty<byte>();
+        ////////        }
+
+        ////////        steps.Add(new
+        ////////        {
+        ////////            step = 3,
+        ////////            label = "READ OpenBlobStream",
+        ////////            ok = readBytes.Length > 0,
+        ////////            detail = $"Byte riletti: {readBytes.Length} | ContentType rilevato: {blob.ContentType} | " +
+        ////////                     $"Primi 8 byte: {ToHex(readBytes, 8)}"
+        ////////        });
+
+        ////////        // ── STEP 4 · Confronto byte per byte ──────────────────────────────
+        ////////        bool lengthMatch = originalBytes.Length == readBytes.Length;
+        ////////        int firstDiffIdx = -1;
+
+        ////////        if (lengthMatch)
+        ////////        {
+        ////////            for (int i = 0; i < originalBytes.Length; i++)
+        ////////            {
+        ////////                if (originalBytes[i] != readBytes[i]) { firstDiffIdx = i; break; }
+        ////////            }
+        ////////        }
+
+        ////////        bool bytesMatch = lengthMatch && firstDiffIdx == -1;
+
+        ////////        steps.Add(new
+        ////////        {
+        ////////            step = 6,
+        ////////            label = "Confronto byte per byte",
+        ////////            ok = bytesMatch,
+        ////////            detail = bytesMatch
+        ////////                ? $"✅ IDENTICI — {originalBytes.Length} byte corrispondono perfettamente"
+        ////////                : lengthMatch
+        ////////                    ? $"❌ DIVERSI — stessa lunghezza ({originalBytes.Length}), " +
+        ////////                      $"primo byte diverso a indice {firstDiffIdx}: " +
+        ////////                      $"originale=0x{originalBytes[firstDiffIdx]:X2} letto=0x{readBytes[firstDiffIdx]:X2}"
+        ////////                    : $"❌ DIMENSIONI DIVERSE — originale: {originalBytes.Length} byte, " +
+        ////////                      $"riletti: {readBytes.Length} byte"
+        ////////        });
+
+        ////////        // ── STEP 5 · Salva i due file per ispezione manuale ───────────────
+        ////////        string tmpDir = Path.Combine(Path.GetTempPath(), "XdataTest");
+        ////////        Directory.CreateDirectory(tmpDir);
+        ////////        string pathOrig = Path.Combine(tmpDir, "original.bin");
+        ////////        string pathRead = Path.Combine(tmpDir, "readback.bin");
+        ////////        await System.IO.File.WriteAllBytesAsync(pathOrig, originalBytes);
+        ////////        await System.IO.File.WriteAllBytesAsync(pathRead, readBytes);
+
+        ////////        steps.Add(new
+        ////////        {
+        ////////            step = 5,
+        ////////            label = "File salvati per ispezione",
+        ////////            ok = true,
+        ////////            detail = $"Originale → {pathOrig} | Riletto → {pathRead}"
+        ////////        });
+
+        ////////        // ── STEP 6 · CLEANUP: DELETE del record inserito ──────────────────
+        ////////        try
+        ////////        {
+        ////////            string tsHex = insertResult?.Timestamp != null
+        ////////                ? "0x" + UtilHelper.ByteArrayToHexString(insertResult.Timestamp)
+        ////////                : "";
+
+        ////////            await ErpContext.Instance.DogFactory.GetDog(dogId)
+        ////////                .MntXdataBlobStreamAsync<RisultatoEsame>(
+        ////////                    action: 'D',
+        ////////                    icodeStr: insertedIcode,
+        ////////                    timestampHex: tsHex,
+        ////////                    mrefStr: TEST_MREF,
+        ////////                    descr: null,
+        ////////                    fmt: "",
+        ////////                    dataStream: Stream.Null,
+        ////////                    transactionId: null);
+
+        ////////            steps.Add(new
+        ////////            {
+        ////////                step = 6,
+        ////////                label = "CLEANUP DELETE",
+        ////////                ok = true,
+        ////////                detail = $"Record {insertedIcode} eliminato correttamente"
+        ////////            });
+        ////////        }
+        ////////        catch (Exception exDel)
+        ////////        {
+        ////////            steps.Add(new
+        ////////            {
+        ////////                step = 6,
+        ////////                label = "CLEANUP DELETE",
+        ////////                ok = false,
+        ////////                detail = $"DELETE fallita (il record {insertedIcode} è rimasto nel DB): {exDel.Message}"
+        ////////            });
+        ////////        }
+
+        ////////        return Json(new
+        ////////        {
+        ////////            success = bytesMatch,
+        ////////            summary = bytesMatch ? "✅ PASS — blob write/read identici" : "❌ FAIL — blob corrotto",
+        ////////            steps
+        ////////        });
+        ////////    }
+        ////////    catch (Exception ex)
+        ////////    {
+        ////////        // Prova cleanup emergenza
+        ////////        if (insertedIcode != null)
+        ////////        {
+        ////////            try
+        ////////            {
+        ////////                await ErpContext.Instance.DogFactory.GetDog(dogId)
+        ////////                    .MntXdataBlobStreamAsync<RisultatoEsame>(
+        ////////                        'D', insertedIcode, null, "TEST_MREF", null, "", Stream.Null, null);
+        ////////            }
+        ////////            catch { /* ignora */ }
+        ////////        }
+
+        ////////        steps.Add(new { step = 99, label = "ECCEZIONE", ok = false, detail = ex.ToString() });
+        ////////        return Json(new { success = false, summary = $"💥 EXCEPTION: {ex.Message}", steps });
+        ////////    }
+        ////////}
+
+        ////////// ── Helpers privati ───────────────────────────────────────────────────────────
+
+        /////////// <summary>Restituisce i primi <paramref name="n"/> byte come stringa esadecimale.</summary>
+        ////////private static string ToHex(byte[]? data, int n)
+        ////////{
+        ////////    if (data == null || data.Length == 0) return "(vuoto)";
+        ////////    int take = Math.Min(n, data.Length);
+        ////////    var sb = new System.Text.StringBuilder(take * 3);
+        ////////    for (int i = 0; i < take; i++) sb.Append(data[i].ToString("X2")).Append(' ');
+        ////////    if (data.Length > n) sb.Append("...");
+        ////////    return sb.ToString().Trim();
+        ////////}
+
+        /////////// <summary>
+        /////////// Genera un PDF sintetico valido al minimo indispensabile
+        /////////// (header %PDF-1.4 + oggetti minimi + %%EOF).
+        /////////// Utile per testare senza caricare un file esterno.
+        /////////// </summary>
+        ////////private static byte[] BuildMinimalPdf()
+        ////////{
+        ////////    // PDF minimale hand-crafted — valido per qualsiasi reader
+        ////////    const string pdf = "%PDF-1.4\n" +
+        ////////        "1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n" +
+        ////////        "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n" +
+        ////////        "3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj\n" +
+        ////////        "xref\n0 4\n" +
+        ////////        "0000000000 65535 f \n" +
+        ////////        "0000000009 00000 n \n" +
+        ////////        "0000000058 00000 n \n" +
+        ////////        "0000000115 00000 n \n" +
+        ////////        "trailer<</Size 4/Root 1 0 R>>\n" +
+        ////////        "startxref\n210\n%%EOF\n";
+        ////////    return System.Text.Encoding.ASCII.GetBytes(pdf);
+        ////////}
+
+        ////////#endregion
+
+
+
+
+
+
+
+
 
     }
 }

@@ -586,24 +586,26 @@ namespace ErpToolkit.Helpers
 
 
 
-    //#############################################################################
+        //#############################################################################
 
-    //GENERIC utility
+        //GENERIC utility
 
-    //-----------------------------------------------------------
-    //--------- Convert HEX -------------------------------------
+        //-----------------------------------------------------------
+        //--------- Convert HEX -------------------------------------
 
-    //Converte byte[] in stringa esadecimale
-    public static string ByteArrayToHexString(byte[]? bytes)
+        //Converte byte[] in stringa esadecimale
+        public static string ByteArrayToHexString(byte[]? bytes)
         {
             if (bytes == null) return "";
             return BitConverter.ToString(bytes).Replace("-", "");
         }
 
         //Converte stringa esadecimale in byte[]
-        public static byte[]? HexStringToByteArray(string hex)
+        public static byte[]? HexStringToByteArray(string? hex)
         {
-            if (IsNullOrEmptyObject(hex)) return null;
+            if (string.IsNullOrWhiteSpace(hex)) return null;
+            if (hex.StartsWith("0x")) hex = hex.Substring(2);
+            if (string.IsNullOrWhiteSpace(hex)) return null;
 
             if (hex.Length % 2 != 0)
                 throw new ArgumentException("La stringa esadecimale deve avere lunghezza pari.");
@@ -769,41 +771,40 @@ namespace ErpToolkit.Helpers
             if (data == null || data.Length < 4)
                 return "application/octet-stream";
 
+            // Cerca il marker reale saltando eventuali prefissi sporchi
+            // (BOM UTF-8, BOM UTF-16, whitespace, CRLF, metadata prepended)
+            int offset = FindCleanOffset(data);
+
             // ---------- PDF ----------
-            if (StartsWith(data, "%PDF"))
+            if (StartsWith(data, offset, "%PDF"))
                 return "application/pdf";
 
             // ---------- IMMAGINI ----------
-            if (StartsWith(data, new byte[] { 0xFF, 0xD8, 0xFF }))
+            // JPEG, PNG, GIF, BMP, WebP: magic bytes binari → non hanno prefissi testuali
+            // → si controllano SEMPRE a offset 0 (un JPEG non può avere BOM davanti)
+            if (StartsWith(data, 0, new byte[] { 0xFF, 0xD8, 0xFF }))
                 return "image/jpeg";
-
-            if (StartsWith(data, new byte[] { 0x89, 0x50, 0x4E, 0x47 }))
+            if (StartsWith(data, 0, new byte[] { 0x89, 0x50, 0x4E, 0x47 }))
                 return "image/png";
-
-            if (StartsWith(data, "GIF8"))
+            if (StartsWith(data, 0, "GIF8"))
                 return "image/gif";
-
-            if (StartsWith(data, "BM"))
+            if (StartsWith(data, 0, "BM"))
                 return "image/bmp";
-
             if (IsWebP(data))
                 return "image/webp";
 
             // ---------- AUDIO ----------
-            if (StartsWith(data, "ID3") || (data[0] == 0xFF && (data[1] & 0xE0) == 0xE0))
+            if (StartsWith(data, 0, "ID3") || (data[0] == 0xFF && (data[1] & 0xE0) == 0xE0))
                 return "audio/mpeg";
-
             if (IsRiff(data, "WAVE"))
                 return "audio/wav";
-
-            if (StartsWith(data, "OggS"))
+            if (StartsWith(data, 0, "OggS"))
                 return "audio/ogg";
 
             // ---------- VIDEO ----------
             if (IsMp4(data))
                 return "video/mp4";
-
-            if (StartsWith(data, new byte[] { 0x1A, 0x45, 0xDF, 0xA3 }))
+            if (StartsWith(data, 0, new byte[] { 0x1A, 0x45, 0xDF, 0xA3 }))
                 return "video/x-matroska";
 
             // ---------- TESTO ----------
@@ -812,19 +813,94 @@ namespace ErpToolkit.Helpers
 
             return "application/octet-stream";
         }
-        // HELPER
-        private static bool StartsWith(byte[] data, string s) => data.Length >= s.Length && Encoding.ASCII.GetString(data, 0, s.Length) == s;
-        private static bool StartsWith(byte[] data, byte[] signature) => data.Length >= signature.Length && signature.SequenceEqual(data.Take(signature.Length));
-        private static bool IsRiff(byte[] data, string type) => StartsWith(data, "RIFF") && Encoding.ASCII.GetString(data, 8, type.Length) == type;
-        private static bool IsMp4(byte[] data) => data.Length > 12 && Encoding.ASCII.GetString(data, 4, 4) == "ftyp";
-        private static bool IsWebP(byte[] data) => IsRiff(data, "WEBP");
-        private static bool LooksLikeText(byte[] data)
+
+        /// <summary>
+        /// Ritorna l'offset del primo byte "utile", saltando:
+        ///   - BOM UTF-8  (EF BB BF)         → es: ï»¿%PDF  come nello screenshot
+        ///   - BOM UTF-16 LE/BE (FF FE / FE FF)
+        ///   - BOM UTF-32 LE/BE
+        ///   - Whitespace ASCII iniziale (spazi, tab, CR, LF)
+        /// Scansione limitata a MAX_JUNK_PREFIX byte per sicurezza.
+        /// </summary>
+        private const int MAX_JUNK_PREFIX = 1024;
+
+        private static int FindCleanOffset(byte[] data)
         {
-            // controlla se i primi byte sono stampabili UTF‑8 / ASCII
-            int sample = Math.Min(data.Length, 128);
-            for (int i = 0; i < sample; i++) { byte b = data[i]; if (b == 0) return false; if (b < 0x09) return false; }
+            int i = 0;
+            int limit = Math.Min(data.Length, MAX_JUNK_PREFIX);
+
+            // BOM UTF-32 LE: FF FE 00 00  (va controllato prima di UTF-16 LE)
+            if (data.Length >= 4 &&
+                data[0] == 0xFF && data[1] == 0xFE && data[2] == 0x00 && data[3] == 0x00)
+                i = 4;
+            // BOM UTF-32 BE: 00 00 FE FF
+            else if (data.Length >= 4 &&
+                data[0] == 0x00 && data[1] == 0x00 && data[2] == 0xFE && data[3] == 0xFF)
+                i = 4;
+            // BOM UTF-8: EF BB BF
+            else if (data.Length >= 3 &&
+                data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+                i = 3;
+            // BOM UTF-16 LE: FF FE
+            else if (data.Length >= 2 && data[0] == 0xFF && data[1] == 0xFE)
+                i = 2;
+            // BOM UTF-16 BE: FE FF
+            else if (data.Length >= 2 && data[0] == 0xFE && data[1] == 0xFF)
+                i = 2;
+
+            // Salta eventuali whitespace residui dopo il BOM
+            while (i < limit && IsAsciiWhitespace(data[i]))
+                i++;
+
+            return i;
+        }
+
+        private static bool IsAsciiWhitespace(byte b)
+            => b == 0x20 || b == 0x09 || b == 0x0A || b == 0x0D;  // spazio, tab, LF, CR
+
+        // HELPER aggiornati con parametro offset
+        private static bool StartsWith(byte[] data, int offset, string s)
+        {
+            if (data.Length < offset + s.Length) return false;
+            return Encoding.ASCII.GetString(data, offset, s.Length) == s;
+        }
+        private static bool StartsWith(byte[] data, int offset, byte[] signature)
+        {
+            if (data.Length < offset + signature.Length) return false;
+            for (int i = 0; i < signature.Length; i++)
+                if (data[offset + i] != signature[i]) return false;
             return true;
         }
+
+        // Overload backward-compatible (offset=0) per non rompere chiamate esistenti
+        private static bool StartsWith(byte[] data, string s)
+            => StartsWith(data, 0, s);
+        private static bool StartsWith(byte[] data, byte[] signature)
+            => StartsWith(data, 0, signature);
+
+        private static bool IsRiff(byte[] data, string type)
+            => StartsWith(data, 0, "RIFF") && data.Length >= 12 &&
+               Encoding.ASCII.GetString(data, 8, type.Length) == type;
+
+        private static bool IsMp4(byte[] data)
+            => data.Length > 12 && Encoding.ASCII.GetString(data, 4, 4) == "ftyp";
+
+        private static bool IsWebP(byte[] data) => IsRiff(data, "WEBP");
+
+        private static bool LooksLikeText(byte[] data)
+        {
+            int sample = Math.Min(data.Length, 128);
+            for (int i = 0; i < sample; i++)
+            {
+                byte b = data[i];
+                if (b == 0) return false;
+                if (b < 0x09) return false;
+            }
+            return true;
+        }
+
+
+
 
 
 

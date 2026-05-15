@@ -5,6 +5,8 @@ using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
 using System.Text;
 using Microsoft.Extensions.Options;
+using K4os.Hash.xxHash;
+using System.Data.Odbc;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -19,87 +21,37 @@ namespace ErpToolkit.Helpers.Db
         //******************************************************************************************************************
 
         //genera la query SQL per l'estrazione di una lista di oggetti, in base al parametro "objModel.ViewQueryFromWhere()"
-        //internal static string sqlList(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters, object selModel, DogField fldXref, List<object> lstRowId, string options = "")
-        //{
-        //    string sql = "";
-        //    if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
-        //    StringBuilder sb = new StringBuilder();
-
-        //    string sqlFromWhere = objModel.ViewQueryFromWhere();
-        //    if (string.IsNullOrEmpty(sqlFromWhere))
-        //    {
-        //        sb.Append(DogManagerInt.sqlSelect(dogMng, objModel, ref parameters))
-        //            .Append(DogManagerInt.sqlFrom(dogMng, objModel, ref parameters));
-        //        if (selModel == null && fldXref == null) sb.Append(DogManagerInt.sqlWhereListIcode(dogMng, objModel, lstRowId, ref parameters, options: options));  //lista icode
-        //        else if (selModel == null) sb.Append(DogManagerInt.sqlWhereListXref(dogMng, objModel, fldXref, lstRowId, ref parameters, options: options));  //lista icode
-        //        else sb.Append(DogManagerInt.sqlWhereSelection(dogMng, selModel, ref parameters, options: options));  //filtro parametri
-        //        sql = sb.ToString();
-        //    }
-        //    else
-        //    {
-        //        sb.Append("SELECT * FROM ( \n")
-        //            .Append(DogManagerInt.sqlSelect(dogMng, objModel, ref parameters))
-        //            .Append(sqlFromWhere)
-        //            .Append(") AS subquery \n");
-        //        if (selModel == null && fldXref == null) sb.Append(DogManagerInt.sqlWhereListIcode(dogMng, objModel, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
-        //        if (selModel == null) sb.Append(DogManagerInt.sqlWhereListXref(dogMng, objModel, fldXref, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
-        //        else sb.Append(DogManagerInt.sqlWhereSelection(dogMng, selModel, ref parameters, options: "[UsePropertyNameField] " + options)); // Componi il filtro dinamicamente
-        //        sql = DogManagerInt.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
-        //    }
-        //    return sql;
-        //}
-        internal static string sqlList(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters, ModelErp selModel, DogField fldXref, List<object> lstRowId, string options = "")
+        internal static string sqlListEx(DogManager dogMng, DogTable tab, ref IDictionary<string, object> parameters, ModelErp selModel, DogField fldXref, List<object> lstRowId, List<string> lstFmt, bool isXdata, string options = "")
         {
             string sql = "";
             if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
-            StringBuilder sb = new StringBuilder();
+            if (isXdata) {
+                if (tab.tabXdata == null) throw new Exception($"sqlListEx: tab [{tab.tableTpy.FullName}] Xdata == null.");
+                if (selModel != null) { throw new ArgumentException("sqlListEx must be null when isXdata is true."); }
+            }
+            ModelErp objModel = (ModelErp)Activator.CreateInstance(tab.tableTpy); // create an instance of that type
 
-            string sqlFromWhere = objModel.ViewQueryFromWhere();
+            StringBuilder sb = new StringBuilder();
+            string sqlSelect = (isXdata) ? DogManagerQuery.sqlSelectXdataEx(tab.tabXdata, ref parameters) : DogManagerQuery.sqlSelectEx(tab, ref parameters);
+            string sqlFromWhere = (isXdata) ? objModel.ViewQueryXdataFromWhere() : objModel.ViewQueryFromWhere();
             if (string.IsNullOrEmpty(sqlFromWhere))
             {
-                sb.Append(DogManagerQuery.sqlSelect(dogMng, objModel, ref parameters))
-                    .Append(DogManagerQuery.sqlFrom(dogMng, objModel, ref parameters));
-                if (selModel == null && fldXref == null) sb.Append(DogManagerQuery.sqlWhereListIcode(dogMng, objModel, lstRowId, ref parameters, options: options));  //lista icode
-                else if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXref(dogMng, objModel, fldXref, lstRowId, ref parameters, options: options));  //lista icode
+                sb.Append(sqlSelect)
+                    .Append(DogManagerQuery.sqlFromEx((isXdata) ? tab.tabXdata : tab, ref parameters));
+                if (selModel == null && fldXref == null) sb.Append(DogManagerQuery.sqlWhereListIcodeEx(tab, lstRowId, isXdata, ref parameters, options: options));  //lista icode
+                else if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXrefEx(tab, fldXref, lstRowId, lstFmt, isXdata, ref parameters, options: options));  //lista icode
                 else sb.Append(DogManagerQuery.sqlWhereSelection(dogMng, selModel, ref parameters, options: options));  //filtro parametri
                 sql = sb.ToString();
             }
             else
             {
                 sb.Append("SELECT * FROM ( \n")
-                    .Append(DogManagerQuery.sqlSelect(dogMng, objModel, ref parameters))
+                    .Append(sqlSelect)
                     .Append(sqlFromWhere)
                     .Append(") AS subquery \n");
-                if (selModel == null && fldXref == null) sb.Append(DogManagerQuery.sqlWhereListIcode(dogMng, objModel, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
-                if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXref(dogMng, objModel, fldXref, lstRowId, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
+                if (selModel == null && fldXref == null) sb.Append(DogManagerQuery.sqlWhereListIcodeEx(tab, lstRowId, isXdata, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
+                if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXrefEx(tab, fldXref, lstRowId, lstFmt, isXdata, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
                 else sb.Append(DogManagerQuery.sqlWhereSelection(dogMng, selModel, ref parameters, options: "[UsePropertyNameField] " + options)); // Componi il filtro dinamicamente
-                sql = DogManagerQuery.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
-            }
-            return sql;
-        }
-
-        internal static string sqlListXdata(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters, bool isMref, List<object> lstRowId, List<string> lstFmt, string options = "")
-        {
-            string sql = "";
-            if (lstRowId == null) { throw new ArgumentNullException(nameof(lstRowId)); }
-            if (lstFmt == null) { throw new ArgumentNullException(nameof(lstFmt)); }
-            StringBuilder sb = new StringBuilder();
-
-            string sqlFromWhere = objModel.ViewQueryXdataFromWhere();
-            if (string.IsNullOrEmpty(sqlFromWhere))
-            {
-                sb.Append(DogManagerQuery.sqlSelectXdata(dogMng, objModel, ref parameters))
-                    .Append(DogManagerQuery.sqlFromXdata(dogMng, objModel, ref parameters));
-                sb.Append(DogManagerQuery.sqlWhereXdataListMref(dogMng, objModel, isMref, lstRowId, lstFmt, ref parameters, options: options));  
-                sql = sb.ToString();
-            }
-            else
-            {
-                sb.Append("SELECT * FROM ( \n")
-                    .Append(DogManagerQuery.sqlSelectXdata(dogMng, objModel, ref parameters))
-                    .Append(sqlFromWhere)
-                    .Append(") AS subquery \n");
-                sb.Append(DogManagerQuery.sqlWhereXdataListMref(dogMng, objModel, isMref, lstRowId, lstFmt, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
                 sql = DogManagerQuery.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
             }
             return sql;
@@ -188,12 +140,12 @@ namespace ErpToolkit.Helpers.Db
 
         // Integra in Cache tutti i riferimenti a Chiave Icode con Valore null.
         // A fine processo effettua l'abbinamento dei riferimenti Xref per tutti i record presenti nella Cache
-        internal static List<T> CacheFillNull<T>(DogManager dogMng, ref DogCache dogCache, List<object> mainObjKeyList, string? transactionId, int maxRecords, string options = "") where T : ModelErp
+        internal static List<T> CacheFillNull<T>(DogManager dogMng, ref DogCache dogCache, List<object> mainObjKeyList, bool fillXdata, List<string> fmtList, string? transactionId, int maxRecords, string options = "") where T : ModelErp
         {
             T objModel = (T)Activator.CreateInstance(typeof(T)); // create an instance of that type
-            return CacheFillNull(dogMng, ref dogCache, objModel.GetType(), mainObjKeyList, transactionId, maxRecords, options: options).OfType<T>().ToList(); //  OfType<T>() : filtra e fa cast solo se possibile (cioè solo se tipo T, atrimenti scarta la struttura);
+            return CacheFillNull(dogMng, ref dogCache, objModel.GetType(), mainObjKeyList, fillXdata, fmtList, transactionId, maxRecords, options: options).OfType<T>().ToList(); //  OfType<T>() : filtra e fa cast solo se possibile (cioè solo se tipo T, atrimenti scarta la struttura);
         }
-        internal static List<ModelErp> CacheFillNull(DogManager dogMng, ref DogCache dogCache, System.Type mainObjType, List<object> mainObjKeyList, string? transactionId, int maxRecords, string options = "")
+        internal static List<ModelErp> CacheFillNull(DogManager dogMng, ref DogCache dogCache, System.Type mainObjType, List<object> mainObjKeyList, bool fillXdata, List<string> fmtList, string? transactionId, int maxRecords, string options = "")
         {
             int recursiveCicle = 0; bool mustAddRecursiveObj = false;
             do
@@ -205,14 +157,24 @@ namespace ErpToolkit.Helpers.Db
                 //riempi i valori degli oggetti con Valore null presenti in Cache 
                 foreach (var objType in dogCache.dbCache.Keys)
                 {
-                    ModelErp obj = (ModelErp)Activator.CreateInstance(objType); // create an instance of that type
+                    DogTable tab = dogMng._getDogTableException(objType, "CacheFillNull");  // verifico che esista la tabella per quel tipo di oggetto, altrimenti è un errore di configurazione grave e fermo tutto con un'eccezione
+                    //ModelErp obj = (ModelErp)Activator.CreateInstance(objType); // create an instance of that type
                     IDictionary<string, object> objParameters = new Dictionary<string, object>();
                     List<object> nullKeyList = dogCache.dbCache[objType].Where(kvp => kvp.Value == null).Select(kvp => kvp.Key).ToList<object>(); // lista delle chiavi con valore null
                     if (nullKeyList.Count() == 0) continue; // Se non ci sono chiavi con valore null, salto il ciclo
-                    string objSql = sqlList(dogMng, obj, ref objParameters, null, null, nullKeyList, options: options);
+
+
+                    //string objSql = sqlList(dogMng, obj, ref objParameters, null, null, nullKeyList, options: options);
+                    string objSql = sqlListEx(dogMng, tab, ref objParameters, null, null, nullKeyList, null, false, options: options);
+
                     //dogCache.dbCache[objType] = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, "[PLAIN] " + options); // non ricorsivo ?????
                     //Dictionary<object, ModelErp> outDict = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, options);
-                    Dictionary<object, ModelErp> outDict = dogMng.ExecuteQuery(null, objType, objSql, objParameters, transactionId, maxRecords, options: options);
+
+
+                    //!!!//Dictionary<object, ModelErp> outDict = dogMng.ExecuteQuery(null, objType, objSql, objParameters, transactionId, maxRecords, options: options);
+                    Dictionary<object, ModelErp> outDict = dogMng.ExecuteQueryEx(null, objType, objSql, objParameters, fillXdata, fmtList, transactionId, maxRecords, options: options);
+                    //!!!//
+
                     foreach (var kv in outDict) { if (UtilHelper.IsNullOrEmptyObject(kv.Key) == false && kv.Value != null) { kv.Value.addDogCache(ref dogCache); dogCache.dbCache[objType][kv.Key] = kv.Value; } } //aggiorna o aggiungi alla cache
                 }
                 // ----------------------------------------------------------

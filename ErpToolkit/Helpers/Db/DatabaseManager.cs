@@ -11,6 +11,11 @@ using ErpToolkit.Models;
 using System.Collections.Concurrent;
 using System.IO;
 using System;
+using System.Data.Common;
+using System.Transactions;
+using Quartz.Util;
+using Amazon.SecurityToken.Model;
+using Org.BouncyCastle.Utilities;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -326,8 +331,8 @@ namespace ErpToolkit.Helpers.Db
                             Fmt = fmt,
                             Xdurl = xdurl,
                             Xdatum = xdatum,
-                            _mime = mimeOfXdatum,
-                            _size = blobSize,
+                            _mimeXdatum = mimeOfXdatum,
+                            _sizeXdatum = blobSize,
                         };
 
                         // ora puoi passare alla riga successiva
@@ -385,6 +390,55 @@ namespace ErpToolkit.Helpers.Db
             }
             finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
         }
+        //internal async Task<int> ExecuteNonQueryAsync(string sql, IDictionary<string, object> parameters, string transactionId)
+        //{
+        //    if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteNonQueryAsync");
+        //    IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+        //    //--- Segnaleremo il completamento della query con questo handle
+        //    ManualResetEventSlim done = null;
+        //    if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+        //    //---
+        //    try
+        //    {
+        //        using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
+        //        {
+        //            command.CommandTimeout = TimeoutSeconds;
+        //            string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+        //            //--- Avvia audit cancellabile
+        //            if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+        //            //---
+
+
+        //            //----------------------------------------------------------------------------
+        //            int result = 0; //int result = command.ExecuteNonQuery();
+        //            // punto cruciale: esecuzione streaming
+        //            if (command is DbCommand dbCommand)
+        //            {
+        //                // provider moderni
+        //                result = await dbCommand.ExecuteNonQueryAsync();
+        //            }
+        //            else
+        //            {
+        //                // fallback sincrono
+        //                result = command.ExecuteNonQuery();
+        //            }
+        //            //----------------------------------------------------------------------------
+
+
+        //            //--- Segnala completamento (audit non partirà)
+        //            if (EnableTraceTimeout) done.Set();
+        //            //---
+        //            return result;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Console.WriteLine($@"DatabaseManager.ExecuteNonQuery: System.Exception: {ex.Message}");
+        //        HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+        //        throw; // Rethrow to ensure we do not swallow the exception
+        //    }
+        //    finally { _database.ReleaseConnection(connection); } // la connessione viene chiusa se non c'è transazione
+        //}
 
         public bool RecordExists(string tableName, string keyField, object keyValue, string transactionId)
         {
@@ -523,6 +577,18 @@ namespace ErpToolkit.Helpers.Db
                 if (parameter.Value is DateOnly) parameter.DbType = DbType.Date;
                 else if (parameter.Value is TimeOnly || parameter.Value is TimeSpan) parameter.DbType = DbType.Time;
                 else if (parameter.Value is DateTime) parameter.DbType = DbType.DateTime;
+                else if (parameter.Value is byte[]) parameter.DbType = DbType.Binary;
+                else if (parameter.Value is Stream)
+                {
+                    parameter.DbType = DbType.Binary;
+
+                    // Cast a SqlParameter per usare SqlDbType direttamente
+                    if (parameter is System.Data.SqlClient.SqlParameter sqlParam)
+                    {
+                        sqlParam.SqlDbType = System.Data.SqlDbType.VarBinary; // oppure .Image se colonna legacy
+                    }
+
+                }
                 command.Parameters.Add(parameter);
                 dumpSql = ReplaceParameter(dumpSql, parameter);
             }
@@ -740,9 +806,13 @@ namespace ErpToolkit.Helpers.Db
         //*** STREAMING
         //***************************************************************************************************************************************************
 
+        //----------------------------------------
+        // READ BLOB IN STREAMING (per evitare di caricare tutto il blob in memoria, utile per blob di grandi dimensioni)
+        //----------------------------------------
+
         public DogManager.BlobStreamResult OpenBlobStream(string tableName, string keyField, object keyValue, string blobField, long startOffset)
         {
-            if (_transactionId != null) throw new InvalidOperationException("Lettura Blob in streaming durante transazione ({_transactionId}).");
+            if (_transactionId != null) throw new InvalidOperationException($"OpenBlobStream: Lettura Blob in streaming durante transazione ({_transactionId}).");
             string sql = $"SELECT {blobField} FROM {tableName} WHERE {keyField} = @keyValue";
             Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
@@ -752,59 +822,66 @@ namespace ErpToolkit.Helpers.Db
             //---
             try
             {
-                using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passate nel NewCommand
-                {
-                    command.CommandTimeout = TimeoutSeconds;
-                    string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
-                    //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
-                    //---
-                    //byte[] result = command.ExecuteScalar() as byte[];
-                    using IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
-                    if (!reader.Read()) throw new InvalidOperationException("Blob non trovato");
-                    //DetectMimeFromHeader
-
-
-                    //const int HEADER_SIZE = 16;
-                    //byte[] header = new byte[HEADER_SIZE];
-                    //reader.GetBytes(0, 0, header, 0, header.Length);
-                    //string blobMime = UtilHelper.DetectMime(header);
-
-                    string blobMime = "";
-
-                    //GetBlobSize
-                    long blobSize = reader.GetBytes(0, 0, null, 0, 0);
-                    // STREAM UNIVERSALE (fallback GetBytes)
-                    Stream blobStream = null; byte[] blobBytes = null;
-
-                    const int DOCUMENT_SIZE = 1024 * 1024;  // se blobSize < 1 Mb carico il documento tutto insieme, altrimenti vado in streaming
-                    if (blobSize < DOCUMENT_SIZE)
-                    {
-                        blobBytes = new byte[blobSize]; reader.GetBytes(0, 0, blobBytes, 0, blobBytes.Length);
-                        blobMime = UtilHelper.DetectMime(blobBytes);    //DetectMimeFromHeader
-                    }
-                    else
-                    {
-                        //DetectMimeFromHeader
-                        const int HEADER_SIZE = 16;
-                        byte[] header = new byte[HEADER_SIZE];
-                        reader.GetBytes(0, 0, header, 0, header.Length);
-                        blobMime = UtilHelper.DetectMime(header);
-                        // get Stream
-                        blobStream = CreateUniversalBlobStream(reader, 0, header, startOffset);
-                    }
-
-                    //--- Segnala completamento (audit non partirà)
-                    if (EnableTraceTimeout) done.Set();
-                    //---
-                    return new DogManager.BlobStreamResult
-                    {
-                        Stream = blobStream,
-                        Bytes = blobBytes,
-                        ContentType = blobMime,
-                        Length = blobSize
-                    };
+                IDbCommand command = _database.NewCommand(sql, connection); // la transazione viene passate nel NewCommand
+                command.CommandTimeout = 0;  // <-- 0 = nessun timeout lato ADO.NET per streaming
+                                                //     il timeout lato applicazione va gestito separatamente
+                string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+                //--- Avvia audit cancellabile
+                if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+                //---
+                //byte[] result = command.ExecuteScalar() as byte[];
+                IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
+                if (!reader.Read()) {
+                    reader.Dispose(); command.Dispose(); connection.Dispose();
+                    throw new InvalidOperationException("Blob non trovato"); 
                 }
+                //DetectMimeFromHeader
+
+
+                //const int HEADER_SIZE = 16;
+                //byte[] header = new byte[HEADER_SIZE];
+                //reader.GetBytes(0, 0, header, 0, header.Length);
+                //string blobMime = UtilHelper.DetectMime(header);
+
+                string blobMime = "";
+
+                //GetBlobSize
+                long blobSize = reader.GetBytes(0, 0, null, 0, 0);
+                // STREAM UNIVERSALE (fallback GetBytes)
+                Stream blobStream = null; byte[] blobBytes = null;
+
+                const int DOCUMENT_SIZE = 1024 * 1024;  // se blobSize < 1 Mb carico il documento tutto insieme, altrimenti vado in streaming
+                if (blobSize < DOCUMENT_SIZE)
+                {
+                    blobBytes = new byte[blobSize]; reader.GetBytes(0, 0, blobBytes, 0, blobBytes.Length);
+                    blobMime = UtilHelper.DetectMime(blobBytes);    //DetectMimeFromHeader
+                    reader.Dispose();
+                    command.Dispose();
+                    if (EnableTraceTimeout) done.Set();  // <-- corretto: qui la lettura è davvero finita
+                }
+                else
+                {
+                    //DetectMimeFromHeader
+                    const int HEADER_SIZE = 16;
+                    byte[] header = new byte[HEADER_SIZE];
+                    reader.GetBytes(0, 0, header, 0, header.Length);
+                    blobMime = UtilHelper.DetectMime(header);
+                    // get Stream
+                    // passa reader, command e done al Task -> li chiude lui nel finally
+                    blobStream = CreateUniversalBlobStream(reader, command, 0, header, startOffset,
+                                    EnableTraceTimeout ? done : null); // passa done al Task
+                                                                        // <-- NON chiamare done.Set() qui: lo fa il Task quando finisce
+                                                                        // <-- NON fare Dispose di command/reader qui: lo fa il Task nel finally
+                }
+
+                //---
+                return new DogManager.BlobStreamResult
+                {
+                    Stream = blobStream,
+                    Bytes = blobBytes,
+                    ContentType = blobMime,
+                    Length = blobSize
+                };
             }
             catch (Exception ex)
             {
@@ -813,7 +890,47 @@ namespace ErpToolkit.Helpers.Db
                 throw; // Rethrow to ensure we do not swallow the exception
             }
         }
-        private static Stream CreateUniversalBlobStream(IDataReader reader, int blobOrdinal, byte[] header, long startOffset)
+        //private static Stream CreateUniversalBlobStream(IDataReader reader, int blobOrdinal, byte[] header, long startOffset)
+        //{
+        //    var stream = new BlockingStream();
+        //    Task.Run(() =>
+        //    {
+        //        try
+        //        {
+        //            // -------------------------------------------------
+        //            // 1) Restituisci SOLO la parte utile dell'header
+        //            // -------------------------------------------------
+        //            if (startOffset < header.Length)
+        //            {
+        //                int headerStart = (int)startOffset;
+        //                int headerCount = header.Length - headerStart;
+
+        //                stream.Write(header, headerStart, headerCount);
+        //            }
+
+        //            // -------------------------------------------------
+        //            // 2) Continua dal DB al primo byte NON coperto dall'header
+        //            // -------------------------------------------------
+        //            const int BUFFER_SIZE = 81920; // 80 KB
+        //            byte[] buffer = new byte[BUFFER_SIZE];
+
+        //            long offset = Math.Max(startOffset, header.Length);
+        //            long read;
+        //            while ((read = reader.GetBytes(blobOrdinal, offset, buffer, 0, buffer.Length)) > 0)
+        //            {
+        //                stream.Write(buffer, 0, (int)read);
+        //                offset += read;
+        //            }
+        //        }
+        //        finally { stream.Complete(); }
+        //    });
+        //    return stream;
+        //}
+        //--- FIX 2 + 3: CreateUniversalBlobStream -- riceve command e done --------
+        private static Stream CreateUniversalBlobStream(
+            IDataReader reader, IDbCommand command,
+            int blobOrdinal, byte[] header, long startOffset,
+            ManualResetEventSlim? done)          // <-- nuovo parametro
         {
             var stream = new BlockingStream();
             Task.Run(() =>
@@ -826,17 +943,13 @@ namespace ErpToolkit.Helpers.Db
                     if (startOffset < header.Length)
                     {
                         int headerStart = (int)startOffset;
-                        int headerCount = header.Length - headerStart;
-
-                        stream.Write(header, headerStart, headerCount);
+                        stream.Write(header, headerStart, header.Length - headerStart);
                     }
-
                     // -------------------------------------------------
                     // 2) Continua dal DB al primo byte NON coperto dall'header
                     // -------------------------------------------------
-                    const int BUFFER_SIZE = 81920; // 80 KB
+                    const int BUFFER_SIZE = 81920;
                     byte[] buffer = new byte[BUFFER_SIZE];
-
                     long offset = Math.Max(startOffset, header.Length);
                     long read;
                     while ((read = reader.GetBytes(blobOrdinal, offset, buffer, 0, buffer.Length)) > 0)
@@ -845,11 +958,16 @@ namespace ErpToolkit.Helpers.Db
                         offset += read;
                     }
                 }
-                finally { stream.Complete(); }
+                finally
+                {
+                    stream.Complete();
+                    done?.Set();        // <-- segnala audit solo quando lo streaming è davvero finito
+                    reader.Dispose();   // <-- chiude reader e connessione (CloseConnection)
+                    command.Dispose();  // <-- chiude il command solo dopo la lettura completa
+                }
             });
             return stream;
         }
-
         private sealed class BlockingStream : Stream
         {
             private readonly BlockingCollection<byte[]> _queue = new BlockingCollection<byte[]>();
@@ -869,11 +987,26 @@ namespace ErpToolkit.Helpers.Db
 
             public void Complete() => _queue.CompleteAdding();
 
+            //public override int Read(byte[] buffer, int offset, int count)
+            //{
+            //    if (_current == null || _offset >= _current.Length)
+            //    {
+            //        if (!_queue.TryTake(out _current)) return 0;
+            //        _offset = 0;
+            //    }
+            //    int bytes = Math.Min(count, _current.Length - _offset);
+            //    Buffer.BlockCopy(_current, _offset, buffer, offset, bytes);
+            //    _offset += bytes;
+            //    return bytes;
+            //}
+            // --- FIX 1: BlockingStream.Read -- TryTake bloccante --------------------------------
             public override int Read(byte[] buffer, int offset, int count)
             {
                 if (_current == null || _offset >= _current.Length)
                 {
-                    if (!_queue.TryTake(out _current)) return 0;
+                    // PRIMA: if (!_queue.TryTake(out _current)) return 0;   non bloccante = EOF prematuro
+                    // DOPO:
+                    if (!_queue.TryTake(out _current, Timeout.Infinite)) return 0; // bloccante fino a Complete()
                     _offset = 0;
                 }
                 int bytes = Math.Min(count, _current.Length - _offset);
@@ -881,11 +1014,20 @@ namespace ErpToolkit.Helpers.Db
                 _offset += bytes;
                 return bytes;
             }
-
             public override void Flush() { }
             public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
             public override void SetLength(long value) => throw new NotSupportedException();
         }
+
+
+        //----------------------------------------
+        // WRITE BLOB IN STREAMING (per evitare di caricare tutto il blob in memoria, utile per blob di grandi dimensioni)
+        //----------------------------------------
+
+
+
+
+
 
 
         //***************************************************************************************************************************************************

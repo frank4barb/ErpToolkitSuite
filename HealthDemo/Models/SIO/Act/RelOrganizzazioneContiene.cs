@@ -41,6 +41,7 @@ public const string SqlXdataFmtName = "OO_X__FMT";
 public const string SqlXdataXdurlName = "OO_X__XDURL";
 public const string SqlXdataXdatumName = "OO_X__XDATUM";
 public const string SqlXdataTableNameExt = "OO_XDATA";
+public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
 public const int INTCODE = 115; //Internal Table Code

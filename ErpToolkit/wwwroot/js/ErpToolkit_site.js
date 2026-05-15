@@ -318,7 +318,8 @@ function hidePageBlocker() {
         const components = document.querySelectorAll("[asp-loaded]");
         if (components.length === 0) return true;  // nessun controllo gestito
         for (const el of components) {
-            if (el.getAttribute("asp-loaded") !== "Y") return false;
+            if (el.getAttribute("asp-loaded") !== "Y")
+                return false;
         }
         return true;
     }
@@ -509,8 +510,8 @@ function openModalWithContent_int(modalDialogId, modalAction, jsonParams, asForm
             console.log('Contenuto HTML caricato nella modale:', html); // ✅ LOG
 
             if (html === undefined || html == null || html == "") {
-                console.error('Errore nel caricamento della modale: la risposta HTML è vuota o nulla.');
-                showAlert('Errore nel caricamento della modale: la risposta HTML è vuota o nulla.');
+                console.error("Errore nel caricamento della modale: la risposta HTML è vuota o nulla. Return state: " + result.status);
+                showAlert("Errore nel caricamento della modale: la risposta HTML è vuota o nulla. Return state: " + result.status);
                 return;
             }
 
@@ -559,6 +560,7 @@ function openModalWithContent_int(modalDialogId, modalAction, jsonParams, asForm
 
                     // Se la modale non è visibile → la apro normalmente
                     if (!$('#' + modalDialogId).hasClass('show')) {
+                        document.activeElement?.blur(); // sposta il focus su un elemento neutro prima di aprire
                         $('#' + modalDialogId).off('shown.bs.modal').on('shown.bs.modal', function () {
                             hidePageBlocker();
                         });
@@ -1048,7 +1050,7 @@ function etkAutocompleteInitialize(inputDOM) {
 
             $.get('/' + controller + '/' + action, function (data) {
                 if (data.error) {
-                    showValidationMessage(input.data('name'), data.message);
+                    showValidationMessage(input.data('name'), data.error);
                 } else {
                     allChoices = data;
                     console.log('All choices loaded:', allChoices);
@@ -1123,7 +1125,7 @@ function etkAutocompleteInitialize(inputDOM) {
                                         addSelectedItem(item.label, item.value, input, selectedItemsDiv);
                                     }
                                 });
-                            }
+                           }
                         }
                     });
 
@@ -1192,7 +1194,7 @@ function etkAutocompleteInitialize(inputDOM) {
                 var action = input.data('action'); var term = '%';
                 $.get('/' + controller + '/' + action, { term: term }, function (data) {
                     if (data.error) {
-                        showValidationMessage(input.data('name'), data.message);
+                        showValidationMessage(input.data('name'), data.error);
                     } else {
                         showResults(data);
                     }
@@ -2820,6 +2822,875 @@ window.ErpDocViewer = {
 };
 
 document.addEventListener('DOMContentLoaded', ErpDocViewer.init);
+
+
+
+
+
+
+
+
+//// =======================================================
+//// ✅ DocContainer – visualizza più documenti con tabulatore e, gestione upload e delete (es. da documenti collegati)
+//// =======================================================
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ── LAZY LOADING VIEWER ────────────────────────────────────
+
+    // Caso 1: pagina normale (non modal) — carica i viewer attivi subito
+    document.querySelectorAll('.tab-pane.active [data-role="viewer-placeholder"]')
+        .forEach(el => _loadViewer(el));
+
+    // Caso 2: dentro un modal — carica quando il modal diventa visibile
+    document.addEventListener('shown.bs.modal', function (e) {
+        e.target.querySelectorAll('.tab-pane.active [data-role="viewer-placeholder"]')
+            .forEach(el => _loadViewer(el));
+    });
+
+    // Caso 3: cambio tab — carica il viewer del tab appena attivato
+    document.addEventListener('shown.bs.tab', function (e) {
+        const tabPane = document.querySelector(e.target.dataset.bsTarget);
+        if (!tabPane) return;
+        tabPane.querySelectorAll('[data-role="viewer-placeholder"]')
+            .forEach(el => _loadViewer(el));
+    });
+
+    // Caso 4: modal che viene riaperto — resetta il flag loaded
+    // così i viewer vengono ricaricati se il modal è stato chiuso e riaperto
+    document.addEventListener('hidden.bs.modal', function (e) {
+        e.target.querySelectorAll('[data-role="viewer-placeholder"]')
+            .forEach(el => {
+                el.dataset.loaded = "false";
+                el.innerHTML = `
+                        <div class="d-flex align-items-center justify-content-center h-100 text-muted"
+                             style="min-height:${el.dataset.height ?? 500}px;">
+                            <span class="spinner-border spinner-border-sm me-2"></span> Caricamento...
+                        </div>`;
+            });
+    });
+
+    document.addEventListener("click", function (e) {
+
+        // ── APRI pannello ADD ──────────────────────────────────
+        if (e.target.closest('[data-action="add"]')) {
+            const container = e.target.closest('.erp-doc-container');
+            const panel = container.querySelector('[data-role="xdata-add-panel"]');
+            if (!panel) return;
+
+            _resetPanel(panel, container, "add");
+            _loadTipoSelect(panel, container);
+
+            bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).show();
+            panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        // ── APRI pannello EDIT ─────────────────────────────────
+        if (e.target.closest('[data-action="edit"]')) {
+            const btn = e.target.closest('[data-action="edit"]');
+            const container = btn.closest('.erp-doc-container');
+            const panel = container.querySelector('[data-role="xdata-add-panel"]');
+            if (!panel) return;
+
+            _resetPanel(panel, container, "edit", {
+                icode: btn.dataset.icode,
+                ts: btn.dataset.ts,
+                descr: btn.dataset.descr,
+                fmt: btn.dataset.fmt,
+            });
+            _loadTipoSelect(panel, container, btn.dataset.fmt);
+
+            bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).show();
+            panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        // ── CHIUDI pannello ────────────────────────────────────
+        if (e.target.closest('[data-action="cancel-add"]')) {
+            const panel = e.target.closest('[data-role="xdata-add-panel"]');
+            if (!panel) return;
+            bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).hide();
+            _clearPanel(panel);
+        }
+
+        // ── SUBMIT (ADD o EDIT) ────────────────────────────────
+        if (e.target.closest('[data-action="submit-add"]')) {
+            const btn = e.target.closest('[data-action="submit-add"]');
+            const container = btn.closest('.erp-doc-container');
+            const panel = container.querySelector('[data-role="xdata-add-panel"]');
+            const isEdit = panel.dataset.mode === "edit";
+            const url = isEdit ? container.dataset.updateUrl : container.dataset.addUrl;
+
+            // GUARD: blocca se url è vuoto
+            if (!url) {
+                console.error("URL mancante. dataset:", container.dataset);
+                alert(isEdit ? "UpdateUrl non configurato." : "AddUrl non configurato.");
+                return;
+            }
+
+
+            // Validazione
+            let valid = true;
+            panel.querySelectorAll('[required]').forEach(el => {
+                el.classList.remove('is-invalid');
+                const empty = el.type === 'file' ? el.files.length === 0 : !el.value.trim();
+                if (empty) { el.classList.add('is-invalid'); valid = false; }
+            });
+            if (!valid) return;
+
+            // Costruisci FormData con nomi che corrispondono ESATTAMENTE ai parametri C#
+            const formData = new FormData();
+            ////////formData.append("icode", btn.dataset.icode ?? "");
+            ////////formData.append("timestampHex", btn.dataset.ts ?? "");
+            formData.append("icode", panel.querySelector('[data-role="field-icode"]')?.value ?? "");
+            formData.append("timestampHex", panel.querySelector('[data-role="field-ts"]')?.value ?? "");
+            formData.append("mref", panel.querySelector('input[name="recordIcode"]')?.value ?? "");
+            formData.append("descr", panel.querySelector('input[name="descrizione"]')?.value ?? "");
+            formData.append("fmt", panel.querySelector('select[name="tipo"]')?.value ?? "");
+
+            const fileInput = panel.querySelector('input[name="file"]');
+            if (fileInput?.files?.length > 0) {
+                formData.append("file", fileInput.files[0]);
+            } else {
+                _showError(container, "Selezionare un file.");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-upload me-1"></i> ' + (isEdit ? "Aggiorna" : "Carica");
+                return;
+            }
+
+            // Feedback
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> ' + (isEdit ? "Aggiornamento..." : "Caricamento...");
+
+            // Pulisce errori precedenti
+            _setValidationError(panel, "");
+
+            // ← ANTIFORGERY TOKEN
+            const token = _getAntiforgeryToken();
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token ?? ''
+                },
+                body: formData
+            })
+                .then(async r => {
+                    const contentType = r.headers.get('content-type') ?? '';
+
+                    if (contentType.includes('application/json')) {
+                        const json = await r.json();
+                        if (json.error) throw new Error(json.error ?? `Errore ${r.status}`);
+                        //location.reload();
+                        //return;
+
+
+                        //--------------------------------------------
+                        // Chiudi pannello
+                        const panel = container.querySelector('[data-role="xdata-add-panel"]');
+                        const descr = panel?.querySelector('input[name="descrizione"]')?.value ?? "";
+                        const fmt = panel?.querySelector('select[name="tipo"]')?.value ?? "";
+                        if (panel) {
+                            bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).hide();
+                            _clearPanel(panel);
+                        }
+
+                        //--------- riabilita il pulsante dopo operazione riuscita -------
+                        btn.disabled = false;
+                        btn.innerHTML = isEdit
+                            ? '<i class="bi bi-save me-1"></i> Aggiorna'
+                            : '<i class="bi bi-upload me-1"></i> Carica';
+                        //-----------------------------------------------------------------
+
+                        if (typeof showDelayToast === 'function')
+                            showDelayToast(json.info ?? "Operazione completata", "success");
+
+                        // ← Aggiorna solo DOM, nessuna chiamata al server
+                        if (isEdit) {
+                            // ← Passa json con icode e timestampHex
+                            _domAfterUpdate(container, json, descr, fmt);
+
+                        } else {
+                            // ← Passa json con icode e timestampHex
+                            _domAfterAdd(container, json, descr, fmt);
+
+                        }
+                        return;
+                        //--------------------------------------------
+
+                    }
+
+                    if (r.ok) { location.reload(); return; }
+
+                    const msg = await r.text().catch(() => `Errore ${r.status}`);
+                    throw new Error(msg || `Errore ${r.status}`);
+                })
+                .catch(err => {
+                    console.error(err);
+                    btn.disabled = false;
+                    //btn.innerHTML = '<i class="bi bi-trash me-1"></i> Elimina'; 
+                    btn.innerHTML = '<i class="bi bi-repeat me-1"></i> Riprova'; 
+                    _setValidationError(panel, err.message);
+                });
+
+
+        }
+
+        // ── DELETE ─────────────────────────────────────────────
+        if (e.target.closest('[data-action="delete"]')) {
+            const btn = e.target.closest('[data-action="delete"]');
+            const container = btn.closest('.erp-doc-container');
+
+            if (!confirm("Confermi l'eliminazione del documento?")) return;
+
+            // Costruisci FormData con nomi che corrispondono ESATTAMENTE ai parametri C#
+            const formData = new FormData();
+            formData.append("icode", btn.dataset.icode ?? "");
+            formData.append("timestampHex", btn.dataset.ts ?? "");
+
+            // Feedback
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Eliminazione...';
+
+            // Pulisce errori precedenti nel pannello se aperto
+            const panel = container.querySelector('[data-role="xdata-add-panel"]');
+            if (panel) _setValidationError(panel, "");
+
+            // ← ANTIFORGERY TOKEN
+            const token = _getAntiforgeryToken();
+
+            fetch(container.dataset.deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token ?? ''
+                },
+                body: formData
+            })
+                .then(async r => {
+                    const contentType = r.headers.get('content-type') ?? '';
+
+                    if (contentType.includes('application/json')) {
+                        const json = await r.json();
+                        if (json.error) throw new Error(json.error ?? `Errore ${r.status}`);
+                        //location.reload();
+                        //return;
+
+
+
+                        //--------------------------------------------
+                        if (typeof showDelayToast === 'function')
+                            showDelayToast(json.info ?? "Documento eliminato", "success");
+
+                        // ← Aggiorna solo DOM
+                        ////_domAfterDelete(container, btn.dataset.icode);
+                        _domAfterDelete(container, json.icode?.toString() ?? btn.dataset.icode);
+                        return;
+                        //--------------------------------------------
+
+
+
+                    }
+
+                    if (r.ok) { location.reload(); return; }
+
+                    const msg = await r.text().catch(() => `Errore ${r.status}`);
+                    throw new Error(msg || `Errore ${r.status}`);
+                })
+                .catch(err => {
+                    console.error(err);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-trash me-1"></i> Elimina';
+                    _setValidationError(panel, err.message);
+                });
+
+        }
+
+    });
+
+    // ── HELPER: carica viewer lazy ─────────────────────────────
+    function _loadViewer(placeholder) {
+        // Evita doppio caricamento
+        if (placeholder.dataset.loaded === "true") return;
+        placeholder.dataset.loaded = "true";
+
+        const src = placeholder.dataset.src;
+        const mime = placeholder.dataset.mime ?? "";
+        const height = placeholder.dataset.height ?? 500;
+
+        if (!src) {
+            placeholder.innerHTML = `
+                <div class="p-3 text-center text-muted">
+                    <i class="bi bi-file-earmark-x fs-1 d-block mb-2"></i>
+                    Documento non disponibile.
+                </div>`;
+            return;
+        }
+
+        let html = "";
+
+        if (mime.startsWith("image/")) {
+            html = `<img src="${src}" style="max-width:100%;" />`;
+        }
+        else if (mime === "application/pdf") {
+            html = `
+                <object data="${src}" type="application/pdf" width="100%" height="${height}">
+                    <p class="text-muted small p-2">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                        Il browser non supporta la visualizzazione PDF.
+                        <a href="${src}" target="_blank" class="ms-1">Apri il file</a>
+                    </p>
+                </object>`;
+        }
+        else if (mime.startsWith("audio/")) {
+            html = `<audio src="${src}" controls style="width:100%;"></audio>`;
+        }
+        else if (mime.startsWith("video/")) {
+            html = `<video src="${src}" controls style="max-width:100%;height:${height}px;"></video>`;
+        }
+        else if (mime.startsWith("text/")) {
+            html = `<iframe src="${src}" style="width:100%;height:${height}px;border:none;"></iframe>`;
+        }
+        else {
+            html = `
+                <div class="p-3 text-center text-muted">
+                    <i class="bi bi-file-earmark-x fs-1 d-block mb-2"></i>
+                    Formato non supportato (<code>${mime}</code>).
+                    <a href="${src}" target="_blank" class="d-block mt-2">
+                        <i class="bi bi-download me-1"></i> Scarica il file
+                    </a>
+                </div>`;
+        }
+
+        placeholder.innerHTML = html;
+    }
+
+    // ── HELPERS ────────────────────────────────────────────────
+
+    //function _resetPanel(panel, container, mode, data = {}) {
+    //    panel.dataset.mode = mode;
+    //    const isEdit = mode === "edit";
+
+    //    // Titolo e colore pannello
+    //    const title = panel.querySelector('[data-role="panel-title"]');
+    //    if (title) {
+    //        title.innerHTML = isEdit
+    //            ? '<i class="bi bi-pencil me-1"></i> Modifica documento'
+    //            : '<i class="bi bi-upload me-1"></i> Carica nuovo documento';
+    //    }
+    //    panel.classList.toggle('is-edit', isEdit);
+
+    //    // Pulsante submit
+    //    const submitBtn = panel.querySelector('[data-role="submit-btn"]');
+    //    if (submitBtn) {
+    //        submitBtn.innerHTML = isEdit
+    //            ? '<i class="bi bi-save me-1"></i> Aggiorna'
+    //            : '<i class="bi bi-upload me-1"></i> Carica';
+    //    }
+
+    //    // Valorizza hidden fields
+    //    _setField(panel, 'field-icode', data.icode ?? "");
+    //    _setField(panel, 'field-ts', data.ts ?? "");
+    //    _setField(panel, 'field-descr', data.descr ?? "");
+
+    //    // File sempre required
+    //    const fileInput = panel.querySelector('input[type="file"]');
+    //    if (fileInput) fileInput.value = "";
+    //}
+    function _resetPanel(panel, container, mode, data = {}) {
+        panel.dataset.mode = mode;
+        const isEdit = mode === "edit";
+
+        // Titolo e colore pannello
+        const title = panel.querySelector('[data-role="panel-title"]');
+        if (title) {
+            title.innerHTML = isEdit
+                ? '<i class="bi bi-pencil me-1"></i> Modifica documento'
+                : '<i class="bi bi-upload me-1"></i> Carica nuovo documento';
+        }
+        panel.classList.toggle('is-edit', isEdit);
+
+        // Pulsante submit — resetta SEMPRE disabled e testo
+        const submitBtn = panel.querySelector('[data-role="submit-btn"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;    // ← AGGIUNGERE: riabilita sempre all'apertura
+            submitBtn.innerHTML = isEdit
+                ? '<i class="bi bi-save me-1"></i> Aggiorna'
+                : '<i class="bi bi-upload me-1"></i> Carica';
+        }
+
+        // Valorizza hidden fields
+        _setField(panel, 'field-icode', data.icode ?? "");
+        _setField(panel, 'field-ts', data.ts ?? "");
+        _setField(panel, 'field-descr', data.descr ?? "");
+
+        // File sempre svuotato
+        const fileInput = panel.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = "";
+    }
+
+    function _loadTipoSelect(panel, container, selectedFmt = null) {
+        const typeUrl = container.dataset.typeUrl;
+        const sel = panel.querySelector('select[name="tipo"]');
+        if (!sel || !typeUrl) return;
+
+        // Ricarica sempre per avere lista aggiornata
+        sel.innerHTML = '<option value="">-- Caricamento... --</option>';
+        fetch(typeUrl)
+            .then(r => r.json())
+            .then(items => {
+                sel.innerHTML = '<option value="">-- Seleziona tipo --</option>';
+                items.forEach(i => {
+                    const opt = new Option(i.text, i.value);
+                    if (selectedFmt && i.value === selectedFmt) opt.selected = true;
+                    sel.add(opt);
+                });
+            })
+            .catch(() => { sel.innerHTML = '<option value="">Errore nel caricamento</option>'; });
+    }
+
+    function _clearPanel(panel) {
+        panel.dataset.mode = "";
+        panel.classList.remove('is-edit');
+        panel.querySelectorAll('input:not([type="hidden"]), select').forEach(el => {
+            el.value = "";
+            el.classList.remove('is-invalid');
+        });
+        _setField(panel, 'field-icode', "");
+        _setField(panel, 'field-ts', "");
+    }
+
+    function _setField(panel, role, value) {
+        const el = panel.querySelector(`[data-role="${role}"]`);
+        if (el) el.value = value;
+    }
+
+    //helper per leggere il token antiforgery da un meta tag (se presente)
+    function _getAntiforgeryToken() {
+        // Cerca nel form principale della pagina
+        const input = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (input) return input.value;
+        return null;
+    }
+
+    // Helper: scrive/cancella il messaggio di errore nello span di validazione
+    function _setValidationError(panel, message) {
+        const span = panel.querySelector('[data-role="validation-error"]');
+        if (!span) return;
+        span.textContent = message;
+        span.classList.toggle('d-none', !message);
+    }
+
+
+    // ---------------------------------------------------------------
+
+    // ── HELPER: aggiorna DOM dopo ADD ─────────────────────────────
+    //function _domAfterAdd(container, descr, fmt) {
+    //    const uid = container.querySelector('[data-role="xdata-add-panel"]')?.id ?? Date.now();
+    //    const tabList = container.querySelector('ul.nav-tabs');
+    //    const tabContent = container.querySelector('.tab-content');
+    //    const height = container.querySelector('[data-role="viewer-placeholder"]')?.dataset.height ?? 500;
+
+    //    // Genera id univoco per il nuovo tab
+    //    const newIndex = tabList ? tabList.querySelectorAll('.nav-item').length : 0;
+    //    const newId = `xdata-new-${Date.now()}`;
+
+    //    // Rimuovi eventuale messaggio "nessun documento"
+    //    const emptyMsg = container.querySelector('.card-body > p.text-muted');
+    //    if (emptyMsg) emptyMsg.remove();
+
+    //    // Crea tab header
+    //    const li = document.createElement('li');
+    //    li.className = 'nav-item';
+    //    li.setAttribute('role', 'presentation');
+    //    li.innerHTML = `
+    //    <button class="nav-link"
+    //            data-bs-toggle="tab"
+    //            data-bs-target="#${newId}"
+    //            type="button"
+    //            role="tab"
+    //            data-icode=""
+    //            data-ts=""
+    //            data-descr="${descr}"
+    //            data-fmt="${fmt}">
+    //        ${descr}
+    //    </button>`;
+
+    //    // Crea tab-pane con placeholder — il viewer verrà caricato al click
+    //    const pane = document.createElement('div');
+    //    pane.className = 'tab-pane fade p-2';
+    //    pane.id = newId;
+    //    pane.setAttribute('role', 'tabpanel');
+    //    pane.innerHTML = `
+    //    <div class="erp-docviewer"
+    //         data-role="viewer-placeholder"
+    //         data-src=""
+    //         data-mime=""
+    //         data-height="${height}"
+    //         data-loaded="true"
+    //         style="min-height:${height}px;">
+    //        <div class="p-3 text-center text-muted">
+    //            <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+    //            Documento caricato. Ricaricare la pagina per visualizzarlo.
+    //        </div>
+    //    </div>`;
+
+    //    // Se tabList non esiste ancora (primo documento), creala
+    //    if (!tabList) {
+    //        _rebuildTabStructure(container);
+    //        return;
+    //    }
+
+    //    tabList.appendChild(li);
+    //    tabContent.appendChild(pane);
+
+    //    // Attiva il nuovo tab
+    //    bootstrap.Tab.getOrCreateInstance(li.querySelector('button')).show();
+    //}
+
+    function _domAfterAdd(container, json, descr, fmt) {
+        const tabList = container.querySelector('ul.nav-tabs');
+        const tabContent = container.querySelector('.tab-content');
+        const height = container.querySelector('[data-role="viewer-placeholder"]')
+            ?.dataset.height ?? 500;
+        const newId = `xdata-new-${Date.now()}`;
+
+        // Rimuovi eventuale messaggio "nessun documento"
+        container.querySelector('.card-body > p.text-muted')?.remove();
+
+        // Costruisci src del viewer se abbiamo icode
+        const controllerName = container.dataset.controllerName ?? "";
+        const src = json.icode
+            ? `/${controllerName}/ViewXdata?icode=${encodeURIComponent(json.icode)}`
+            : "";
+
+        // Crea tab header
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+        li.setAttribute('role', 'presentation');
+        li.innerHTML = `
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#${newId}"
+                type="button"
+                role="tab"
+                data-icode="${json.icode ?? ""}"
+                data-ts="${json.timestampHex ?? ""}"
+                data-descr="${descr}"
+                data-fmt="${fmt}">
+            ${descr || "Nuovo documento"}
+        </button>`;
+
+        // Crea tab-pane con viewer placeholder già pronto
+        const pane = document.createElement('div');
+        pane.className = 'tab-pane fade p-2';
+        pane.id = newId;
+        pane.setAttribute('role', 'tabpanel');
+
+        if (src) {
+            // Abbiamo src — imposta placeholder che verrà caricato subito
+
+            ////////pane.innerHTML = `
+            ////////<div class="erp-docviewer"
+            ////////     data-role="viewer-placeholder"
+            ////////     data-src="${src}"
+            ////////     data-mime="${json.mime ?? ''}"
+            ////////     data-height="${height}"
+            ////////     data-loaded="false"
+            ////////     style="min-height:${height}px;">
+            ////////    <div class="d-flex align-items-center justify-content-center h-100 text-muted"
+            ////////         style="min-height:${height}px;">
+            ////////        <span class="spinner-border spinner-border-sm me-2"></span> Caricamento...
+            ////////    </div>
+            ////////</div>`;
+
+            pane.innerHTML = `
+            <div class="d-flex justify-content-end gap-2 pt-2 px-2">
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        data-action="edit"
+                        data-icode="${json.icode ?? ''}"
+                        data-ts="${json.timestampHex ?? ''}"
+                        data-descr="${descr}"
+                        data-fmt="${fmt}">
+                    <i class="bi bi-pencil me-1"></i> Modifica
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-action="delete"
+                        data-icode="${json.icode ?? ''}"
+                        data-ts="${json.timestampHex ?? ''}">
+                    <i class="bi bi-trash me-1"></i> Elimina
+                </button>
+            </div>
+            <div class="erp-docviewer"
+                 data-role="viewer-placeholder"
+                 data-src="${src}"
+                 data-mime="${json.mime ?? ''}"
+                 data-height="${height}"
+                 data-loaded="false"
+                 style="min-height:${height}px;">
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted"
+                     style="min-height:${height}px;">
+                    <span class="spinner-border spinner-border-sm me-2"></span> Caricamento...
+                </div>
+            </div>`;
+
+        } else {
+            // Nessun icode dal server — messaggio fallback
+            pane.innerHTML = `
+            <div class="erp-docviewer p-3 text-center text-muted">
+                <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+                Documento caricato correttamente.
+            </div>`;
+        }
+
+        // Crea struttura tab se non esiste (primo documento)
+        if (!tabList || !tabContent) {
+            _rebuildTabStructure(container, li, pane);
+            return;
+        }
+
+        tabList.appendChild(li);
+        tabContent.appendChild(pane);
+
+        // Attiva il nuovo tab — questo triggera shown.bs.tab che chiama _loadViewer
+        bootstrap.Tab.getOrCreateInstance(li.querySelector('button')).show();
+    }
+
+    // Helper: crea struttura tab da zero (primo documento)
+    function _rebuildTabStructure(container, li, pane) {
+        const cardBody = container.querySelector('.card-body');
+        const addPanel = cardBody?.querySelector('[data-role="xdata-add-panel"]');
+
+        const ul = document.createElement('ul');
+        ul.className = 'nav nav-tabs mb-0';
+        ul.setAttribute('role', 'tablist');
+        ul.appendChild(li);
+
+        const tabContent = document.createElement('div');
+        tabContent.className = 'tab-content border border-top-0 rounded-bottom mb-3';
+        tabContent.appendChild(pane);
+
+        cardBody.insertBefore(tabContent, addPanel);
+        cardBody.insertBefore(ul, tabContent);
+
+        // Attiva il tab
+        li.querySelector('button').classList.add('active');
+        pane.classList.add('show', 'active');
+
+        // Carica viewer
+        pane.querySelectorAll('[data-role="viewer-placeholder"]')
+            .forEach(el => _loadViewer(el));
+    }
+
+
+
+    // ── HELPER: aggiorna DOM dopo UPDATE ──────────────────────────
+    //function _domAfterUpdate(container, json, descr, fmt) {
+    //    const icode = json.icode ?? "";
+    //    const btn = container.querySelector(`button.nav-link[data-icode="${icode}"]`);
+    //    if (!btn) return;
+
+    //    // Aggiorna label e dataset del tab (incluso il nuovo timestamp)
+    //    btn.textContent = descr;
+    //    btn.dataset.descr = descr;
+    //    btn.dataset.fmt = fmt;
+    //    btn.dataset.ts = json.timestampHex ?? btn.dataset.ts; // ← aggiorna ts per edit successivi
+
+    //    // Aggiorna anche i pulsanti edit/delete nel pane (se presenti)
+    //    const pane = container.querySelector(btn.dataset.bsTarget);
+    //    if (!pane) return;
+
+    //    pane.querySelectorAll('[data-action="edit"], [data-action="delete"]').forEach(b => {
+    //        b.dataset.ts = json.timestampHex ?? b.dataset.ts;  // ← timestamp aggiornato
+    //        if (b.dataset.action === "edit") {
+    //            b.dataset.descr = descr;
+    //            b.dataset.fmt = fmt;
+    //        }
+    //    });
+
+    //    // Ricarica il viewer con il nuovo file
+    //    // Aggiunge ?t=timestamp all'URL per busting della cache del browser
+    //    const controllerName = container.dataset.controllerName ?? "";
+    //    const newSrc = icode
+    //        ? `/${controllerName}/ViewXdata?icode=${encodeURIComponent(icode)}&t=${Date.now()}`
+    //        : "";
+
+    //    const placeholder = pane.querySelector('[data-role="viewer-placeholder"]');
+    //    if (placeholder && newSrc) {
+    //        const height = placeholder.dataset.height ?? 500;
+    //        placeholder.dataset.src = newSrc;
+    //        placeholder.dataset.mime = json.mime ?? placeholder.dataset.mime;
+    //        placeholder.dataset.loaded = "false"; // ← resetta: permette a _loadViewer di agire
+    //        placeholder.innerHTML = `
+    //        <div class="d-flex align-items-center justify-content-center h-100 text-muted"
+    //             style="min-height:${height}px;">
+    //            <span class="spinner-border spinner-border-sm me-2"></span> Caricamento...
+    //        </div>`;
+    //        _loadViewer(placeholder); // ← carica subito il nuovo PDF
+    //    }
+    //}
+
+    function _domAfterUpdate(container, json, descr, fmt) {
+        const icode = json.icode ?? "";
+        const btn = container.querySelector(`button.nav-link[data-icode="${icode}"]`);
+        if (!btn) return;
+
+        // Aggiorna label e dataset del tab
+        btn.textContent = descr;
+        btn.dataset.descr = descr;
+        btn.dataset.fmt = fmt;
+        btn.dataset.ts = json.timestampHex ?? btn.dataset.ts;
+
+        const pane = container.querySelector(btn.dataset.bsTarget);
+        if (!pane) return;
+
+        // Aggiorna dataset dei pulsanti edit/delete nel pane
+        pane.querySelectorAll('[data-action="edit"], [data-action="delete"]').forEach(b => {
+            b.dataset.ts = json.timestampHex ?? b.dataset.ts;
+            if (b.dataset.action === "edit") {
+                b.dataset.descr = descr;
+                b.dataset.fmt = fmt;
+            }
+        });
+
+        const controllerName = container.dataset.controllerName ?? "";
+        // Cache busting: aggiunge ?t=timestamp così il browser non serve il vecchio PDF
+        const newSrc = icode
+            ? `/${controllerName}/ViewXdata?icode=${encodeURIComponent(icode)}&t=${Date.now()}`
+            : "";
+        if (!newSrc) return;
+
+        const height = container.dataset.height ?? 500;
+
+        // ── CASO 1: tab generato lato server (TagHelper) ──────────────────────────
+        // Struttura: .erp-docviewer > <object> | <img> | <audio> | <video>
+        // Non ha viewer-placeholder — sostituisce direttamente il contenuto del viewer
+        const serverViewer = pane.querySelector('.erp-docviewer');
+        const placeholder = pane.querySelector('[data-role="viewer-placeholder"]');
+
+        if (!placeholder && serverViewer) {
+            // Rileva il tipo dal mime restituito dal server (json.mime)
+            // oppure dall'attributo type dell'<object> esistente come fallback
+            const mimeFromHtml = serverViewer.querySelector('img') ? 'image/'
+                : serverViewer.querySelector('audio') ? 'audio/'
+                    : serverViewer.querySelector('video') ? 'video/'
+                        : 'application/pdf';
+            const mime = json.mime ?? serverViewer.querySelector('object')?.getAttribute('type') ?? mimeFromHtml;
+
+            serverViewer.innerHTML = _buildViewerInner(newSrc, mime, height);
+            return;
+        }
+
+        // ── CASO 2: tab generato lato client (_domAfterAdd) ───────────────────────
+        // Struttura: [data-role="viewer-placeholder"]
+        if (placeholder) {
+            placeholder.dataset.src = newSrc;
+            placeholder.dataset.mime = json.mime ?? placeholder.dataset.mime;
+            placeholder.dataset.loaded = "false";
+            placeholder.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted"
+                 style="min-height:${height}px;">
+                <span class="spinner-border spinner-border-sm me-2"></span> Caricamento...
+            </div>`;
+            _loadViewer(placeholder);
+        }
+    }
+
+    // Helper: genera l'HTML interno del viewer in base al mime type
+    // (speculare a RenderViewer in ErpComponentTagHelper.cs)
+    function _buildViewerInner(src, mime, height) {
+        if (mime.startsWith('image/'))
+            return `<img src="${src}" class="erp-doc-image" style="max-width:100%;" />`;
+
+        if (mime === 'application/pdf')
+            return `
+            <object data="${src}" type="application/pdf" width="100%" height="${height}">
+                <p class="text-muted small p-2">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                    Il browser non supporta la visualizzazione PDF.
+                    <a href="${src}" target="_blank" class="ms-1">Apri il file</a>
+                </p>
+            </object>`;
+
+        if (mime.startsWith('audio/'))
+            return `<audio src="${src}" controls style="width:100%;"></audio>`;
+
+        if (mime.startsWith('video/'))
+            return `<video src="${src}" controls style="max-width:100%;height:${height}px;"></video>`;
+
+        if (mime.startsWith('text/'))
+            return `<iframe src="${src}" style="width:100%;height:${height}px;border:none;"></iframe>`;
+
+        return `
+        <div class="p-3 text-center text-muted">
+            <i class="bi bi-file-earmark-x fs-1 d-block mb-2"></i>
+            Formato non supportato (<code>${mime}</code>).
+            <a href="${src}" target="_blank" class="d-block mt-2">
+                <i class="bi bi-download me-1"></i> Scarica il file
+            </a>
+        </div>`;
+    }
+
+
+    // ── HELPER: aggiorna DOM dopo DELETE ──────────────────────────
+    function _domAfterDelete(container, icode) {
+        const btn = container.querySelector(`button.nav-link[data-icode="${icode}"]`);
+        if (!btn) return;
+
+        const li = btn.closest('.nav-item');
+        const paneId = btn.dataset.bsTarget;
+        const pane = container.querySelector(paneId);
+        const wasActive = btn.classList.contains('active');
+
+        // Trova tab precedente o successivo da attivare
+        let nextBtn = null;
+        if (wasActive) {
+            const allBtns = [...container.querySelectorAll('ul.nav-tabs button.nav-link')]
+                .filter(b => b !== btn);
+            nextBtn = allBtns[0] ?? null;
+        }
+
+        // Rimuovi tab e pane
+        li?.remove();
+        pane?.remove();
+
+        // Attiva tab adiacente se era attivo quello eliminato
+        if (wasActive && nextBtn) {
+            bootstrap.Tab.getOrCreateInstance(nextBtn).show();
+            const nextPaneId = nextBtn.dataset.bsTarget;
+            const nextPane = container.querySelector(nextPaneId);
+            if (nextPane) {
+                nextPane.querySelectorAll('[data-role="viewer-placeholder"]')
+                    .forEach(el => _loadViewer(el));
+            }
+        }
+
+        // Se non ci sono più tab, mostra messaggio vuoto
+        const remaining = container.querySelectorAll('ul.nav-tabs .nav-item');
+        if (remaining.length === 0) {
+            const tabList = container.querySelector('ul.nav-tabs');
+            const tabContent = container.querySelector('.tab-content');
+            tabList?.remove();
+            tabContent?.remove();
+            const cardBody = container.querySelector('.card-body');
+            if (cardBody) {
+                // Inserisci messaggio vuoto prima del pannello add
+                const addPanel = cardBody.querySelector('[data-role="xdata-add-panel"]');
+                const msg = document.createElement('p');
+                msg.className = 'text-muted mb-0 small';
+                msg.innerHTML = '<i class="bi bi-inbox me-1"></i> Nessun documento disponibile.';
+                cardBody.insertBefore(msg, addPanel);
+            }
+        }
+    }
+
+
+
+
+});
+
+
 
 
 //==============================================================================================

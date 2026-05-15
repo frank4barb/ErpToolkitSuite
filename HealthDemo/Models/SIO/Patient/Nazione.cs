@@ -41,6 +41,7 @@ public const string SqlXdataFmtName = "NZ_X__FMT";
 public const string SqlXdataXdurlName = "NZ_X__XDURL";
 public const string SqlXdataXdatumName = "NZ_X__XDATUM";
 public const string SqlXdataTableNameExt = "NZ_XDATA";
+public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
 public const int INTCODE = 58; //Internal Table Code

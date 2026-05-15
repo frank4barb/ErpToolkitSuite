@@ -6,10 +6,7 @@ using System.Collections;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
-using Google.Protobuf.WellKnownTypes;
-using DnsClient.Protocol;
-using System.Transactions;
-using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks.Dataflow;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -30,18 +27,17 @@ namespace ErpToolkit.Helpers.Db
         private const bool IS_NULLABLE_INDEX = false; //=true se posso definire indici univoci con campi NULL
 
 
-
-
         //==========================================================================================================
         //==========================================================================================================
 
         // AUTOCOMPLETE
         //---------------
 
-        internal static List<Choice> AutocompleteGetAll<T>(DogManager dogMng, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
-        internal static List<Choice> AutocompleteGetSelect<T>(DogManager dogMng, string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
-        internal static List<Choice> AutocompletePreLoad<T>(DogManager dogMng, List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "PreLoad", values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
-        private static List<Choice> Autocomplete_Int<T>(DogManager dogMng, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
+        //xxx//internal static List<Choice> AutocompleteGetAll<T>(DogManager dogMng, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        //xxx//internal static List<Choice> AutocompleteGetSelect<T>(DogManager dogMng, string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        //xxx//internal static List<Choice> AutocompletePreLoad<T>(DogManager dogMng, List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "PreLoad", values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
+        //xxx//internal static List<Choice> Autocomplete_Int<T>(DogManager dogMng, DogTable tab, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
+        internal static List<Choice> Autocomplete_Int(DogManager dogMng, DogTable tab, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
         {
             //check init
             if (tpy == null) throw new Exception($"Autocomplete_Int: tpy == null.");
@@ -51,10 +47,12 @@ namespace ErpToolkit.Helpers.Db
             ////////////////////////////string labelHtml = objModel.LabelHtml;  // = objModel.LABEL_HTML;
             ////////////////////////////if (String.IsNullOrWhiteSpace(labelHtml)) throw new Exception($"Autocomplete_Int: labelHtml [{typeof(T)}]  vuota.");
             if (dogMng == null) throw new Exception($"Autocomplete_Int: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(typeof(T))) throw new Exception($"Autocomplete_Int: Classe {typeof(T)} non trovata.");
-            DogTable tab = dogMng.tabTypes[typeof(T)];
-            if (tab == null) throw new Exception($"Autocomplete_Int: tab [{typeof(T)}] == null.");
-            if (tab.fldIcode == null) throw new Exception($"Autocomplete_Int: tab.fldIcode [{typeof(T)}] == null.");
+
+            //xxx//if (!dogMng.tabTypes.ContainsKey(typeof(T))) throw new Exception($"Autocomplete_Int: Classe {typeof(T)} non trovata.");
+            //xxx//DogTable tab = dogMng.tabTypes[typeof(T)];
+            
+            if (tab == null) throw new Exception($"Autocomplete_Int: tab == null.");
+            if (tab.fldIcode == null) throw new Exception($"Autocomplete_Int: tab.fldIcode [{tab.tableTpy.FullName}] == null.");
 
             ////////////////////////////// Trova tutte le occorrenze di {NomeVariabile}
             ////////////////////////////var matches = Regex.Matches(labelHtml, @"\{([^\}]+)\}");
@@ -150,10 +148,12 @@ namespace ErpToolkit.Helpers.Db
             if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
 
             // Esegui la query
-            var listModel = dogMng.ExecuteQuery<T>(sb.ToString(), parameters, transactionId, maxRecords);
+            //xxx//var listModel = dogMng.ExecuteQuery<T>(sb.ToString(), parameters, transactionId, maxRecords);
+            Dictionary<object, ModelErp> listModel = dogMng.ExecuteQuery(null, tab.tableTpy, sb.ToString(), parameters, transactionId, maxRecords);
 
             // Applica la formattazione dinamica
-            var result = listModel.Select(p => { return new Choice { value = p.getIcode().ToString(), label = p.ToHtml() }; }).ToList<Choice>();
+            //xxx//var result = listModel.Select(p => { return new Choice { value = p.getIcode().ToString(), label = p.ToHtml() }; }).ToList<Choice>();
+            var result = listModel.Select(p => { return new Choice { value = p.Value?.getIcode()?.ToString() ?? "", label = p.Value?.ToHtml() ?? "" }; }).ToList<Choice>();
             return result;
         }
 
@@ -239,17 +239,104 @@ namespace ErpToolkit.Helpers.Db
         // SQL SELECT
         //---------------
 
-        //crea SELECT per l'oggetto del modello 'objModel'
-        internal static string sqlSelect(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
+        ////crea SELECT per l'oggetto del modello 'objModel'
+        //internal static string sqlSelect(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
+        //{
+        //    StringBuilder sb = new StringBuilder("select ");
+        //    if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
+        //    if (dogMng == null) throw new Exception($"sqlSelect: dogMng == null.");
+        //    if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlSelect: Classe {objModel.GetType().FullName} non trovata.");
+        //    DogTable tab = dogMng.tabTypes[objModel.GetType()];
+        //    if (tab == null) throw new Exception($"sqlSelect: tab [{objModel.GetType().FullName}] == null.");
+        //    //ciclo sui campi della tabella
+        //    foreach (var fld in tab.fields )
+        //    {
+        //        string propertyName = fld.fieldName;
+        //        var sqlFieldNameExt = fld.SqlFieldName?.Trim() ?? "";
+        //        if (sqlFieldNameExt != "") { sb.AppendLine($" {sqlFieldNameExt} as {propertyName},"); }
+        //    }
+        //    // terminatore di select
+        //    sb.AppendLine($" 0 as ErpTerm ");
+        //    return sb.ToString();
+        //}
+        ////crea FROM per l'oggetto del modello 'objModel'
+        //internal static string sqlFrom(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
+        //{
+        //    if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
+        //    if (dogMng == null) throw new Exception($"sqlFrom: dogMng == null.");
+        //    if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFrom: Classe {objModel.GetType().FullName} non trovata.");
+        //    DogTable tab = dogMng.tabTypes[objModel.GetType()];
+        //    if (tab == null) throw new Exception($"sqlFrom: tab [{objModel.GetType().FullName}] == null.");
+        //    //recupero nome tabella
+        //    var sqlTableNameExt = tab.SqlTableNameExt?.Trim() ?? "";
+        //    return $"from {sqlTableNameExt} \n";
+        //}
+
+        ////crea WHERE per l'oggetto del modello 'objModel' in base all'icode
+        //internal static string sqlWhereIcode(DogManager dogMng, ModelErp objModel, object icode, ref IDictionary<string, object> parameters, string options = "")
+        //{
+        //    return sqlWhereListIcode(dogMng, objModel, new List<object>() { icode }, ref parameters);
+        //}
+        //internal static string sqlWhereListIcode(DogManager dogMng, ModelErp objModel, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
+        //{
+        //    return sqlWhereListXref(dogMng, objModel, null, rowIdList, ref parameters, options);
+        //}
+        //internal static string sqlWhereListXref(DogManager dogMng, ModelErp objModel, DogField fldXref, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
+        //{
+        //    var sqlRowName = "";
+        //    if (rowIdList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Null " + nameof(rowIdList)); }
+        //    //if (rowIdList.Count() == 0) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Empty " + nameof(rowIdList)); }
+        //    if (fldXref == null)  // uso icode della tabella
+        //    {
+        //        if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
+        //        if (dogMng == null) throw new Exception($"sqlWhereListXref: dogMng == null.");
+        //        if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlWhereListXref: Classe {objModel.GetType().FullName} non trovata.");
+        //        DogTable tab = dogMng.tabTypes[objModel.GetType()];
+        //        if (tab == null) throw new Exception($"sqlWhereListXref: tab [{objModel.GetType().FullName}] == null.");
+        //        sqlRowName = tab.fldIcode?.SqlFieldName?.Trim() ?? "";
+        //        if (options.Contains("[UsePropertyNameField]")) sqlRowName = tab.fldIcode?.fieldName?.Trim() ?? "";
+        //    }
+        //    else
+        //    {
+        //        sqlRowName = fldXref.SqlFieldName;
+        //        if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.fieldName;
+        //    }
+        //    if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
+        //    return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
+        //}
+
+
+
+        //**************************************************************************************************
+        //**************************************************************************************************
+        //sqlEx con supporto a campi xdata e formattazione dinamica
+
+
+        internal static string sqlSelectXdataEx(DogTable tab, ref IDictionary<string, object> parameters)
         {
             StringBuilder sb = new StringBuilder("select ");
-            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
-            if (dogMng == null) throw new Exception($"sqlSelect: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlSelect: Classe {objModel.GetType().FullName} non trovata.");
-            DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlSelect: tab [{objModel.GetType().FullName}] == null.");
+            //lista campi Xdata
+            sb.AppendLine($" {tab.fldIcode.SqlFieldName} as Icode,"); sb.AppendLine($" {tab.fldDeleted.SqlFieldName} as Deleted,"); sb.AppendLine($" {tab.fldTimestamp.SqlFieldName} as Timestamp,");
+            sb.AppendLine($" {tab.fldCdate.SqlFieldName} as Cdate,"); sb.AppendLine($" {tab.fldCtime.SqlFieldName} as Ctime,"); sb.AppendLine($" {tab.fldCagent.SqlFieldName} as Cagent,"); sb.AppendLine($" {tab.fldCunit.SqlFieldName} as Cunit,");
+            sb.AppendLine($" {tab.fldMdate.SqlFieldName} as Mdate,"); sb.AppendLine($" {tab.fldMtime.SqlFieldName} as Mtime,"); sb.AppendLine($" {tab.fldMagent.SqlFieldName} as Magent,"); sb.AppendLine($" {tab.fldMunit.SqlFieldName} as Munit,");
+            sb.AppendLine($" {tab.fldHome.SqlFieldName} as Home,"); sb.AppendLine($" {tab.fldVersion.SqlFieldName} as Version,"); sb.AppendLine($" {tab.fldInactive.SqlFieldName} as Inactive,"); sb.AppendLine($" {tab.fldExtatt.SqlFieldName} as Extatt,");
+            sb.AppendLine($" {tab.fldMref.SqlFieldName} as Mref,");
+            sb.AppendLine($" {tab.fldSeq.SqlFieldName} as Seq,");
+            sb.AppendLine($" {tab.fldDescr.SqlFieldName} as Descr,");
+            sb.AppendLine($" {tab.fldFmt.SqlFieldName} as Fmt,");
+            sb.AppendLine($" {tab.fldXdurl.SqlFieldName} as Xdurl,");
+            sb.AppendLine($" {tab.fldXdatum.SqlFieldName} as Xdatum,");
+            // terminatore di select
+            sb.AppendLine($" 0 as ErpTerm ");
+            return sb.ToString();
+        }
+
+        //crea SELECT per l'oggetto del modello 'objModel'
+        internal static string sqlSelectEx(DogTable tab, ref IDictionary<string, object> parameters)
+        {
+            StringBuilder sb = new StringBuilder("select ");
             //ciclo sui campi della tabella
-            foreach (var fld in tab.fields )
+            foreach (var fld in tab.fields)
             {
                 string propertyName = fld.fieldName;
                 var sqlFieldNameExt = fld.SqlFieldName?.Trim() ?? "";
@@ -260,13 +347,8 @@ namespace ErpToolkit.Helpers.Db
             return sb.ToString();
         }
         //crea FROM per l'oggetto del modello 'objModel'
-        internal static string sqlFrom(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
+        internal static string sqlFromEx(DogTable tab, ref IDictionary<string, object> parameters)
         {
-            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
-            if (dogMng == null) throw new Exception($"sqlFrom: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFrom: Classe {objModel.GetType().FullName} non trovata.");
-            DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlFrom: tab [{objModel.GetType().FullName}] == null.");
             //recupero nome tabella
             var sqlTableNameExt = tab.SqlTableNameExt?.Trim() ?? "";
             return $"from {sqlTableNameExt} \n";
@@ -379,7 +461,7 @@ namespace ErpToolkit.Helpers.Db
             if (numCond == 0) throw new ErpException("Nessuna condizione inserita");
             // terminatore di where
             string SqlTableProperties = sel.SqlTableProperties?.Trim() ?? "";
-            if (SqlTableProperties.Contains("[NoSysFields]") == false)
+            if (SqlTableProperties.Contains("[NoSysFields]") == false && options.Contains("[DELETED=Y]") == false)
             {  // escludo filtro XX__DELETED='N' se il campo non è previsto per la Tabella
                 string delField = sel.tabSelection?.fldDeleted?.SqlFieldName?.Trim() ?? "";
                 if (delField != "") sb.AppendLine($" {delField} = {DogManager.addParam("N", ref parameters)} ");      //__DELETED
@@ -392,152 +474,88 @@ namespace ErpToolkit.Helpers.Db
         }
 
         //crea WHERE per l'oggetto del modello 'objModel' in base all'icode
-        internal static string sqlWhereIcode(DogManager dogMng, ModelErp objModel, object icode, ref IDictionary<string, object> parameters, string options = "")
+        internal static string sqlWhereListIcodeEx(DogTable tab, List<object> rowIdList, bool isXdata, ref IDictionary<string, object> parameters, string options = "")
         {
-            return sqlWhereListIcode(dogMng, objModel, new List<object>() { icode }, ref parameters);
+            return sqlWhereListXrefEx(tab, null, rowIdList, null, isXdata, ref parameters, options);
         }
-        internal static string sqlWhereListIcode(DogManager dogMng, ModelErp objModel, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
+        internal static string sqlWhereListXrefEx(DogTable tab, DogField fldXref, List<object> rowIdList, List<string> lstFmt, bool isXdata, ref IDictionary<string, object> parameters, string options = "")
         {
-            return sqlWhereListXref(dogMng, objModel, null, rowIdList, ref parameters, options);
-        }
-        internal static string sqlWhereListXref(DogManager dogMng, ModelErp objModel, DogField fldXref, List<object> rowIdList, ref IDictionary<string, object> parameters, string options = "")
-        {
-            var sqlRowName = "";
+            string sqlRowName = "", sqlDelField = ""; string sqlFmt = "", sqlDeleted = "";
             if (rowIdList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Null " + nameof(rowIdList)); }
-            //if (rowIdList.Count() == 0) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Empty " + nameof(rowIdList)); }
             if (fldXref == null)  // uso icode della tabella
             {
-                if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
-                if (dogMng == null) throw new Exception($"sqlWhereListXref: dogMng == null.");
-                if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlWhereListXref: Classe {objModel.GetType().FullName} non trovata.");
-                DogTable tab = dogMng.tabTypes[objModel.GetType()];
-                if (tab == null) throw new Exception($"sqlWhereListXref: tab [{objModel.GetType().FullName}] == null.");
-                sqlRowName = tab.fldIcode?.SqlFieldName?.Trim() ?? "";
-                if (options.Contains("[UsePropertyNameField]")) sqlRowName = tab.fldIcode?.fieldName?.Trim() ?? "";
+                if(isXdata)
+                {
+                    if (tab.tabXdata == null) throw new Exception($"sqlWhereListXref: tab [{tab.tableTpy.FullName}] Xdata == null.");
+                    sqlRowName = tab.tabXdata.fldIcode?.SqlFieldName?.Trim() ?? ""; sqlDelField = tab.tabXdata.fldDeleted?.SqlFieldName?.Trim() ?? "";
+                    if (options.Contains("[UsePropertyNameField]")) { sqlRowName = tab.tabXdata.fldIcode?.fieldName?.Trim() ?? ""; sqlDelField = tab.tabXdata.fldDeleted?.fieldName?.Trim() ?? ""; }
+                }
+                else
+                {
+                    sqlRowName = tab.fldIcode?.SqlFieldName?.Trim() ?? ""; sqlDelField = tab.fldDeleted?.SqlFieldName?.Trim() ?? "";
+                    if (options.Contains("[UsePropertyNameField]")) { sqlRowName = tab.fldIcode?.fieldName?.Trim() ?? ""; sqlDelField = tab.fldDeleted?.fieldName?.Trim() ?? ""; }
+                }
             }
             else
             {
-                sqlRowName = fldXref.SqlFieldName;
-                if (options.Contains("[UsePropertyNameField]")) sqlRowName = fldXref.fieldName;
+                if (isXdata)
+                {
+                    if (tab.tabXdata == null) throw new Exception($"sqlWhereListXref: tab [{tab.tableTpy.FullName}] Xdata is null.");
+                    sqlRowName = fldXref.SqlFieldName; sqlDelField = tab.tabXdata.fldDeleted?.SqlFieldName?.Trim() ?? "";
+                    var sqlFmtRowName = tab.tabXdata.fldFmt?.SqlFieldName?.Trim() ?? "";  //var sqlFmtRowName = tab.tabXdata.fldGetFirstByOption("[FMT]")?.SqlFieldName?.Trim() ?? "";
+                    if (options.Contains("[UsePropertyNameField]"))
+                    {
+                        sqlRowName = fldXref.fieldName; sqlDelField = tab.tabXdata.fldDeleted?.fieldName?.Trim() ?? "";
+                        sqlFmtRowName = tab.tabXdata.fldFmt?.fieldName?.Trim() ?? "";     //sqlFmtRowName = tab.tabXdata.fldGetFirstByOption("[FMT]")?.fieldName?.Trim() ?? "";
+                    }
+                    sqlFmt = (isXdata && lstFmt != null && lstFmt.Count() > 0) ? $"and {sqlFmtRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) " : "";
+                }
+                else
+                {
+                    sqlRowName = fldXref.SqlFieldName; sqlDelField = tab.fldDeleted?.SqlFieldName?.Trim() ?? "";
+                    if (options.Contains("[UsePropertyNameField]")) { sqlRowName = fldXref.fieldName; sqlDelField = tab.fldDeleted?.fieldName?.Trim() ?? ""; }
+                 }
             }
+            //---
             if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
-            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
-        }
 
-
-        //----------------------------------------------------------------------------------------
-
-
-        //crea SELECT per l'oggetto Xdata del modello 'objModel'
-        internal static string sqlSelectXdata(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
-        {
-            StringBuilder sb = new StringBuilder("select ");
-            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
-            if (dogMng == null) throw new Exception($"sqlSelectXdata: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlSelectXdata: Classe {objModel.GetType().FullName} non trovata.");
-            DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlSelectXdata: tab [{objModel.GetType().FullName}] == null.");
-            //lista campi Xdata
-            sb.AppendLine($" {tab.SqlXdataIcodeName} as Icode,");
-            sb.AppendLine($" {tab.SqlXdataDeletedName} as Deleted,");
-            sb.AppendLine($" {tab.SqlXdataTimestampName} as Timestamp,");
-            sb.AppendLine($" {tab.SqlXdataCdateName} as Cdate,");
-            sb.AppendLine($" {tab.SqlXdataCtimeName} as Ctime,");
-            sb.AppendLine($" {tab.SqlXdataCagentName} as Cagent,");
-            sb.AppendLine($" {tab.SqlXdataCunitName} as Cunit,");
-            sb.AppendLine($" {tab.SqlXdataMdateName} as Mdate,");
-            sb.AppendLine($" {tab.SqlXdataMtimeName} as Mtime,");
-            sb.AppendLine($" {tab.SqlXdataMagentName} as Magent,");
-            sb.AppendLine($" {tab.SqlXdataMunitName} as Munit,");
-            sb.AppendLine($" {tab.SqlXdataHomeName} as Home,");
-            sb.AppendLine($" {tab.SqlXdataVersionName} as Version,");
-            sb.AppendLine($" {tab.SqlXdataInactiveName} as Inactive,");
-            sb.AppendLine($" {tab.SqlXdataExtattName} as Extatt,");
-
-            sb.AppendLine($" {tab.SqlXdataMrefName} as Mref,");
-            sb.AppendLine($" {tab.SqlXdataSeqName} as Seq,");
-            sb.AppendLine($" {tab.SqlXdataDescrName} as Descr,");
-            sb.AppendLine($" {tab.SqlXdataFmtName} as Fmt,");
-            sb.AppendLine($" {tab.SqlXdataXdurlName} as Xdurl,");
-            sb.AppendLine($" {tab.SqlXdataXdatumName} as Xdatum,");
-            // terminatore di select
-            sb.AppendLine($" 0 as ErpTerm ");
-            return sb.ToString();
-        }
-        //crea FROM per l'oggetto Xdata del modello 'objModel'
-        internal static string sqlFromXdata(DogManager dogMng, ModelErp objModel, ref IDictionary<string, object> parameters)
-        {
-            if (objModel == null) { throw new ArgumentNullException(nameof(objModel)); }
-            if (dogMng == null) throw new Exception($"sqlFromXdata: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlFromXdata: Classe {objModel.GetType().FullName} non trovata.");
-            DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlFromXdata: tab [{objModel.GetType().FullName}] == null.");
-            //recupero nome tabella
-            var sqlTableNameExt = tab.SqlTableNameExt?.Trim() ?? "";
-            return $"from {tab.SqlXdataTableName} \n";
-        }
-        //crea WHERE per l'oggetto Xdata del modello 'objModel' in base all'icode
-        internal static string sqlWhereXdataIcode(DogManager dogMng, ModelErp objModel, object icode, ref IDictionary<string, object> parameters, string options = "")
-        {
-            return sqlWhereXdataListIcode(dogMng, objModel, new List<object>() { icode }, new List<string>() { }, ref parameters, options: options);
-        }
-        internal static string sqlWhereXdataListIcode(DogManager dogMng, ModelErp objModel, List<object> rowIdList, List<string> fmtList, ref IDictionary<string, object> parameters, string options = "")
-        {
-            return sqlWhereXdataListMref(dogMng, objModel, false, rowIdList, fmtList, ref parameters, options: options);
-        }
-        internal static string sqlWhereXdataListMref(DogManager dogMng, ModelErp objModel, bool isMref, List<object> rowIdList, List<string> fmtList, ref IDictionary<string, object> parameters, string options = "")
-        {
-            string sqlRowName = "", sqlRowFmtName = "";
-            if (rowIdList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereXdataListMref: Null " + nameof(rowIdList)); }
-            if (fmtList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereXdataListMref: Null " + nameof(fmtList)); }
-            //if (rowIdList.Count() == 0) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Empty " + nameof(rowIdList)); }
-            if (objModel == null) { throw new ArgumentNullException("Null " + nameof(objModel)); }
-            if (dogMng == null) throw new Exception($"sqlWhereXdataListMref: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(objModel.GetType())) throw new Exception($"sqlWhereXdataListMref: Classe {objModel.GetType().FullName} non trovata.");
-            DogTable tab = dogMng.tabTypes[objModel.GetType()];
-            if (tab == null) throw new Exception($"sqlWhereXdataListMref: tab [{objModel.GetType().FullName}] == null.");
-
-            if (isMref == false)  // uso icode della tabella
-            {
-                sqlRowName = tab.SqlXdataIcodeName?.Trim() ?? "";
-                sqlRowFmtName = tab.SqlXdataFmtName?.Trim() ?? "";
-                if (options.Contains("[UsePropertyNameField]")) { sqlRowName = "Icode"; sqlRowFmtName = "Fmt"; }
+            if (tab.SqlTableProperties.Contains("[NoSysFields]") == false && options.Contains("[DELETED=Y]") == false)
+            {  // escludo filtro XX__DELETED='N' se il campo non è previsto per la Tabella
+                if (sqlDelField != "") sqlDeleted = $"and {sqlDelField} = {DogManager.addParam("N", ref parameters)} ";      //__DELETED
             }
-            else   // uso mref della tabella
-            {
-                sqlRowName = tab.SqlXdataMrefName;
-                sqlRowFmtName = tab.SqlXdataFmtName?.Trim() ?? "";
-                if (options.Contains("[UsePropertyNameField]")) { sqlRowName = "Mref"; sqlRowFmtName = "Fmt"; }
-            }
-            if (rowIdList.Count() == 0) return $"where 1=0 "; //RESTITUISCO LISTA VUOTA
-            if (fmtList.Count() > 0) return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) and {sqlRowFmtName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
-            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) ";
+
+            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) {sqlFmt} {sqlDeleted}";
         }
-
-
-
-
 
 
 
         //==========================================================================================================
         //==========================================================================================================
 
-                // SQL MANTAIN
-                //---------------
+        // SQL MANTAIN
+        //---------------
 
-                //crea INSERT, UPDATE, DELETE(logico) per l'oggetto del modello 'tabModel' (SOLO PER TABELLE)
+        //crea INSERT, UPDATE, DELETE(logico) per l'oggetto del modello 'tabModel' (SOLO PER TABELLE)
         internal static string sqlMantain(DogManager dogMng, ModelErp tabModel, ref IDictionary<string, object> parameters, ref List<DogResult> results, string options = "")
+        {
+            if (dogMng == null) throw new Exception($"sqlMantain: dogMng == null.");
+            if (!dogMng.tabTypes.ContainsKey(tabModel.GetType())) throw new Exception($"sqlMantain: Classe {tabModel.GetType()} non trovata.");
+            DogTable tab = dogMng.tabTypes[tabModel.GetType()];
+            if (tab == null) throw new Exception($"sqlMantain: tab [{tabModel.GetType()}] == null.");
+            return _sqlMantain(dogMng, tab, (ModelDog)tabModel, ref parameters, ref results, options);
+        }
+        internal static string sqlMantainXdata(DogManager dogMng, DogTable tab, ModelXdata tabModel, ref IDictionary<string, object> parameters, ref List<DogResult> results, string options = "")
+        {
+            if (dogMng == null) throw new Exception($"sqlMantainXdata: dogMng == null.");
+            if (tab == null) throw new Exception($"sqlMantainXdata: tab [{tabModel.GetType()}] == null.");
+            return _sqlMantain(dogMng, tab, (ModelDog)tabModel, ref parameters, ref results, options);
+        }
+        private static string _sqlMantain(DogManager dogMng, DogTable tab, ModelDog tabModel, ref IDictionary<string, object> parameters, ref List<DogResult> results, string options = "")
         {
             StringBuilder sb = new StringBuilder(), sbValues = new StringBuilder();
             int numParam = 0;
             // init
             if (tabModel == null) { throw new ArgumentNullException(nameof(tabModel)); }
-            if (tabModel == null) { throw new ArgumentNullException(nameof(tabModel)); }
-            if (dogMng == null) throw new Exception($"sqlMantain: dogMng == null.");
-            if (!dogMng.tabTypes.ContainsKey(tabModel.GetType())) throw new Exception($"sqlMantain: Classe {tabModel.GetType()} non trovata.");
-            DogTable tab = dogMng.tabTypes[tabModel.GetType()];
-            if (tab == null) throw new Exception($"sqlMantain: tab [{tabModel.GetType()}] == null.");
 
             //campi di sistema
             if (tab.fldIcode == null) throw new Exception($"sqlMantain: Classe {tabModel.GetType()} fldIcode undefined.");
@@ -635,10 +653,20 @@ namespace ErpToolkit.Helpers.Db
                                 if (fld.DefaultValue != null) { propertyObject = System.Double.Parse((string)fld.DefaultValue); }
                                 else { if (IS_NULLABLE_ID) { propertyObject = DBNull.Value; } else { propertyObject = DogManager.DB_DOUBLE_EMPTY; } }
                             }  
-                            else if (fld.fieldTyp == typeof(System.Byte[])) //byte[]   ?????????????????????????????
+                            else if (fld.fieldTyp == typeof(System.Byte[])) //byte[]   ???????????????????????
                             {
-                                propertyObject = DBNull.Value;
-                            }  
+                                //xx//propertyObject = DBNull.Value;
+
+                                //gestione Xdatum
+
+                                //verifico se è un campo xdatum (stream) e in caso positivo lo converto in stream
+                                if (fld.optXDATUM && tab.tableTpy == typeof(ModelXdata))
+                                {
+                                    propertyObject = ((ModelXdata)tabModel)._streamXdatum;
+                                }
+                                if (propertyObject == null) { propertyObject = new byte[0]; }
+
+                            }
                             else continue;  //  <<<<<<<<<<<<<<<<<<<<<< SALTO I CAMPI NULL
 
 
@@ -708,6 +736,14 @@ namespace ErpToolkit.Helpers.Db
 
                         }
 
+                        ////gestione Xdatum
+                        //if (fld.optXDATUM && propertyObject==null && tabModel is ModelXdata xd) 
+                        //{
+                        //    propertyObject = (Stream?)xd._streamXdatum;
+                        //}
+
+
+
                         // Costruzione SQL
                         if (action == 'A') { sb.AppendLine($"{sqlFieldNameExt}, "); sbValues.AppendLine($"{DogManager.addParam(propertyObject, ref parameters)}, "); }
                         else if (action == 'M') { sb.AppendLine($"{sqlFieldNameExt} = {DogManager.addParam(propertyObject, ref parameters)}, "); }
@@ -737,18 +773,21 @@ namespace ErpToolkit.Helpers.Db
             // Verifica condizioni: con *allowTouch* posso eseguire insert/update anche senza campi valorizzati, altrimenti è necessario almeno un campo da inserire/modificare
             if (numParam == 0)
             {
-                if (options.Contains("*allowTouch*") == false) throw new ErpException("Nessuna parametro inserito");
+                if (options.Contains("*allowTouch*") == false) throw new ErpException("Nessun parametro inserito");
             }
             //gestione icode e timestamp
             object? icode = tab.fldIcode?.GetValue(tabModel) ?? null;
-            byte[] oldTimestamp = (byte[])(tab.fldTimestamp?.GetValue(tabModel) ?? new byte[8]);
+            byte[]? oldTimestamp = (byte[]?)(tab.fldTimestamp?.GetValue(tabModel) ?? null);
             byte[] newTimestamp = DatabaseManager.GenerateTimestamp();
 
             // terminatore di insert update
             if (action == 'A')
             {
+                //-----------------------------------------------------------
                 //-- SE L'ICODE NON E' FORNITO LO DEVO GENERARE
-                if (UtilHelper.IsNullOrEmptyObject(icode)) { icode = dogMng.GenerateIcode(); }
+                //-----------------------------------------------------------
+                if (UtilHelper.IsNullOrEmptyObject(icode)) { icode = dogMng.GenerateIcode(); tab.fldIcode?.SetValue(tabModel, icode); }
+                //-----------------------------------------------------------
 
                 //--
                 if (dogMng.DatabaseType != DbTyp.SqlServer && dogMng.DatabaseType != DbTyp.Sybase)
@@ -769,6 +808,14 @@ namespace ErpToolkit.Helpers.Db
             }
             else  // modify or delete
             {
+                //-----------------------------------------------------------
+                //-- CONTROLLO ICODE TIMESTAMP
+                //-----------------------------------------------------------
+                if (UtilHelper.IsNullOrEmptyObject(icode)) throw new ErpException($"Icode vuoto per action [{action}]");
+                if (oldTimestamp == null) throw new ErpException($"Timestamp vuoto per action [{action}] icode [{icode}]");
+                //-----------------------------------------------------------
+
+
                 if (dogMng.DatabaseType != DbTyp.SqlServer && dogMng.DatabaseType != DbTyp.Sybase)
                 {
                     sb.AppendLine($"{tab.fldTimestamp.SqlFieldName} = {DogManager.addParam(newTimestamp, ref parameters)}, ");

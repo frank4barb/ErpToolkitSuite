@@ -55,13 +55,82 @@ namespace HealthDemo.Controllers.SIO.Act
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Prestazione: " + ex.Message }); }
         }
-        [Authorize]
+       // -- GET: lista tipi documento ----------------------------
         [HttpGet]
-        public IActionResult ViewBlob(string icode)
+        public IActionResult XdataTypes()
         {
-            return base.ViewBlobModel<Prestazione>(icode);
+            return Json(DogManager.XdataFmtTypes);
         }
-
+        // -- GET: visualizza documento ----------------------------
+        [HttpGet]
+        public IActionResult ViewXdata(string icode) 
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(icode)) return BadRequest("Identificativo documento mancante");
+                BlobStreamResult blob = ErpContext.Instance.DogFactory.GetDog(dogId).OpenBlobStream<Prestazione>(icode, 0);
+                Response.Headers["Content-Disposition"] = "inline";
+                if (blob.Bytes != null) return new FileContentResult(blob.Bytes, blob.ContentType) { EnableRangeProcessing = true };
+                else return new FileStreamResult(blob.Stream, blob.ContentType) { EnableRangeProcessing = true };
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: ViewXdata Prestazione: " + ex.Message }); }
+        }
+        // -- POST: aggiunge documento -----------------------------
+        [HttpPost]
+        public async Task<IActionResult> AddXdata(string icode, string timestampHex, string mref, string descr, string fmt, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0) return BadRequest("File mancante");
+                ModelXdata xdataResult = await ErpContext.Instance.DogFactory.GetDog(dogId).MntXdataBlobStreamAsync<Prestazione>('A', null, null, mref, descr, fmt, file.OpenReadStream(), null);
+                return Json(new
+                {
+                    info = "Documento caricato.",
+                     error = (string?)null,
+                    icode = xdataResult?.Icode?.ToString() ?? "",
+                    timestampHex = xdataResult?.Timestamp != null ? "0x" + UtilHelper.ByteArrayToHexString(xdataResult.Timestamp) : "",
+                    mime = xdataResult?._mimeXdatum ?? ""
+                });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AddXdataModel Prestazione: " + ex.Message }); }
+        }
+        // -- POST: aggiorna documento -----------------------------
+        [HttpPost]
+        public async Task<IActionResult> UpdateXdata(string icode, string timestampHex, string mref, string descr, string fmt, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0) return BadRequest("File mancante");
+                ModelXdata xdataResult = await ErpContext.Instance.DogFactory.GetDog(dogId).MntXdataBlobStreamAsync<Prestazione>('M', icode, timestampHex, mref, descr, fmt, file.OpenReadStream(), null);
+                return Json(new
+                {
+                    info = "Documento modificato.",
+                     error = (string?)null,
+                    icode = xdataResult?.Icode?.ToString() ?? "",
+                    timestampHex = xdataResult?.Timestamp != null ? "0x" + UtilHelper.ByteArrayToHexString(xdataResult.Timestamp) : "",
+                    mime = xdataResult?._mimeXdatum ?? ""
+                });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: UpdateXdata Prestazione: " + ex.Message }); }
+        }
+        // -- POST: elimina documento ------------------------------
+        [HttpPost]
+        public async Task<IActionResult> DeleteXdata(string icode, string timestampHex)
+        {
+            try
+            {
+                ModelXdata xdataResult = await ErpContext.Instance.DogFactory.GetDog(dogId).MntXdataBlobStreamAsync<Prestazione>('D', icode, timestampHex, null, "", "", null, null);
+                return Json(new
+                {
+                    info = "Documento cancellato.",
+                     error = (string?)null,
+                    icode = xdataResult?.Icode?.ToString() ?? "",
+                    timestampHex = xdataResult?.Timestamp != null ? "0x" + UtilHelper.ByteArrayToHexString(xdataResult.Timestamp) : "",
+                    mime = xdataResult?._mimeXdatum ?? ""
+                });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: DeleteXdata Prestazione: " + ex.Message }); }
+        }
         [BindProperty]
         public SelPrestazione Select { get; set; }
         [BindProperty]
@@ -101,7 +170,7 @@ namespace HealthDemo.Controllers.SIO.Act
                 return View("~/Views/SIO/Act/Prestazione/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select, xrefTables, ref this._dogCache, null, -1); }  
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Prestazione>(this.Select, xrefTables, false, null, ref this._dogCache, null, -1); }  
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/Act/Prestazione/Index.cshtml", this);

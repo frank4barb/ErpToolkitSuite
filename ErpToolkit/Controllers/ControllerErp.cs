@@ -2,11 +2,15 @@ using ErpToolkit.Helpers;
 using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using MongoDB.Driver;
+using Newtonsoft.Json;
+using NLog;
 using System.Data.Entity.Infrastructure;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Transactions;
 using static ErpToolkit.Helpers.Db.DogFactory;
@@ -294,7 +298,7 @@ namespace ErpToolkit.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult ViewBlobTable(string modelTableName, object blobIcode)
+        public IActionResult ViewXdataTable(string modelTableName, object blobIcode)
         {
             try
             {
@@ -306,18 +310,7 @@ namespace ErpToolkit.Controllers
             }
             catch (Exception ex) { return BadRequest("Errore ViewBlob: " + ex.Message); }
         }
-        protected IActionResult ViewBlobModel<T>(object blobIcode) where T : ModelErp
-        {
-            try
-            {
-                BlobStreamResult blob = ErpContext.Instance.DogFactory.GetDog(dogId).OpenBlobStream<T>(blobIcode, 0);
-                Response.Headers["Content-Disposition"] = "inline";
 
-                if (blob.Bytes != null) return new FileContentResult(blob.Bytes, blob.ContentType) { EnableRangeProcessing = true };
-                else return new FileStreamResult(blob.Stream, blob.ContentType) { EnableRangeProcessing = true };
-            }
-            catch (Exception ex) { return BadRequest("Errore ViewBlob: " + ex.Message); }
-        }
 
         //==========================================================================================================
         //==========================================================================================================
@@ -363,7 +356,7 @@ namespace ErpToolkit.Controllers
                 try
                 {
                     //objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, options: "[PLAIN] inserisco_primo_record_vuoto_per_fare_add_su_tabella_in_grafica_cshtml");   //[PLAIN] => non leggo le strutture relazionate
-                    objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, ref dogCache, transactionId, options: "[PLAIN] ");   //[PLAIN] => non leggo le strutture relazionate
+                    objModel = ErpContext.Instance.DogFactory.GetDog(dogId).Row<T>(parms.Id, xrefFrom, true, null, ref dogCache, transactionId, options: "[PLAIN] ");   //[PLAIN] => non leggo le strutture relazionate
                 }
                 catch (Exception ex) { ModelState.AddModelError(prefix ?? string.Empty, "Problemi in accesso al DB: Row: " + ex.Message); }
                 if (action == 'D') objModel.action = 'D'; //delete

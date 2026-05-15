@@ -63,13 +63,82 @@ namespace HealthDemo.Controllers.SIO.Patient
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompletePreLoad Comune: " + ex.Message }); }
         }
-        [Authorize]
+       // -- GET: lista tipi documento ----------------------------
         [HttpGet]
-        public IActionResult ViewBlob(string icode)
+        public IActionResult XdataTypes()
         {
-            return base.ViewBlobModel<Comune>(icode);
+            return Json(DogManager.XdataFmtTypes);
         }
-
+        // -- GET: visualizza documento ----------------------------
+        [HttpGet]
+        public IActionResult ViewXdata(string icode) 
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(icode)) return BadRequest("Identificativo documento mancante");
+                BlobStreamResult blob = ErpContext.Instance.DogFactory.GetDog(dogId).OpenBlobStream<Comune>(icode, 0);
+                Response.Headers["Content-Disposition"] = "inline";
+                if (blob.Bytes != null) return new FileContentResult(blob.Bytes, blob.ContentType) { EnableRangeProcessing = true };
+                else return new FileStreamResult(blob.Stream, blob.ContentType) { EnableRangeProcessing = true };
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: ViewXdata Comune: " + ex.Message }); }
+        }
+        // -- POST: aggiunge documento -----------------------------
+        [HttpPost]
+        public async Task<IActionResult> AddXdata(string icode, string timestampHex, string mref, string descr, string fmt, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0) return BadRequest("File mancante");
+                ModelXdata xdataResult = await ErpContext.Instance.DogFactory.GetDog(dogId).MntXdataBlobStreamAsync<Comune>('A', null, null, mref, descr, fmt, file.OpenReadStream(), null);
+                return Json(new
+                {
+                    info = "Documento caricato.",
+                     error = (string?)null,
+                    icode = xdataResult?.Icode?.ToString() ?? "",
+                    timestampHex = xdataResult?.Timestamp != null ? "0x" + UtilHelper.ByteArrayToHexString(xdataResult.Timestamp) : "",
+                    mime = xdataResult?._mimeXdatum ?? ""
+                });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AddXdataModel Comune: " + ex.Message }); }
+        }
+        // -- POST: aggiorna documento -----------------------------
+        [HttpPost]
+        public async Task<IActionResult> UpdateXdata(string icode, string timestampHex, string mref, string descr, string fmt, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0) return BadRequest("File mancante");
+                ModelXdata xdataResult = await ErpContext.Instance.DogFactory.GetDog(dogId).MntXdataBlobStreamAsync<Comune>('M', icode, timestampHex, mref, descr, fmt, file.OpenReadStream(), null);
+                return Json(new
+                {
+                    info = "Documento modificato.",
+                     error = (string?)null,
+                    icode = xdataResult?.Icode?.ToString() ?? "",
+                    timestampHex = xdataResult?.Timestamp != null ? "0x" + UtilHelper.ByteArrayToHexString(xdataResult.Timestamp) : "",
+                    mime = xdataResult?._mimeXdatum ?? ""
+                });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: UpdateXdata Comune: " + ex.Message }); }
+        }
+        // -- POST: elimina documento ------------------------------
+        [HttpPost]
+        public async Task<IActionResult> DeleteXdata(string icode, string timestampHex)
+        {
+            try
+            {
+                ModelXdata xdataResult = await ErpContext.Instance.DogFactory.GetDog(dogId).MntXdataBlobStreamAsync<Comune>('D', icode, timestampHex, null, "", "", null, null);
+                return Json(new
+                {
+                    info = "Documento cancellato.",
+                     error = (string?)null,
+                    icode = xdataResult?.Icode?.ToString() ?? "",
+                    timestampHex = xdataResult?.Timestamp != null ? "0x" + UtilHelper.ByteArrayToHexString(xdataResult.Timestamp) : "",
+                    mime = xdataResult?._mimeXdatum ?? ""
+                });
+            }
+            catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: DeleteXdata Comune: " + ex.Message }); }
+        }
         [BindProperty]
         public SelComune Select { get; set; }
         [BindProperty]
@@ -109,7 +178,7 @@ namespace HealthDemo.Controllers.SIO.Patient
                 return View("~/Views/SIO/Patient/Comune/Index.cshtml", this);
             }
             //carica lista
-            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Comune>(this.Select, xrefTables, ref this._dogCache, null, -1); }  
+            try { this.List = ErpContext.Instance.DogFactory.GetDog(dogId).List<Comune>(this.Select, xrefTables, false, null, ref this._dogCache, null, -1); }  
             catch (Exception ex) { ModelState.AddModelError(string.Empty, "Problemi in accesso al DB: List: " + ex.Message); }
             this.StatusMessage = "Lista caricata!";
             return View("~/Views/SIO/Patient/Comune/Index.cshtml", this);

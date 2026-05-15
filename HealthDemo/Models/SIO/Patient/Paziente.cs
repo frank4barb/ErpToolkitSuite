@@ -41,6 +41,7 @@ public const string SqlXdataFmtName = "PA_X__FMT";
 public const string SqlXdataXdurlName = "PA_X__XDURL";
 public const string SqlXdataXdatumName = "PA_X__XDATUM";
 public const string SqlXdataTableNameExt = "PA_XDATA";
+public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
 public const int INTCODE = 51; //Internal Table Code
@@ -50,7 +51,7 @@ public const string LIVEDESC = "L"; //Table type: Live or Description
 public const string IS_RELTABLE = "N"; //Is Relation Table: Yes or No
 public override object getIcode() { return (object)Pa1Icode; } 
 public override string labelText() { return $@"{PaCodSanitario} - {PaCognome} - {PaNome}"; }
-public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(PaCodSanitario)}</strong> {HttpUtility.HtmlEncode(PaCognome)}"; }
+public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(PaCodSanitario)}</strong> {HttpUtility.HtmlEncode(PaCognome)} - {HttpUtility.HtmlEncode(PaNome)}"; }
 
 //9-2//[N] PRESTAZIONE.PR_ID_PAZIENTE
 [Display(Name = "Prestazione", ShortName = "", Description = "", Prompt = "")]

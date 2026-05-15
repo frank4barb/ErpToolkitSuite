@@ -7,7 +7,8 @@ using System.Reflection.Metadata;
 using static ErpToolkit.Helpers.Db.DogManager;
 
 namespace ErpToolkit.Models {
-    public abstract class ModelErp  {
+    public abstract class ModelErp : ModelDog
+    {
 
         //xx// SGANCIO DAL MODELLO IL CONCETTO DI VISIBILITA'
         //xx////attributi di visualizzazione dei campi definiti a run-time
@@ -36,9 +37,6 @@ namespace ErpToolkit.Models {
         public string jsonOriginal = null;
 
 
-        // proprietà necessarie per la mantain e list del record
-        public char? action { get; set; } = null;   // [R]ead, [A]dd, [M]odify, [D]elete
-        public string options { get; set; } = "";
 
 
         //[Vars("XML")]
@@ -68,15 +66,6 @@ namespace ErpToolkit.Models {
         public Dictionary<object, ModelXdata>? Xdata { get; set; } = null;
 
 
-        //metodi obbligatori
-        public abstract string labelText(); // metodo astratto: label per output Text da usare per visualizzare l'oggetto (deve per forza essere implementato)
-        public override string ToString() { return labelText(); } //output Text da usare per visualizzare l'oggetto
-        public abstract string labelHtml(); // metodo astratto: label per output Html da usare per visualizzare l'oggetto (deve per forza essere implementato)
-        public string ToHtml() { return labelHtml(); } //output Html da usare per visualizzare l'oggetto
-        //????//public abstract string ToHtml(); // metodo astratto: output Html da usare per visualizzare l'oggetto (deve per forza essere implementato)
-        public abstract object getIcode(); // metodo astratto (deve per forza essere implementato)
-        //public abstract string getTimestamp(); // metodo astratto 
-        //public abstract string getDeleted(); // metodo astratto 
 
         //metodi virtuali (se non implementati si usa il default)
         public virtual bool TryValidateInt(ModelStateDictionary modelState, string? prefix = null)

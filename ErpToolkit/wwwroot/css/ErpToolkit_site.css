@@ -268,3 +268,31 @@ textarea {
 }
 
 /* end ErpDocViewer  */
+
+/* start ErpDocContainer */ 
+
+/* Cornice attiva sul tab-content per collegare visivamente toolbar e documento */
+.erp-doc-container .tab-content {
+    border: 2px solid #dee2e6;
+    transition: border-color 0.2s ease;
+}
+
+    /* Quando un tab è attivo, la cornice diventa blu Bootstrap */
+    .erp-doc-container .tab-content:has(.tab-pane.active) {
+        border-color: #0d6efd;
+    }
+
+/* Toolbar contestuale */
+.erp-doc-toolbar {
+    background: #f8f9fa;
+    border-radius: 0 0 4px 4px;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+}
+
+/* Pannello edit in modalità modifica — bordo giallo invece di grigio */
+.erp-doc-container [data-role="xdata-add-panel"].is-edit {
+    background-color: #fffdf0 !important;
+    border-color: #ffc107 !important;
+}
+/* end ErpDocContainer */ 

@@ -149,14 +149,28 @@
                     @if (Model?.Xdata != null && Model.Xdata.Any())
                     {
                         <br />
-                        @foreach (var kvp in Model.Xdata)
+                        <erp-document-container
+                            asp-for="Xdata"
+                            record-icode="@Model.Pv1Icode"
+                            controller-name="ParametroVitale"
+                            allow-add="true"
+                            allow-update="true"
+                            allow-delete="true"
+                            add-url="@Url.Action("AddXdata", "ParametroVitale")"
+                            update-url="@Url.Action("UpdateXdata", "ParametroVitale")"
+                            delete-url="@Url.Action("DeleteXdata", "ParametroVitale")"
+                            type-source-url="@Url.Action("XdataTypes", "ParametroVitale")"
+                            height="500">
+                        </erp-document-container>
+@*                        @foreach (var kvp in Model.Xdata)
                         {
                             var x = kvp.Value;
                             <h6>@x.Descr</h6>
                             <div class="mb-3"><erp-document-viewer controller-name="ParametroVitale" blob-id="@x.Icode" content-type="@x._mime" height="500"></erp-document-viewer></div>
                         }
+*@
                     }
-                
+                 
                 </div>
                 <br />
             </div>

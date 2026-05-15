@@ -11,6 +11,12 @@ using System.Reflection;
 using ErpToolkit.Helpers.Db;
 using Microsoft.AspNetCore.Http;
 using System.Collections;
+using Mysqlx.Crud;
+using ErpToolkit.Models;
+using Microsoft.Extensions.Primitives;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Mvc;
+using System;
 
 
 // VALIDATE FIELD AT SERVER SIDE
@@ -2344,7 +2350,7 @@ namespace ErpToolkit.Helpers
             var fileExtension = MimeMapping.GetDefaultExtensionFromMime(ContentType);
             //var src = $"/StatoRichieste/ViewBlob/{BlobTable}/{fileExtension}/{BlobId}";
             //var src = $"/StatoRichieste/ViewBlob";
-            var src = $"/{ControllerName}/ViewBlob?icode={Uri.EscapeDataString(BlobId)}";
+            var src = $"/{ControllerName}/ViewXdata?icode={Uri.EscapeDataString(BlobId)}";
             output.TagName = "div";
             output.Attributes.SetAttribute("class", "erp-docviewer");
 
@@ -2395,6 +2401,322 @@ namespace ErpToolkit.Helpers
             }
         }
     }
+
+
+
+    //[AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    //public sealed class ErpDocumentContainerAttribute : Attribute
+    //{
+    //    public string xxxxPartitionSqlFieldName { get; set; } = "";
+    //    public string xxxxxxxPartitionValue { get; set; } = "";
+    //    public string Options { get; set; } = "";
+    //    public ErpDocumentContainerAttribute() { }
+    //}
+
+
+
+    [HtmlTargetElement("erp-document-container")]
+    public class ErpDocumentContainerTagHelper : TagHelper
+    {
+        // --- Attributi comuni ---
+        [HtmlAttributeName("asp-readonly")] public char? Readonly { get; set; }
+        [HtmlAttributeName("asp-visible")] public char? Visible { get; set; }
+
+        [ViewContext][HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+        [HtmlAttributeName("asp-for")] public ModelExpression For { get; set; }
+
+        //public Dictionary<object, ModelXdata>? Items { get; set; }
+        public string RecordIcode { get; set; } = "";
+        public string ControllerName { get; set; } = "";
+        public bool AllowAdd { get; set; }
+        public bool AllowDelete { get; set; }
+        public bool AllowUpdate { get; set; }
+        public string AddUrl { get; set; } = "";
+        public string UpdateUrl { get; set; } = "";
+        public string DeleteUrl { get; set; } = "";
+        public string TypeSourceUrl { get; set; } = "";
+        public int Height { get; set; } = 500;
+
+        private static string ToTimestampHex(byte[]? ts)
+            => ts == null || ts.Length == 0 ? "" : "0x" + BitConverter.ToString(ts).Replace("-", "");
+
+        private string RenderViewer(string controllerName, string blobId, string contentType, int height)
+        {
+            var src = $"/{Uri.EscapeDataString(controllerName)}/ViewXdata?icode={Uri.EscapeDataString(blobId)}";
+
+            if (contentType.StartsWith("image/"))
+                return $"""<div class="erp-docviewer"><img src="{src}" class="erp-doc-image" style="max-width:100%;" /></div>""";
+
+            if (contentType == "application/pdf")
+                return $"""
+                    <div class="erp-docviewer">
+                        <object data="{src}" type="application/pdf" width="100%" height="{height}">
+                            <p class="text-muted small p-2">
+                                <i class="bi bi-file-earmark-pdf me-1"></i>
+                                Il browser non supporta la visualizzazione PDF.
+                                <a href="{src}" target="_blank" class="ms-1">Apri il file</a>
+                            </p>
+                        </object>
+                    </div>
+                """;
+
+            if (contentType.StartsWith("audio/"))
+                return $"""<div class="erp-docviewer p-2"><audio src="{src}" controls style="width:100%;"></audio></div>""";
+
+            if (contentType.StartsWith("video/"))
+                return $"""<div class="erp-docviewer"><video src="{src}" controls style="max-width:100%;height:{height}px;"></video></div>""";
+
+            if (contentType.StartsWith("text/"))
+                return $"""<div class="erp-docviewer"><iframe src="{src}" style="width:100%;height:{height}px;border:none;"></iframe></div>""";
+
+            if (string.IsNullOrEmpty(contentType))
+                return $"""
+                    <div class="erp-docviewer p-3 text-center text-muted">
+                        <i class="bi bi-file-earmark fs-1 d-block mb-2"></i>
+                        <a href="{src}" target="_blank"><i class="bi bi-download me-1"></i> Scarica il file</a>
+                    </div>
+                """;
+
+            return $"""
+                <div class="erp-docviewer p-3 text-center text-muted">
+                    <i class="bi bi-file-earmark-x fs-1 d-block mb-2"></i>
+                    Formato non supportato (<code>{HtmlEncoder.Default.Encode(contentType)}</code>).
+                    <a href="{src}" target="_blank" class="d-block mt-2"><i class="bi bi-download me-1"></i> Scarica</a>
+                </div>
+            """;
+        }
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            // --- Dati riflessioni / attributi modello ---
+            var containerType = For.ModelExplorer.Metadata.ContainerType;
+            var propertyName = For.ModelExplorer.Metadata.PropertyName;
+            var property = containerType?.GetProperty(propertyName);
+            //var attrErpDocumentContainer = property?.GetCustomAttributes(typeof(ErpDocumentContainerAttribute), false).FirstOrDefault() as ErpDocumentContainerAttribute;
+
+            // --- Prefix per i name/id degli input ---
+            var prefix = (ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix ?? "").Trim();
+            var prefixInputName = ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(For.Name);
+            var prefixInputId = TagBuilder.CreateSanitizedId(prefixInputName, "_");
+
+            // --- Visibilità/readonly dal tuo sistema ---
+            DogManager.FieldAttr attrField = UtilHelper.fieldAttrTagHelper(prefix, For.Name, "", ViewContext);
+            char readonlyFlag = Readonly ?? attrField.Readonly;
+            char visibleFlag = Visible ?? attrField.Visible;
+
+            if (readonlyFlag=='Y') { AllowAdd = false; AllowDelete = false; AllowUpdate = false; }
+            if (visibleFlag == 'N') { output.SuppressOutput(); return; }
+
+        //--------------------------------------------------------------------------
+
+            var enc = HtmlEncoder.Default;
+            var uid = context.UniqueId;
+
+            output.TagName = "div";
+            output.Attributes.SetAttribute("class", "erp-doc-container card mb-3 shadow-sm");
+            output.Attributes.SetAttribute("data-record-icode", RecordIcode);
+            output.Attributes.SetAttribute("data-add-url", AddUrl);
+            output.Attributes.SetAttribute("data-update-url", UpdateUrl);
+            output.Attributes.SetAttribute("data-delete-url", DeleteUrl);
+            output.Attributes.SetAttribute("data-type-url", TypeSourceUrl);
+            output.Attributes.SetAttribute("data-controller-name", ControllerName);
+
+            var sb = new StringBuilder();
+
+            // ── HEADER ──────────────────────────────────────────────
+            sb.Append("<div class=\"card-header d-flex justify-content-between align-items-center py-2\">");
+            sb.Append("<span class=\"fw-semibold\"><i class=\"bi bi-paperclip me-1\"></i> Documenti allegati</span>");
+            if (AllowAdd)
+            {
+                sb.Append("<button type=\"button\" class=\"btn btn-sm btn-outline-primary\" data-action=\"add\">");
+                sb.Append("<i class=\"bi bi-plus-lg me-1\"></i> Aggiungi</button>");
+            }
+            sb.Append("</div>");
+
+            // ── BODY ─────────────────────────────────────────────────
+            sb.Append("<div class=\"card-body p-3\">");
+
+            Dictionary<object, ModelXdata>? Items = null;
+            if (For.Model is Dictionary<object, ModelXdata>) { Items = For.Model as Dictionary<object, ModelXdata>; }
+
+            if (Items == null)
+            {
+                sb.Append("<p class=\"text-muted mb-0 small\"><i class=\"bi bi-inbox me-1\"></i> Lista documenti non specificata.</p>");
+            }
+            else if (Items.Count == 0)
+            {
+                sb.Append("<p class=\"text-muted mb-0 small\"><i class=\"bi bi-inbox me-1\"></i> Nessun documento disponibile.</p>");
+            }
+            else
+            {
+                // ── Tab headers ──
+                sb.Append("<ul class=\"nav nav-tabs mb-0\" role=\"tablist\">");
+                int index = 0;
+                foreach (var kvp in Items)
+                {
+                    var x = kvp.Value;
+                    string active = index == 0 ? "active" : "";
+                    string label = enc.Encode(x.Descr ?? kvp.Key.ToString() ?? $"Doc {index + 1}");
+                    string tsHex = enc.Encode(ToTimestampHex(x.Timestamp));
+                    string icode = enc.Encode(x.Icode.ToString());
+                    string fmt = enc.Encode(x.Fmt ?? "");
+                    string descr = enc.Encode(x.Descr ?? "");
+
+                    sb.Append("<li class=\"nav-item\" role=\"presentation\">");
+                    sb.Append($"<button class=\"nav-link {active}\"");
+                    sb.Append($" data-bs-toggle=\"tab\"");
+                    sb.Append($" data-bs-target=\"#xdata-{uid}-{index}\"");
+                    sb.Append($" type=\"button\" role=\"tab\"");
+                    sb.Append($" data-icode=\"{icode}\"");
+                    sb.Append($" data-ts=\"{tsHex}\"");
+                    sb.Append($" data-descr=\"{descr}\"");
+                    sb.Append($" data-fmt=\"{fmt}\"");
+                    sb.Append($">{label}</button>");
+                    sb.Append("</li>");
+                    index++;
+                }
+                sb.Append("</ul>");
+
+                // ── Tab content ──
+                // Bordo superiore rimosso sui tab-pane per fondersi con la cornice attiva
+                sb.Append("<div class=\"tab-content border border-top-0 rounded-bottom mb-3\" id=\"tab-content-{uid}\">");
+                index = 0;
+                foreach (var kvp in Items)
+                {
+                    var x = kvp.Value;
+                    string active = index == 0 ? "show active" : "";
+
+                    // Il tab-pane attivo riceve la classe erp-doc-active-pane per la cornice colorata
+                    sb.Append($"<div class=\"tab-pane fade {active} p-2\"");
+                    sb.Append($" id=\"xdata-{uid}-{index}\"");
+                    sb.Append($" role=\"tabpanel\">");
+
+                    // Viewer
+                    sb.Append(RenderViewer(ControllerName, x.Icode.ToString(), x._mimeXdatum ?? "", Height));
+
+                    // Toolbar contestuale — chiaramente associata al documento nel riquadro
+                    bool hasActions = AllowUpdate || AllowDelete;
+                    if (hasActions)
+                    {
+                        sb.Append("<div class=\"erp-doc-toolbar d-flex align-items-center gap-2 mt-2 pt-2 border-top\">");
+                        sb.Append("<span class=\"text-muted small me-auto\">");
+                        sb.Append("<i class=\"bi bi-arrow-up-circle me-1\"></i>Azioni sul documento selezionato:</span>");
+
+                        //--- Pannello Span errore delete — inizialmente nascosto
+                        sb.Append("<span data-role=\"toolbar-error\" class=\"text-danger small w-100 d-none\"></span>");
+                        //---
+
+                        if (AllowUpdate)
+                        {
+                            string icode = enc.Encode(x.Icode.ToString());
+                            string tsHex = enc.Encode(ToTimestampHex(x.Timestamp));
+                            string descr = enc.Encode(x.Descr ?? "");
+                            string fmt = enc.Encode(x.Fmt ?? "");
+
+                            sb.Append("<button type=\"button\" class=\"btn btn-sm btn-outline-warning\" data-action=\"edit\"");
+                            sb.Append($" data-icode=\"{icode}\"");
+                            sb.Append($" data-ts=\"{tsHex}\"");
+                            sb.Append($" data-descr=\"{descr}\"");
+                            sb.Append($" data-fmt=\"{fmt}\">");
+                            sb.Append("<i class=\"bi bi-pencil me-1\"></i> Modifica</button>");
+                        }
+
+                        if (AllowDelete)
+                        {
+                            string icode = enc.Encode(x.Icode.ToString());
+                            string tsHex = enc.Encode(ToTimestampHex(x.Timestamp));
+
+                            sb.Append("<button type=\"button\" class=\"btn btn-sm btn-outline-danger\" data-action=\"delete\"");
+                            sb.Append($" data-icode=\"{icode}\"");
+                            sb.Append($" data-ts=\"{tsHex}\">");
+                            sb.Append("<i class=\"bi bi-trash me-1\"></i> Elimina</button>");
+                        }
+
+                        sb.Append("</div>"); // fine toolbar
+                    }
+
+                    sb.Append("</div>"); // fine tab-pane
+                    index++;
+                }
+                sb.Append("</div>"); // fine tab-content
+            }
+
+            // ── Pannello ADD/EDIT unificato ──────────────────────────
+            if (AllowAdd || AllowUpdate)
+            {
+                sb.Append("<div class=\"collapse mt-3 border rounded p-3 bg-light\" data-role=\"xdata-add-panel\">");
+
+                // Titolo dinamico (cambia via JS tra "Carica" e "Modifica")
+                sb.Append("<h6 class=\"mb-3 text-secondary\" data-role=\"panel-title\">");
+                sb.Append("<i class=\"bi bi-upload me-1\"></i> Carica nuovo documento</h6>");
+
+                sb.Append("<div data-role=\"xdata-form\">");
+
+                // Campi hidden per icode e timestamp (vuoti in ADD, valorizzati in EDIT)
+                sb.Append("<input type=\"hidden\" name=\"recordIcode\" value=\"" + enc.Encode(RecordIcode) + "\" />");
+                sb.Append("<input type=\"hidden\" name=\"icode\"        data-role=\"field-icode\" value=\"\" />");
+                sb.Append("<input type=\"hidden\" name=\"timestampHex\" data-role=\"field-ts\"    value=\"\" />");
+
+                sb.Append("<div class=\"mb-2\">");
+                sb.Append("<label class=\"form-label form-label-sm\">Descrizione</label>");
+                sb.Append("<input type=\"text\" name=\"descrizione\" data-role=\"field-descr\"");
+                sb.Append(" class=\"form-control form-control-sm\" placeholder=\"Inserire una descrizione...\" required />");
+                sb.Append("</div>");
+
+                sb.Append("<div class=\"mb-2\">");
+                sb.Append("<label class=\"form-label form-label-sm\">Tipo documento</label>");
+                sb.Append("<select name=\"tipo\" data-role=\"field-fmt\" class=\"form-select form-select-sm\" required></select>");
+                sb.Append("</div>");
+
+                sb.Append("<div class=\"mb-2\">");
+                sb.Append("<label class=\"form-label form-label-sm\">File</label>");
+                sb.Append("<input type=\"file\" name=\"file\" class=\"form-control form-control-sm\" required />");
+                sb.Append("</div>");
+
+                // --- pannello span per Errore PRIMA dei bottoni submit/annulla:
+                sb.Append("<div class=\"mb-2\" data-role=\"validation-error-wrap\">");
+                sb.Append("<span data-role=\"validation-error\" class=\"text-danger small d-none\"></span>");
+                sb.Append("</div>");
+                //----
+
+                sb.Append("<div class=\"text-end mt-3 d-flex gap-2 justify-content-end\">");
+                sb.Append("<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" data-action=\"cancel-add\">");
+                sb.Append("<i class=\"bi bi-x-lg me-1\"></i> Annulla</button>");
+                sb.Append("<button type=\"button\" class=\"btn btn-sm btn-primary\" data-action=\"submit-add\" data-role=\"submit-btn\">");
+                sb.Append("<i class=\"bi bi-upload me-1\"></i> Carica</button>");
+                sb.Append("</div>");
+
+                sb.Append("</div>"); // fine xdata-form
+                sb.Append("</div>"); // fine xdata-add-panel
+            }
+
+            sb.Append("</div>"); // fine card-body
+
+            output.Content.SetHtmlContent(sb.ToString());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
