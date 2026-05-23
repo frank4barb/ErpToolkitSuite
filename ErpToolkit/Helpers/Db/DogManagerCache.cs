@@ -228,7 +228,7 @@ namespace ErpToolkit.Helpers.Db
 
 
                                         //!!! Inserisce vars FieldLabel per il campo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                        string label = dogCache.dbCache[xrefObjType][icode].ToHtml();
+                                        string label = dogCache.dbCache[xrefObjType][icode]?.ToHtml() ?? "**null record**";
                                         rec.vars[$"@{propertyName}-FieldLabel"] = label;
                                         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

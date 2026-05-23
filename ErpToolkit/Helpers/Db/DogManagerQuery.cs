@@ -316,20 +316,33 @@ namespace ErpToolkit.Helpers.Db
         {
             StringBuilder sb = new StringBuilder("select ");
             //lista campi Xdata
-            sb.AppendLine($" {tab.fldIcode.SqlFieldName} as Icode,"); sb.AppendLine($" {tab.fldDeleted.SqlFieldName} as Deleted,"); sb.AppendLine($" {tab.fldTimestamp.SqlFieldName} as Timestamp,");
-            sb.AppendLine($" {tab.fldCdate.SqlFieldName} as Cdate,"); sb.AppendLine($" {tab.fldCtime.SqlFieldName} as Ctime,"); sb.AppendLine($" {tab.fldCagent.SqlFieldName} as Cagent,"); sb.AppendLine($" {tab.fldCunit.SqlFieldName} as Cunit,");
-            sb.AppendLine($" {tab.fldMdate.SqlFieldName} as Mdate,"); sb.AppendLine($" {tab.fldMtime.SqlFieldName} as Mtime,"); sb.AppendLine($" {tab.fldMagent.SqlFieldName} as Magent,"); sb.AppendLine($" {tab.fldMunit.SqlFieldName} as Munit,");
-            sb.AppendLine($" {tab.fldHome.SqlFieldName} as Home,"); sb.AppendLine($" {tab.fldVersion.SqlFieldName} as Version,"); sb.AppendLine($" {tab.fldInactive.SqlFieldName} as Inactive,"); sb.AppendLine($" {tab.fldExtatt.SqlFieldName} as Extatt,");
-            sb.AppendLine($" {tab.fldMref.SqlFieldName} as Mref,");
-            sb.AppendLine($" {tab.fldSeq.SqlFieldName} as Seq,");
-            sb.AppendLine($" {tab.fldDescr.SqlFieldName} as Descr,");
-            sb.AppendLine($" {tab.fldFmt.SqlFieldName} as Fmt,");
-            sb.AppendLine($" {tab.fldXdurl.SqlFieldName} as Xdurl,");
-            sb.AppendLine($" {tab.fldXdatum.SqlFieldName} as Xdatum,");
+            //sb.AppendLine($" {_testSqlFiedNmame(tab.fldIcode.SqlFieldName)} as Icode,"); sb.AppendLine($" {tab.fldDeleted.SqlFieldName} as Deleted,"); sb.AppendLine($" {tab.fldTimestamp.SqlFieldName} as Timestamp,");
+            //sb.AppendLine($" {tab.fldCdate.SqlFieldName} as Cdate,"); sb.AppendLine($" {tab.fldCtime.SqlFieldName} as Ctime,"); sb.AppendLine($" {tab.fldCagent.SqlFieldName} as Cagent,"); sb.AppendLine($" {tab.fldCunit.SqlFieldName} as Cunit,");
+            //sb.AppendLine($" {tab.fldMdate.SqlFieldName} as Mdate,"); sb.AppendLine($" {tab.fldMtime.SqlFieldName} as Mtime,"); sb.AppendLine($" {tab.fldMagent.SqlFieldName} as Magent,"); sb.AppendLine($" {tab.fldMunit.SqlFieldName} as Munit,");
+            //sb.AppendLine($" {tab.fldHome.SqlFieldName} as Home,"); sb.AppendLine($" {tab.fldVersion.SqlFieldName} as Version,"); sb.AppendLine($" {tab.fldInactive.SqlFieldName} as Inactive,"); sb.AppendLine($" {tab.fldExtatt.SqlFieldName} as Extatt,");
+            //sb.AppendLine($" {tab.fldMref.SqlFieldName} as Mref,");
+            //sb.AppendLine($" {tab.fldSeq.SqlFieldName} as Seq,");
+            //sb.AppendLine($" {tab.fldDescr.SqlFieldName} as Descr,");
+            //sb.AppendLine($" {tab.fldFmt.SqlFieldName} as Fmt,");
+            //sb.AppendLine($" {tab.fldXdurl.SqlFieldName} as Xdurl,");
+            //sb.AppendLine($" {tab.fldXdatum.SqlFieldName} as Xdatum,");
+            sb.AppendLine($@" 
+            	{_testSqlFiedNmame(tab.fldIcode.SqlFieldName)} as Icode, {_testSqlFiedNmame(tab.fldDeleted.SqlFieldName)} as Deleted, {_testSqlFiedNmame(tab.fldTimestamp.SqlFieldName)} as Timestamp,
+            	{_testSqlFiedNmame(tab.fldCdate.SqlFieldName)} as Cdate, {_testSqlFiedNmame(tab.fldCtime.SqlFieldName)} as Ctime, {_testSqlFiedNmame(tab.fldCagent.SqlFieldName)} as Cagent, {_testSqlFiedNmame(tab.fldCunit.SqlFieldName)} as Cunit,
+            	{_testSqlFiedNmame(tab.fldMdate.SqlFieldName)} as Mdate, {_testSqlFiedNmame(tab.fldMtime.SqlFieldName)} as Mtime, {_testSqlFiedNmame(tab.fldMagent.SqlFieldName)} as Magent, {_testSqlFiedNmame(tab.fldMunit.SqlFieldName)} as Munit,
+            	{_testSqlFiedNmame(tab.fldHome.SqlFieldName)} as Home, {_testSqlFiedNmame(tab.fldVersion.SqlFieldName)} as Version, {_testSqlFiedNmame(tab.fldInactive.SqlFieldName)} as Inactive, {_testSqlFiedNmame(tab.fldExtatt.SqlFieldName)} as Extatt,
+            	{_testSqlFiedNmame(tab.fldMref.SqlFieldName)} as Mref,
+            	{_testSqlFiedNmame(tab.fldSeq.SqlFieldName)} as Seq,
+            	{_testSqlFiedNmame(tab.fldDescr.SqlFieldName)} as Descr,
+            	{_testSqlFiedNmame(tab.fldFmt.SqlFieldName)} as Fmt,
+            	{_testSqlFiedNmame(tab.fldXdurl.SqlFieldName)} as Xdurl,
+            	{_testSqlFiedNmame(tab.fldXdatum.SqlFieldName)} as Xdatum,
+                        ");
             // terminatore di select
             sb.AppendLine($" 0 as ErpTerm ");
             return sb.ToString();
         }
+        private static string _testSqlFiedNmame(string sqlFieldName) => (sqlFieldName != "") ? sqlFieldName : "NULL";
 
         //crea SELECT per l'oggetto del modello 'objModel'
         internal static string sqlSelectEx(DogTable tab, ref IDictionary<string, object> parameters)
