@@ -55,7 +55,6 @@ namespace ErpToolkit.Helpers.Db
         //*** STRUTTURE STATICHE
         //***************************************************************************************************************************************************
 
-
         //voce del menù
         public class MenuItem
         {
@@ -127,6 +126,7 @@ namespace ErpToolkit.Helpers.Db
             internal int GetMntID() { return ++serviceMntID; }
             internal void InitMntID() { serviceMntID = -1; }
             internal ModelErp? GetObject(System.Type type, object icode) { try { return dbCache[type][icode]; } catch (Exception ex) { return null; } } // return= null se non trovato
+            internal Dictionary<object, ModelErp>? GetDictionary(System.Type type) { try { return dbCache[type]; } catch (Exception ex) { return null; } } // return= null se non trovato
 
             //-----
 
@@ -216,6 +216,7 @@ namespace ErpToolkit.Helpers.Db
             //--
             public string tableName = "";
             public System.Type tableTpy;
+            public ModelErp tableModelErpObj;
             public List<DogField> fields = new List<DogField>();
             public List<DogField> XrefFromFld = new List<DogField>();  //campi che referenziano questa tabella
             //--
@@ -552,6 +553,7 @@ namespace ErpToolkit.Helpers.Db
                         DogTable tab = new DogTable();
                         tab.tableName = objType.Name;
                         tab.tableTpy = objType;
+                        tab.tableModelErpObj = (ModelErp)Activator.CreateInstance(tab.tableTpy)!;
                         //--
                         tab.Description = objType.GetField("Description")?.GetRawConstantValue()?.ToString() ?? "";
                         tab.SqlTableName = objType.GetField("SqlTableName")?.GetRawConstantValue()?.ToString() ?? "";
@@ -648,6 +650,7 @@ namespace ErpToolkit.Helpers.Db
                             tab.tabXdata = new DogTable();
                             tab.tabXdata.tableName = typeof(ModelXdata).Name;
                             tab.tabXdata.tableTpy = typeof(ModelXdata);
+                            tab.tabXdata.tableModelErpObj = null;   // la tabella Xdata non ha un corrispondente ModelErp, ma viene gestita con un unico ModelXdata generico
                             tab.tabXdata.isXdataTable = true;
                             //--
                             tab.tabXdata.Description = "Dati estesi di: " + tab.Description;
@@ -1131,7 +1134,7 @@ namespace ErpToolkit.Helpers.Db
         public ModelErp? CleanCloneModelErp(ModelErp? source)
         {
             //return TruncateCloneModelErp(this, maxDepth: 0);
-            return DogManagerClone.TruncateCloneModelErp(this, source, maxDepth: 0);
+            return DogManagerClone.TruncateCloneModelErp(this, source, maxDepth: 1);
         }
 
 
@@ -1456,12 +1459,13 @@ namespace ErpToolkit.Helpers.Db
                 List<object> rowIdList = new List<object>();
                 foreach (var value in dict2.Values) { if (value.Xdata == null) { rowIdList.Add(value.getIcode()); value.Xdata = new Dictionary<object, ModelXdata>(); } }
                 DogTable tab = this._getDogTableException(modelType, "ExecuteQueryEx");
-                Dictionary<object, ModelXdata> xdataDict = ExecuteQueryXdataEx(null, tab, true, rowIdList, fmtList, transactionId, maxRecords, (long)0, options);  // NON LEGGO I BLOB
+                ModelErp[]? cloneRowRecList = dict2.Values?.Select(x => CleanCloneModelErp(x)).ToArray(); //clone dei recods di selezione
+                Dictionary<object, ModelXdata> xdataDict = ExecuteQueryXdataEx(null, tab, true, rowIdList, fmtList, transactionId, maxRecords, (long)0, cloneRowRecList, options);  // NON LEGGO I BLOB
                 foreach (var value in xdataDict.Values) { dict2[value.Mref].Xdata[value.Icode] = value; }
             }
             return dict2;
         }
-        public Dictionary<object, ModelXdata> ExecuteQueryXdataEx(Dictionary<object, ModelXdata>? dict, DogTable tab, bool isMrefRowIdList, List<object> rowIdList, List<string> fmtList, string? transactionId, int maxRecords, long maxBlobSize, string options = "")
+        public Dictionary<object, ModelXdata> ExecuteQueryXdataEx(Dictionary<object, ModelXdata>? dict, DogTable tab, bool isMrefRowIdList, List<object> rowIdList, List<string> fmtList, string? transactionId, int maxRecords, long maxBlobSize, ModelErp[]? cloneRowRecList, string options = "")
         {
             if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
@@ -1472,7 +1476,7 @@ namespace ErpToolkit.Helpers.Db
             if (fmtList == null) { fmtList = new List<string> { }; }
             DogField fldXref = tab.tabXdata.fldMref;  //DogField fldXref = tab.tabXdata.fldGetFirstByOption("[MREF]");
             IDictionary<string, object> xdataParameters = new Dictionary<string, object>();
-            string sqlXdata = DogManagerCache.sqlListEx(this, tab, ref xdataParameters, null, (isMrefRowIdList) ? fldXref : null, rowIdList, fmtList, true, options: options);
+            string sqlXdata = DogManagerCache.sqlListEx(this, tab, ref xdataParameters, null, (isMrefRowIdList) ? fldXref : null, rowIdList, fmtList, true, cloneRowRecList, options: options);
             if (options.Contains("[skipCheckSqlParms]") == false && (sqlXdata.Contains('\'') || sqlXdata.Contains('#') || sqlXdata.Contains("--"))) { throw new FormatException(nameof(sqlXdata)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return _getDbMg().ExecuteQueryXdata(null, sqlXdata, EncodeSpecialFields(xdataParameters, options), transactionId, maxRecords, maxBlobSize, options);  // NON LEGGO I BLOB
         }
@@ -1896,7 +1900,7 @@ namespace ErpToolkit.Helpers.Db
             }
 
             //string sql = DogManagerCache.sqlList(this, objModel, ref parameters, selModel, null, lstRowId, options);
-            string sql = DogManagerCache.sqlListEx(this, tab, ref parameters, selModel, null, lstRowId, null, false, options: options);
+            string sql = DogManagerCache.sqlListEx(this, tab, ref parameters, selModel, null, lstRowId, null, false, null, options: options);    //cloneRowRecList=null, perchè fldXref=null
 
             //init
             DogManagerCache.CacheFuncInit(this, ref dogCache, "List_int", 'R', tab.tableTpy, options: options); // Inizializzo la cache per il tipo di oggetto, in modo da poterla usare per le query successive.
@@ -1926,7 +1930,8 @@ namespace ErpToolkit.Helpers.Db
                     IDictionary<string, object> xrefFromParameters = new Dictionary<string, object>();
 
                     //string xrefFromSql = DogManagerCache.sqlList(this, xrefFromObj, ref xrefFromParameters, null, fld, outKeyList, options);
-                    string xrefFromSql = DogManagerCache.sqlListEx(this, fld?.table, ref xrefFromParameters, null, fld, outKeyList, null, false, options: options);
+                    ModelErp[]? cloneRowRecList = dogCache.GetDictionary(tab.tableTpy)?.Values?.Select(x => CleanCloneModelErp(x)).ToArray(); //clone dei recods di selezione
+                    string xrefFromSql = DogManagerCache.sqlListEx(this, fld?.table, ref xrefFromParameters, null, fld, outKeyList, null, false, cloneRowRecList, options: options);
 
 
                     //!!!//Dictionary<object, ModelErp> outDictFrom = this.ExecuteQuery(null, xrefFromType, xrefFromSql, xrefFromParameters, transactionId, maxRecords, options: options);
@@ -2124,7 +2129,7 @@ namespace ErpToolkit.Helpers.Db
 
                 //------------------------------------------------------------------------------------------------
                 //forza rilettura dei records modificati: devo rileggere anche i DELETED 
-                Dictionary<object, ModelXdata> dictXdata = ExecuteQueryXdataEx(null, tab, false, rowIdList, null, transactionId, (int)-1, (long)0, options: options + " [DELETED=Y]");  //non rileggo i BLOB, ma solo i campi necessari per recuperare il timestamp e verificare la validità del mantain
+                Dictionary<object, ModelXdata> dictXdata = ExecuteQueryXdataEx(null, tab, false, rowIdList, null, transactionId, (int)-1, (long)0, null, options: options + " [DELETED=Y]");  //cloneRowRecList=null, perchè isMrefRowIdList=false e quindi fldXref=null //non rileggo i BLOB, ma solo i campi necessari per recuperare il timestamp e verificare la validità del mantain
                 return rowIdList.Select(id => dictXdata[id]).ToList(); //restituisco i record modificati con i campi aggiornati (es: timestamp)
             }
             catch (DatabaseException dbEx)

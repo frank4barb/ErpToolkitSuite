@@ -7,6 +7,7 @@ using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
 using System.Threading.Tasks.Dataflow;
+using System.Collections.Generic;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -489,9 +490,9 @@ namespace ErpToolkit.Helpers.Db
         //crea WHERE per l'oggetto del modello 'objModel' in base all'icode
         internal static string sqlWhereListIcodeEx(DogTable tab, List<object> rowIdList, bool isXdata, ref IDictionary<string, object> parameters, string options = "")
         {
-            return sqlWhereListXrefEx(tab, null, rowIdList, null, isXdata, ref parameters, options);
+            return sqlWhereListXrefEx(tab, null, rowIdList, null, isXdata, ref parameters, null, options);
         }
-        internal static string sqlWhereListXrefEx(DogTable tab, DogField fldXref, List<object> rowIdList, List<string> lstFmt, bool isXdata, ref IDictionary<string, object> parameters, string options = "")
+        internal static string sqlWhereListXrefEx(DogTable tab, DogField fldXref, List<object> rowIdList, List<string> lstFmt, bool isXdata, ref IDictionary<string, object> parameters, ModelErp[]? cloneRowRecList, string options = "")
         {
             string sqlRowName = "", sqlDelField = ""; string sqlFmt = "", sqlDeleted = "";
             if (rowIdList == null) { throw new ArgumentNullException("DogManagerInt.sqlWhereListXref: Null " + nameof(rowIdList)); }
@@ -537,7 +538,16 @@ namespace ErpToolkit.Helpers.Db
                 if (sqlDelField != "") sqlDeleted = $"and {sqlDelField} = {DogManager.addParam("N", ref parameters)} ";      //__DELETED
             }
 
-            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) {sqlFmt} {sqlDeleted}";
+            // --- LOGICA EXTRA FILTERS TRAMITE INTERFACCIA ---
+            string sqlExtraRowName = (fldXref == null) ? sqlRowName : tab.tableModelErpObj.ExtraSqlWhereXrefFunction(sqlRowName, isXdata, ref parameters, options); // Esegue il metodo del Modello utente, aggiornando 'parameters' per riferimento
+            string sqlExtra = (fldXref == null) ? "" : tab.tableModelErpObj.ExtraSqlWhereFilter(fldXref, rowIdList, isXdata, ref parameters, cloneRowRecList, options); // Esegue il metodo del Modello utente, aggiornando 'parameters' per riferimento
+            if (!string.IsNullOrWhiteSpace(sqlExtra) && !sqlExtra.TrimStart().StartsWith("and", StringComparison.OrdinalIgnoreCase))
+            {
+                sqlExtra = "and " + sqlExtra.Trim(); // Sicurezza: assicura che ci sia uno spazio iniziale se il testo non è vuoto
+            }
+
+            // --- GENERAZIONE SQL DELLA WHERE ---
+            return $"where {sqlExtraRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) {sqlFmt} {sqlDeleted} {sqlExtra}";
         }
 
 

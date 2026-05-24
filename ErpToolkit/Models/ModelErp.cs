@@ -81,6 +81,14 @@ namespace ErpToolkit.Models {
             return "";
         }
 
+        public virtual string ExtraSqlWhereXrefFunction(string sqlRowName, bool isXdata, ref IDictionary<string, object> parameters, string options = "")
+        {
+            return sqlRowName;
+        }
+        public virtual string ExtraSqlWhereFilter(DogField fldXref, List<object> rowIdList, bool isXdata, ref IDictionary<string, object> parameters, ModelErp[] cloneRowRecList, string options = "")
+        {
+            return "";
+        }
 
     }
 }

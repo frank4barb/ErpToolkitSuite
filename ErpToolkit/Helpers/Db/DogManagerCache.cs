@@ -21,7 +21,7 @@ namespace ErpToolkit.Helpers.Db
         //******************************************************************************************************************
 
         //genera la query SQL per l'estrazione di una lista di oggetti, in base al parametro "objModel.ViewQueryFromWhere()"
-        internal static string sqlListEx(DogManager dogMng, DogTable tab, ref IDictionary<string, object> parameters, ModelErp selModel, DogField fldXref, List<object> lstRowId, List<string> lstFmt, bool isXdata, string options = "")
+        internal static string sqlListEx(DogManager dogMng, DogTable tab, ref IDictionary<string, object> parameters, ModelErp selModel, DogField fldXref, List<object> lstRowId, List<string> lstFmt, bool isXdata, ModelErp[]? cloneRowRecList, string options = "")
         {
             string sql = "";
             if (selModel == null && lstRowId == null) { throw new ArgumentNullException(nameof(selModel) + " - " + nameof(lstRowId)); }
@@ -29,17 +29,17 @@ namespace ErpToolkit.Helpers.Db
                 if (tab.tabXdata == null) throw new Exception($"sqlListEx: tab [{tab.tableTpy.FullName}] Xdata == null.");
                 if (selModel != null) { throw new ArgumentException("sqlListEx must be null when isXdata is true."); }
             }
-            ModelErp objModel = (ModelErp)Activator.CreateInstance(tab.tableTpy); // create an instance of that type
+            //ModelErp objModel = (ModelErp)Activator.CreateInstance(tab.tableTpy); // create an instance of that type
 
             StringBuilder sb = new StringBuilder();
             string sqlSelect = (isXdata) ? DogManagerQuery.sqlSelectXdataEx(tab.tabXdata, ref parameters) : DogManagerQuery.sqlSelectEx(tab, ref parameters);
-            string sqlFromWhere = (isXdata) ? objModel.ViewQueryXdataFromWhere() : objModel.ViewQueryFromWhere();
+            string sqlFromWhere = (isXdata) ? tab.tableModelErpObj.ViewQueryXdataFromWhere() : tab.tableModelErpObj.ViewQueryFromWhere();   //string sqlFromWhere = (isXdata) ? objModel.ViewQueryXdataFromWhere() : objModel.ViewQueryFromWhere();
             if (string.IsNullOrEmpty(sqlFromWhere))
             {
                 sb.Append(sqlSelect)
                     .Append(DogManagerQuery.sqlFromEx((isXdata) ? tab.tabXdata : tab, ref parameters));
                 if (selModel == null && fldXref == null) sb.Append(DogManagerQuery.sqlWhereListIcodeEx(tab, lstRowId, isXdata, ref parameters, options: options));  //lista icode
-                else if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXrefEx(tab, fldXref, lstRowId, lstFmt, isXdata, ref parameters, options: options));  //lista icode
+                else if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXrefEx(tab, fldXref, lstRowId, lstFmt, isXdata, ref parameters, cloneRowRecList, options: options));  //lista icode
                 else sb.Append(DogManagerQuery.sqlWhereSelection(dogMng, selModel, ref parameters, options: options));  //filtro parametri
                 sql = sb.ToString();
             }
@@ -50,7 +50,7 @@ namespace ErpToolkit.Helpers.Db
                     .Append(sqlFromWhere)
                     .Append(") AS subquery \n");
                 if (selModel == null && fldXref == null) sb.Append(DogManagerQuery.sqlWhereListIcodeEx(tab, lstRowId, isXdata, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
-                if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXrefEx(tab, fldXref, lstRowId, lstFmt, isXdata, ref parameters, options: "[UsePropertyNameField] " + options));  //lista icode
+                if (selModel == null) sb.Append(DogManagerQuery.sqlWhereListXrefEx(tab, fldXref, lstRowId, lstFmt, isXdata, ref parameters, cloneRowRecList, options: "[UsePropertyNameField] " + options));  //lista icode
                 else sb.Append(DogManagerQuery.sqlWhereSelection(dogMng, selModel, ref parameters, options: "[UsePropertyNameField] " + options)); // Componi il filtro dinamicamente
                 sql = DogManagerQuery.replaceSqlTextWithPlaceholders(sb.ToString(), ref parameters);  // elimino le stringhe esplicite dalla query
             }
@@ -165,7 +165,7 @@ namespace ErpToolkit.Helpers.Db
 
 
                     //string objSql = sqlList(dogMng, obj, ref objParameters, null, null, nullKeyList, options: options);
-                    string objSql = sqlListEx(dogMng, tab, ref objParameters, null, null, nullKeyList, null, false, options: options);
+                    string objSql = sqlListEx(dogMng, tab, ref objParameters, null, null, nullKeyList, null, false, null, options: options);    //cloneRowRecList=null, perchè fldXref=null
 
                     //dogCache.dbCache[objType] = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, "[PLAIN] " + options); // non ricorsivo ?????
                     //Dictionary<object, ModelErp> outDict = this.ExecuteQuery(dogCache.dbCache[objType], objType, objSql, objParameters, options);
