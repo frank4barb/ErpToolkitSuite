@@ -1426,7 +1426,7 @@ namespace ErpToolkit.Helpers.Db
             if (string.IsNullOrWhiteSpace(transactionId)) transactionId = null;
             if (maxRecords < 0) maxRecords = DOG_DEFAULT_QUERY_MAX_RECORDS;
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
-            if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException($"SQL: FormatException: {nameof(sql)}"); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return DecodeSpecialTable<T>(_getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
         }
         //public Dictionary<object, ModelErp> ExecuteQuery(Dictionary<object, ModelErp>? dict, System.Type modelType, string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options = "")
@@ -1452,7 +1452,7 @@ namespace ErpToolkit.Helpers.Db
             if (dict == null) dict = new Dictionary<object, ModelErp>();
             if (modelType == null) { throw new ArgumentNullException(nameof(modelType)); }
             if (sql == null) { throw new ArgumentNullException(nameof(sql)); }
-            if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException(nameof(sql)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (options.Contains("[skipCheckSqlParms]") == false && (sql.Contains('\'') || sql.Contains('#') || sql.Contains("--"))) { throw new FormatException($"SQL: FormatException: {nameof(sql)}"); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             Dictionary<object, ModelErp> dict2 = DecodeSpecialTable(dict, modelType, _getDbMg().ExecuteQuery(sql, EncodeSpecialFields(parameters, options), transactionId, maxRecords, options), options: options);
             if (fillXdata)  //riempo i dati estesi solo se richiesto, altrimenti lascio la proprietà Xdata a null. In ogni caso: NON CARICO IL CONTENUTO DEI BLOB (maxBlobSize = 0)
             {
@@ -1477,7 +1477,7 @@ namespace ErpToolkit.Helpers.Db
             DogField fldXref = tab.tabXdata.fldMref;  //DogField fldXref = tab.tabXdata.fldGetFirstByOption("[MREF]");
             IDictionary<string, object> xdataParameters = new Dictionary<string, object>();
             string sqlXdata = DogManagerCache.sqlListEx(this, tab, ref xdataParameters, null, (isMrefRowIdList) ? fldXref : null, rowIdList, fmtList, true, cloneRowRecList, options: options);
-            if (options.Contains("[skipCheckSqlParms]") == false && (sqlXdata.Contains('\'') || sqlXdata.Contains('#') || sqlXdata.Contains("--"))) { throw new FormatException(nameof(sqlXdata)); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            if (options.Contains("[skipCheckSqlParms]") == false && (sqlXdata.Contains('\'') || sqlXdata.Contains('#') || sqlXdata.Contains("--"))) { throw new FormatException($"SQL: FormatException: {nameof(sqlXdata)}"); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             return _getDbMg().ExecuteQueryXdata(null, sqlXdata, EncodeSpecialFields(xdataParameters, options), transactionId, maxRecords, maxBlobSize, options);  // NON LEGGO I BLOB
         }
 
