@@ -107,7 +107,21 @@ namespace ErpToolkit.Helpers
                     .Any(a => a.SqlFieldName == qlFieldNameAttributeValue)); 
             return property?.Name; // Ritorna il nome della proprietà (es. "SelPaadmDataDimissione") o null
         }
+        // Restituisce la lista dei nomi delle proprietà della classe che hanno l'attributo ErpDogFieldAttribute con Xref valorizzato (non vuoto)
+        public static List<string> getPropertiesWithXref(System.Type classType)
+        {
+            return classType.GetProperties()
+                .Where(p =>
+                {
+                    // Cerca l'attributo ErpDogField sulla proprietà
+                    var attr = p.GetCustomAttribute<ErpDogFieldAttribute>();
 
+                    // Verifica che l'attributo esista e che Xref non sia vuoto
+                    return attr != null && !string.IsNullOrWhiteSpace(attr.Xref);
+                })
+                .Select(p => p.Name) // Estrae il nome della proprietà
+                .ToList();
+        }
 
         //Cripta & Decripta -- Simple3Des
         private const string CRYP_KEY_STR = "&%£73Erp#$";
