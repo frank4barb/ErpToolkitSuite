@@ -3,17 +3,13 @@ using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MySqlX.XDevAPI.Common;
 using NLog;
-using NLog.Targets;
 using System.Buffers.Text;
 using System.ComponentModel.DataAnnotations;
 using System.DirectoryServices;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using static Google.Protobuf.Reflection.UninterpretedOption.Types;
-using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
 
 namespace ErpToolkit.Helpers
 {
@@ -100,6 +96,16 @@ namespace ErpToolkit.Helpers
             }
             return ret;
 
+        }
+        //Converti stringa NomeCampo in NomeProprieta, cercando il campo SQL nell'attributo ErpDogFieldAttribute delle proprietà della classe
+        public static string? sqlFieldName2PropertyName(System.Type classType, string qlFieldNameAttributeValue)
+        {
+            // Cerca la proprietà che ha l'attributo ErpDogField con il valore cercato
+            var property = classType.GetProperties()
+                .FirstOrDefault(p => p.GetCustomAttributes(typeof(ErpDogFieldAttribute), true)
+                    .Cast<ErpDogFieldAttribute>()
+                    .Any(a => a.SqlFieldName == qlFieldNameAttributeValue)); 
+            return property?.Name; // Ritorna il nome della proprietà (es. "SelPaadmDataDimissione") o null
         }
 
 

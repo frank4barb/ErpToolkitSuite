@@ -775,7 +775,7 @@ function etkHiddenVarsAppendValue(varTagHtmlName, varKey, value, createIfMissing
  */
 function etkHiddenVarsDeleteValue(varTagHtmlName, varKey, value) {
     if (value === null) { return; }
-    const trimmedValue = value.trim();
+    const trimmedValue = value.toString().trim();
     const valueList = etkHiddenVarsGet(varTagHtmlName, varKey);
     if (valueList !== null) {
         const values = valueList

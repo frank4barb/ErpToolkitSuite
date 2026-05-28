@@ -1930,7 +1930,11 @@ namespace ErpToolkit.Helpers.Db
                     IDictionary<string, object> xrefFromParameters = new Dictionary<string, object>();
 
                     //string xrefFromSql = DogManagerCache.sqlList(this, xrefFromObj, ref xrefFromParameters, null, fld, outKeyList, options);
-                    ModelErp[]? cloneRowRecList = dogCache.GetDictionary(tab.tableTpy)?.Values?.Select(x => CleanCloneModelErp(x)).ToArray(); //clone dei recods di selezione
+                    //---
+                    //ModelErp[]? cloneRowRecList = dogCache.GetDictionary(tab.tableTpy)?.Values?.Select(x => CleanCloneModelErp(x)).ToArray(); //clone dei recods di selezione
+                    DogCache localDogCache = dogCache;  // per evitare il problema della closure nella Select LINQ
+                    ModelErp[]? cloneRowRecList = outKeyList.Select(id => CleanCloneModelErp(localDogCache.GetObject(tab.tableTpy, id))).ToArray();  //clone dei recods di selezione: restituisco solo i record idividuati da outKeyList (ie: quelli estratti da DB) con i campi aggiornati (es: timestamp) e non tutti i record presenti in cache per quel tipo
+                    //---
                     string xrefFromSql = DogManagerCache.sqlListEx(this, fld?.table, ref xrefFromParameters, null, fld, outKeyList, null, false, cloneRowRecList, options: options);
 
 
