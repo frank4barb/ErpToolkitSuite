@@ -16,6 +16,8 @@ using System.Transactions;
 using Quartz.Util;
 using Amazon.SecurityToken.Model;
 using Org.BouncyCastle.Utilities;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace ErpToolkit.Helpers.Db
 {
@@ -895,26 +897,148 @@ namespace ErpToolkit.Helpers.Db
 
 
 
+        ////public DogManager.BlobStreamResult OpenBlobStream(string tableName, string keyField, object keyValue, string blobField, long startOffset)
+        ////{
+        ////    if (_transactionId != null) throw new InvalidOperationException($"OpenBlobStream: Lettura Blob in streaming durante transazione ({_transactionId}).");
+        ////    string sql = $"SELECT {blobField} FROM {tableName} WHERE {keyField} = @keyValue";
+        ////    Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
+        ////    IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+        ////    //--- Segnaleremo il completamento della query con questo handle
+        ////    ManualResetEventSlim done = null;
+        ////    if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+        ////    //---
+        ////    try
+        ////    {
+        ////        IDbCommand command = _database.NewCommand(sql, connection); // la transazione viene passate nel NewCommand
+        ////        command.CommandTimeout = 0;  // <-- 0 = nessun timeout lato ADO.NET per streaming
+        ////                                     //     il timeout lato applicazione va gestito separatamente
+        ////        string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+        ////        //--- Avvia audit cancellabile
+        ////        if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+        ////        //---
+        ////        //byte[] result = command.ExecuteScalar() as byte[];
+        ////        IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
+        ////        if (!reader.Read())
+        ////        {
+        ////            reader.Dispose(); command.Dispose(); connection.Dispose();
+        ////            throw new InvalidOperationException("Blob non trovato");
+        ////        }
+
+
+        ////        string blobMime = "";
+        ////        Stream blobStream = null;
+        ////        byte[] blobBytes = null;
+        ////        long blobSize = 0;
+
+        ////        const int DOCUMENT_SIZE = 1024 * 1024; // 1 MB
+        ////        const int BUFFER_SIZE = 4096;
+        ////        byte[] tempBuffer = new byte[BUFFER_SIZE];
+
+        ////        // 1. Leggiamo il primo chunk per capire Mime ed evitare il problema del doppio GetBytes
+        ////        long bytesRead = reader.GetBytes(0, 0, tempBuffer, 0, tempBuffer.Length);
+
+        ////        if (bytesRead == 0)
+        ////        {
+        ////            // Il BLOB è vuoto
+        ////            blobBytes = Array.Empty<byte>();
+        ////            blobMime = "application/octet-stream";
+        ////        }
+        ////        else
+        ////        {
+        ////            // Rileva il MIME direttamente dal primo frammento letto
+        ////            blobMime = UtilHelper.DetectMime(tempBuffer);
+
+        ////            // 2. Se il primo chunk indica che potremmo essere sotto il MB, proviamo a leggerlo interamente in un MemoryStream
+        ////            using (MemoryStream ms = new MemoryStream())
+        ////            {
+        ////                ms.Write(tempBuffer, 0, (int)bytesRead);
+        ////                long currentOffset = bytesRead;
+        ////                bool isLargeFile = false;
+
+        ////                while ((bytesRead = reader.GetBytes(0, currentOffset, tempBuffer, 0, tempBuffer.Length)) > 0)
+        ////                {
+        ////                    ms.Write(tempBuffer, 0, (int)bytesRead);
+        ////                    currentOffset += bytesRead;
+
+        ////                    if (currentOffset >= DOCUMENT_SIZE)
+        ////                    {
+        ////                        isLargeFile = true;
+        ////                        break; // Superata la soglia, passiamo alla modalità Stream progressivo
+        ////                    }
+        ////                }
+
+        ////                if (!isLargeFile)
+        ////                {
+        ////                    // FILE PICCOLO (< 1MB): Abbiamo già letto tutto nel MemoryStream
+        ////                    blobBytes = ms.ToArray();
+        ////                    blobSize = blobBytes.Length;
+
+        ////                    reader.Dispose();
+        ////                    command.Dispose();
+        ////                    if (EnableTraceTimeout) done?.Set();
+        ////                }
+        ////                else
+        ////                {
+        ////                    // FILE GRANDE (>= 1MB): Passiamo alla modalità streaming sequenziale avanzato
+        ////                    blobSize = currentOffset; // Dimensione parziale finora accertata (o stimata)    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        ////                    // Estrai l'header reale dai byte già letti per passarlo al costruttore dello stream custom
+        ////                    byte[] header = ms.ToArray();
+
+        ////                    // get Stream
+        ////                    //-------------
+        ////                    // NOTA: la successiva GetBytes all'interno del Task riprenderà da header.length invece che da 0, e che gestisca correttamente il fatto
+        ////                    // che i primi 'header.Length' byte sono già stati letti.
+        ////                    // passa reader, command e done al Task -> li chiude lui nel finally
+        ////                    blobStream = CreateUniversalBlobStream(reader, command, 0, header, startOffset,
+        ////                                    EnableTraceTimeout ? done : null); // passa done al Task
+        ////                                                                       // <-- NON chiamare done.Set() qui: lo fa il Task quando finisce
+        ////                                                                       // <-- NON fare Dispose di command/reader qui: lo fa il Task nel finally
+
+
+        ////                }
+        ////            }
+        ////        }
+
+        ////        return new DogManager.BlobStreamResult
+        ////        {
+        ////            Stream = blobStream,
+        ////            Bytes = blobBytes,
+        ////            ContentType = blobMime,
+        ////            Length = blobSize
+        ////        };
+        ////    }
+        ////    catch (Exception ex)
+        ////    {
+        ////        System.Console.WriteLine($@"DatabaseManager.OpenBlobStream: System.Exception: {ex.Message}");
+        ////        HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+        ////        throw; // Rethrow to ensure we do not swallow the exception
+        ////    }
+        ////}
+
+
         public DogManager.BlobStreamResult OpenBlobStream(string tableName, string keyField, object keyValue, string blobField, long startOffset)
         {
             if (_transactionId != null) throw new InvalidOperationException($"OpenBlobStream: Lettura Blob in streaming durante transazione ({_transactionId}).");
             string sql = $"SELECT {blobField} FROM {tableName} WHERE {keyField} = @keyValue";
             Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
+
             //--- Segnaleremo il completamento della query con questo handle
             ManualResetEventSlim done = null;
             if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
             //---
             try
             {
-                IDbCommand command = _database.NewCommand(sql, connection); // la transazione viene passate nel NewCommand
+                IDbCommand command = _database.NewCommand(sql, connection); // la transazione viene passata nel NewCommand
                 command.CommandTimeout = 0;  // <-- 0 = nessun timeout lato ADO.NET per streaming
                                              //     il timeout lato applicazione va gestito separatamente
                 string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+
                 //--- Avvia audit cancellabile
                 if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                 //---
-                //byte[] result = command.ExecuteScalar() as byte[];
+
                 IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
                 if (!reader.Read())
                 {
@@ -922,82 +1046,65 @@ namespace ErpToolkit.Helpers.Db
                     throw new InvalidOperationException("Blob non trovato");
                 }
 
-
                 string blobMime = "";
                 Stream blobStream = null;
                 byte[] blobBytes = null;
-                long blobSize = 0;
+                long blobSize = -1;
 
-                const int DOCUMENT_SIZE = 1024 * 1024; // 1 MB
-                const int BUFFER_SIZE = 4096;
-                byte[] tempBuffer = new byte[BUFFER_SIZE];
-
-                // 1. Leggiamo il primo chunk per capire Mime ed evitare il problema del doppio GetBytes
-                long bytesRead = reader.GetBytes(0, 0, tempBuffer, 0, tempBuffer.Length);
-
-                if (bytesRead == 0)
+                if (!reader.IsDBNull(0))
                 {
-                    // Il BLOB è vuoto
-                    blobBytes = Array.Empty<byte>();
-                    blobMime = "application/octet-stream";
+                    // 1. Ottieni la dimensione totale (Esattamente come nel tuo codice funzionante, colonna 0)
+                    blobSize = reader.GetBytes(0, 0, null, 0, 0);
+
+                    const int DOCUMENT_SIZE = 1024 * 1024;  // 1 Mb
+
+                    if (blobSize < DOCUMENT_SIZE)
+                    {
+                        // FILE PICCOLO: Carica tutto insieme
+                        blobBytes = new byte[blobSize];
+
+                        // Leggi immediatamente (Esattamente come nel codice funzionante)
+                        long bytesRead = reader.GetBytes(0, 0, blobBytes, 0, blobBytes.Length);
+                        if (bytesRead != blobBytes.Length) throw new InvalidOperationException("Lettura blob incompleta.");
+
+                        blobMime = UtilHelper.DetectMime(blobBytes);
+
+                        reader.Dispose();
+                        command.Dispose();
+                        if (EnableTraceTimeout) done.Set();  // <-- corretto: qui la lettura è davvero finita
+                    }
+                    else
+                    {
+                        // FILE GRANDE: Leggi solo i primi 16 byte per l'header/MIME
+                        const int HEADER_SIZE = 16;
+                        byte[] header = new byte[HEADER_SIZE];
+
+                        // IRIS avanza nel flusso. Leggiamo l'inizio.
+                        long headerBytesRead = reader.GetBytes(0, 0, header, 0, header.Length);
+                        blobMime = UtilHelper.DetectMime(header);
+
+                        // Passa i dati al Task. 
+                        // ATTENZIONE: Nel CreateUniversalBlobStream, la successiva chiamata GetBytes dentro il Task 
+                        // dovrà ripartire dall'offset corretto (es. 0 se il driver permette il reset, oppure 
+                        // dall'offset pari a 'headerBytesRead' se devi accodare i flussi).
+                        blobStream = CreateUniversalBlobStream(reader, command, 0, header, startOffset,
+                                        EnableTraceTimeout ? done : null); // passa done al Task
+                                                                           // <-- NON chiamare done.Set() qui: lo fa il Task quando finisce
+                                                                           // <-- NON fare Dispose di command/reader qui: lo fa il Task nel finally
+                    }
                 }
                 else
                 {
-                    // Rileva il MIME direttamente dal primo frammento letto
-                    blobMime = UtilHelper.DetectMime(tempBuffer);
-
-                    // 2. Se il primo chunk indica che potremmo essere sotto il MB, proviamo a leggerlo interamente in un MemoryStream
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        ms.Write(tempBuffer, 0, (int)bytesRead);
-                        long currentOffset = bytesRead;
-                        bool isLargeFile = false;
-
-                        while ((bytesRead = reader.GetBytes(0, currentOffset, tempBuffer, 0, tempBuffer.Length)) > 0)
-                        {
-                            ms.Write(tempBuffer, 0, (int)bytesRead);
-                            currentOffset += bytesRead;
-
-                            if (currentOffset >= DOCUMENT_SIZE)
-                            {
-                                isLargeFile = true;
-                                break; // Superata la soglia, passiamo alla modalità Stream progressivo
-                            }
-                        }
-
-                        if (!isLargeFile)
-                        {
-                            // FILE PICCOLO (< 1MB): Abbiamo già letto tutto nel MemoryStream
-                            blobBytes = ms.ToArray();
-                            blobSize = blobBytes.Length;
-
-                            reader.Dispose();
-                            command.Dispose();
-                            if (EnableTraceTimeout) done?.Set();
-                        }
-                        else
-                        {
-                            // FILE GRANDE (>= 1MB): Passiamo alla modalità streaming sequenziale avanzato
-                            blobSize = currentOffset; // Dimensione parziale finora accertata (o stimata)    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-                            // Estrai l'header reale dai byte già letti per passarlo al costruttore dello stream custom
-                            byte[] header = ms.ToArray();
-
-                            // get Stream
-                            //-------------
-                            // NOTA: la successiva GetBytes all'interno del Task riprenderà da header.length invece che da 0, e che gestisca correttamente il fatto
-                            // che i primi 'header.Length' byte sono già stati letti.
-                            // passa reader, command e done al Task -> li chiude lui nel finally
-                            blobStream = CreateUniversalBlobStream(reader, command, 0, header, startOffset,
-                                            EnableTraceTimeout ? done : null); // passa done al Task
-                                                                               // <-- NON chiamare done.Set() qui: lo fa il Task quando finisce
-                                                                               // <-- NON fare Dispose di command/reader qui: lo fa il Task nel finally
-
-
-                        }
-                    }
+                    // Gestione campo BLOB nullo nel database
+                    blobBytes = Array.Empty<byte>();
+                    blobMime = "application/octet-stream";
+                    blobSize = 0;
+                    reader.Dispose();
+                    command.Dispose();
+                    if (EnableTraceTimeout) done.Set();
                 }
 
+                //---
                 return new DogManager.BlobStreamResult
                 {
                     Stream = blobStream,
@@ -1013,8 +1120,6 @@ namespace ErpToolkit.Helpers.Db
                 throw; // Rethrow to ensure we do not swallow the exception
             }
         }
-
-
 
 
 
