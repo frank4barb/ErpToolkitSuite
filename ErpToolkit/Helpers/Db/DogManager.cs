@@ -1,6 +1,7 @@
 using Amazon.SecurityToken.Model;
 using DnsClient.Protocol;
 using ErpToolkit.Models;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.CodeAnalysis;
 using MongoDB.Driver;
 using System.ComponentModel;
@@ -1462,11 +1463,18 @@ namespace ErpToolkit.Helpers.Db
                 ModelErp[]? cloneRowRecList = dict2.Values?.Select(x => CleanCloneModelErp(x)).ToArray(); //clone dei recods di selezione
                 Dictionary<object, ModelXdata> xdataDict = ExecuteQueryXdataEx(null, tab, true, rowIdList, fmtList, transactionId, maxRecords, (long)0, cloneRowRecList, options);  // NON LEGGO I BLOB
                 //??//foreach (var value in xdataDict.Values) { dict2[value.Mref].Xdata[value.Icode] = value; }
-                System.Type keyType = (dict2.Keys.Count > 0) ? dict2.Keys.First()?.GetType() : null;    // 1. Ricava il tipo esatto della chiave di dict2
-                foreach (var value in xdataDict.Values) {
-                    object convertedKey = (keyType != null) ? Convert.ChangeType(value.Mref, keyType) : value.Mref;  // 2. Converte la stringa Mref nel tipo della chiave a runtime
-                    dict2[convertedKey].Xdata[value.Icode] = value; // 3. Usa la chiave convertita per accedere a dict2
-                }
+
+                //System.Type keyType = (dict2.Keys.Count > 0) ? dict2.Keys.First()?.GetType() : null;    // 1. Ricava il tipo esatto della chiave di dict2
+                //foreach (var value in xdataDict.Values) {
+                //    object convertedKey = (keyType != null) ? Convert.ChangeType(value.Mref, keyType) : value.Mref;  // 2. Converte la stringa Mref nel tipo della chiave a runtime
+                //    dict2[convertedKey].Xdata[value.Icode] = value; // 3. Usa la chiave convertita per accedere a dict2
+                //}
+
+                bool assignToLong = (dict2.Keys.Count > 0 && dict2.Keys.First()?.GetType() != null && typeof(long).IsAssignableFrom(dict2.Keys.First()?.GetType())) ? true : false;
+                if (assignToLong)   { foreach (var value in xdataDict.Values) { dict2[((IConvertible)value.Mref).ToInt64(null)].Xdata[value.Icode] = value; } }
+                else                { foreach (var value in xdataDict.Values) { dict2[value.Mref].Xdata[value.Icode] = value; } }
+
+
             }
             return dict2;
         }
