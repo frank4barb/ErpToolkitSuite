@@ -3,7 +3,9 @@ using DnsClient.Protocol;
 using ErpToolkit.Models;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Org.BouncyCastle.Utilities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -13,6 +15,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Transactions;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
 using static ErpToolkit.Helpers.ErpError;
@@ -1228,8 +1231,54 @@ namespace ErpToolkit.Helpers.Db
             if (string.IsNullOrWhiteSpace(tab.tabXdata.SqlTableName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataTableName is empty.");
             if (string.IsNullOrWhiteSpace(tab.tabXdata.fldIcode.SqlFieldName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataIcodeName is empty.");
             if (string.IsNullOrWhiteSpace(tab.tabXdata.fldXdatum.SqlFieldName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataXdatumName is empty.");
+
             //  Open Blob Stream
-            return _getDbMg().OpenBlobStream(tab.tabXdata.SqlTableName, tab.tabXdata.fldIcode.SqlFieldName, blobIcode, tab.tabXdata.fldXdatum.SqlFieldName, offset);
+
+
+
+            ////////return _getDbMg().OpenBlobStream(tab.tabXdata.SqlTableName, tab.tabXdata.fldIcode.SqlFieldName, blobIcode, tab.tabXdata.fldXdatum.SqlFieldName, offset);
+
+            const int DOCUMENT_SIZE = 1024 * 1024;  // 1 Mb
+
+            int maxRecords = 1;
+            long maxBlobSize = 50000;   //long maxBlobSize = DOCUMENT_SIZE;
+            string transactionId = null;
+            string options = " ";
+
+
+
+            List<object> rowIdList = new List<object> { blobIcode };
+            List<string> fmtList = new List<string> { };
+            DogField fldXref = tab.tabXdata.fldMref;  //DogField fldXref = tab.tabXdata.fldGetFirstByOption("[MREF]");
+            IDictionary<string, object> xdataParameters = new Dictionary<string, object>();
+            string sqlXdata = DogManagerCache.sqlListEx(this, tab, ref xdataParameters, null, null, rowIdList, fmtList, true, null, options: options);
+            if (options.Contains("[skipCheckSqlParms]") == false && (sqlXdata.Contains('\'') || sqlXdata.Contains('#') || sqlXdata.Contains("--"))) { throw new FormatException($"SQL: FormatException: {nameof(sqlXdata)}"); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
+            Dictionary<object, ModelXdata> ret = _getDbMg().ExecuteQueryXdata(null, sqlXdata, EncodeSpecialFields(xdataParameters, options), transactionId, maxRecords, maxBlobSize, options);  // NON LEGGO I BLOB
+
+            byte[] xdatum = ret.Values?.First()?.Xdatum;
+            string mime = ret.Values?.First()?._mimeXdatum ?? "application/octet-stream";
+            long size = ret.Values?.First()?._sizeXdatum ?? 0;
+
+            if (size <= maxBlobSize)
+            {
+                return new DogManager.BlobStreamResult
+                {
+                    Stream = null,
+                    Bytes = xdatum,
+                    ContentType = mime,
+                    Length = size
+                };
+            }
+
+            Stream stream = _getDbMg().OpenBlobStream2(tab.tabXdata.SqlTableName, tab.tabXdata.fldIcode.SqlFieldName, blobIcode, tab.tabXdata.fldXdatum.SqlFieldName, offset);
+            return new DogManager.BlobStreamResult
+            {
+                Stream = stream,
+                Bytes = null,
+                ContentType = mime,
+                Length = size
+            };
+
         }
 
         //-----------------------------------------------------------------------------------------------

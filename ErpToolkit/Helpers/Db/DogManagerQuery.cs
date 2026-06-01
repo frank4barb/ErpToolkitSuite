@@ -537,7 +537,7 @@ namespace ErpToolkit.Helpers.Db
             }
 
             // --- LOGICA EXTRA FILTERS TRAMITE INTERFACCIA ---
-            string sqlExtraRowName = (fldXref == null) ? sqlRowName : tab.tableModelErpObj.ExtraSqlWhereXrefFunction(sqlRowName, isXdata, ref parameters, options); // Esegue il metodo del Modello utente, aggiornando 'parameters' per riferimento
+            ////////string sqlExtraRowName = (fldXref == null) ? sqlRowName : tab.tableModelErpObj.ExtraSqlWhereXrefFunction(sqlRowName, isXdata, ref parameters, options); // Esegue il metodo del Modello utente, aggiornando 'parameters' per riferimento
             string sqlExtra = (fldXref == null) ? "" : tab.tableModelErpObj.ExtraSqlWhereFilter(fldXref, rowIdList, isXdata, ref parameters, cloneRowRecList, options); // Esegue il metodo del Modello utente, aggiornando 'parameters' per riferimento
             if (!string.IsNullOrWhiteSpace(sqlExtra) && !sqlExtra.TrimStart().StartsWith("and", StringComparison.OrdinalIgnoreCase))
             {
@@ -545,7 +545,8 @@ namespace ErpToolkit.Helpers.Db
             }
 
             // --- GENERAZIONE SQL DELLA WHERE ---
-            return $"where {sqlExtraRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) {sqlFmt} {sqlDeleted} {sqlExtra}";
+            ////////return $"where {sqlExtraRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) {sqlFmt} {sqlDeleted} {sqlExtra}";
+            return $"where {sqlRowName} in ({string.Join(", ", DogManager.addListParam(rowIdList, ref parameters))}) {sqlFmt} {sqlDeleted} {sqlExtra}";
         }
 
 

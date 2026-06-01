@@ -1020,8 +1020,8 @@ namespace ErpToolkit.Helpers.Db
         public DogManager.BlobStreamResult OpenBlobStream(string tableName, string keyField, object keyValue, string blobField, long startOffset)
         {
             if (_transactionId != null) throw new InvalidOperationException($"OpenBlobStream: Lettura Blob in streaming durante transazione ({_transactionId}).");
-            string sql = $"SELECT {blobField} FROM {tableName} WHERE {keyField} = @keyValue";
-            Dictionary<string, object> parameters = new Dictionary<string, object> { { "keyValue", keyValue } };
+            IDictionary<string, object> parameters = new Dictionary<string, object>();
+            string sql = $"SELECT {DogManager.addParam("XXX", ref parameters)} as Icode, {blobField} as Xdatum FROM {tableName} WHERE {keyField} = {DogManager.addParam(keyValue, ref parameters)}";
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
 
             //--- Segnaleremo il completamento della query con questo handle
@@ -1039,32 +1039,35 @@ namespace ErpToolkit.Helpers.Db
                 if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                 //---
 
-                IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
+                //IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
+                IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess); // la connessione viene chiusa a fine lettura streaming
                 if (!reader.Read())
                 {
                     reader.Dispose(); command.Dispose(); connection.Dispose();
                     throw new InvalidOperationException("Blob non trovato");
                 }
 
+                object? icode = reader.IsDBNull(0) ? null : reader.GetValue(0); if (icode is string icodeStr) icode = icodeStr.TrimEnd(); // trim solo per stringhe, non per altri tipi (es. numerici o guid)
+
+
                 string blobMime = "";
                 Stream blobStream = null;
                 byte[] blobBytes = null;
                 long blobSize = -1;
 
-                if (!reader.IsDBNull(0))
+                if (!reader.IsDBNull(1))
                 {
                     // 1. Ottieni la dimensione totale (Esattamente come nel tuo codice funzionante, colonna 0)
-                    blobSize = reader.GetBytes(0, 0, null, 0, 0);
-
+                    blobSize = reader.GetBytes(1, 0, null, 0, 0);
+                    
                     const int DOCUMENT_SIZE = 1024 * 1024;  // 1 Mb
 
                     if (blobSize < DOCUMENT_SIZE)
                     {
                         // FILE PICCOLO: Carica tutto insieme
                         blobBytes = new byte[blobSize];
-
                         // Leggi immediatamente (Esattamente come nel codice funzionante)
-                        long bytesRead = reader.GetBytes(0, 0, blobBytes, 0, blobBytes.Length);
+                        long bytesRead = reader.GetBytes(1, 0, blobBytes, 0, blobBytes.Length);
                         if (bytesRead != blobBytes.Length) throw new InvalidOperationException("Lettura blob incompleta.");
 
                         blobMime = UtilHelper.DetectMime(blobBytes);
@@ -1080,14 +1083,14 @@ namespace ErpToolkit.Helpers.Db
                         byte[] header = new byte[HEADER_SIZE];
 
                         // IRIS avanza nel flusso. Leggiamo l'inizio.
-                        long headerBytesRead = reader.GetBytes(0, 0, header, 0, header.Length);
+                        long headerBytesRead = reader.GetBytes(1, 0, header, 0, header.Length);
                         blobMime = UtilHelper.DetectMime(header);
 
                         // Passa i dati al Task. 
                         // ATTENZIONE: Nel CreateUniversalBlobStream, la successiva chiamata GetBytes dentro il Task 
                         // dovrà ripartire dall'offset corretto (es. 0 se il driver permette il reset, oppure 
                         // dall'offset pari a 'headerBytesRead' se devi accodare i flussi).
-                        blobStream = CreateUniversalBlobStream(reader, command, 0, header, startOffset,
+                        blobStream = CreateUniversalBlobStream(reader, command, connection, 1, header, startOffset,
                                         EnableTraceTimeout ? done : null); // passa done al Task
                                                                            // <-- NON chiamare done.Set() qui: lo fa il Task quando finisce
                                                                            // <-- NON fare Dispose di command/reader qui: lo fa il Task nel finally
@@ -1121,7 +1124,59 @@ namespace ErpToolkit.Helpers.Db
             }
         }
 
+        // --- FIX 1: OpenBlobStream2 - versione semplificata che restituisce solo lo Stream (non bytes, mime, size) --------
+        public Stream OpenBlobStream2(string tableName, string keyField, object keyValue, string blobField, long startOffset)
+        {
+            Stream blobStream = null;
+            if (_transactionId != null) throw new InvalidOperationException($"OpenBlobStream: Lettura Blob in streaming durante transazione ({_transactionId}).");
+            IDictionary<string, object> parameters = new Dictionary<string, object>();
+            string sql = $"SELECT {blobField} as Xdatum FROM {tableName} WHERE {keyField} = {DogManager.addParam(keyValue, ref parameters)}";
+            IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
 
+            //--- Segnaleremo il completamento della query con questo handle
+            ManualResetEventSlim done = null;
+            if (EnableTraceTimeout) done = new ManualResetEventSlim(false);
+            //---
+            try
+            {
+                IDbCommand command = _database.NewCommand(sql, connection); // la transazione viene passata nel NewCommand
+                command.CommandTimeout = 0;  // <-- 0 = nessun timeout lato ADO.NET per streaming
+                                             //     il timeout lato applicazione va gestito separatamente
+                string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
+
+                //--- Avvia audit cancellabile
+                if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+                //---
+
+                //??//IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection); // la connessione viene chiusa a fine lettura streaming
+                IDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess); 
+                if (!reader.Read())
+                {
+                    reader.Dispose(); command.Dispose(); connection.Dispose();
+                    if (EnableTraceTimeout) done.Set();
+                    throw new InvalidOperationException("Blob non trovato");
+                }
+
+                byte[] header = new byte[0];
+
+                // Passa i dati al Task. 
+                // ATTENZIONE: Nel CreateUniversalBlobStream, la successiva chiamata GetBytes dentro il Task 
+                // dovrà ripartire dall'offset corretto (es. 0 se il driver permette il reset, oppure 
+                // dall'offset pari a 'headerBytesRead' se devi accodare i flussi).
+                blobStream = CreateUniversalBlobStream(reader, command, connection, 0, header, startOffset,
+                                EnableTraceTimeout ? done : null); // passa done al Task
+                                                                   // <-- NON chiamare done.Set() qui: lo fa il Task quando finisce
+                                                                   // <-- NON fare Dispose di command/reader qui: lo fa il Task nel finally
+                //---
+                return blobStream;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($@"DatabaseManager.OpenBlobStream: System.Exception: {ex.Message}");
+                HandleException(ex, ERR_DB_ERROR, "Database operation failed.");
+                throw; // Rethrow to ensure we do not swallow the exception
+            }
+        }
 
 
         //private static Stream CreateUniversalBlobStream(IDataReader reader, int blobOrdinal, byte[] header, long startOffset)
@@ -1162,7 +1217,7 @@ namespace ErpToolkit.Helpers.Db
         //}
         //--- FIX 2 + 3: CreateUniversalBlobStream -- riceve command e done --------
         private static Stream CreateUniversalBlobStream(
-            IDataReader reader, IDbCommand command,
+            IDataReader reader, IDbCommand command, IDbConnection connection,
             int blobOrdinal, byte[] header, long startOffset,
             ManualResetEventSlim? done)          // <-- nuovo parametro
         {
@@ -1198,6 +1253,10 @@ namespace ErpToolkit.Helpers.Db
                     done?.Set();        // <-- segnala audit solo quando lo streaming è davvero finito
                     reader.Dispose();   // <-- chiude reader e connessione (CloseConnection)
                     command.Dispose();  // <-- chiude il command solo dopo la lettura completa
+
+                    // Chiudi esplicitamente la connessione, compatibile con tutti i DBMS
+                    try { connection.Close(); } catch { }
+                    try { connection.Dispose(); } catch { }
                 }
             });
             return stream;
