@@ -11,13 +11,13 @@ namespace HealthDemo.Models.SIO.HealthData {
 public class ParametroVitale : ModelErp {
 public const string Description = "Dati sanitari - Parametri vitali";
 public const string SqlTableName = "PARAMETRO_VITALE";
-public const string SqlTableNameExt = "PARAMETRO_VITALE";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Pv1Icode";
 public const string SqlRowIdName = "PV__ICODE";
-public const string SqlRowIdNameExt = "PV__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "PV_";
-public const string SqlPrefixExt = "PV_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "PV_XDATA";
 public const string SqlXdataIcodeName = "PV_X__ICODE";
 public const string SqlXdataDeletedName = "PV_X__DELETED";
@@ -40,7 +40,7 @@ public const string SqlXdataDescrName = "PV_X__DESCR";
 public const string SqlXdataFmtName = "PV_X__FMT";
 public const string SqlXdataXdurlName = "PV_X__XDURL";
 public const string SqlXdataXdatumName = "PV_X__XDATUM";
-public const string SqlXdataTableNameExt = "PV_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
@@ -59,90 +59,90 @@ public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(P
 public Dictionary<string, HealthDemo.Models.SIO.HealthData.RelPrestazioneDatoClinico>? XrefPdIdDatoClinico { get; set; } = null;
 [Key]
 [Display(Name = "Pv1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("PV__ICODE", SqlFieldNameExt="PV__ICODE", SqlFieldOptions="[SID] [LABEL]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__ICODE", SqlFieldNameExt="", SqlFieldOptions="[SID] [LABEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Icode { get; set; }
 [Display(Name = "Pv1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("PV__DELETED", SqlFieldNameExt="PV__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__DELETED", SqlFieldNameExt="", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Pv1Deleted { get; set; }
 [Display(Name = "Pv1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("PV__TIMESTAMP", SqlFieldNameExt="PV__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__TIMESTAMP", SqlFieldNameExt="", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Pv1Timestamp { get; set; }
 [Display(Name = "Pv1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("PV__CDATE", SqlFieldNameExt="PV__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__CDATE", SqlFieldNameExt="", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Pv1Cdate { get; set; }
 [Display(Name = "Pv1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("PV__CTIME", SqlFieldNameExt="PV__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__CTIME", SqlFieldNameExt="", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Pv1Ctime { get; set; }
 [Display(Name = "Pv1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("PV__CAGENT", SqlFieldNameExt="PV__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__CAGENT", SqlFieldNameExt="", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Cagent { get; set; }
 [Display(Name = "Pv1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("PV__CUNIT", SqlFieldNameExt="PV__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__CUNIT", SqlFieldNameExt="", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Cunit { get; set; }
 [Display(Name = "Pv1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("PV__MDATE", SqlFieldNameExt="PV__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__MDATE", SqlFieldNameExt="", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Pv1Mdate { get; set; }
 [Display(Name = "Pv1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("PV__MTIME", SqlFieldNameExt="PV__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__MTIME", SqlFieldNameExt="", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Pv1Mtime { get; set; }
 [Display(Name = "Pv1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("PV__MAGENT", SqlFieldNameExt="PV__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__MAGENT", SqlFieldNameExt="", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Magent { get; set; }
 [Display(Name = "Pv1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("PV__MUNIT", SqlFieldNameExt="PV__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__MUNIT", SqlFieldNameExt="", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Munit { get; set; }
 [Display(Name = "Pv1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("PV__HOME", SqlFieldNameExt="PV__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__HOME", SqlFieldNameExt="", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Home { get; set; }
 [Display(Name = "Pv1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("PV__VERSION", SqlFieldNameExt="PV__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__VERSION", SqlFieldNameExt="", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pv1Version { get; set; }
 [Display(Name = "Pv1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("PV__INACTIVE", SqlFieldNameExt="PV__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__INACTIVE", SqlFieldNameExt="", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Pv1Inactive { get; set; }
 [Display(Name = "Pv1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("PV__EXTATT", SqlFieldNameExt="PV__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
+[ErpDogField("PV__EXTATT", SqlFieldNameExt="", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Pv1Extatt { get; set; }
 
 
 [Display(Name = "Classe", ShortName="", Description = "Classe del dato sanitario: 1 - Parametri vitali", Prompt="")]
-[ErpDogField("PV_CLASSE", SqlFieldNameExt="PV_CLASSE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_CLASSE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("1")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 [DataType(DataType.Text)]
 public string? PvClasse  { get; set; }
 
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente a cui si riferisce il dato sanitario", Prompt="")]
-[ErpDogField("PV_ID_PAZIENTE", SqlFieldNameExt="PV_ID_PAZIENTE", SqlFieldOptions="[MANDATORY]", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
+[ErpDogField("PV_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
 [DataType(DataType.Text)]
@@ -150,14 +150,14 @@ public string? PvIdPaziente  { get; set; }
 public HealthDemo.Models.SIO.Patient.Paziente? PvIdPazienteObj  { get; set; }
 
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto a cui si riferisce il Dato Sanitario", Prompt="")]
-[ErpDogField("PV_ID_EPISODIO", SqlFieldNameExt="PV_ID_EPISODIO", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
+[ErpDogField("PV_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
 [DataType(DataType.Text)]
 public string? PvIdEpisodio  { get; set; }
 public HealthDemo.Models.SIO.Patient.Episodio? PvIdEpisodioObj  { get; set; }
 
 [Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
-[ErpDogField("PV_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="PV_ID_TIPO_DATO_CLINICO", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
+[ErpDogField("PV_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
@@ -165,85 +165,85 @@ public string? PvIdTipoDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.TipoDatoClinico? PvIdTipoDatoClinicoObj  { get; set; }
 
 [Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Classe del tipo di dati sanitari", Prompt="")]
-[ErpDogField("PV_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="PV_ID_GRUPPO_DATO_CLINICO", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[PARAMETRO_VITALE.PV_ID_TIPO_DATO_CLINICO]) multbxref()")]
+[ErpDogField("PV_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[PARAMETRO_VITALE.PV_ID_TIPO_DATO_CLINICO]) multbxref()")]
 [AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
 public string? PvIdGruppoDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.CategoriaDatoClinico? PvIdGruppoDatoClinicoObj  { get; set; }
 
 [Display(Name = "Valore Minimo", ShortName="", Description = "Valori numerici minimi (se applicabile)", Prompt="")]
-[ErpDogField("PV_VALORE_MINIMO", SqlFieldNameExt="PV_VALORE_MINIMO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_VALORE_MINIMO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public double? PvValoreMinimo  { get; set; }
 
 [Display(Name = "Valore Massimo", ShortName="", Description = "Valori numerici massimi (se applicabile)", Prompt="")]
-[ErpDogField("PV_VALORE_MASSIMO", SqlFieldNameExt="PV_VALORE_MASSIMO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_VALORE_MASSIMO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public double? PvValoreMassimo  { get; set; }
 
 [Display(Name = "Valore Scelta", ShortName="", Description = "Valore carattere (se applicabile, in base al tipo di risultato)", Prompt="")]
-[ErpDogField("PV_VALORE_SCELTA", SqlFieldNameExt="PV_VALORE_SCELTA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_VALORE_SCELTA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(80, ErrorMessage = "Inserire massimo 80 caratteri")]
 [DataType(DataType.Text)]
 public string? PvValoreScelta  { get; set; }
 
 [Display(Name = "Valore Testo", ShortName="", Description = "Valore testuale, se applicabile in base al tipo di dato", Prompt="")]
-[ErpDogField("PV_VALORE_TESTO", SqlFieldNameExt="PV_VALORE_TESTO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_VALORE_TESTO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(4000, ErrorMessage = "Inserire massimo 4000 caratteri")]
 [DataType(DataType.Text)]
 public string? PvValoreTesto  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note (se applicabile, in base al tipo di risultato)", Prompt="")]
-[ErpDogField("PV_NOTE", SqlFieldNameExt="PV_NOTE", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_NOTE", SqlFieldNameExt="", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(80, ErrorMessage = "Inserire massimo 80 caratteri")]
 [DataType(DataType.Text)]
 public string? PvNote  { get; set; }
 
 [Display(Name = "Codice Referto", ShortName="", Description = "Criterio di codifica/unità di misura adottato (se applicabile)", Prompt="")]
-[ErpDogField("PV_CODICE_REFERTO", SqlFieldNameExt="PV_CODICE_REFERTO", SqlFieldOptions="[XID]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_CODICE_REFERTO", SqlFieldNameExt="", SqlFieldOptions="[XID]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? PvCodiceReferto  { get; set; }
 
 [Display(Name = "Data Acquisizione", ShortName="", Description = "Data di acquisizione del dato sanitario", Prompt="")]
-[ErpDogField("PV_DATA_ACQUISIZIONE", SqlFieldNameExt="PV_DATA_ACQUISIZIONE", SqlFieldOptions="[DATE]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_DATA_ACQUISIZIONE", SqlFieldNameExt="", SqlFieldOptions="[DATE]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("    /  /  ")]
 [DataType(DataType.Date)]
 [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 public DateOnly? PvDataAcquisizione  { get; set; }
 
 [Display(Name = "Ora Acquisizione", ShortName="", Description = "Ora di acquisizione del dato sanitario", Prompt="")]
-[ErpDogField("PV_ORA_ACQUISIZIONE", SqlFieldNameExt="PV_ORA_ACQUISIZIONE", SqlFieldOptions="[TIME]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_ORA_ACQUISIZIONE", SqlFieldNameExt="", SqlFieldOptions="[TIME]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [DataType(DataType.Time)]
 [DisplayFormat(DataFormatString = "{0:HH:mm}", ApplyFormatInEditMode = true)]
 public TimeOnly? PvOraAcquisizione  { get; set; }
 
 [Display(Name = "Stato Dato Clinico", ShortName="", Description = "Stato del dato: P[reliminare] - C[onfermato] - A[nnullato]", Prompt="")]
-[ErpDogField("PV_STATO_DATO_CLINICO", SqlFieldNameExt="PV_STATO_DATO_CLINICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_STATO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("P")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 [MultipleChoices(new[] { "P", "C", "A" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PvStatoDatoClinico  { get; set; }
 
 [Display(Name = "Data Validazione", ShortName="", Description = "Data di convalida del dato sanitario", Prompt="")]
-[ErpDogField("PV_DATA_VALIDAZIONE", SqlFieldNameExt="PV_DATA_VALIDAZIONE", SqlFieldOptions="[DATE]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_DATA_VALIDAZIONE", SqlFieldNameExt="", SqlFieldOptions="[DATE]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("    /  /  ")]
 [DataType(DataType.Date)]
 [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 public DateOnly? PvDataValidazione  { get; set; }
 
 [Display(Name = "Ora Validazione", ShortName="", Description = "Ora di convalida del dato sanitario", Prompt="")]
-[ErpDogField("PV_ORA_VALIDAZIONE", SqlFieldNameExt="PV_ORA_VALIDAZIONE", SqlFieldOptions="[TIME]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_ORA_VALIDAZIONE", SqlFieldNameExt="", SqlFieldOptions="[TIME]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [DataType(DataType.Time)]
 [DisplayFormat(DataFormatString = "{0:HH:mm}", ApplyFormatInEditMode = true)]
 public TimeOnly? PvOraValidazione  { get; set; }
 
 [Display(Name = "Sequenza", ShortName="", Description = "Numero di sequenza del dato nel rapporto originale", Prompt="")]
-[ErpDogField("PV_SEQUENZA", SqlFieldNameExt="PV_SEQUENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PV_SEQUENZA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public short? PvSequenza  { get; set; }
 
 public override bool TryValidateInt(ModelStateDictionary modelState, string? prefix = null) 

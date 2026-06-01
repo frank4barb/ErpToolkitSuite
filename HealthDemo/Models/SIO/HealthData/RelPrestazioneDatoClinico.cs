@@ -11,13 +11,13 @@ namespace HealthDemo.Models.SIO.HealthData {
 public class RelPrestazioneDatoClinico : ModelErp {
 public const string Description = "Dettaglio delle relazioni tra prestazioni e dati sanitari (generazione, utilizzo)";
 public const string SqlTableName = "REL_PRESTAZIONE_DATO_CLINICO";
-public const string SqlTableNameExt = "REL_PRESTAZIONE_DATO_CLINICO";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Pd1Icode";
 public const string SqlRowIdName = "PD__ICODE";
-public const string SqlRowIdNameExt = "PD__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "PD_";
-public const string SqlPrefixExt = "PD_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "PD_XDATA";
 public const string SqlXdataIcodeName = "PD_X__ICODE";
 public const string SqlXdataDeletedName = "PD_X__DELETED";
@@ -40,7 +40,7 @@ public const string SqlXdataDescrName = "PD_X__DESCR";
 public const string SqlXdataFmtName = "PD_X__FMT";
 public const string SqlXdataXdurlName = "PD_X__XDURL";
 public const string SqlXdataXdatumName = "PD_X__XDATUM";
-public const string SqlXdataTableNameExt = "PD_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
@@ -55,83 +55,83 @@ public override string labelHtml() { return $@""; }
 
 [Key]
 [Display(Name = "Pd1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("PD__ICODE", SqlFieldNameExt="PD__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__ICODE", SqlFieldNameExt="", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Icode { get; set; }
 [Display(Name = "Pd1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("PD__DELETED", SqlFieldNameExt="PD__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__DELETED", SqlFieldNameExt="", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Pd1Deleted { get; set; }
 [Display(Name = "Pd1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("PD__TIMESTAMP", SqlFieldNameExt="PD__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__TIMESTAMP", SqlFieldNameExt="", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Pd1Timestamp { get; set; }
 [Display(Name = "Pd1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("PD__CDATE", SqlFieldNameExt="PD__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__CDATE", SqlFieldNameExt="", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Pd1Cdate { get; set; }
 [Display(Name = "Pd1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("PD__CTIME", SqlFieldNameExt="PD__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__CTIME", SqlFieldNameExt="", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Pd1Ctime { get; set; }
 [Display(Name = "Pd1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("PD__CAGENT", SqlFieldNameExt="PD__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__CAGENT", SqlFieldNameExt="", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Cagent { get; set; }
 [Display(Name = "Pd1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("PD__CUNIT", SqlFieldNameExt="PD__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__CUNIT", SqlFieldNameExt="", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Cunit { get; set; }
 [Display(Name = "Pd1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("PD__MDATE", SqlFieldNameExt="PD__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__MDATE", SqlFieldNameExt="", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Pd1Mdate { get; set; }
 [Display(Name = "Pd1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("PD__MTIME", SqlFieldNameExt="PD__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__MTIME", SqlFieldNameExt="", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Pd1Mtime { get; set; }
 [Display(Name = "Pd1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("PD__MAGENT", SqlFieldNameExt="PD__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__MAGENT", SqlFieldNameExt="", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Magent { get; set; }
 [Display(Name = "Pd1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("PD__MUNIT", SqlFieldNameExt="PD__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__MUNIT", SqlFieldNameExt="", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Munit { get; set; }
 [Display(Name = "Pd1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("PD__HOME", SqlFieldNameExt="PD__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__HOME", SqlFieldNameExt="", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Home { get; set; }
 [Display(Name = "Pd1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("PD__VERSION", SqlFieldNameExt="PD__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__VERSION", SqlFieldNameExt="", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Pd1Version { get; set; }
 [Display(Name = "Pd1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("PD__INACTIVE", SqlFieldNameExt="PD__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__INACTIVE", SqlFieldNameExt="", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Pd1Inactive { get; set; }
 [Display(Name = "Pd1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("PD__EXTATT", SqlFieldNameExt="PD__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
+[ErpDogField("PD__EXTATT", SqlFieldNameExt="", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Pd1Extatt { get; set; }
 
 
 [Display(Name = "Classe Dato Clinico", ShortName="", Description = "Partizione del singolo dato sanitario", Prompt="")]
-[ErpDogField("PD_CLASSE_DATO_CLINICO", SqlFieldNameExt="PD_CLASSE_DATO_CLINICO", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PD_CLASSE_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
@@ -139,50 +139,50 @@ public string? Pd1Extatt { get; set; }
 public string? PdClasseDatoClinico  { get; set; }
 
 [Display(Name = "Id Dato Clinico", ShortName="", Description = "Identificativo del singolo dato sanitario", Prompt="")]
-[ErpDogField("PD_ID_DATO_CLINICO_1", SqlFieldNameExt="PD_ID_DATO_CLINICO_1", SqlFieldOptions="[MANDATORY]", Xref="Pv1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
+[ErpDogField("PD_ID_DATO_CLINICO_1", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pv1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
 [DataType(DataType.Text)]
 public string? PdIdDatoClinico1  { get; set; }
 public HealthDemo.Models.SIO.HealthData.ParametroVitale? PdIdDatoClinico1Obj  { get; set; }
 
 [Display(Name = "Id Dato Clinico", ShortName="", Description = "Identificativo del singolo dato sanitario", Prompt="")]
-[ErpDogField("PD_ID_DATO_CLINICO_2", SqlFieldNameExt="PD_ID_DATO_CLINICO_2", SqlFieldOptions="[MANDATORY]", Xref="Re1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
+[ErpDogField("PD_ID_DATO_CLINICO_2", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Re1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
 [DataType(DataType.Text)]
 public string? PdIdDatoClinico2  { get; set; }
 public HealthDemo.Models.SIO.HealthData.RisultatoEsame? PdIdDatoClinico2Obj  { get; set; }
 
 [Display(Name = "Id Dato Clinico", ShortName="", Description = "Identificativo del singolo dato sanitario", Prompt="")]
-[ErpDogField("PD_ID_DATO_CLINICO_3", SqlFieldNameExt="PD_ID_DATO_CLINICO_3", SqlFieldOptions="[MANDATORY]", Xref="Ss1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
+[ErpDogField("PD_ID_DATO_CLINICO_3", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ss1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
 [DataType(DataType.Text)]
 public string? PdIdDatoClinico3  { get; set; }
 public HealthDemo.Models.SIO.HealthData.StatoSalute? PdIdDatoClinico3Obj  { get; set; }
 
 [Display(Name = "Id Dato Clinico", ShortName="", Description = "Identificativo del singolo dato sanitario", Prompt="")]
-[ErpDogField("PD_ID_DATO_CLINICO_4", SqlFieldNameExt="PD_ID_DATO_CLINICO_4", SqlFieldOptions="[MANDATORY]", Xref="Dc1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
+[ErpDogField("PD_ID_DATO_CLINICO_4", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Dc1Icode", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
 [DataType(DataType.Text)]
 public string? PdIdDatoClinico4  { get; set; }
 public HealthDemo.Models.SIO.HealthData.DocumentoClinico? PdIdDatoClinico4Obj  { get; set; }
 
 [Display(Name = "Id Dato Clinico", ShortName="", Description = "Identificativo del singolo dato sanitario", Prompt="")]
-[ErpDogField("PD_ID_DATO_CLINICO", SqlFieldNameExt="PD_ID_DATO_CLINICO", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
+[ErpDogField("PD_ID_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref(PARAMETRO_VITALE.PV__ICODE{PD_CLASSE_DATO_CLINICO='1'} | RISULTATO_ESAME.RE__ICODE{PD_CLASSE_DATO_CLINICO='2'} | STATO_SALUTE.SS__ICODE{PD_CLASSE_DATO_CLINICO='3'} | DOCUMENTO_CLINICO.DC__ICODE{PD_CLASSE_DATO_CLINICO= '4'}) xdup() multbxref(PD_CLASSE_DATO_CLINICO)")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 public string? PdIdDatoClinico  { get; set; }
 
 [Display(Name = "Id Prestazione", ShortName="", Description = "Identificativo dell'atto", Prompt="")]
-[ErpDogField("PD_ID_PRESTAZIONE", SqlFieldNameExt="PD_ID_PRESTAZIONE", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
+[ErpDogField("PD_ID_PRESTAZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
 [AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
 [DataType(DataType.Text)]
 public string? PdIdPrestazione  { get; set; }
 public HealthDemo.Models.SIO.Act.Prestazione? PdIdPrestazioneObj  { get; set; }
 
 [Display(Name = "Tipo Relazione", ShortName="", Description = "Il Dato Sanitario è [G]enerato dall'atto - [R]ilevante per l'esecuzione", Prompt="")]
-[ErpDogField("PD_TIPO_RELAZIONE", SqlFieldNameExt="PD_TIPO_RELAZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PD_TIPO_RELAZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("R")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 [MultipleChoices(new[] { "R", "G" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? PdTipoRelazione  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Ulteriori note testuali, relative al collegamento specifico", Prompt="")]
-[ErpDogField("PD_NOTE", SqlFieldNameExt="PD_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("PD_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(40, ErrorMessage = "Inserire massimo 40 caratteri")]
 [DataType(DataType.Text)]

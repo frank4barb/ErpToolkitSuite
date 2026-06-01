@@ -11,13 +11,13 @@ namespace HealthDemo.Models.SIO.Patient {
 public class Distretto : ModelErp {
 public const string Description = "Distretto territoriale (circoscrizione)";
 public const string SqlTableName = "DISTRETTO";
-public const string SqlTableNameExt = "DISTRETTO";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Di1Icode";
 public const string SqlRowIdName = "DI__ICODE";
-public const string SqlRowIdNameExt = "DI__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "DI_";
-public const string SqlPrefixExt = "DI_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "DI_XDATA";
 public const string SqlXdataIcodeName = "DI_X__ICODE";
 public const string SqlXdataDeletedName = "DI_X__DELETED";
@@ -40,7 +40,7 @@ public const string SqlXdataDescrName = "DI_X__DESCR";
 public const string SqlXdataFmtName = "DI_X__FMT";
 public const string SqlXdataXdurlName = "DI_X__XDURL";
 public const string SqlXdataXdatumName = "DI_X__XDATUM";
-public const string SqlXdataTableNameExt = "DI_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
@@ -63,104 +63,104 @@ public Dictionary<string, HealthDemo.Models.SIO.Patient.Paziente>? XrefPaIdDistr
 public Dictionary<string, HealthDemo.Models.SIO.Patient.Paziente>? XrefPaIdDistrettoDom { get; set; } = null;
 [Key]
 [Display(Name = "Di1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("DI__ICODE", SqlFieldNameExt="DI__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__ICODE", SqlFieldNameExt="", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Icode { get; set; }
 [Display(Name = "Di1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("DI__DELETED", SqlFieldNameExt="DI__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__DELETED", SqlFieldNameExt="", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Di1Deleted { get; set; }
 [Display(Name = "Di1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("DI__TIMESTAMP", SqlFieldNameExt="DI__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__TIMESTAMP", SqlFieldNameExt="", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Di1Timestamp { get; set; }
 [Display(Name = "Di1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("DI__CDATE", SqlFieldNameExt="DI__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__CDATE", SqlFieldNameExt="", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Di1Cdate { get; set; }
 [Display(Name = "Di1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("DI__CTIME", SqlFieldNameExt="DI__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__CTIME", SqlFieldNameExt="", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Di1Ctime { get; set; }
 [Display(Name = "Di1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("DI__CAGENT", SqlFieldNameExt="DI__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__CAGENT", SqlFieldNameExt="", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Cagent { get; set; }
 [Display(Name = "Di1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("DI__CUNIT", SqlFieldNameExt="DI__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__CUNIT", SqlFieldNameExt="", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Cunit { get; set; }
 [Display(Name = "Di1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("DI__MDATE", SqlFieldNameExt="DI__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__MDATE", SqlFieldNameExt="", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Di1Mdate { get; set; }
 [Display(Name = "Di1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("DI__MTIME", SqlFieldNameExt="DI__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__MTIME", SqlFieldNameExt="", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Di1Mtime { get; set; }
 [Display(Name = "Di1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("DI__MAGENT", SqlFieldNameExt="DI__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__MAGENT", SqlFieldNameExt="", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Magent { get; set; }
 [Display(Name = "Di1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("DI__MUNIT", SqlFieldNameExt="DI__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__MUNIT", SqlFieldNameExt="", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Munit { get; set; }
 [Display(Name = "Di1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("DI__HOME", SqlFieldNameExt="DI__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__HOME", SqlFieldNameExt="", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Home { get; set; }
 [Display(Name = "Di1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("DI__VERSION", SqlFieldNameExt="DI__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__VERSION", SqlFieldNameExt="", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Di1Version { get; set; }
 [Display(Name = "Di1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("DI__INACTIVE", SqlFieldNameExt="DI__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__INACTIVE", SqlFieldNameExt="", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Di1Inactive { get; set; }
 [Display(Name = "Di1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("DI__EXTATT", SqlFieldNameExt="DI__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
+[ErpDogField("DI__EXTATT", SqlFieldNameExt="", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Di1Extatt { get; set; }
 
 
 [Display(Name = "Codice", ShortName="", Description = "Codice utente del distretto (CAP)", Prompt="")]
-[ErpDogField("DI_CODICE", SqlFieldNameExt="DI_CODICE", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(DISTRETTO.DI__ICODE[DI__ICODE] {DI_CODICE=' '}) multbxref()")]
+[ErpDogField("DI_CODICE", SqlFieldNameExt="", SqlFieldOptions="[UID] [LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup(DISTRETTO.DI__ICODE[DI__ICODE] {DI_CODICE=' '}) multbxref()")]
 [DefaultValue("")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? DiCodice  { get; set; }
 
 [Display(Name = "Nome", ShortName="", Description = "Descrizione estesa del distretto", Prompt="")]
-[ErpDogField("DI_NOME", SqlFieldNameExt="DI_NOME", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("DI_NOME", SqlFieldNameExt="", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(50, ErrorMessage = "Inserire massimo 50 caratteri")]
 [DataType(DataType.Text)]
 public string? DiNome  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note sul distretto", Prompt="")]
-[ErpDogField("DI_NOTE", SqlFieldNameExt="DI_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("DI_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(120, ErrorMessage = "Inserire massimo 120 caratteri")]
 [DataType(DataType.Text)]
 public string? DiNote  { get; set; }
 
 [Display(Name = "Id Comune", ShortName="", Description = "Città in cui si trova il distretto", Prompt="")]
-[ErpDogField("DI_ID_COMUNE", SqlFieldNameExt="DI_ID_COMUNE", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
+[ErpDogField("DI_ID_COMUNE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
 [AutocompleteClient("Comune", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
 public string? DiIdComune  { get; set; }

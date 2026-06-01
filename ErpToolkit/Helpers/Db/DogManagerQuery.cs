@@ -362,8 +362,8 @@ namespace ErpToolkit.Helpers.Db
         internal static string sqlFromEx(DogTable tab, ref IDictionary<string, object> parameters)
         {
             //recupero nome tabella
-            var sqlTableNameExt = tab.SqlTableNameExt?.Trim() ?? "";
-            return $"from {sqlTableNameExt} \n";
+            var sqlTableName = tab.SqlTableName?.Trim() ?? "";
+            return $"from {sqlTableName} \n";
         }
         //crea WHERE per l'oggetto del modello 'objModel' in base all'oggetto di selezione 'selModel'
         internal static string sqlWhereSelection(DogManager dogMng, ModelErp selModel, ref IDictionary<string, object> parameters, string options = "")
@@ -615,7 +615,7 @@ namespace ErpToolkit.Helpers.Db
             //gestione action
             char? action = tabModel.action;  //può assumere solo A[dd], M[odify], D[elete], R[ead]
             if (action == null || "AMD".Contains((char)action) == false) throw new Exception($"sqlMantain: Classe {tabModel.GetType()} wrong action[{action}].");
-            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableNameExt} ("); } else { sb.AppendLine($"update {tab.SqlTableNameExt} set "); }  //            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableNameExt} ("); sbValues.AppendLine("("); } else { sb.AppendLine($"update {tab.SqlTableNameExt} set "); }
+            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableName} ("); } else { sb.AppendLine($"update {tab.SqlTableName} set "); }  //            if (action == 'A') { sb.AppendLine($"insert into {tab.SqlTableNameExt} ("); sbValues.AppendLine("("); } else { sb.AppendLine($"update {tab.SqlTableNameExt} set "); }
 
             if (action != 'D')
             {

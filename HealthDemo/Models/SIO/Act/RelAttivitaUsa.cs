@@ -11,13 +11,13 @@ namespace HealthDemo.Models.SIO.Act {
 public class RelAttivitaUsa : ModelErp {
 public const string Description = "Tipi e/o risorse individuali generalmente necessari per l'esecuzione di un'attività";
 public const string SqlTableName = "REL_ATTIVITA_USA";
-public const string SqlTableNameExt = "REL_ATTIVITA_USA";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Au1Icode";
 public const string SqlRowIdName = "AU__ICODE";
-public const string SqlRowIdNameExt = "AU__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "AU_";
-public const string SqlPrefixExt = "AU_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "AU_XDATA";
 public const string SqlXdataIcodeName = "AU_X__ICODE";
 public const string SqlXdataDeletedName = "AU_X__DELETED";
@@ -40,7 +40,7 @@ public const string SqlXdataDescrName = "AU_X__DESCR";
 public const string SqlXdataFmtName = "AU_X__FMT";
 public const string SqlXdataXdurlName = "AU_X__XDURL";
 public const string SqlXdataXdatumName = "AU_X__XDATUM";
-public const string SqlXdataTableNameExt = "AU_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
@@ -59,83 +59,83 @@ public override string labelHtml() { return $@""; }
 public Dictionary<string, HealthDemo.Models.SIO.Act.RelAttivitaUsa>? XrefAuIdGruppo { get; set; } = null;
 [Key]
 [Display(Name = "Au1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("AU__ICODE", SqlFieldNameExt="AU__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__ICODE", SqlFieldNameExt="", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Icode { get; set; }
 [Display(Name = "Au1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("AU__DELETED", SqlFieldNameExt="AU__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__DELETED", SqlFieldNameExt="", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Au1Deleted { get; set; }
 [Display(Name = "Au1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("AU__TIMESTAMP", SqlFieldNameExt="AU__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__TIMESTAMP", SqlFieldNameExt="", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Au1Timestamp { get; set; }
 [Display(Name = "Au1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("AU__CDATE", SqlFieldNameExt="AU__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__CDATE", SqlFieldNameExt="", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Au1Cdate { get; set; }
 [Display(Name = "Au1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("AU__CTIME", SqlFieldNameExt="AU__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__CTIME", SqlFieldNameExt="", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Au1Ctime { get; set; }
 [Display(Name = "Au1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("AU__CAGENT", SqlFieldNameExt="AU__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__CAGENT", SqlFieldNameExt="", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Cagent { get; set; }
 [Display(Name = "Au1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("AU__CUNIT", SqlFieldNameExt="AU__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__CUNIT", SqlFieldNameExt="", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Cunit { get; set; }
 [Display(Name = "Au1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("AU__MDATE", SqlFieldNameExt="AU__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__MDATE", SqlFieldNameExt="", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Au1Mdate { get; set; }
 [Display(Name = "Au1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("AU__MTIME", SqlFieldNameExt="AU__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__MTIME", SqlFieldNameExt="", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Au1Mtime { get; set; }
 [Display(Name = "Au1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("AU__MAGENT", SqlFieldNameExt="AU__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__MAGENT", SqlFieldNameExt="", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Magent { get; set; }
 [Display(Name = "Au1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("AU__MUNIT", SqlFieldNameExt="AU__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__MUNIT", SqlFieldNameExt="", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Munit { get; set; }
 [Display(Name = "Au1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("AU__HOME", SqlFieldNameExt="AU__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__HOME", SqlFieldNameExt="", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Home { get; set; }
 [Display(Name = "Au1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("AU__VERSION", SqlFieldNameExt="AU__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__VERSION", SqlFieldNameExt="", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Au1Version { get; set; }
 [Display(Name = "Au1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("AU__INACTIVE", SqlFieldNameExt="AU__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__INACTIVE", SqlFieldNameExt="", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Au1Inactive { get; set; }
 [Display(Name = "Au1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("AU__EXTATT", SqlFieldNameExt="AU__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
+[ErpDogField("AU__EXTATT", SqlFieldNameExt="", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Au1Extatt { get; set; }
 
 
 [Display(Name = "Id Attivita", ShortName="", Description = "Codice del tipo di attività", Prompt="")]
-[ErpDogField("AU_ID_ATTIVITA", SqlFieldNameExt="AU_ID_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
+[ErpDogField("AU_ID_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
@@ -143,7 +143,7 @@ public string? AuIdAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AuIdAttivitaObj  { get; set; }
 
 [Display(Name = "Classe Risorsa", ShortName="", Description = "Classe di risorsa: E[quipments] (Attrezzature) - L[ocations] (Luoghi) - S[taff] (Personale) - M[aterial] (Materiali) - B[ed] (Letti)", Prompt="")]
-[ErpDogField("AU_CLASSE_RISORSA", SqlFieldNameExt="AU_CLASSE_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA]) multbxref()")]
+[ErpDogField("AU_CLASSE_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS_CLASSE_RISORSA[REL_ATTIVITA_USA.AU_ID_TIPO_RISORSA]) multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [DefaultValue(" ")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
@@ -151,7 +151,7 @@ public HealthDemo.Models.SIO.Act.Attivita? AuIdAttivitaObj  { get; set; }
 public string? AuClasseRisorsa  { get; set; }
 
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di risorsa", Prompt="")]
-[ErpDogField("AU_ID_TIPO_RISORSA", SqlFieldNameExt="AU_ID_TIPO_RISORSA", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
+[ErpDogField("AU_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
@@ -159,78 +159,78 @@ public string? AuIdTipoRisorsa  { get; set; }
 public HealthDemo.Models.SIO.Resource.TipoRisorsa? AuIdTipoRisorsaObj  { get; set; }
 
 [Display(Name = "Id Risorsa", ShortName="", Description = "Codice della risorsa individuale", Prompt="")]
-[ErpDogField("AU_ID_RISORSA_S", SqlFieldNameExt="AU_ID_RISORSA_S", SqlFieldOptions="", Xref="Pe1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
+[ErpDogField("AU_ID_RISORSA_S", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pe1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
 [DataType(DataType.Text)]
 public string? AuIdRisorsaS  { get; set; }
 public HealthDemo.Models.SIO.Resource.Personale? AuIdRisorsaSObj  { get; set; }
 
 [Display(Name = "Id Risorsa", ShortName="", Description = "Codice della risorsa individuale", Prompt="")]
-[ErpDogField("AU_ID_RISORSA_M", SqlFieldNameExt="AU_ID_RISORSA_M", SqlFieldOptions="", Xref="Mt1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
+[ErpDogField("AU_ID_RISORSA_M", SqlFieldNameExt="", SqlFieldOptions="", Xref="Mt1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
 [DataType(DataType.Text)]
 public string? AuIdRisorsaM  { get; set; }
 public HealthDemo.Models.SIO.Resource.Materiale? AuIdRisorsaMObj  { get; set; }
 
 [Display(Name = "Id Risorsa", ShortName="", Description = "Codice della risorsa individuale", Prompt="")]
-[ErpDogField("AU_ID_RISORSA_E", SqlFieldNameExt="AU_ID_RISORSA_E", SqlFieldOptions="", Xref="At1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
+[ErpDogField("AU_ID_RISORSA_E", SqlFieldNameExt="", SqlFieldOptions="", Xref="At1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
 [DataType(DataType.Text)]
 public string? AuIdRisorsaE  { get; set; }
 public HealthDemo.Models.SIO.Resource.Attrezzatura? AuIdRisorsaEObj  { get; set; }
 
 [Display(Name = "Id Risorsa", ShortName="", Description = "Codice della risorsa individuale", Prompt="")]
-[ErpDogField("AU_ID_RISORSA_L", SqlFieldNameExt="AU_ID_RISORSA_L", SqlFieldOptions="", Xref="Sa1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
+[ErpDogField("AU_ID_RISORSA_L", SqlFieldNameExt="", SqlFieldOptions="", Xref="Sa1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
 [DataType(DataType.Text)]
 public string? AuIdRisorsaL  { get; set; }
 public HealthDemo.Models.SIO.Resource.Sala? AuIdRisorsaLObj  { get; set; }
 
 [Display(Name = "Id Risorsa", ShortName="", Description = "Codice della risorsa individuale", Prompt="")]
-[ErpDogField("AU_ID_RISORSA_D", SqlFieldNameExt="AU_ID_RISORSA_D", SqlFieldOptions="", Xref="Fm1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
+[ErpDogField("AU_ID_RISORSA_D", SqlFieldNameExt="", SqlFieldOptions="", Xref="Fm1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
 [DataType(DataType.Text)]
 public string? AuIdRisorsaD  { get; set; }
 public HealthDemo.Models.SIO.Resource.Farmaco? AuIdRisorsaDObj  { get; set; }
 
 [Display(Name = "Id Risorsa", ShortName="", Description = "Codice della risorsa individuale", Prompt="")]
-[ErpDogField("AU_ID_RISORSA", SqlFieldNameExt="AU_ID_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
+[ErpDogField("AU_ID_RISORSA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE{AU_CLASSE_RISORSA='S'} | MATERIALE.MT__ICODE{AU_CLASSE_RISORSA='M'} | ATTREZZATURA.AT__ICODE{AU_CLASSE_RISORSA='E'} | SALA.SA__ICODE{AU_CLASSE_RISORSA='L'} | FARMACO.FM__ICODE{AU_CLASSE_RISORSA='D'}) xdup() multbxref(AU_CLASSE_RISORSA)")]
 public string? AuIdRisorsa  { get; set; }
 
 [Display(Name = "Sequenza", ShortName="", Description = "Numero di sequenza della relazione", Prompt="")]
-[ErpDogField("AU_SEQUENZA", SqlFieldNameExt="AU_SEQUENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_SEQUENZA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public short? AuSequenza  { get; set; }
 
 [Display(Name = "Quantita Media Usata", ShortName="", Description = "Quantità media utilizzata", Prompt="")]
-[ErpDogField("AU_QUANTITA_MEDIA_USATA", SqlFieldNameExt="AU_QUANTITA_MEDIA_USATA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_QUANTITA_MEDIA_USATA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public double? AuQuantitaMediaUsata  { get; set; }
 
 [Display(Name = "Quantita Extra", ShortName="", Description = "Quantità extra da considerare", Prompt="")]
-[ErpDogField("AU_QUANTITA_EXTRA", SqlFieldNameExt="AU_QUANTITA_EXTRA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_QUANTITA_EXTRA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public double? AuQuantitaExtra  { get; set; }
 
 [Display(Name = "Unita Di Misura", ShortName="", Description = "Unità di misura", Prompt="")]
-[ErpDogField("AU_UNITA_DI_MISURA", SqlFieldNameExt="AU_UNITA_DI_MISURA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_UNITA_DI_MISURA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 [DataType(DataType.Text)]
 public string? AuUnitaDiMisura  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note brevi", Prompt="")]
-[ErpDogField("AU_NOTE", SqlFieldNameExt="AU_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(80, ErrorMessage = "Inserire massimo 80 caratteri")]
 [DataType(DataType.Text)]
 public string? AuNote  { get; set; }
 
 [Display(Name = "Costo Medio", ShortName="", Description = "Costo medio di tale utilizzo", Prompt="")]
-[ErpDogField("AU_COSTO_MEDIO", SqlFieldNameExt="AU_COSTO_MEDIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_COSTO_MEDIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 public double? AuCostoMedio  { get; set; }
 
 [Display(Name = "Descrizione Risorsa Usata", ShortName="", Description = "Descrizione testuale delle risorse utilizzate", Prompt="")]
-[ErpDogField("AU_DESCRIZIONE_RISORSA_USATA", SqlFieldNameExt="AU_DESCRIZIONE_RISORSA_USATA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AU_DESCRIZIONE_RISORSA_USATA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(120, ErrorMessage = "Inserire massimo 120 caratteri")]
 [DataType(DataType.Text)]
 public string? AuDescrizioneRisorsaUsata  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Identificatore dell'istanza per la quale questa specifica rappresenta un'opzione (se applicabile)", Prompt="")]
-[ErpDogField("AU_ID_GRUPPO", SqlFieldNameExt="AU_ID_GRUPPO", SqlFieldOptions="", Xref="Au1Icode", SqlFieldProperties="prop() xref(REL_ATTIVITA_USA.AU__ICODE) xdup() multbxref()")]
+[ErpDogField("AU_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Au1Icode", SqlFieldProperties="prop() xref(REL_ATTIVITA_USA.AU__ICODE) xdup() multbxref()")]
 [AutocompleteClient("RelAttivitaUsa", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
 public string? AuIdGruppo  { get; set; }

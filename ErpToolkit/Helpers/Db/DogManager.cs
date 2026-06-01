@@ -1233,20 +1233,12 @@ namespace ErpToolkit.Helpers.Db
             if (string.IsNullOrWhiteSpace(tab.tabXdata.fldXdatum.SqlFieldName)) throw new Exception($"OpenBlobStream: tab [{tab.tableTpy.FullName}] SqlXdataXdatumName is empty.");
 
             //  Open Blob Stream
-
-
-
             ////////return _getDbMg().OpenBlobStream(tab.tabXdata.SqlTableName, tab.tabXdata.fldIcode.SqlFieldName, blobIcode, tab.tabXdata.fldXdatum.SqlFieldName, offset);
 
+            // Leggo direttamente il blob in memoria, con dimesione di soglia. Se il blob è superiore alla soglia allora riapro in modalità stream. In questo modo evito di aprire stream per leggere blob piccoli e riduco il numero di connessioni aperte al DB.
             const int DOCUMENT_SIZE = 1024 * 1024;  // 1 Mb
-
-            int maxRecords = 1;
-            long maxBlobSize = 50000;   //long maxBlobSize = DOCUMENT_SIZE;
-            string transactionId = null;
-            string options = " ";
-
-
-
+            string transactionId = null; int maxRecords = 1; long maxBlobSize = DOCUMENT_SIZE; string options = " ";
+            //--
             List<object> rowIdList = new List<object> { blobIcode };
             List<string> fmtList = new List<string> { };
             DogField fldXref = tab.tabXdata.fldMref;  //DogField fldXref = tab.tabXdata.fldGetFirstByOption("[MREF]");
@@ -1254,11 +1246,10 @@ namespace ErpToolkit.Helpers.Db
             string sqlXdata = DogManagerCache.sqlListEx(this, tab, ref xdataParameters, null, null, rowIdList, fmtList, true, null, options: options);
             if (options.Contains("[skipCheckSqlParms]") == false && (sqlXdata.Contains('\'') || sqlXdata.Contains('#') || sqlXdata.Contains("--"))) { throw new FormatException($"SQL: FormatException: {nameof(sqlXdata)}"); }  // Non devo passare i parametri esplicitamente ma sempre attraverso il Dictionary parameters 
             Dictionary<object, ModelXdata> ret = _getDbMg().ExecuteQueryXdata(null, sqlXdata, EncodeSpecialFields(xdataParameters, options), transactionId, maxRecords, maxBlobSize, options);  // NON LEGGO I BLOB
-
             byte[] xdatum = ret.Values?.First()?.Xdatum;
             string mime = ret.Values?.First()?._mimeXdatum ?? "application/octet-stream";
             long size = ret.Values?.First()?._sizeXdatum ?? 0;
-
+            //-- Se il blob è inferiore alla soglia restituisco i byte direttamente in memoria, altrimenti apro lo stream
             if (size <= maxBlobSize)
             {
                 return new DogManager.BlobStreamResult
@@ -1269,7 +1260,6 @@ namespace ErpToolkit.Helpers.Db
                     Length = size
                 };
             }
-
             Stream stream = _getDbMg().OpenBlobStream2(tab.tabXdata.SqlTableName, tab.tabXdata.fldIcode.SqlFieldName, blobIcode, tab.tabXdata.fldXdatum.SqlFieldName, offset);
             return new DogManager.BlobStreamResult
             {

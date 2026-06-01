@@ -11,15 +11,15 @@ namespace HealthDemo.Models.SIO.Resource {
 public class SelTipoRisorsa : ModelErp {
 public const string Description = "Tipi di risorse disponibili/utilizzate nell'organizzazione sanitaria";
 public const string SqlTableName = "TIPO_RISORSA";
-public const string SqlTableNameExt = "TIPO_RISORSA";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Ts1Icode";
 public const string SqlRowIdName = "TS__ICODE";
-public const string SqlRowIdNameExt = "TS__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "TS_";
-public const string SqlPrefixExt = "TS_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "TS_XDATA";
-public const string SqlXdataTableNameExt = "TS_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "SEL"; //Data Model Name of the Class
 public const int INTCODE = 20; //Internal Table Code
@@ -41,36 +41,36 @@ public override string labelHtml() { return $""; }
 //2136-2134//[N] TIPO_RISORSA.TS_ID_GRUPPO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("TS_CODICE", SqlFieldNameExt="TS_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS__ICODE[TS__ICODE] {TS_CODICE=' '}) multbxref()")]
+[ErpDogField("TS_CODICE", SqlFieldNameExt="", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_RISORSA.TS__ICODE[TS__ICODE] {TS_CODICE=' '}) multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTsCodice  { get; set; }
 
 [Display(Name = "Classe Risorsa", ShortName="", Description = "Classe: E[quipments] - L[ocations] - S[taff] - M[aterial] - [G]eneric", Prompt="")]
-[ErpDogField("TS_CLASSE_RISORSA", SqlFieldNameExt="TS_CLASSE_RISORSA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TS_CLASSE_RISORSA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("M")]
 [MultipleChoices(new[] { "E", "L", "M", "D", "S", "G" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelTsClasseRisorsa  { get; set; } = new List<string>();
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del super-tipo di risorsa (cioè l'aggregazione nella gerarchia), se presente", Prompt="")]
-[ErpDogField("TS_ID_GRUPPO", SqlFieldNameExt="TS_ID_GRUPPO", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
+[ErpDogField("TS_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelTsIdGruppo  { get; set; } = new List<string>();
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("TS_DESCRIZIONE", SqlFieldNameExt="TS_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TS_DESCRIZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTsDescrizione  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note", Prompt="")]
-[ErpDogField("TS_NOTE", SqlFieldNameExt="TS_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TS_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTsNote  { get; set; }
 
 [Display(Name = "Unita Di Misura", ShortName="", Description = "Unità di misura", Prompt="")]
-[ErpDogField("TS_UNITA_DI_MISURA", SqlFieldNameExt="TS_UNITA_DI_MISURA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TS_UNITA_DI_MISURA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTsUnitaDiMisura  { get; set; }
 
@@ -79,13 +79,17 @@ public override bool TryValidateInt(ModelStateDictionary modelState, string? pre
         bool isValidate = true; 
         // verifica se almeno un campo indicizzato è valorizzato (test per validazioni complesse del modello) 
         bool found = false; 
+        foreach (var prop in UtilHelper.getPropertiesWithXref(this.GetType())) { 
+            if (DogManager.getPropertyValue(this, prop.Trim()) != null) found = true; 
+            if (DogManager.getPropertyValue(this, prop.Trim() + "[0]") != null) found = true; 
+        } 
         foreach (var idx in ListIndexes()) { 
             string fldLst = idx.Split("|")[2]; 
             foreach (var fld in fldLst.Split(",")) { 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim())) != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + "[0]") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".StartDate") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".EndDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim())) != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + "[0]") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".StartDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".EndDate") != null) found = true; 
             } 
         } 
         if (!found) { isValidate = false;  modelState.AddModelError(prefix ?? string.Empty, "Deve essere compilato almeno un campo indicizzato."); } 

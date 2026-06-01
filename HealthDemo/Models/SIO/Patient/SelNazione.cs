@@ -11,15 +11,15 @@ namespace HealthDemo.Models.SIO.Patient {
 public class SelNazione : ModelErp {
 public const string Description = "Nazioni";
 public const string SqlTableName = "NAZIONE";
-public const string SqlTableNameExt = "NAZIONE";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Nz1Icode";
 public const string SqlRowIdName = "NZ__ICODE";
-public const string SqlRowIdNameExt = "NZ__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "NZ_";
-public const string SqlPrefixExt = "NZ_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "NZ_XDATA";
-public const string SqlXdataTableNameExt = "NZ_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "SEL"; //Data Model Name of the Class
 public const int INTCODE = 58; //Internal Table Code
@@ -37,22 +37,22 @@ public override string labelHtml() { return $""; }
 //1355-1286//[N] PAZIENTE.PA_ID_NAZIONE_RES
 
 [Display(Name = "Codice", ShortName="", Description = "Codice ufficiale (esterno) del paese", Prompt="")]
-[ErpDogField("NZ_CODICE", SqlFieldNameExt="NZ_CODICE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("NZ_CODICE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelNzCodice  { get; set; }
 
 [Display(Name = "Nome", ShortName="", Description = "Nome esteso", Prompt="")]
-[ErpDogField("NZ_NOME", SqlFieldNameExt="NZ_NOME", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("NZ_NOME", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelNzNome  { get; set; }
 
 [Display(Name = "Cod Istat", ShortName="", Description = "Codice statistico", Prompt="")]
-[ErpDogField("NZ_COD_ISTAT", SqlFieldNameExt="NZ_COD_ISTAT", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("NZ_COD_ISTAT", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelNzCodIstat  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note", Prompt="")]
-[ErpDogField("NZ_NOTE", SqlFieldNameExt="NZ_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("NZ_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelNzNote  { get; set; }
 
@@ -61,13 +61,17 @@ public override bool TryValidateInt(ModelStateDictionary modelState, string? pre
         bool isValidate = true; 
         // verifica se almeno un campo indicizzato è valorizzato (test per validazioni complesse del modello) 
         bool found = false; 
+        foreach (var prop in UtilHelper.getPropertiesWithXref(this.GetType())) { 
+            if (DogManager.getPropertyValue(this, prop.Trim()) != null) found = true; 
+            if (DogManager.getPropertyValue(this, prop.Trim() + "[0]") != null) found = true; 
+        } 
         foreach (var idx in ListIndexes()) { 
             string fldLst = idx.Split("|")[2]; 
             foreach (var fld in fldLst.Split(",")) { 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim())) != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + "[0]") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".StartDate") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".EndDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim())) != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + "[0]") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".StartDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".EndDate") != null) found = true; 
             } 
         } 
         if (!found) { isValidate = false;  modelState.AddModelError(prefix ?? string.Empty, "Deve essere compilato almeno un campo indicizzato."); } 

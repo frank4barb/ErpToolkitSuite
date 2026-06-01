@@ -11,15 +11,15 @@ namespace HealthDemo.Models.SIO.Act {
 public class SelAttivita : ModelErp {
 public const string Description = "Tipi di attività che possono essere richieste e/o eseguite";
 public const string SqlTableName = "ATTIVITA";
-public const string SqlTableNameExt = "ATTIVITA";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Av1Icode";
 public const string SqlRowIdName = "AV__ICODE";
-public const string SqlRowIdNameExt = "AV__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "AV_";
-public const string SqlPrefixExt = "AV_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "AV_XDATA";
-public const string SqlXdataTableNameExt = "AV_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "SEL"; //Data Model Name of the Class
 public const int INTCODE = 11; //Internal Table Code
@@ -42,87 +42,87 @@ public override string labelHtml() { return $""; }
 //2204-2203//[Y] REL_ATTIVITA_CONTIENE.AA_ID_ATTIVITA_FIGLIO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("AV_CODICE", SqlFieldNameExt="AV_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(ATTIVITA.AV__ICODE[AV__ICODE] {AV_CODICE=' '}) multbxref()")]
+[ErpDogField("AV_CODICE", SqlFieldNameExt="", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(ATTIVITA.AV__ICODE[AV__ICODE] {AV_CODICE=' '}) multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvCodice  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("AV_DESCRIZIONE", SqlFieldNameExt="AV_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_DESCRIZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvDescrizione  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note", Prompt="")]
-[ErpDogField("AV_NOTE", SqlFieldNameExt="AV_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvNote  { get; set; }
 
 [Display(Name = "Filtro Regime Erogazione", ShortName="", Description = "Maschera con le classi di contatti per cui l'attività può essere eseguita", Prompt="")]
-[ErpDogField("AV_FILTRO_REGIME_EROGAZIONE", SqlFieldNameExt="AV_FILTRO_REGIME_EROGAZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_FILTRO_REGIME_EROGAZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvFiltroRegimeErogazione  { get; set; }
 
 [Display(Name = "Costo Medio", ShortName="", Description = "Costo totale (medio) per l'esecuzione", Prompt="")]
-[ErpDogField("AV_COSTO_MEDIO", SqlFieldNameExt="AV_COSTO_MEDIO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_COSTO_MEDIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("")]
 public double? SelAvCostoMedio  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice dell'attività di cui questa è una sotto-attività", Prompt="")]
-[ErpDogField("AV_ID_GRUPPO", SqlFieldNameExt="AV_ID_GRUPPO", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
+[ErpDogField("AV_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("Attivita", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelAvIdGruppo  { get; set; } = new List<string>();
 
 [Display(Name = "Attivita Preferenziale", ShortName="", Description = "Attività preferenziale eseguita quando il servizio viene richiesto Sì [Y] / No [N]", Prompt="")]
-[ErpDogField("AV_ATTIVITA_PREFERENZIALE", SqlFieldNameExt="AV_ATTIVITA_PREFERENZIALE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_ATTIVITA_PREFERENZIALE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelAvAttivitaPreferenziale  { get; set; } = new List<string>();
 
 [Display(Name = "Durata Validita", ShortName="", Description = "Livello clinico di validità (cioè il numero di ore durante le quali non ha senso clinico replicare l'attività)", Prompt="")]
-[ErpDogField("AV_DURATA_VALIDITA", SqlFieldNameExt="AV_DURATA_VALIDITA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_DURATA_VALIDITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("")]
 public short? SelAvDurataValidita  { get; set; }
 
 [Display(Name = "Durata Media", ShortName="", Description = "Tempo medio del ciclo completo dell'attività [ore]", Prompt="")]
-[ErpDogField("AV_DURATA_MEDIA", SqlFieldNameExt="AV_DURATA_MEDIA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_DURATA_MEDIA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("")]
 public short? SelAvDurataMedia  { get; set; }
 
 [Display(Name = "In Evidenza", ShortName="", Description = "Evidenziare gli atti effettivi per scopi di ricerca o speciali Sì [Y] - No [N]", Prompt="")]
-[ErpDogField("AV_IN_EVIDENZA", SqlFieldNameExt="AV_IN_EVIDENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_IN_EVIDENZA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelAvInEvidenza  { get; set; } = new List<string>();
 
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività predefinita", Prompt="")]
-[ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="AV_ID_TIPO_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
+[ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelAvIdTipoAttivita  { get; set; } = new List<string>();
 
 [Display(Name = "Routine", ShortName="", Description = "Pianificazione routinaria (cioè automatica) Sì [Y] - No [N]", Prompt="")]
-[ErpDogField("AV_ROUTINE", SqlFieldNameExt="AV_ROUTINE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_ROUTINE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("Y")]
 [MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=-1, LabelClassName="")]
 [DataType(DataType.Text)]
 public List<string> SelAvRoutine  { get; set; } = new List<string>();
 
 [Display(Name = "Note Estese", ShortName="", Description = "Nota estesa", Prompt="")]
-[ErpDogField("AV_NOTE_ESTESE", SqlFieldNameExt="AV_NOTE_ESTESE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_NOTE_ESTESE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvNoteEstese  { get; set; }
 
 [Display(Name = "Attributi1", ShortName="", Description = "Flag per scopi operativi, gestiti autonomamente dalle applicazioni", Prompt="")]
-[ErpDogField("AV_ATTRIBUTI1", SqlFieldNameExt="AV_ATTRIBUTI1", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_ATTRIBUTI1", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvAttributi1  { get; set; }
 
 [Display(Name = "Attributi2", ShortName="", Description = "Ulteriore insieme di flag operativi, gestiti dalle applicazioni", Prompt="")]
-[ErpDogField("AV_ATTRIBUTI2", SqlFieldNameExt="AV_ATTRIBUTI2", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AV_ATTRIBUTI2", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelAvAttributi2  { get; set; }
 
@@ -131,13 +131,17 @@ public override bool TryValidateInt(ModelStateDictionary modelState, string? pre
         bool isValidate = true; 
         // verifica se almeno un campo indicizzato è valorizzato (test per validazioni complesse del modello) 
         bool found = false; 
+        foreach (var prop in UtilHelper.getPropertiesWithXref(this.GetType())) { 
+            if (DogManager.getPropertyValue(this, prop.Trim()) != null) found = true; 
+            if (DogManager.getPropertyValue(this, prop.Trim() + "[0]") != null) found = true; 
+        } 
         foreach (var idx in ListIndexes()) { 
             string fldLst = idx.Split("|")[2]; 
             foreach (var fld in fldLst.Split(",")) { 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim())) != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + "[0]") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".StartDate") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".EndDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim())) != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + "[0]") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".StartDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".EndDate") != null) found = true; 
             } 
         } 
         if (!found) { isValidate = false;  modelState.AddModelError(prefix ?? string.Empty, "Deve essere compilato almeno un campo indicizzato."); } 

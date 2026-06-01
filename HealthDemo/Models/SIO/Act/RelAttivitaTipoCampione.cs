@@ -11,13 +11,13 @@ namespace HealthDemo.Models.SIO.Act {
 public class RelAttivitaTipoCampione : ModelErp {
 public const string Description = "Tipo di campione rilevante per un certo tipo di attività";
 public const string SqlTableName = "REL_ATTIVITA_TIPO_CAMPIONE";
-public const string SqlTableNameExt = "REL_ATTIVITA_TIPO_CAMPIONE";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Ac1Icode";
 public const string SqlRowIdName = "AC__ICODE";
-public const string SqlRowIdNameExt = "AC__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "AC_";
-public const string SqlPrefixExt = "AC_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "AC_XDATA";
 public const string SqlXdataIcodeName = "AC_X__ICODE";
 public const string SqlXdataDeletedName = "AC_X__DELETED";
@@ -40,7 +40,7 @@ public const string SqlXdataDescrName = "AC_X__DESCR";
 public const string SqlXdataFmtName = "AC_X__FMT";
 public const string SqlXdataXdurlName = "AC_X__XDURL";
 public const string SqlXdataXdatumName = "AC_X__XDATUM";
-public const string SqlXdataTableNameExt = "AC_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string SqlXdataIcodeTyp = "string";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "TAB"; //Data Model Name of the Class
@@ -55,83 +55,83 @@ public override string labelHtml() { return $@""; }
 
 [Key]
 [Display(Name = "Ac1Icode", ShortName="", Description = "Identificatore univoco dell'istanza (definito automaticamente quando il record viene generato)", Prompt="")]
-[ErpDogField("AC__ICODE", SqlFieldNameExt="AC__ICODE", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__ICODE", SqlFieldNameExt="", SqlFieldOptions="[SID]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Icode { get; set; }
 [Display(Name = "Ac1Deleted", ShortName="", Description = "Se 'Y', l'istanza è logicamente cancellata", Prompt="")]
-[ErpDogField("AC__DELETED", SqlFieldNameExt="AC__DELETED", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__DELETED", SqlFieldNameExt="", SqlFieldOptions="[DEL]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Ac1Deleted { get; set; }
 [Display(Name = "Ac1Timestamp", ShortName="", Description = "Timestamp dell'ultima modifica dell'istanza", Prompt="")]
-[ErpDogField("AC__TIMESTAMP", SqlFieldNameExt="AC__TIMESTAMP", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__TIMESTAMP", SqlFieldNameExt="", SqlFieldOptions="[TMS]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 //[StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public byte[]? Ac1Timestamp { get; set; }
 [Display(Name = "Ac1Cdate", ShortName="", Description = "Data di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("AC__CDATE", SqlFieldNameExt="AC__CDATE", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__CDATE", SqlFieldNameExt="", SqlFieldOptions="[CDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Ac1Cdate { get; set; }
 [Display(Name = "Ac1Ctime", ShortName="", Description = "Ora di creazione iniziale dell'istanza", Prompt="")]
-[ErpDogField("AC__CTIME", SqlFieldNameExt="AC__CTIME", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__CTIME", SqlFieldNameExt="", SqlFieldOptions="[CTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Ac1Ctime { get; set; }
 [Display(Name = "Ac1Cagent", ShortName="", Description = "Identificatore dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("AC__CAGENT", SqlFieldNameExt="AC__CAGENT", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__CAGENT", SqlFieldNameExt="", SqlFieldOptions="[CAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Cagent { get; set; }
 [Display(Name = "Ac1Cunit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha creato inizialmente l'istanza", Prompt="")]
-[ErpDogField("AC__CUNIT", SqlFieldNameExt="AC__CUNIT", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__CUNIT", SqlFieldNameExt="", SqlFieldOptions="[CUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Cunit { get; set; }
 [Display(Name = "Ac1Mdate", ShortName="", Description = "Data dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("AC__MDATE", SqlFieldNameExt="AC__MDATE", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__MDATE", SqlFieldNameExt="", SqlFieldOptions="[MDATE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(10, ErrorMessage = "Inserire massimo 10 caratteri")]
 public string? Ac1Mdate { get; set; }
 [Display(Name = "Ac1Mtime", ShortName="", Description = "Ora dell'ultima modifica all'istanza da utente", Prompt="")]
-[ErpDogField("AC__MTIME", SqlFieldNameExt="AC__MTIME", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__MTIME", SqlFieldNameExt="", SqlFieldOptions="[MTIME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(8, ErrorMessage = "Inserire massimo 8 caratteri")]
 public string? Ac1Mtime { get; set; }
 [Display(Name = "Ac1Magent", ShortName="", Description = "Identificatore dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("AC__MAGENT", SqlFieldNameExt="AC__MAGENT", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__MAGENT", SqlFieldNameExt="", SqlFieldOptions="[MAGENT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Magent { get; set; }
 [Display(Name = "Ac1Munit", ShortName="", Description = "Identificatore dell'unità dell'agente che ha effettuato l'ultima modifica all'istanza", Prompt="")]
-[ErpDogField("AC__MUNIT", SqlFieldNameExt="AC__MUNIT", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__MUNIT", SqlFieldNameExt="", SqlFieldOptions="[MUNIT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Munit { get; set; }
 [Display(Name = "Ac1Home", ShortName="", Description = "Posizione principale dell'istanza (cioè il nome del server contenente la copia master)", Prompt="")]
-[ErpDogField("AC__HOME", SqlFieldNameExt="AC__HOME", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__HOME", SqlFieldNameExt="", SqlFieldOptions="[HOME]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Home { get; set; }
 [Display(Name = "Ac1Version", ShortName="", Description = "Versione dell'istanza", Prompt="")]
-[ErpDogField("AC__VERSION", SqlFieldNameExt="AC__VERSION", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__VERSION", SqlFieldNameExt="", SqlFieldOptions="[VERSION]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(12, ErrorMessage = "Inserire massimo 12 caratteri")]
 public string? Ac1Version { get; set; }
 [Display(Name = "Ac1Inactive", ShortName="", Description = "Flag di inattività: se Y, l'istanza deve essere considerata come non attiva", Prompt="")]
-[ErpDogField("AC__INACTIVE", SqlFieldNameExt="AC__INACTIVE", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__INACTIVE", SqlFieldNameExt="", SqlFieldOptions="[INACTIVE]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 public string? Ac1Inactive { get; set; }
 [Display(Name = "Ac1Extatt", ShortName="", Description = "Attributi estesi, definibili dinamicamente come documento XML", Prompt="")]
-[ErpDogField("AC__EXTATT", SqlFieldNameExt="AC__EXTATT", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
+[ErpDogField("AC__EXTATT", SqlFieldNameExt="", SqlFieldOptions="[EXTATT]", SqlFieldProperties="prop()")]
 [DataType(DataType.Text)]
 public string? Ac1Extatt { get; set; }
 
 
 [Display(Name = "Id Attivita", ShortName="", Description = "Codice del tipo di attività", Prompt="")]
-[ErpDogField("AC_ID_ATTIVITA", SqlFieldNameExt="AC_ID_ATTIVITA", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
+[ErpDogField("AC_ID_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
@@ -139,7 +139,7 @@ public string? AcIdAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AcIdAttivitaObj  { get; set; }
 
 [Display(Name = "Id Tipo Campione", ShortName="", Description = "Codice del tipo di campione", Prompt="")]
-[ErpDogField("AC_ID_TIPO_CAMPIONE", SqlFieldNameExt="AC_ID_TIPO_CAMPIONE", SqlFieldOptions="[MANDATORY]", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup() multbxref()")]
+[ErpDogField("AC_ID_TIPO_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
 [AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1)]
 [DataType(DataType.Text)]
@@ -147,35 +147,35 @@ public string? AcIdTipoCampione  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoCampione? AcIdTipoCampioneObj  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note", Prompt="")]
-[ErpDogField("AC_NOTE", SqlFieldNameExt="AC_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AC_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(120, ErrorMessage = "Inserire massimo 120 caratteri")]
 [DataType(DataType.Text)]
 public string? AcNote  { get; set; }
 
 [Display(Name = "Tipo", ShortName="", Description = "Generato da / Necessario per l'esecuzione", Prompt="")]
-[ErpDogField("AC_TIPO", SqlFieldNameExt="AC_TIPO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AC_TIPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("E")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 [MultipleChoices(new[] { "G", "E" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AcTipo  { get; set; }
 
 [Display(Name = "Campione Preferenziale", ShortName="", Description = "Tipo di campione preferenziale (predefinito) per quel tipo di attività", Prompt="")]
-[ErpDogField("AC_CAMPIONE_PREFERENZIALE", SqlFieldNameExt="AC_CAMPIONE_PREFERENZIALE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AC_CAMPIONE_PREFERENZIALE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 [MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AcCampionePreferenziale  { get; set; }
 
 [Display(Name = "Campione Specifico", ShortName="", Description = "Se 'Y', è necessario un campione dedicato, e il campione non può essere condiviso tra diverse attività (predefinito N)", Prompt="")]
-[ErpDogField("AC_CAMPIONE_SPECIFICO", SqlFieldNameExt="AC_CAMPIONE_SPECIFICO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AC_CAMPIONE_SPECIFICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("N")]
 [StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
 [MultipleChoices(new[] { "Y", "N" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
 public string? AcCampioneSpecifico  { get; set; }
 
 [Display(Name = "Regole Campionamento", ShortName="", Description = "Criteri da adottare quando si raccolgono più campioni (informazioni testuali, dedicate dall'utente)", Prompt="")]
-[ErpDogField("AC_REGOLE_CAMPIONAMENTO", SqlFieldNameExt="AC_REGOLE_CAMPIONAMENTO", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("AC_REGOLE_CAMPIONAMENTO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
 [StringLength(240, ErrorMessage = "Inserire massimo 240 caratteri")]
 [DataType(DataType.Text)]

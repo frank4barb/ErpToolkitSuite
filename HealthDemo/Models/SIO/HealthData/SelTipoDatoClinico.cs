@@ -11,15 +11,15 @@ namespace HealthDemo.Models.SIO.HealthData {
 public class SelTipoDatoClinico : ModelErp {
 public const string Description = "Classificazioni generali dei tipi di dati sanitari";
 public const string SqlTableName = "TIPO_DATO_CLINICO";
-public const string SqlTableNameExt = "TIPO_DATO_CLINICO";
+public const string SqlTableNameExt = "";
 public const string SqlTableProperties = "";
 public const string RowIdName = "Tc1Icode";
 public const string SqlRowIdName = "TC__ICODE";
-public const string SqlRowIdNameExt = "TC__ICODE";
+public const string SqlRowIdNameExt = "";
 public const string SqlPrefix = "TC_";
-public const string SqlPrefixExt = "TC_";
+public const string SqlPrefixExt = "";
 public const string SqlXdataTableName = "TC_XDATA";
-public const string SqlXdataTableNameExt = "TC_XDATA";
+public const string SqlXdataTableNameExt = "";
 public const string MODEL = "SIO"; //Data Model Name of the Class
 public const string CATEG = "SEL"; //Data Model Name of the Class
 public const int INTCODE = 14; //Internal Table Code
@@ -38,51 +38,51 @@ public override string labelHtml() { return $""; }
 //2167-2164//[N] PARAMETRO_VITALE.PV_ID_TIPO_DATO_CLINICO
 
 [Display(Name = "Codice", ShortName="", Description = "Codice assegnato dall'utente", Prompt="")]
-[ErpDogField("TC_CODICE", SqlFieldNameExt="TC_CODICE", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_DATO_CLINICO.TC__ICODE[TC__ICODE] {TC_CODICE=' '}) multbxref()")]
+[ErpDogField("TC_CODICE", SqlFieldNameExt="", SqlFieldOptions="[UID]", Xref="", SqlFieldProperties="prop() xref() xdup(TIPO_DATO_CLINICO.TC__ICODE[TC__ICODE] {TC_CODICE=' '}) multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTcCodice  { get; set; }
 
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
-[ErpDogField("TC_DESCRIZIONE", SqlFieldNameExt="TC_DESCRIZIONE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TC_DESCRIZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTcDescrizione  { get; set; }
 
 [Display(Name = "Note", ShortName="", Description = "Note", Prompt="")]
-[ErpDogField("TC_NOTE", SqlFieldNameExt="TC_NOTE", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TC_NOTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTcNote  { get; set; }
 
 [Display(Name = "Id Categoria Dato Clinico", ShortName="", Description = "Codice della classe dell'elemento del record sanitario", Prompt="")]
-[ErpDogField("TC_ID_CATEGORIA_DATO_CLINICO", SqlFieldNameExt="TC_ID_CATEGORIA_DATO_CLINICO", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup() multbxref()")]
+[ErpDogField("TC_ID_CATEGORIA_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelTcIdCategoriaDatoClinico  { get; set; } = new List<string>();
 
 [Display(Name = "Unita Di Misura", ShortName="", Description = "Unità di misura", Prompt="")]
-[ErpDogField("TC_UNITA_DI_MISURA", SqlFieldNameExt="TC_UNITA_DI_MISURA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TC_UNITA_DI_MISURA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTcUnitaDiMisura  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del tipo aggregato di HRI di cui questo elemento fa parte", Prompt="")]
-[ErpDogField("TC_ID_GRUPPO", SqlFieldNameExt="TC_ID_GRUPPO", SqlFieldOptions="", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
+[ErpDogField("TC_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
 public List<string> SelTcIdGruppo  { get; set; } = new List<string>();
 
 [Display(Name = "Sequenza", ShortName="", Description = "Ordine sequenziale degli HD aggregati (se presente)", Prompt="")]
-[ErpDogField("TC_SEQUENZA", SqlFieldNameExt="TC_SEQUENZA", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TC_SEQUENZA", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue("")]
 public short? SelTcSequenza  { get; set; }
 
 [Display(Name = "Attributi1", ShortName="", Description = "Flag operativi, gestiti dall'applicazione", Prompt="")]
-[ErpDogField("TC_ATTRIBUTI1", SqlFieldNameExt="TC_ATTRIBUTI1", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TC_ATTRIBUTI1", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTcAttributi1  { get; set; }
 
 [Display(Name = "Attributi2", ShortName="", Description = "Ulteriori flag operativi, gestiti dalle applicazioni", Prompt="")]
-[ErpDogField("TC_ATTRIBUTI2", SqlFieldNameExt="TC_ATTRIBUTI2", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[ErpDogField("TC_ATTRIBUTI2", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DataType(DataType.Text)]
 public string? SelTcAttributi2  { get; set; }
 
@@ -91,13 +91,17 @@ public override bool TryValidateInt(ModelStateDictionary modelState, string? pre
         bool isValidate = true; 
         // verifica se almeno un campo indicizzato è valorizzato (test per validazioni complesse del modello) 
         bool found = false; 
+        foreach (var prop in UtilHelper.getPropertiesWithXref(this.GetType())) { 
+            if (DogManager.getPropertyValue(this, prop.Trim()) != null) found = true; 
+            if (DogManager.getPropertyValue(this, prop.Trim() + "[0]") != null) found = true; 
+        } 
         foreach (var idx in ListIndexes()) { 
             string fldLst = idx.Split("|")[2]; 
             foreach (var fld in fldLst.Split(",")) { 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim())) != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + "[0]") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".StartDate") != null) found = true; 
-                if (DogManager.getPropertyValue(this, "Sel" + UtilHelper.field2Property(fld.Trim()) + ".EndDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim())) != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + "[0]") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".StartDate") != null) found = true; 
+                if (DogManager.getPropertyValue(this, UtilHelper.sqlFieldName2PropertyName(this.GetType(), fld.Trim()) + ".EndDate") != null) found = true; 
             } 
         } 
         if (!found) { isValidate = false;  modelState.AddModelError(prefix ?? string.Empty, "Deve essere compilato almeno un campo indicizzato."); } 
