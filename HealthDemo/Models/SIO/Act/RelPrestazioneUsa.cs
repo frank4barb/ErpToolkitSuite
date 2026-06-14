@@ -133,7 +133,7 @@ public string? Pu1Extatt { get; set; }
 [Display(Name = "Id Prestazione", ShortName="", Description = "Codice dell'atto", Prompt="")]
 [ErpDogField("PU_ID_PRESTAZIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PuIdPrestazione  { get; set; }
 public HealthDemo.Models.SIO.Act.Prestazione? PuIdPrestazioneObj  { get; set; }

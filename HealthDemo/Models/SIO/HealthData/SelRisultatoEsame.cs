@@ -41,30 +41,30 @@ public string? SelReClasse  { get; set; }
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente a cui si riferisce il dato sanitario", Prompt="")]
 [ErpDogField("RE_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelReIdPaziente  { get; set; } = new List<string>();
 
-[Display(Name = "Id Episodio", ShortName="", Description = "Classe del tipo di dato sanitario", Prompt="")]
-[ErpDogField("RE_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[RISULTATO_ESAME.RE_ID_GRUPPO_DATO_CLINICO]) multbxref()")]
+[Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Classe del tipo di dato sanitario", Prompt="")]
+[ErpDogField("RE_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO]) multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
+public List<string> SelReIdGruppoDatoClinico  { get; set; } = new List<string>();
+
+[Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto a cui si riferisce il Dato Sanitario", Prompt="")]
+[ErpDogField("RE_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
+[DefaultValue("")]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelReIdPaziente\"), ref parameters))})", ExtraFields: "SelReIdPaziente")]
+[DataType(DataType.Text)]
 public List<string> SelReIdEpisodio  { get; set; } = new List<string>();
 
-[Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del contatto a cui si riferisce il Dato Sanitario", Prompt="")]
-[ErpDogField("RE_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
-[DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
-[DataType(DataType.Text)]
-public List<string> SelReIdTipoDatoClinico  { get; set; } = new List<string>();
-
-[Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
-[ErpDogField("RE_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
+[Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
+[ErpDogField("RE_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
 [AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10)]
 [DataType(DataType.Text)]
-public List<string> SelReIdGruppoDatoClinico  { get; set; } = new List<string>();
+public List<string> SelReIdTipoDatoClinico  { get; set; } = new List<string>();
 
 [Display(Name = "Valore Minimo", ShortName="", Description = "Valori numerici minimi (se applicabile)", Prompt="")]
 [ErpDogField("RE_VALORE_MINIMO", SqlFieldNameExt="", SqlFieldOptions="", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
@@ -159,9 +159,9 @@ public override bool TryValidateInt(ModelStateDictionary modelState, string? pre
 
 public static List<string> ListIndexes() { 
     return new List<string>() { "sioRe1Icode|K|RE__ICODE","sioRe1RecDate|N|RE__MDATE,RE__CDATE"
-        ,"sioReIdTipoDatoClinicoreIdGruppoDatoClinicoreDataAcquisizione|N|RE_ID_TIPO_DATO_CLINICO,RE_ID_GRUPPO_DATO_CLINICO,RE_DATA_ACQUISIZIONE"
+        ,"sioReIdEpisodioreIdTipoDatoClinicoreDataAcquisizione|N|RE_ID_EPISODIO,RE_ID_TIPO_DATO_CLINICO,RE_DATA_ACQUISIZIONE"
         ,"sioReIdPazientereDataAcquisizione|N|RE_ID_PAZIENTE,RE_DATA_ACQUISIZIONE"
-        ,"sioReIdGruppoDatoClinicoreStatoDatoClinicoreDataAcquisizione|N|RE_ID_GRUPPO_DATO_CLINICO,RE_STATO_DATO_CLINICO,RE_DATA_ACQUISIZIONE"
+        ,"sioReIdTipoDatoClinicoreStatoDatoClinicoreDataAcquisizione|N|RE_ID_TIPO_DATO_CLINICO,RE_STATO_DATO_CLINICO,RE_DATA_ACQUISIZIONE"
         ,"sioReCodiceReferto|N|RE_CODICE_REFERTO"
     };
 }

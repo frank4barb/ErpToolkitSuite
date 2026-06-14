@@ -193,10 +193,10 @@ table.erptbl tr.erptbl-deleted td.action-buttons * {
     box-shadow: inset 2px 0 0 0 orange;
 }
 
-/* Campo obbligatorio mancante al salvataggio (errore forte) */
+/* Campo obbligatorio mancante al salvataggio (evidenziato in giallo) */
 .erptbl-mandatory-error {
-    border: 2px solid #dc3545 !important;
-    background-color: #ffe6e6 !important;
+    border: 2px solid #ffc107 !important;
+    background-color: #fff9e6 !important;
 }
 
 
@@ -207,9 +207,9 @@ table.erptbl tr.erptbl-deleted td.action-buttons * {
     transition: outline-color .2s ease-in-out;
 }
 
-/* quando il campo è mandatory e vuoto ? rosso */
+/* quando il campo è mandatory e vuoto ? (evidenziato in giallo) */
 .toggle-switch.erptbl-mandatory-error + .slider {
-    outline-color: #dc3545 !important; /* rosso Bootstrap */
+    outline-color: #ffc107 !important; /* giallo Bootstrap */
 }
 
 

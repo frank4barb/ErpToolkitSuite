@@ -53,10 +53,10 @@ public override object getIcode() { return (object)Tc1Icode; }
 public override string labelText() { return $@"{TcCodice} - {TcDescrizione}"; }
 public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(TcCodice)}</strong> {HttpUtility.HtmlEncode(TcDescrizione)}"; }
 
-//849-845//[N] RISULTATO_ESAME.RE_ID_GRUPPO_DATO_CLINICO
+//849-845//[N] RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO
 [Display(Name = "RisultatoEsame", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]
-public Dictionary<string, HealthDemo.Models.SIO.HealthData.RisultatoEsame>? XrefReIdGruppoDatoClinico { get; set; } = null;
+public Dictionary<string, HealthDemo.Models.SIO.HealthData.RisultatoEsame>? XrefReIdTipoDatoClinico { get; set; } = null;
 //967-946//[N] TIPO_DATO_CLINICO.TC_ID_GRUPPO
 [Display(Name = "TipoDatoClinico", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]

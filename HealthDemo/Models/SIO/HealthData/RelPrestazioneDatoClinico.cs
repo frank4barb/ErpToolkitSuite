@@ -169,7 +169,7 @@ public string? PdIdDatoClinico  { get; set; }
 
 [Display(Name = "Id Prestazione", ShortName="", Description = "Identificativo dell'atto", Prompt="")]
 [ErpDogField("PD_ID_PRESTAZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PdIdPrestazione  { get; set; }
 public HealthDemo.Models.SIO.Act.Prestazione? PdIdPrestazioneObj  { get; set; }

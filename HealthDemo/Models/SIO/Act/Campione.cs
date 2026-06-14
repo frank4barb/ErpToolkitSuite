@@ -180,7 +180,7 @@ public string? CpNote  { get; set; }
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto", Prompt="")]
 [ErpDogField("CP_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"EP_ID_PAZIENTE IN ({DogManager.addParam(f0(\"CpIdPaziente\"), ref parameters)})", ExtraFields: "CpIdPaziente")]
 [DataType(DataType.Text)]
 public string? CpIdEpisodio  { get; set; }
 public HealthDemo.Models.SIO.Patient.Episodio? CpIdEpisodioObj  { get; set; }

@@ -31,7 +31,7 @@ public override object getIcode() { return null; }
 public override string labelText() { return $""; }
 public override string labelHtml() { return $""; }
 
-//849-845//[N] RISULTATO_ESAME.RE_ID_GRUPPO_DATO_CLINICO
+//849-845//[N] RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO
 //967-946//[N] TIPO_DATO_CLINICO.TC_ID_GRUPPO
 //981-978//[N] STATO_SALUTE.SS_ID_TIPO_DATO_CLINICO
 //1199-1196//[N] DOCUMENTO_CLINICO.DC_ID_TIPO_DATO_CLINICO

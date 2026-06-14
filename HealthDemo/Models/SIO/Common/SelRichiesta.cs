@@ -108,14 +108,14 @@ public List<string> SelRiIdTipoRichiesta  { get; set; } = new List<string>();
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente principale a cui si riferisce la comunicazione (se presente)", Prompt="")]
 [ErpDogField("RI_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdPaziente  { get; set; } = new List<string>();
 
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto del paziente principale a cui si riferisce la comunicazione (se presente)", Prompt="")]
 [ErpDogField("RI_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelRiIdPaziente\"), ref parameters))})", ExtraFields: "SelRiIdPaziente")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdEpisodio  { get; set; } = new List<string>();
 

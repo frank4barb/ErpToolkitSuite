@@ -33,7 +33,7 @@ public override string labelHtml() { return $""; }
 
 //10-2//[N] PRESTAZIONE.PR_ID_EPISODIO
 //563-524//[N] RICHIESTA.RI_ID_EPISODIO
-//848-845//[N] RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO
+//848-845//[N] RISULTATO_ESAME.RE_ID_EPISODIO
 //980-978//[N] STATO_SALUTE.SS_ID_EPISODIO
 //1198-1196//[N] DOCUMENTO_CLINICO.DC_ID_EPISODIO
 //1736-1730//[N] CAMPIONE.CP_ID_EPISODIO
@@ -47,7 +47,7 @@ public string? SelEpCodEpisodio  { get; set; }
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente a cui si riferisce il contatto", Prompt="")]
 [ErpDogField("EP_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdPaziente  { get; set; } = new List<string>();
 
@@ -163,7 +163,7 @@ public string? SelEpNote  { get; set; }
 [Display(Name = "Id Atto Amministrativo", ShortName="", Description = "Identificativo dell'atto che descrive gli aspetti organizzativi attuali del contatto", Prompt="")]
 [ErpDogField("EP_ID_ATTO_AMMINISTRATIVO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdAttoAmministrativo  { get; set; } = new List<string>();
 

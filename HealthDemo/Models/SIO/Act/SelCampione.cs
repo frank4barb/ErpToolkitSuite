@@ -71,7 +71,7 @@ public string? SelCpNote  { get; set; }
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto", Prompt="")]
 [ErpDogField("CP_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelCpIdPaziente\"), ref parameters))})", ExtraFields: "SelCpIdPaziente")]
 [DataType(DataType.Text)]
 public List<string> SelCpIdEpisodio  { get; set; } = new List<string>();
 

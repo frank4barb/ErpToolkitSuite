@@ -5,6 +5,7 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using NLog.LayoutRenderers;
 using Org.BouncyCastle.Utilities;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -18,6 +19,7 @@ using System.Text;
 using System.Transactions;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
+using static ErpToolkit.Helpers.Db.ExtraFilterCompiler;
 using static ErpToolkit.Helpers.ErpError;
 
 
@@ -214,6 +216,21 @@ namespace ErpToolkit.Helpers.Db
         public readonly Dictionary<System.Type, List<System.Type>> typeGraph = new Dictionary<System.Type, List<System.Type>>();
 
 
+        public DogField getDogField(string propertyName)
+        {
+            if (tabProperties.TryGetValue(propertyName, out var fld)) return fld;
+            if (selProperties.TryGetValue(propertyName, out fld)) return fld;
+            return null;
+        }
+        public DogField getDbDogField(DogField dogFld)
+        {
+            if (dogFld == null) return null;
+            if (dogFld.table.CATEG == "TAB") return dogFld;
+            if (tabFields.TryGetValue($"{dogFld.table.SqlTableName}.{dogFld.SqlFieldName}", out var fld)) return fld;
+            return null;
+        }
+
+
         public class DogTable
         {
             internal DogTable() { }
@@ -333,6 +350,13 @@ namespace ErpToolkit.Helpers.Db
             public string Description;  
             public object? DefaultValue = null;  
             public int? StringLength = null;
+
+            //--- NUOVO: template ExtraFilter letto da AutocompleteServerAttribute al momento
+            //--- della costruzione del DogField. Null se il campo non ha ExtraFilter.
+            public string? AutocompleteExtraFilter { get; internal set; } = null;
+            //---
+            //---
+
             // Getter e Setter
             private Func<ModelDog, object?>? _getter;
             private Action<ModelDog, object?>? _setter;
@@ -712,8 +736,6 @@ namespace ErpToolkit.Helpers.Db
 
 
 
-
-
                     }
                 }
             }
@@ -818,6 +840,12 @@ namespace ErpToolkit.Helpers.Db
 
             //Genera file all'avvio
             DogManagerFile.CreateInitFile(this);
+
+
+
+            //--- NUOVO: precompila tutti i template ExtraFilter trovati nei DogTable ---
+            _ = PrecompileExtraFiltersAsync();   // fire-and-forget con gestione errori interna
+            //---
 
         }
         // riempe il contenuto di un campo DogField a partire dal ModelErp, verificando che il tipo di dato sia consentito e valorizzando i delegate di accesso alla proprietà
@@ -935,6 +963,13 @@ namespace ErpToolkit.Helpers.Db
                 fld.StringLength = stringLengthAttribute.MaximumLength;
             }
             //---------
+
+            //--- NUOVO: legge ExtraFilter da AutocompleteServerAttribute
+            var autocompleteAttr = property.GetCustomAttribute<AutocompleteServerAttribute>();
+            fld.AutocompleteExtraFilter = autocompleteAttr?.ExtraFilter;
+            //---
+
+            //---------
             return fld;
         }
 
@@ -1012,6 +1047,62 @@ namespace ErpToolkit.Helpers.Db
                 return false;
             }
         }
+
+
+        /// <summary>
+        /// Scansiona tutti i DogField già caricati in tabProperties,
+        /// raccoglie i template AutocompleteServer.ExtraFilter distinti
+        /// e li precompila in parallelo.
+        /// I DogField sono già tutti pronti perché questo metodo viene
+        /// chiamato alla fine del costruttore.
+        /// </summary>
+        private async Task PrecompileExtraFiltersAsync()
+        {
+            try
+            {
+                // Raccoglie template distinti direttamente dai DogField già costruiti.
+                // Usa tabProperties (tutti i field delle tabelle TAB) perché è lì
+                // che vivono le proprietà con AutocompleteServerAttribute.
+                var templates = tabProperties.Values
+                    .Select(fld =>
+                    {
+                        // Recupera la PropertyInfo originale tramite reflection sul tipo della tabella
+                        var prop = fld.table.tableTpy.GetProperty(fld.fieldName);
+                        return prop?
+                            .GetCustomAttribute<AutocompleteServerAttribute>()
+                            ?.ExtraFilter;
+                    })
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .Distinct()
+                    .ToList();
+
+                if (templates.Count == 0) return;
+
+                _logger.Info($"[ExtraFilterCompiler] Precompilo {templates.Count} template ExtraFilter...");
+
+                await Parallel.ForEachAsync(
+                    templates!,
+                    new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                    async (template, _) =>
+                    {
+                        try { await ExtraFilterCompiler.CompileAsync(template!); }
+                        catch (Exception ex)
+                        {
+                            // Errore di sintassi nel template -> log ma non blocca il boot.
+                            // (Puoi cambiare in throw se vuoi blocco bloccante come i compile error.)
+                            _logger.Error($"[ExtraFilterCompiler] Errore compilazione template:\n  \"{template}\"\n  {ex.Message}");
+                        }
+                    });
+
+                _logger.Info($"[ExtraFilterCompiler] Completati. {ExtraFilterCompiler.CachedCount} template in cache.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"[ExtraFilterCompiler] Errore generale precompilazione: {ex.Message}");
+            }
+        }
+
+
 
         ~DogManager()
         {
@@ -1385,10 +1476,10 @@ namespace ErpToolkit.Helpers.Db
             //return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
             return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompleteGetAll"), "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
-        internal List<Choice> AutocompleteGetSelect(string modelName, string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
+        internal List<Choice> AutocompleteGetSelect(string modelName, string term, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
         {
             //return DogManagerQuery.AutocompleteGetSelect<T>(this, term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
-            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompleteGetSelect"), "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
+            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompleteGetSelect"), "GetSelect", term: term, modelPropertyName: modelPropertyName, extraFields: extraFields, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         internal List<Choice> AutocompletePreLoad(string modelName, List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
         {
@@ -1401,10 +1492,10 @@ namespace ErpToolkit.Helpers.Db
             //return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
             return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetAll"), "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
-        public List<Choice> AutocompleteGetSelect<T>(string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
+        public List<Choice> AutocompleteGetSelect<T>(string term, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {
             //return DogManagerQuery.AutocompleteGetSelect<T>(this, term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
-            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetSelect"), "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
+            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetSelect"), "GetSelect", term: term, modelPropertyName: modelPropertyName, extraFields: extraFields, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         public List<Choice> AutocompletePreLoad<T>(List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {

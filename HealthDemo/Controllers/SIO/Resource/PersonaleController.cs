@@ -45,11 +45,12 @@ namespace HealthDemo.Controllers.SIO.Resource
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetAll Personale: " + ex.Message }); }
         }
         [HttpGet]
-        public JsonResult AutocompleteGetSelect(string term)
+        public JsonResult AutocompleteGetSelect(string term, string? modelPropertyName = null, [FromQuery] Dictionary<string, List<string>> extraFields = null)
         {
             try
             {
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<Personale>(term));
+                extraFields?.Remove("term"); extraFields?.Remove("modelPropertyName");   // Rimuovi "term" e "modelPropertyName" dai filtri se finiscono nel dizionario
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<Personale>(term, modelPropertyName: modelPropertyName, extraFields: extraFields));
             }
             catch (Exception ex)  { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetSelect Personale: " + ex.Message }); }
         }

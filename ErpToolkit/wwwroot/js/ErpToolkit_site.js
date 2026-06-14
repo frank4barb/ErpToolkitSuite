@@ -114,6 +114,44 @@ function getSelectedValue(tagId) {
         return input.value || "";
     }
 }
+// Restituisce TUTTI i valori selezionati di un TagHelper come array di stringhe.
+// Campi a valore singolo restituiscono un array con un solo elemento.
+// date-range-input restituisce sempre [dataInizio, dataFine] (stringa vuota se non impostata).
+function getSelectedValues(tagId) {
+    const input = document.getElementById(tagId);
+    if (!input) return [];
+
+    if (input.classList.contains("autocomplete-input")) {
+        const arr = etkAutocompleteGetChoices(input);
+        return (arr && arr.length > 0) ? arr.map(c => c.value) : [];
+
+    } else if (input.classList.contains("form-check-input")) {
+        const arr = etkSwitchGroupGetChoices(input);
+        return (arr && arr.length > 0) ? arr.map(c => c.value) : [];
+
+    } else if (input.classList.contains("date-range-input")) {
+        // Cerca i due input figli: data inizio e data fine
+        // Si assume che il wrapper abbia data-start-id e data-end-id,
+        // oppure che i due input siano il primo e il secondo figlio con classe date-range-start / date-range-end
+        const wrapper = input.closest('.date-range') ?? input.parentElement;
+        const startEl = wrapper?.querySelector('.date-range-start') ?? wrapper?.querySelectorAll('input')[0];
+        const endEl = wrapper?.querySelector('.date-range-end') ?? wrapper?.querySelectorAll('input')[1];
+        return [
+            startEl?.value ?? "",
+            endEl?.value ?? ""
+        ];
+
+    } else if (input.tagName === "SELECT" && input.multiple) {
+        const vals = Array.from(input.selectedOptions).map(o => o.value).filter(v => v !== "");
+        return vals.length > 0 ? vals : [];
+
+    } else {
+        // Tutti i campi a valore singolo: datetime-picker, time-picker, toggle-switch,
+        // TEXTAREA, SELECT singolo, input text/date/hidden, ecc.
+        const v = input.value ?? "";
+        return v !== "" ? [v] : [];
+    }
+}
 // Funzione per ottenere la label selezionata di un TagHelper in base alla classe dell'input
 function getSelectedLabel(tagId) {
     const input = document.getElementById(tagId);
@@ -1162,20 +1200,97 @@ function etkAutocompleteInitialize(inputDOM) {
                 var filtered = allChoices.filter(c => c.label && (' ' + c.label.toUpperCase() + ' ').includes(term));
                 showResults(filtered);
             } else if (mode === 'autocompleteServer') {
-                if (cache[term]) {
-                    showResults(cache[term]);
+                //if (cache[term]) {
+                //    showResults(cache[term]);
+                //} else {
+                //    var controller = input.data('controller');
+                //    var action = input.data('action');
+                //    $.get('/' + controller + '/' + action, { term: term }, function (data) {
+                //        if (data.error) {
+                //            showValidationMessage(input.data('name'), data.error);
+                //        } else {
+                //            cache[term] = data;
+                //            showResults(data);
+                //        }
+                //    });
+                //}
+
+                //--- NUOVO: raccoglie i valori dei campi filtro aggiuntivi dal form
+                function buildExtraFieldsParam(inputEl) {
+                    var prefixAttr = inputEl.data('prefix');
+                    var extraFieldsAttr = inputEl.data('extra-fields');
+                    if (!extraFieldsAttr) return {};
+
+                    //var fieldNames;
+                    //try { fieldNames = JSON.parse(extraFieldsAttr); } catch { return {}; }
+                    var fieldNames = extraFieldsAttr;
+                    try { fieldNames = JSON.parse(extraFieldsAttr); } catch { }
+
+                    var result = {};
+                    fieldNames.forEach(function (propName) {
+                        // Calcola l'id con il prefix, se presente
+                        var baseId = (prefixAttr) ? prefixAttr + '_' + propName : propName;
+                        //var fieldEl = document.getElementById(baseId);
+                        //if (fieldEl) {
+                        //    // Supporta sia campi normali sia autocomplete
+                        //    result[propName] = getSelectedValue(baseId) || fieldEl.value || '';
+                        //}
+                        var values = getSelectedValues(baseId);   // <- array invece di stringa singola
+                        if (values.length > 0) {
+                            result[propName] = values;            // es. { "IdReparto": ["3","7"] }
+                        }
+                    });
+                    return result;
+                }
+                // Costruisce la query string nel formato atteso da ASP.NET Core [FromQuery] Dictionary<string, List<string>>
+                function buildQueryString(base, extraFields) {
+                    var qs = new URLSearchParams();
+                    // parametri base (term, modelPropertyName)
+                    Object.entries(base).forEach(function ([k, v]) {
+                        qs.append(k, v);
+                    });
+                    // extraFields[propName][0]=val1 &extraFields[propName][1]=val2 ...
+                    Object.entries(extraFields).forEach(function ([propName, values]) {
+                        values.forEach(function (val, idx) {
+                            qs.append('extraFields[' + propName + '][' + idx + ']', val);
+                        });
+                    });
+                    return qs.toString();
+                }
+
+                var term = $(this).val().toUpperCase();
+                var modelPropertyName = input.data('property-name');
+                var extraFields = buildExtraFieldsParam(input);
+                var cacheKey = term + '|' + JSON.stringify(extraFields);
+
+                if (cache[cacheKey]) {
+                    showResults(cache[cacheKey]);
                 } else {
                     var controller = input.data('controller');
                     var action = input.data('action');
-                    $.get('/' + controller + '/' + action, { term: term }, function (data) {
+                    // Aggiunge i filtri alla query string
+                    //var params = $.extend({ term: term, modelPropertyName: modelPropertyName }, extraFields);
+                    //$.get('/' + controller + '/' + action, params, function (data) {
+                    //    if (data.error) {
+                    //        showValidationMessage(input.data('name'), data.error);
+                    //    } else {
+                    //        cache[cacheKey] = data;  // cache con chiave composta
+                    //        showResults(data);
+                    //    }
+                    //});
+                    var qs = buildQueryString({ term: term, modelPropertyName: modelPropertyName }, extraFields);
+                    $.get('/' + controller + '/' + action + '?' + qs, function (data) {
                         if (data.error) {
                             showValidationMessage(input.data('name'), data.error);
                         } else {
-                            cache[term] = data;
+                            cache[cacheKey] = data;
                             showResults(data);
                         }
                     });
                 }
+                //---
+
+
             }
         } else {
             resultsDiv.hide();
@@ -1190,15 +1305,83 @@ function etkAutocompleteInitialize(inputDOM) {
             if (mode === 'autocompleteClient') {
                 showResults(allChoices);
             } else if (mode === 'autocompleteServer') {
+                //var controller = input.data('controller');
+                //var action = input.data('action'); var term = '%';
+                //$.get('/' + controller + '/' + action, { term: term }, function (data) {
+                //    if (data.error) {
+                //        showValidationMessage(input.data('name'), data.error);
+                //    } else {
+                //        showResults(data);
+                //    }
+                //});
+
+                //--- NUOVO: raccoglie i valori dei campi filtro aggiuntivi dal form anche al click dell'icona
+                function buildExtraFieldsParam(inputEl) {
+                    var prefixAttr = inputEl.data('prefix');
+                    var extraFieldsAttr = inputEl.data('extra-fields');
+                    if (!extraFieldsAttr) return {};
+
+                    //var fieldNames;
+                    //try { fieldNames = JSON.parse(extraFieldsAttr); } catch { return {}; }
+                    var fieldNames = extraFieldsAttr;
+                    try { fieldNames = JSON.parse(extraFieldsAttr); } catch { }
+
+                    var result = {};
+                    fieldNames.forEach(function (propName) {
+                        // Calcola l'id con il prefix, se presente
+                        var baseId = (prefixAttr) ? prefixAttr + '_' + propName : propName;
+                        //var fieldEl = document.getElementById(baseId);
+                        //if (fieldEl) {
+                        //    // Supporta sia campi normali sia autocomplete
+                        //    result[propName] = getSelectedValue(baseId) || fieldEl.value || '';
+                        //}
+                        var values = getSelectedValues(baseId);   // <- array invece di stringa singola
+                        if (values.length > 0) {
+                            result[propName] = values;            // es. { "IdReparto": ["3","7"] }
+                        }
+                    });
+                    return result;
+                }
+                // Costruisce la query string nel formato atteso da ASP.NET Core [FromQuery] Dictionary<string, List<string>>
+                function buildQueryString(base, extraFields) {
+                    var qs = new URLSearchParams();
+                    // parametri base (term, modelPropertyName)
+                    Object.entries(base).forEach(function ([k, v]) {
+                        qs.append(k, v);
+                    });
+                    // extraFields[propName][0]=val1 &extraFields[propName][1]=val2 ...
+                    Object.entries(extraFields).forEach(function ([propName, values]) {
+                        values.forEach(function (val, idx) {
+                            qs.append('extraFields[' + propName + '][' + idx + ']', val);
+                        });
+                    });
+                    return qs.toString();
+                }
+
                 var controller = input.data('controller');
-                var action = input.data('action'); var term = '%';
-                $.get('/' + controller + '/' + action, { term: term }, function (data) {
+                var action = input.data('action');
+                var term = '%';
+                var modelPropertyName = input.data('property-name');
+                var extraFields = buildExtraFieldsParam(input);
+                //var params = $.extend({ term: term, modelPropertyName: modelPropertyName }, extraFields);
+                //$.get('/' + controller + '/' + action, params, function (data) {
+                //    if (data.error) {
+                //        showValidationMessage(input.data('name'), data.error);
+                //    } else {
+                //        showResults(data);
+                //    }
+                //});
+                var qs = buildQueryString({ term: term, modelPropertyName: modelPropertyName }, extraFields);
+                $.get('/' + controller + '/' + action + '?' + qs, function (data) {
                     if (data.error) {
                         showValidationMessage(input.data('name'), data.error);
                     } else {
                         showResults(data);
                     }
                 });
+                //---
+
+
             }
         }
     });

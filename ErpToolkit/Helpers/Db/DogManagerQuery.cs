@@ -8,6 +8,8 @@ using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
 using System.Threading.Tasks.Dataflow;
 using System.Collections.Generic;
+using static ErpToolkit.Helpers.Db.ExtraFilterCompiler;
+using System.Linq;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -38,7 +40,7 @@ namespace ErpToolkit.Helpers.Db
         //xxx//internal static List<Choice> AutocompleteGetSelect<T>(DogManager dogMng, string term, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "GetSelect", term: term, caseInsensitive: caseInsensitive, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
         //xxx//internal static List<Choice> AutocompletePreLoad<T>(DogManager dogMng, List<string> values, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new() { return Autocomplete_Int<T>(dogMng, "PreLoad", values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords); }
         //xxx//internal static List<Choice> Autocomplete_Int<T>(DogManager dogMng, DogTable tab, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
-        internal static List<Choice> Autocomplete_Int(DogManager dogMng, DogTable tab, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
+        internal static List<Choice> Autocomplete_Int(DogManager dogMng, DogTable tab, string tpy, string? term = null, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
         {
             //check init
             if (tpy == null) throw new Exception($"Autocomplete_Int: tpy == null.");
@@ -88,42 +90,86 @@ namespace ErpToolkit.Helpers.Db
             if (tab.fldDeleted == null) { sb.Append($@" FROM {tab.SqlTableName} WHERE 1=1 "); }
             else { sb.Append($@" FROM {tab.SqlTableName} WHERE {tab.fldDeleted.SqlFieldName} = {DogManager.addParam("N", ref parameters)} "); }
 
+            string sql = "";
             if (tpy == "GetAll")
             {
-                ;  // do nothing
+                //filtro per extra Where
+                if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
+                sql = sb.ToString();
             }
             else if (tpy == "GetSelect")
             {
                 if (term == null) throw new Exception($"Autocomplete_Int: term == null.");
-                //filtro per term
-                if (fieldNames.Count() > 0)
+                ////filtro per term
+                //if (fieldNames.Count() > 0)
+                //{
+                //    //string searchFields = string.Join(" + ", fieldNames.Select(f => $@"{dogMng.tabProperties[f].SqlFieldName} + {DogManager.addParam(" - ", ref parameters)}"));
+                //    //if (caseInsensitive) sb.Append($@" AND upper({searchFields}) LIKE {DogManager.addParam("%" + term.ToUpper() + "%", ref parameters)}");
+                //    //else sb.Append($@" AND {searchFields} LIKE {DogManager.addParam("%" + term + "%", ref parameters)}");
+
+
+
+                //    caseInsensitive = false; // forzo case sensitive per migliorare performance su DBMS che non indicizzano ricerche case insensitive
+
+
+
+                //    bool serchInMiddle = false;
+                //    string startWith = "";
+                //    if (serchInMiddle) startWith = "%";
+                //    if (caseInsensitive)
+                //    {
+                //        string searchUpperFields = string.Join(" OR ", fieldNames.Select(f => $@"upper({dogMng.tabProperties[f].SqlFieldName}) LIKE {DogManager.addParam(startWith + term.ToUpper() + "%", ref parameters)} "));
+                //        sb.Append($@" AND ({searchUpperFields})");
+                //    }
+                //    else
+                //    {
+                //        string searchFields = string.Join(" OR ", fieldNames.Select(f => $@"{dogMng.tabProperties[f].SqlFieldName} LIKE {DogManager.addParam(startWith + term + "%", ref parameters)} "));
+                //        sb.Append($@" AND ({searchFields})");
+                //    }
+
+                //    //---- Inserisco EXTRA FILTER
+                //    string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, modelPropertyName, extraFields);
+                //    if (!String.IsNullOrWhiteSpace(extraFilter)) {
+                //        if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" ({extraFilter})");
+                //        else sb.Append($@" AND ({extraFilter})");
+                //    }
+                //    //----
+
+                //    //filtro per extra Where
+                //    if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
+
+                //}
+
+                //---- CALCOLO EXTRA FILTER
+                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, modelPropertyName, extraFields);
+                if (!String.IsNullOrWhiteSpace(extraFilter))
                 {
-                    //string searchFields = string.Join(" + ", fieldNames.Select(f => $@"{dogMng.tabProperties[f].SqlFieldName} + {DogManager.addParam(" - ", ref parameters)}"));
-                    //if (caseInsensitive) sb.Append($@" AND upper({searchFields}) LIKE {DogManager.addParam("%" + term.ToUpper() + "%", ref parameters)}");
-                    //else sb.Append($@" AND {searchFields} LIKE {DogManager.addParam("%" + term + "%", ref parameters)}");
+                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" ({extraFilter})");
+                    else sb.Append($@" AND ({extraFilter})");
+                }
+                //filtro per extra Where
+                if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
+                //----
 
+                string sqlInitial = sb.ToString();
 
+                //filtro per term OTTIMIZZATO CON UNION
+                caseInsensitive = false; // forzo case sensitive per migliorare performance su DBMS che non indicizzano ricerche case insensitive
+                bool serchInMiddle = false;
 
-                    caseInsensitive = false; // forzo case sensitive per migliorare performance su DBMS che non indicizzano ricerche case insensitive
+                bool firstField = true;
+                foreach (var fldName in fieldNames)
+                {
 
+                    if (firstField) { firstField = false; } else { sql += "\n UNION \n"; }
 
-
-                    bool serchInMiddle = false;
                     string startWith = "";
                     if (serchInMiddle) startWith = "%";
-                    if (caseInsensitive)
-                    {
-                        string searchUpperFields = string.Join(" OR ", fieldNames.Select(f => $@"upper({dogMng.tabProperties[f].SqlFieldName}) LIKE {DogManager.addParam(startWith + term.ToUpper() + "%", ref parameters)} "));
-                        sb.Append($@" AND ({searchUpperFields})");
-                    }
-                    else
-                    {
-                        string searchFields = string.Join(" OR ", fieldNames.Select(f => $@"{dogMng.tabProperties[f].SqlFieldName} LIKE {DogManager.addParam(startWith + term + "%", ref parameters)} "));
-                        sb.Append($@" AND ({searchFields})");
-                    }
-
+                    if (caseInsensitive) sql += $" {sqlInitial} AND upper({dogMng.tabProperties[fldName].SqlFieldName}) LIKE {DogManager.addParam(startWith + term.ToUpper() + "%", ref parameters)} ";
+                    else sql += $" {sqlInitial} AND {dogMng.tabProperties[fldName].SqlFieldName} LIKE {DogManager.addParam(startWith + term + "%", ref parameters)} ";
 
                 }
+
             }
             else if (tpy == "PreLoad")
             {
@@ -140,23 +186,27 @@ namespace ErpToolkit.Helpers.Db
                     // Nessun valore valido, quindi nessun risultato
                     sb.Append($@" AND {DogManager.addParam("1", ref parameters)}={DogManager.addParam("0", ref parameters)}"); // Condizione sempre falsa
                 }
+                //filtro per extra Where
+                if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
+
+                sql = sb.ToString();
             }
             else
             {
                 throw new Exception($"Autocomplete_Int: wrong tpy {tpy}.");
             }
-            //filtro per extra Where
-            if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
 
             // Esegui la query
             //xxx//var listModel = dogMng.ExecuteQuery<T>(sb.ToString(), parameters, transactionId, maxRecords);
-            Dictionary<object, ModelErp> listModel = dogMng.ExecuteQuery(null, tab.tableTpy, sb.ToString(), parameters, transactionId, maxRecords);
+            Dictionary<object, ModelErp> listModel = dogMng.ExecuteQuery(null, tab.tableTpy, sql, parameters, transactionId, maxRecords);
 
             // Applica la formattazione dinamica
             //xxx//var result = listModel.Select(p => { return new Choice { value = p.getIcode().ToString(), label = p.ToHtml() }; }).ToList<Choice>();
             var result = listModel.Select(p => { return new Choice { value = p.Value?.getIcode()?.ToString() ?? "", label = p.Value?.ToHtml() ?? "" }; }).ToList<Choice>();
             return result;
         }
+
+
 
         //private static List<Choice> Autocomplete_Int<T>(DogManager dogMng, string tpy, string? term = null, bool caseInsensitive = true, List<string>? values = null, string? extraWhere = null) where T : ModelErp
         //{

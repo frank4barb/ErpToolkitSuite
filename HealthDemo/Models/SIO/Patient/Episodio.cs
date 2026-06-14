@@ -61,10 +61,10 @@ public Dictionary<string, HealthDemo.Models.SIO.Act.Prestazione>? XrefPrIdEpisod
 [Display(Name = "Richiesta", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]
 public Dictionary<string, HealthDemo.Models.SIO.Common.Richiesta>? XrefRiIdEpisodio { get; set; } = null;
-//848-845//[N] RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO
+//848-845//[N] RISULTATO_ESAME.RE_ID_EPISODIO
 [Display(Name = "RisultatoEsame", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]
-public Dictionary<string, HealthDemo.Models.SIO.HealthData.RisultatoEsame>? XrefReIdTipoDatoClinico { get; set; } = null;
+public Dictionary<string, HealthDemo.Models.SIO.HealthData.RisultatoEsame>? XrefReIdEpisodio { get; set; } = null;
 //980-978//[N] STATO_SALUTE.SS_ID_EPISODIO
 [Display(Name = "StatoSalute", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]
@@ -168,7 +168,7 @@ public string? EpCodEpisodio  { get; set; }
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente a cui si riferisce il contatto", Prompt="")]
 [ErpDogField("EP_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? EpIdPaziente  { get; set; }
 public HealthDemo.Models.SIO.Patient.Paziente? EpIdPazienteObj  { get; set; }
@@ -296,7 +296,7 @@ public string? EpNote  { get; set; }
 
 [Display(Name = "Id Atto Amministrativo", ShortName="", Description = "Identificativo dell'atto che descrive gli aspetti organizzativi attuali del contatto", Prompt="")]
 [ErpDogField("EP_ID_ATTO_AMMINISTRATIVO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? EpIdAttoAmministrativo  { get; set; }
 public HealthDemo.Models.SIO.Act.Prestazione? EpIdAttoAmministrativoObj  { get; set; }

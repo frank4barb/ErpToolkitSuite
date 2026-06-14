@@ -133,7 +133,7 @@ public string? Pc1Extatt { get; set; }
 [Display(Name = "Id Campione", ShortName="", Description = "Codice del campione", Prompt="")]
 [ErpDogField("PC_ID_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Cp1Icode", SqlFieldProperties="prop() xref(CAMPIONE.CP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteServer("Campione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Campione", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PcIdCampione  { get; set; }
 public HealthDemo.Models.SIO.Act.Campione? PcIdCampioneObj  { get; set; }
@@ -141,7 +141,7 @@ public HealthDemo.Models.SIO.Act.Campione? PcIdCampioneObj  { get; set; }
 [Display(Name = "Id Prestazione", ShortName="", Description = "Codice dell'atto", Prompt="")]
 [ErpDogField("PC_ID_PRESTAZIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PcIdPrestazione  { get; set; }
 public HealthDemo.Models.SIO.Act.Prestazione? PcIdPrestazioneObj  { get; set; }

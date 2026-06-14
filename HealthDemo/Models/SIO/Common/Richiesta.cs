@@ -214,14 +214,14 @@ public HealthDemo.Models.SIO.Common.TipoRichiesta? RiIdTipoRichiestaObj  { get; 
 
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente principale a cui si riferisce la comunicazione (se presente)", Prompt="")]
 [ErpDogField("RI_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? RiIdPaziente  { get; set; }
 public HealthDemo.Models.SIO.Patient.Paziente? RiIdPazienteObj  { get; set; }
 
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto del paziente principale a cui si riferisce la comunicazione (se presente)", Prompt="")]
 [ErpDogField("RI_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"EP_ID_PAZIENTE IN ({DogManager.addParam(f0(\"RiIdPaziente\"), ref parameters)})", ExtraFields: "RiIdPaziente")]
 [DataType(DataType.Text)]
 public string? RiIdEpisodio  { get; set; }
 public HealthDemo.Models.SIO.Patient.Episodio? RiIdEpisodioObj  { get; set; }

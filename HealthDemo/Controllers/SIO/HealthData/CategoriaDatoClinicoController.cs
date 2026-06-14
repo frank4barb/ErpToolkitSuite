@@ -13,7 +13,7 @@ namespace HealthDemo.Controllers.SIO.HealthData
     {
         private static readonly List<string> xrefTables = new List<string> {
              "CcIdGruppo"   //carico in cache tutti i dati di CategoriaDatoClinico collegati
-            ,"ReIdEpisodio"   //carico in cache tutti i dati di RisultatoEsame collegati
+            ,"ReIdGruppoDatoClinico"   //carico in cache tutti i dati di RisultatoEsame collegati
             ,"TcIdCategoriaDatoClinico"   //carico in cache tutti i dati di TipoDatoClinico collegati
             ,"SsIdGruppoDatoClinico"   //carico in cache tutti i dati di StatoSalute collegati
             ,"DcIdGruppoDatoClinico"   //carico in cache tutti i dati di DocumentoClinico collegati
@@ -48,11 +48,12 @@ namespace HealthDemo.Controllers.SIO.HealthData
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetAll CategoriaDatoClinico: " + ex.Message }); }
         }
         [HttpGet]
-        public JsonResult AutocompleteGetSelect(string term)
+        public JsonResult AutocompleteGetSelect(string term, string? modelPropertyName = null, [FromQuery] Dictionary<string, List<string>> extraFields = null)
         {
             try
             {
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<CategoriaDatoClinico>(term));
+                extraFields?.Remove("term"); extraFields?.Remove("modelPropertyName");   // Rimuovi "term" e "modelPropertyName" dai filtri se finiscono nel dizionario
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetSelect<CategoriaDatoClinico>(term, modelPropertyName: modelPropertyName, extraFields: extraFields));
             }
             catch (Exception ex)  { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetSelect CategoriaDatoClinico: " + ex.Message }); }
         }

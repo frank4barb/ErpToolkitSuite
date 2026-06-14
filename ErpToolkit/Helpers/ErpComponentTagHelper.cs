@@ -279,13 +279,17 @@ namespace ErpToolkit.Helpers
         public string Action { get; }
         public string PreloadAction { get; }
         public int MaxSelections { get; } = 0;
+        public string ExtraFilter { get; } = ""; // Opzionale: filtro extra da passare al server per limitare i risultati (es. in base ad altri campi del modello)
+        public string[] ExtraFields { get; } = Array.Empty<string>();// Opzionale: campi extra da includere nella richiesta al server (es. altri campi del modello da considerare nel filtro)
 
-        public AutocompleteServerAttribute(string controller, string action, string preloadAction, int maxSelections = 0)
+        public AutocompleteServerAttribute(string controller, string action, string preloadAction, int maxSelections = 0, string ExtraFilter = "", params string[] ExtraFields)
         {
             Controller = controller;
             Action = action;
             PreloadAction = preloadAction;
             MaxSelections = maxSelections;
+            this.ExtraFilter = ExtraFilter ?? "";
+            this.ExtraFields = ExtraFields ?? Array.Empty<string>();
         }
     }
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
@@ -294,12 +298,16 @@ namespace ErpToolkit.Helpers
         public string Controller { get; }
         public string Action { get; }
         public int MaxSelections { get; set; } = 0;
+        public string ExtraFilter { get; } = ""; // Opzionale: filtro extra da passare al server per limitare i risultati (es. in base ad altri campi del modello)
+        public string[] ExtraFields { get; } = Array.Empty<string>();// Opzionale: campi extra da includere nella richiesta al server (es. altri campi del modello da considerare nel filtro)
 
-        public AutocompleteClientAttribute(string controller, string action, int maxSelections = 0)
+        public AutocompleteClientAttribute(string controller, string action, int maxSelections = 0, string extraFilter = "", params string[] extraFields)
         {
             Controller = controller;
             Action = action;
             MaxSelections = maxSelections;
+            ExtraFilter = extraFilter ?? "";
+            ExtraFields = extraFields ?? Array.Empty<string>();
         }
     }
 
@@ -615,6 +623,9 @@ namespace ErpToolkit.Helpers
             var prefixInputName = ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(For.Name);
             var prefixInputId = TagBuilder.CreateSanitizedId(prefixInputName, "_");
 
+            //var modelPropertyName = $"{property?.ReflectedType?.FullName ?? ""}.{For.Name}";
+            var modelPropertyName = For.Name;
+
             //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             // Esempio TagHelper custom (semplificato)
             //^^^
@@ -656,6 +667,12 @@ namespace ErpToolkit.Helpers
 
                 var selectedItemsDiv = $@"<div id='{divId}' class='selected-items'></div>";
 
+                //--
+                var extraFieldsJson = (attributeServer.ExtraFields != null && attributeServer.ExtraFields.Length > 0) ? JsonConvert.SerializeObject(attributeServer.ExtraFields) : "[]";
+                output.Attributes.SetAttribute("data-extra-fields", extraFieldsJson);
+                output.Attributes.SetAttribute("data-prefix", prefix);
+                //--
+
                 output.Attributes.SetAttribute("class", "autocomplete-input form-control");
                 output.Attributes.SetAttribute("autocomplete", "off");
                 output.Attributes.SetAttribute("data-max-selections", attributeServer.MaxSelections);
@@ -665,6 +682,9 @@ namespace ErpToolkit.Helpers
                 output.Attributes.SetAttribute("data-pre-selected", preSelectedValuesJson);
                 output.Attributes.SetAttribute("data-id", prefixInputId);
                 output.Attributes.SetAttribute("data-name", prefixInputName);
+
+                output.Attributes.SetAttribute("data-property-name", modelPropertyName);
+
                 output.Attributes.SetAttribute("data-min-chars", MinChars);
                 output.Attributes.SetAttribute("data-mode", "autocompleteServer");  // Modalità di autocomplete
                 output.Attributes.SetAttribute("data-readonly", readonlyFlag);  // Readonly field value

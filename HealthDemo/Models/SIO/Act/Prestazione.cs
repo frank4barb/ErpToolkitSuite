@@ -175,7 +175,7 @@ public HealthDemo.Models.SIO.Act.Attivita? PrIdAttivitaEseguitaObj  { get; set; 
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice dell'atto di cui questo è una sotto-attività", Prompt="")]
 [ErpDogField("PR_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PrIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Act.Prestazione? PrIdGruppoObj  { get; set; }
@@ -189,14 +189,14 @@ public string? PrInEvidenza  { get; set; }
 
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente", Prompt="")]
 [ErpDogField("PR_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PrIdPaziente  { get; set; }
 public HealthDemo.Models.SIO.Patient.Paziente? PrIdPazienteObj  { get; set; }
 
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto (codice in-paziente o ambulatoriale)", Prompt="")]
 [ErpDogField("PR_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"EP_ID_PAZIENTE IN ({DogManager.addParam(f0(\"PrIdPaziente\"), ref parameters)})", ExtraFields: "PrIdPaziente")]
 [DataType(DataType.Text)]
 public string? PrIdEpisodio  { get; set; }
 public HealthDemo.Models.SIO.Patient.Episodio? PrIdEpisodioObj  { get; set; }
@@ -260,7 +260,7 @@ public TimeOnly? PrOraRichiesta  { get; set; }
 
 [Display(Name = "Id Richiesta", ShortName="", Description = "Codice della comunicazione di richiesta (se presente)", Prompt="")]
 [ErpDogField("PR_ID_RICHIESTA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ri1Icode", SqlFieldProperties="prop() xref(RICHIESTA.RI__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Richiesta", "AutocompleteGetSelect", "AutocompletePreLoad", 1)]
+[AutocompleteServer("Richiesta", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PrIdRichiesta  { get; set; }
 public HealthDemo.Models.SIO.Common.Richiesta? PrIdRichiestaObj  { get; set; }

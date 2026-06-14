@@ -61,7 +61,7 @@ public List<string> SelPrIdAttivitaEseguita  { get; set; } = new List<string>();
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice dell'atto di cui questo è una sotto-attività", Prompt="")]
 [ErpDogField("PR_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pr1Icode", SqlFieldProperties="prop() xref(PRESTAZIONE.PR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Prestazione", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelPrIdGruppo  { get; set; } = new List<string>();
 
@@ -73,14 +73,14 @@ public string? SelPrInEvidenza  { get; set; }
 [Display(Name = "Id Paziente", ShortName="", Description = "Codice del paziente", Prompt="")]
 [ErpDogField("PR_ID_PAZIENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pa1Icode", SqlFieldProperties="prop() xref(PAZIENTE.PA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Paziente", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelPrIdPaziente  { get; set; } = new List<string>();
 
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto (codice in-paziente o ambulatoriale)", Prompt="")]
 [ErpDogField("PR_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelPrIdPaziente\"), ref parameters))})", ExtraFields: "SelPrIdPaziente")]
 [DataType(DataType.Text)]
 public List<string> SelPrIdEpisodio  { get; set; } = new List<string>();
 
@@ -142,7 +142,7 @@ public TimeOnly? SelPrOraRichiesta  { get; set; }
 [Display(Name = "Id Richiesta", ShortName="", Description = "Codice della comunicazione di richiesta (se presente)", Prompt="")]
 [ErpDogField("PR_ID_RICHIESTA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ri1Icode", SqlFieldProperties="prop() xref(RICHIESTA.RI__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Richiesta", "AutocompleteGetSelect", "AutocompletePreLoad", 10)]
+[AutocompleteServer("Richiesta", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelPrIdRichiesta  { get; set; } = new List<string>();
 

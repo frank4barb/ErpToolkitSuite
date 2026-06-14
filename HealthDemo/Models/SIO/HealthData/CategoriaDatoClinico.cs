@@ -57,10 +57,10 @@ public override string labelHtml() { return $@"<strong>{HttpUtility.HtmlEncode(C
 [Display(Name = "CategoriaDatoClinico", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]
 public Dictionary<string, HealthDemo.Models.SIO.HealthData.CategoriaDatoClinico>? XrefCcIdGruppo { get; set; } = null;
-//847-845//[N] RISULTATO_ESAME.RE_ID_EPISODIO
+//847-845//[N] RISULTATO_ESAME.RE_ID_GRUPPO_DATO_CLINICO
 [Display(Name = "RisultatoEsame", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]
-public Dictionary<string, HealthDemo.Models.SIO.HealthData.RisultatoEsame>? XrefReIdEpisodio { get; set; } = null;
+public Dictionary<string, HealthDemo.Models.SIO.HealthData.RisultatoEsame>? XrefReIdGruppoDatoClinico { get; set; } = null;
 //952-946//[N] TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO
 [Display(Name = "TipoDatoClinico", ShortName = "", Description = "", Prompt = "")]
 [ErpTable(Options = " XXX ")]

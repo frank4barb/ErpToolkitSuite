@@ -15,10 +15,10 @@
                 @Html.DisplayNameFor(model => model.ReIdPaziente)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReIdTipoDatoClinico)
+                @Html.DisplayNameFor(model => model.ReIdEpisodio)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReIdGruppoDatoClinico)
+                @Html.DisplayNameFor(model => model.ReIdTipoDatoClinico)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ReValoreMinimo)
@@ -69,10 +69,10 @@
                     @Html.DisplayFor(modelItem => item.ReIdPazienteObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ReIdTipoDatoClinicoObj)
+                    @Html.DisplayFor(modelItem => item.ReIdEpisodioObj)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ReIdGruppoDatoClinicoObj)
+                    @Html.DisplayFor(modelItem => item.ReIdTipoDatoClinicoObj)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ReValoreMinimo)
@@ -138,8 +138,8 @@
                 "columns": [
                     { "visible": true, "data": "ReClasse", "name": "ReClasse", "title": "Classe", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "ReIdPaziente", "name": "ReIdPaziente", "title": "Id Paziente", "defaultContent": ".", "autoWidth": true },
+                    { "visible": true, "data": "ReIdEpisodio", "name": "ReIdEpisodio", "title": "Id Episodio", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "ReIdTipoDatoClinico", "name": "ReIdTipoDatoClinico", "title": "Id Tipo Dato Clinico", "defaultContent": ".", "autoWidth": true },
-                    { "visible": true, "data": "ReIdGruppoDatoClinico", "name": "ReIdGruppoDatoClinico", "title": "Id Gruppo Dato Clinico", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "ReValoreMinimo", "name": "ReValoreMinimo", "title": "Valore Minimo", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "ReValoreMassimo", "name": "ReValoreMassimo", "title": "Valore Massimo", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "ReValoreScelta", "name": "ReValoreScelta", "title": "Valore Scelta", "defaultContent": ".", "autoWidth": true },
