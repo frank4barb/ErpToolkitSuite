@@ -52,7 +52,7 @@ public string? SelFmDescrizione  { get; set; }
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di farmaco", Prompt="")]
 [ErpDogField("FM_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelFmIdTipoRisorsa  { get; set; } = new List<string>();
 

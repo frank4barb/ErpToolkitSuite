@@ -144,7 +144,7 @@ public string? Dg1Extatt { get; set; }
 
 [Display(Name = "Tipo Diagnosi", ShortName="", Description = "Codice del tipo di classificazione a cui l'istanza appartiene", Prompt="")]
 [ErpDogField("DG_TIPO_DIAGNOSI", SqlFieldNameExt="", SqlFieldOptions="", Xref="Td1Icode", SqlFieldProperties="prop() xref(TIPO_DIAGNOSI.TD__ICODE) xdup() multbxref()")]
-[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? DgTipoDiagnosi  { get; set; }
 public HealthDemo.Models.SIO.Costs.TipoDiagnosi? DgTipoDiagnosiObj  { get; set; }
@@ -180,7 +180,7 @@ public string? DgCodice  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Identificatore del codice di aggregazione nella gerarchia (se presente)", Prompt="")]
 [ErpDogField("DG_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Dg1Icode", SqlFieldProperties="prop() xref(DIAGNOSI.DG__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? DgIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Costs.Diagnosi? DgIdGruppoObj  { get; set; }

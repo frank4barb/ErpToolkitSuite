@@ -56,7 +56,7 @@ public string? SelCcNote  { get; set; }
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice della superclasse che raggruppa la classe attuale", Prompt="")]
 [ErpDogField("CC_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10)]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelCcIdGruppo  { get; set; } = new List<string>();
 

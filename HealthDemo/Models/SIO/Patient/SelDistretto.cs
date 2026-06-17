@@ -52,7 +52,7 @@ public string? SelDiNote  { get; set; }
 [Display(Name = "Id Comune", ShortName="", Description = "Città in cui si trova il distretto", Prompt="")]
 [ErpDogField("DI_ID_COMUNE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelDiIdComune  { get; set; } = new List<string>();
 

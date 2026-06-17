@@ -299,15 +299,13 @@ namespace ErpToolkit.Helpers
         public string Action { get; }
         public int MaxSelections { get; set; } = 0;
         public string ExtraFilter { get; } = ""; // Opzionale: filtro extra da passare al server per limitare i risultati (es. in base ad altri campi del modello)
-        public string[] ExtraFields { get; } = Array.Empty<string>();// Opzionale: campi extra da includere nella richiesta al server (es. altri campi del modello da considerare nel filtro)
 
-        public AutocompleteClientAttribute(string controller, string action, int maxSelections = 0, string extraFilter = "", params string[] extraFields)
+        public AutocompleteClientAttribute(string controller, string action, int maxSelections = 0, string ExtraFilter = "")
         {
             Controller = controller;
             Action = action;
             MaxSelections = maxSelections;
-            ExtraFilter = extraFilter ?? "";
-            ExtraFields = extraFields ?? Array.Empty<string>();
+            this.ExtraFilter = ExtraFilter ?? "";
         }
     }
 
@@ -728,6 +726,9 @@ namespace ErpToolkit.Helpers
                 output.Attributes.SetAttribute("data-pre-selected", preSelectedValuesJson);
                 output.Attributes.SetAttribute("data-id", prefixInputId);
                 output.Attributes.SetAttribute("data-name", prefixInputName);
+
+                output.Attributes.SetAttribute("data-property-name", modelPropertyName);
+
                 output.Attributes.SetAttribute("data-min-chars", MinChars);
                 output.Attributes.SetAttribute("data-mode", "autocompleteClient");  // Modalità di autocomplete
                 output.Attributes.SetAttribute("data-readonly", readonlyFlag);  // Readonly field value

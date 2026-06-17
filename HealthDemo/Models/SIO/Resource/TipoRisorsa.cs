@@ -178,7 +178,7 @@ public string? TsClasseRisorsa  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del super-tipo di risorsa (cioè l'aggregazione nella gerarchia), se presente", Prompt="")]
 [ErpDogField("TS_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? TsIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Resource.TipoRisorsa? TsIdGruppoObj  { get; set; }

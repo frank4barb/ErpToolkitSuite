@@ -200,7 +200,7 @@ public double? AvCostoMedio  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice dell'attività di cui questa è una sotto-attività", Prompt="")]
 [ErpDogField("AV_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AvIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AvIdGruppoObj  { get; set; }
@@ -230,7 +230,7 @@ public string? AvInEvidenza  { get; set; }
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività predefinita", Prompt="")]
 [ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AvIdTipoAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoAttivita? AvIdTipoAttivitaObj  { get; set; }

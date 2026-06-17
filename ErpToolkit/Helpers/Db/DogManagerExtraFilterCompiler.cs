@@ -121,26 +121,156 @@ namespace ErpToolkit.Helpers.Db
             //-----------------------------------------------------------------------------------
             //-----------------------------------------------------------------------------------
 
-            //ESEMPIO DI USO NEI TEMPLATE:
-            //....
-            //[AutocompleteServer(...,
-            //    ExtraFilter = "{valid.Require(\"PrIdGruppo\", extraFields, \"Seleziona prima il Gruppo\")}" +
-            //                  "PR_GRUPPO = '{f(\"PrIdGruppo\")}' AND ANNO = {today.YearOf(f(\"PrDataInizio\"))}")]
-            //...
+            //////////// VECCHI FILTRI, NON USARE PIÙ:
+            ////////////[AutocompleteServer(...,
+            ////////////    ExtraFilter = "{valid.Require(\"PrIdGruppo\", extraFields, \"Seleziona prima il Gruppo\")}" +
+            ////////////                  "PR_GRUPPO = '{f(\"PrIdGruppo\")}' AND ANNO = {today.YearOf(f(\"PrDataInizio\"))}")]
+            ////////////...
+            ////////////    ExtraFilter = "EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelReIdPaziente\"), ref parameters))})")]
+            ////////////...
+            ////////////    ExtraFilter = "TC_CLASSE in ({DogManager.addParam('2', ref parameters)})")]
 
-            // NUOVO: accesso senza virgolette doppie nel template
-            // Uso: {f("PrIdGruppo")} invece di {extraFields["PrIdGruppo"]}
+            
+            //Esempi di template di filtro dinamico:
+            //--------------------------------------
+
+            //ExtraFilter = "{And(Eq(\"PA__GRUPPO\",\"SelGruppo\"), In(\"PA__ICODE\",\"SelCodici\"))}"
+
+            //ExtraFilter = "{valid.Require(\"PrIdGruppo\", extraFields, \"Seleziona prima il Gruppo\")}" +
+            //              "{And(Eq(\"PR_GRUPPO\",\"PrIdGruppo\"), Between(\"DATA_EPI\",\"SelDate\"))}"
+
+            //ExtraFilter = "{Or(In(\"PA__ICODE\",\"SelCodici\"), InVals(\"PA__STATO\",\"A\",\"B\"))}"
+
+            // ── Accesso ai campi extra ─────────────────────────────────────────────
             public List<object>? f(string fieldName)
                 => extraFields.TryGetValue(fieldName, out var v) ? v : null;
             public object? f0(string fieldName)
-                => (extraFields.TryGetValue(fieldName, out var v) && v != null && v.Count > 0) ? v[0] : null;
+                => (extraFields.TryGetValue(fieldName, out var v) && v?.Count > 0) ? v[0] : null;
             public object? f1(string fieldName)
-                => (extraFields.TryGetValue(fieldName, out var v) && v != null && v.Count > 1) ? v[1] : null;
-
-            // Con default
+                => (extraFields.TryGetValue(fieldName, out var v) && v?.Count > 1) ? v[1] : null;
             public List<object> fd(string fieldName, List<object> defaultValue)
                 => extraFields.TryGetValue(fieldName, out var v) && !UtilHelper.IsNullOrEmptyObject(v)
                     ? v : defaultValue;
+
+            // ── Helper interno ─────────────────────────────────────────────────────
+            private bool HasValue(object? v)
+                => v != null && !string.IsNullOrEmpty(v.ToString());
+
+            private string Compare(string op, string sqlColumn, object? v)
+            {
+                if (!HasValue(v)) return "";
+                var p = DogManager.addParam(v!, ref parameters);
+                return $"{sqlColumn} {op} {p}";
+            }
+
+            // ── Uguaglianza ────────────────────────────────────────────────────────
+            // {Eq("PA__ICODE", "SelCodice")}
+            // {EqVal("PA__STATO", "A")}
+            public string Eq(string sqlColumn, string fieldName) => Compare("=", sqlColumn, f0(fieldName));
+            public string EqVal(string sqlColumn, object value) => Compare("=", sqlColumn, value);
+            public string Neq(string sqlColumn, string fieldName) => Compare("<>", sqlColumn, f0(fieldName));
+            public string NeqVal(string sqlColumn, object value) => Compare("<>", sqlColumn, value);
+
+            // ── Confronti ──────────────────────────────────────────────────────────
+            // {Gt("PA__DATA", "SelData")}  {GtVal("PA__ANNO", 2020)}
+            // {Like("PA__DESC", "SelDesc")}
+            // {LikeVal("PA__DESC", "%rossi%")}        valore letterale
+            public string Gt(string sqlColumn, string fieldName) => Compare(">", sqlColumn, f0(fieldName));
+            public string Gte(string sqlColumn, string fieldName) => Compare(">=", sqlColumn, f0(fieldName));
+            public string Lt(string sqlColumn, string fieldName) => Compare("<", sqlColumn, f0(fieldName));
+            public string Lte(string sqlColumn, string fieldName) => Compare("<=", sqlColumn, f0(fieldName));
+            public string Like(string sqlColumn, string fieldName) => Compare("LIKE", sqlColumn, f0(fieldName));
+            public string GtVal(string sqlColumn, object value) => Compare(">", sqlColumn, value);
+            public string GteVal(string sqlColumn, object value) => Compare(">=", sqlColumn, value);
+            public string LtVal(string sqlColumn, object value) => Compare("<", sqlColumn, value);
+            public string LteVal(string sqlColumn, object value) => Compare("<=", sqlColumn, value);
+            public string LikeVal(string sqlColumn, object value) => Compare("LIKE", sqlColumn, value);
+
+            // ── IN / NOT IN ────────────────────────────────────────────────────────
+            // {In("PA__ICODE", "SelCodici")}
+            // {InVals("PA__STATO", "A","B","C")}
+            public string In(string sqlColumn, string fieldName)
+            {
+                var list = f(fieldName)?.Where(v => v != null).ToList();
+                if (list == null || list.Count == 0) return "";
+                var pNames = DogManager.addListParam(list, ref parameters);
+                return $"{sqlColumn} IN ({string.Join(", ", pNames)})";
+            }
+            public string NotIn(string sqlColumn, string fieldName)
+            {
+                var list = f(fieldName)?.Where(v => v != null).ToList();
+                if (list == null || list.Count == 0) return "";
+                var pNames = DogManager.addListParam(list, ref parameters);
+                return $"{sqlColumn} NOT IN ({string.Join(", ", pNames)})";
+            }
+            public string InVals(string sqlColumn, params object[] values)
+            {
+                var list = values?.Where(v => v != null).Cast<object>().ToList();
+                if (list == null || list.Count == 0) return "";
+                var pNames = DogManager.addListParam(list, ref parameters);
+                return $"{sqlColumn} IN ({string.Join(", ", pNames)})";
+            }
+            public string NotInVals(string sqlColumn, params object[] values)
+            {
+                var list = values?.Where(v => v != null).Cast<object>().ToList();
+                if (list == null || list.Count == 0) return "";
+                var pNames = DogManager.addListParam(list, ref parameters);
+                return $"{sqlColumn} NOT IN ({string.Join(", ", pNames)})";
+            }
+
+            // ── BETWEEN / date-range ───────────────────────────────────────────────
+            // {Between("PA__DATA", "SelDateRange")}    f(field)[0]=start, f(field)[1]=end
+            // {BetweenVals("PA__ANNO", 2020, 2024)}
+            public string Between(string sqlColumn, string fieldName)
+            {
+                var list = f(fieldName);
+                var start = list?.ElementAtOrDefault(0);
+                var end = list?.ElementAtOrDefault(1);
+                return BuildBetween(sqlColumn, start, end);
+            }
+            public string BetweenVals(string sqlColumn, object? start, object? end)
+                => BuildBetween(sqlColumn, start, end);
+
+            private string BuildBetween(string sqlColumn, object? start, object? end)
+            {
+                bool hasStart = HasValue(start);
+                bool hasEnd = HasValue(end);
+                if (!hasStart && !hasEnd) return "";
+                if (hasStart && hasEnd)
+                {
+                    var ps = DogManager.addParam(start!, ref parameters);
+                    var pe = DogManager.addParam(end!, ref parameters);
+                    return $"{sqlColumn} BETWEEN {ps} AND {pe}";
+                }
+                if (hasStart)
+                {
+                    var ps = DogManager.addParam(start!, ref parameters);
+                    return $"{sqlColumn} >= {ps}";
+                }
+                var pe2 = DogManager.addParam(end!, ref parameters);
+                return $"{sqlColumn} <= {pe2}";
+            }
+
+            // ── IS NULL / IS NOT NULL ──────────────────────────────────────────────
+            // {IsNull("PA__NOTE")}
+            public string IsNull(string sqlColumn) => $"{sqlColumn} IS NULL";
+            public string IsNotNull(string sqlColumn) => $"{sqlColumn} IS NOT NULL";
+
+            // ── Combinatori ────────────────────────────────────────────────────────
+            // {And(Eq("PA__GRUPPO","SelGruppo"), In("PA__ICODE","SelCodici"))}
+            // {Or(Eq("PA__TIPO","SelTipo"), IsNull("PA__TIPO"))}
+            public string And(params string[] conditions)
+            {
+                var parts = conditions.Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
+                return parts.Count switch { 0 => "", 1 => parts[0], _ => "(" + string.Join(" AND ", parts) + ")" };
+            }
+            public string Or(params string[] conditions)
+            {
+                var parts = conditions.Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
+                return parts.Count switch { 0 => "", 1 => parts[0], _ => "(" + string.Join(" OR ", parts) + ")" };
+            }
+
+
         }
 
         public class ExtraFilterAppContext
@@ -175,9 +305,14 @@ namespace ErpToolkit.Helpers.Db
         public class ExtraFilterValid
         {
             /// Uso: {valid.Require("PrIdGruppo", extraFields, "Seleziona prima il Gruppo")}
-            public string Require(string fieldName, Dictionary<string, string> fields, string errorMessage)
+            public string Require(string fieldName, Dictionary<string, List<object>> fields)
             {
-                if (!fields.TryGetValue(fieldName, out var val) || string.IsNullOrWhiteSpace(val))
+                return Require(fieldName, fields, $"Seleziona prima il campo '{fieldName}'");
+            }
+            public string Require(string fieldName, Dictionary<string, List<object>> fields, string errorMessage)
+            {
+                if (!fields.TryGetValue(fieldName, out var list) || list == null || list.Count == 0
+                    || list.All(v => v == null || string.IsNullOrWhiteSpace(v.ToString())))
                     throw new ExtraFilterValidationException(errorMessage);
                 return "";
             }
@@ -190,12 +325,15 @@ namespace ErpToolkit.Helpers.Db
             }
 
             /// Uso: {valid.RequireAny("Gruppo o Tipo obbligatorio", extraFields, "PrIdGruppo", "PrTipo")}
-            public string RequireAny(string errorMessage, Dictionary<string, string> fields, params string[] fieldNames)
+            public string RequireAny(string errorMessage, Dictionary<string, List<object>> fields, params string[] fieldNames)
             {
-                if (fieldNames.All(f => !fields.TryGetValue(f, out var v) || string.IsNullOrWhiteSpace(v)))
-                    throw new ExtraFilterValidationException(errorMessage);
+                bool anyFilled = fieldNames.Any(fn =>
+                    fields.TryGetValue(fn, out var list) && list != null && list.Count > 0
+                    && list.Any(v => v != null && !string.IsNullOrWhiteSpace(v.ToString())));
+                if (!anyFilled) throw new ExtraFilterValidationException(errorMessage);
                 return "";
             }
+
         }
         public class ExtraFilterValidationException : Exception
         {

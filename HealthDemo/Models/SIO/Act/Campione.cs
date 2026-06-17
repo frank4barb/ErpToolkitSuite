@@ -137,7 +137,7 @@ public string? Cp1Extatt { get; set; }
 [Display(Name = "Id Tipo Campione", ShortName="", Description = "Codice del tipo di campione", Prompt="")]
 [ErpDogField("CP_ID_TIPO_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? CpIdTipoCampione  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoCampione? CpIdTipoCampioneObj  { get; set; }
@@ -180,7 +180,7 @@ public string? CpNote  { get; set; }
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto", Prompt="")]
 [ErpDogField("CP_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"EP_ID_PAZIENTE IN ({DogManager.addParam(f0(\"CpIdPaziente\"), ref parameters)})", ExtraFields: "CpIdPaziente")]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"{In(\"EP_ID_PAZIENTE\", \"CpIdPaziente\")}", ExtraFields: "CpIdPaziente")]
 [DataType(DataType.Text)]
 public string? CpIdEpisodio  { get; set; }
 public HealthDemo.Models.SIO.Patient.Episodio? CpIdEpisodioObj  { get; set; }
@@ -208,7 +208,7 @@ public string? CpStatoCampione  { get; set; }
 
 [Display(Name = "Id Posizione Attuale", ShortName="", Description = "Posizione del campione nell'organizzazione", Prompt="")]
 [ErpDogField("CP_ID_POSIZIONE_ATTUALE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}")]
 [DataType(DataType.Text)]
 public string? CpIdPosizioneAttuale  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? CpIdPosizioneAttualeObj  { get; set; }

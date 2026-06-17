@@ -52,7 +52,7 @@ public string? SelTdNote  { get; set; }
 [Display(Name = "Id Gruppo", ShortName="", Description = "Superclasse che raggruppa la classificazione corrente", Prompt="")]
 [ErpDogField("TD_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Td1Icode", SqlFieldProperties="prop() xref(TIPO_DIAGNOSI.TD__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelTdIdGruppo  { get; set; } = new List<string>();
 

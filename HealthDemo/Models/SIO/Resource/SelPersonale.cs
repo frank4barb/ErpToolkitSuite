@@ -53,7 +53,7 @@ public string? SelPeDescrizione  { get; set; }
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di membro dello staff (classificazione operativa)", Prompt="")]
 [ErpDogField("PE_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPeIdTipoRisorsa  { get; set; } = new List<string>();
 

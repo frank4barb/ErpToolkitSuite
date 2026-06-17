@@ -132,35 +132,35 @@ public string? Ar1Extatt { get; set; }
 
 [Display(Name = "Id Attivita", ShortName="", Description = "Codice dell'attività che può essere eseguita", Prompt="")]
 [ErpDogField("AR_ID_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? ArIdAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? ArIdAttivitaObj  { get; set; }
 
 [Display(Name = "Id Istituto", ShortName="", Description = "Codice dell'organizzazione che può eseguire l'atto", Prompt="")]
 [ErpDogField("AR_ID_ISTITUTO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"0\")}")]
 [DataType(DataType.Text)]
 public string? ArIdIstituto  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? ArIdIstitutoObj  { get; set; }
 
 [Display(Name = "Id Unita", ShortName="", Description = "Codice dell'unità che può eseguire l'atto", Prompt="")]
 [ErpDogField("AR_ID_UNITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public string? ArIdUnita  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? ArIdUnitaObj  { get; set; }
 
 [Display(Name = "Id Postazione", ShortName="", Description = "Codice del punto di servizio (SP) che può eseguire l'atto", Prompt="")]
 [ErpDogField("AR_ID_POSTAZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}")]
 [DataType(DataType.Text)]
 public string? ArIdPostazione  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? ArIdPostazioneObj  { get; set; }
 
 [Display(Name = "Id Operatore", ShortName="", Description = "Codice dell'agente che può eseguire l'atto", Prompt="")]
 [ErpDogField("AR_ID_OPERATORE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"3\")}")]
 [DataType(DataType.Text)]
 public string? ArIdOperatore  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? ArIdOperatoreObj  { get; set; }

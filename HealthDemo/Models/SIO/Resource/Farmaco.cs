@@ -163,7 +163,7 @@ public string? FmDescrizione  { get; set; }
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di farmaco", Prompt="")]
 [ErpDogField("FM_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? FmIdTipoRisorsa  { get; set; }
 public HealthDemo.Models.SIO.Resource.TipoRisorsa? FmIdTipoRisorsaObj  { get; set; }

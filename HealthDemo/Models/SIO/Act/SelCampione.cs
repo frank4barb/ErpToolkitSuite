@@ -36,7 +36,7 @@ public override string labelHtml() { return $""; }
 [Display(Name = "Id Tipo Campione", ShortName="", Description = "Codice del tipo di campione", Prompt="")]
 [ErpDogField("CP_ID_TIPO_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelCpIdTipoCampione  { get; set; } = new List<string>();
 
@@ -71,7 +71,7 @@ public string? SelCpNote  { get; set; }
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto", Prompt="")]
 [ErpDogField("CP_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelCpIdPaziente\"), ref parameters))})", ExtraFields: "SelCpIdPaziente")]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"{In(\"EP_ID_PAZIENTE\", \"SelCpIdPaziente\")}", ExtraFields: "SelCpIdPaziente")]
 [DataType(DataType.Text)]
 public List<string> SelCpIdEpisodio  { get; set; } = new List<string>();
 
@@ -95,7 +95,7 @@ public List<string> SelCpStatoCampione  { get; set; } = new List<string>();
 [Display(Name = "Id Posizione Attuale", ShortName="", Description = "Posizione del campione nell'organizzazione", Prompt="")]
 [ErpDogField("CP_ID_POSIZIONE_ATTUALE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}")]
 [DataType(DataType.Text)]
 public List<string> SelCpIdPosizioneAttuale  { get; set; } = new List<string>();
 

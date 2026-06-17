@@ -133,7 +133,7 @@ public string? Ac1Extatt { get; set; }
 [Display(Name = "Id Attivita", ShortName="", Description = "Codice del tipo di attività", Prompt="")]
 [ErpDogField("AC_ID_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AcIdAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AcIdAttivitaObj  { get; set; }
@@ -141,7 +141,7 @@ public HealthDemo.Models.SIO.Act.Attivita? AcIdAttivitaObj  { get; set; }
 [Display(Name = "Id Tipo Campione", ShortName="", Description = "Codice del tipo di campione", Prompt="")]
 [ErpDogField("AC_ID_TIPO_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AcIdTipoCampione  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoCampione? AcIdTipoCampioneObj  { get; set; }

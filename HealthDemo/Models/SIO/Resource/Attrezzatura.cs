@@ -163,7 +163,7 @@ public string? AtDescrizione  { get; set; }
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di attrezzatura", Prompt="")]
 [ErpDogField("AT_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AtIdTipoRisorsa  { get; set; }
 public HealthDemo.Models.SIO.Resource.TipoRisorsa? AtIdTipoRisorsaObj  { get; set; }

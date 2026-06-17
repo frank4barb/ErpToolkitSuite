@@ -12,6 +12,9 @@
                 @Html.DisplayNameFor(model => model.TcCodice)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.TcClasse)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.TcDescrizione)
             </th>
             <th>
@@ -43,6 +46,9 @@
             <tr>
                 <td>
                     @Html.ActionLink(item.TcCodice, "RedirectToNextPage", "Home", null, null, null, new { provenienzaPagina = "TipoDatoClinico", Tc1Icode = item.Tc1Icode}, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TcClasse)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TcDescrizione)
@@ -95,6 +101,7 @@
 
                 "columns": [
                     { "visible": true, "data": "TcCodice", "name": "TcCodice", "title": "Codice", "defaultContent": ".", "autoWidth": true },
+                    { "visible": true, "data": "TcClasse", "name": "TcClasse", "title": "Classe", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "TcDescrizione", "name": "TcDescrizione", "title": "Descrizione", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "TcNote", "name": "TcNote", "title": "Note", "defaultContent": ".", "autoWidth": true },
                     { "visible": true, "data": "TcIdCategoriaDatoClinico", "name": "TcIdCategoriaDatoClinico", "title": "Id Categoria Dato Clinico", "defaultContent": ".", "autoWidth": true },

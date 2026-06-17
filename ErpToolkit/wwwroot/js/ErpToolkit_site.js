@@ -1085,8 +1085,10 @@ function etkAutocompleteInitialize(inputDOM) {
         if (mode === 'autocompleteClient') {
             var controller = input.data('controller');
             var action = input.data('action');
+            var modelPropertyName = input.data('property-name');
 
-            $.get('/' + controller + '/' + action, function (data) {
+            var params = { modelPropertyName: modelPropertyName };
+            $.get('/' + controller + '/' + action, params, function (data) {
                 if (data.error) {
                     showValidationMessage(input.data('name'), data.error);
                 } else {
@@ -1095,6 +1097,8 @@ function etkAutocompleteInitialize(inputDOM) {
                     callback();
                 }
             });
+
+
         } else {
             callback();
         }

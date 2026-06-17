@@ -177,7 +177,7 @@ public string? CcNote  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice della superclasse che raggruppa la classe attuale", Prompt="")]
 [ErpDogField("CC_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup() multbxref()")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1)]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? CcIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.HealthData.CategoriaDatoClinico? CcIdGruppoObj  { get; set; }

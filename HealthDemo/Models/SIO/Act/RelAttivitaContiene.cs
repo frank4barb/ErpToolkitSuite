@@ -132,14 +132,14 @@ public string? Aa1Extatt { get; set; }
 
 [Display(Name = "Id Attivita Padre", ShortName="", Description = "Identificatore del tipo di attività della prima tassonomia (cioè quella che viene aggregata)", Prompt="")]
 [ErpDogField("AA_ID_ATTIVITA_PADRE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AaIdAttivitaPadre  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AaIdAttivitaPadreObj  { get; set; }
 
 [Display(Name = "Id Attivita Figlio", ShortName="", Description = "Identificatore del tipo di attività in cui la prima è stata aggregata", Prompt="")]
 [ErpDogField("AA_ID_ATTIVITA_FIGLIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AaIdAttivitaFiglio  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AaIdAttivitaFiglioObj  { get; set; }

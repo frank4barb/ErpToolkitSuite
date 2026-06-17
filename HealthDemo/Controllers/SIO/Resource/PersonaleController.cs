@@ -36,11 +36,11 @@ namespace HealthDemo.Controllers.SIO.Resource
         }
 
         [HttpGet]
-        public JsonResult AutocompleteGetAll()
+        public JsonResult AutocompleteGetAll(string? modelPropertyName = null)
         {
             try
             {
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetAll<Personale>());
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetAll<Personale>(modelPropertyName: modelPropertyName));
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetAll Personale: " + ex.Message }); }
         }

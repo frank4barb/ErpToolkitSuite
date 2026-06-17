@@ -93,6 +93,13 @@ namespace ErpToolkit.Helpers.Db
             string sql = "";
             if (tpy == "GetAll")
             {
+                //---- CALCOLO EXTRA FILTER: nel caso di autocompleteClient ho sempre extraFields = null
+                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, modelPropertyName, extraFields);
+                if (!String.IsNullOrWhiteSpace(extraFilter))
+                {
+                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" {extraFilter}");
+                    else sb.Append($@" AND ({extraFilter})");
+                }
                 //filtro per extra Where
                 if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
                 sql = sb.ToString();
@@ -144,7 +151,7 @@ namespace ErpToolkit.Helpers.Db
                 string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, modelPropertyName, extraFields);
                 if (!String.IsNullOrWhiteSpace(extraFilter))
                 {
-                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" ({extraFilter})");
+                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" {extraFilter}");
                     else sb.Append($@" AND ({extraFilter})");
                 }
                 //filtro per extra Where

@@ -52,7 +52,7 @@ public string? SelTzNote  { get; set; }
 [Display(Name = "Gruppo", ShortName="", Description = "Classe di aggregazione (se presente)", Prompt="")]
 [ErpDogField("TZ_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelTzGruppo  { get; set; } = new List<string>();
 

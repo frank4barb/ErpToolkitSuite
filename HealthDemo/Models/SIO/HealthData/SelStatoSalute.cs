@@ -48,21 +48,21 @@ public List<string> SelSsIdPaziente  { get; set; } = new List<string>();
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto a cui il Dato Sanitario si riferisce", Prompt="")]
 [ErpDogField("SS_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelSsIdPaziente\"), ref parameters))})", ExtraFields: "SelSsIdPaziente")]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"{In(\"EP_ID_PAZIENTE\", \"SelSsIdPaziente\")}", ExtraFields: "SelSsIdPaziente")]
 [DataType(DataType.Text)]
 public List<string> SelSsIdEpisodio  { get; set; } = new List<string>();
 
 [Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
 [ErpDogField("SS_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"TC_CLASSE\", \"3\")}")]
 [DataType(DataType.Text)]
 public List<string> SelSsIdTipoDatoClinico  { get; set; } = new List<string>();
 
 [Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Classe del tipo di dato sanitario", Prompt="")]
 [ErpDogField("SS_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[STATO_SALUTE.SS_ID_TIPO_DATO_CLINICO]) multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10)]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelSsIdGruppoDatoClinico  { get; set; } = new List<string>();
 

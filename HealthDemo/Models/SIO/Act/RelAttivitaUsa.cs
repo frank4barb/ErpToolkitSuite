@@ -137,7 +137,7 @@ public string? Au1Extatt { get; set; }
 [Display(Name = "Id Attivita", ShortName="", Description = "Codice del tipo di attività", Prompt="")]
 [ErpDogField("AU_ID_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AuIdAttivita  { get; set; }
 public HealthDemo.Models.SIO.Act.Attivita? AuIdAttivitaObj  { get; set; }
@@ -153,7 +153,7 @@ public string? AuClasseRisorsa  { get; set; }
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di risorsa", Prompt="")]
 [ErpDogField("AU_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AuIdTipoRisorsa  { get; set; }
 public HealthDemo.Models.SIO.Resource.TipoRisorsa? AuIdTipoRisorsaObj  { get; set; }
@@ -231,7 +231,7 @@ public string? AuDescrizioneRisorsaUsata  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Identificatore dell'istanza per la quale questa specifica rappresenta un'opzione (se applicabile)", Prompt="")]
 [ErpDogField("AU_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Au1Icode", SqlFieldProperties="prop() xref(REL_ATTIVITA_USA.AU__ICODE) xdup() multbxref()")]
-[AutocompleteClient("RelAttivitaUsa", "AutocompleteGetAll", 1)]
+[AutocompleteClient("RelAttivitaUsa", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? AuIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Act.RelAttivitaUsa? AuIdGruppoObj  { get; set; }

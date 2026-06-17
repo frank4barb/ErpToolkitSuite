@@ -82,21 +82,21 @@ public TimeOnly? SelPaOraNascita  { get; set; }
 [Display(Name = "Id Comune Nascita", ShortName="", Description = "Codice del comune di nascita", Prompt="")]
 [ErpDogField("PA_ID_COMUNE_NASCITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdComuneNascita  { get; set; } = new List<string>();
 
 [Display(Name = "Id Nazione Nascita", ShortName="", Description = "Codice del paese di nascita", Prompt="")]
 [ErpDogField("PA_ID_NAZIONE_NASCITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdNazioneNascita  { get; set; } = new List<string>();
 
 [Display(Name = "Id Cittadinanza", ShortName="", Description = "Codice del paese di cittadinanza", Prompt="")]
 [ErpDogField("PA_ID_CITTADINANZA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdCittadinanza  { get; set; } = new List<string>();
 
@@ -118,21 +118,21 @@ public string? SelPaCapRes  { get; set; }
 [Display(Name = "Id Comune Res", ShortName="", Description = "Indirizzo legale: codice del comune", Prompt="")]
 [ErpDogField("PA_ID_COMUNE_RES", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdComuneRes  { get; set; } = new List<string>();
 
 [Display(Name = "Id Distretto Res", ShortName="", Description = "Indirizzo legale : Codice di distretto", Prompt="")]
 [ErpDogField("PA_ID_DISTRETTO_RES", SqlFieldNameExt="", SqlFieldOptions="", Xref="Di1Icode", SqlFieldProperties="prop() xref(DISTRETTO.DI__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Distretto", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Distretto", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdDistrettoRes  { get; set; } = new List<string>();
 
 [Display(Name = "Id Nazione Dom", ShortName="", Description = "Codice del paese in cui il paziente risiede", Prompt="")]
 [ErpDogField("PA_ID_NAZIONE_DOM", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdNazioneDom  { get; set; } = new List<string>();
 
@@ -159,7 +159,7 @@ public string? SelPaCapDom  { get; set; }
 [Display(Name = "Id Comune Dom", ShortName="", Description = "Indirizzo di residenza: codice del comune", Prompt="")]
 [ErpDogField("PA_ID_COMUNE_DOM", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdComuneDom  { get; set; } = new List<string>();
 
@@ -176,7 +176,7 @@ public string? SelPaCellulare  { get; set; }
 [Display(Name = "Id Distretto Dom", ShortName="", Description = "Indirizzo di residenza : Codice di distretto", Prompt="")]
 [ErpDogField("PA_ID_DISTRETTO_DOM", SqlFieldNameExt="", SqlFieldOptions="", Xref="Di1Icode", SqlFieldProperties="prop() xref(DISTRETTO.DI__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Distretto", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Distretto", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdDistrettoDom  { get; set; } = new List<string>();
 
@@ -201,7 +201,7 @@ public TimeOnly? SelPaOraDecesso  { get; set; }
 [Display(Name = "Id Nazione Res", ShortName="", Description = "Codice del comune di residenza del paziente", Prompt="")]
 [ErpDogField("PA_ID_NAZIONE_RES", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelPaIdNazioneRes  { get; set; } = new List<string>();
 

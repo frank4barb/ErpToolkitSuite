@@ -68,7 +68,7 @@ public List<string> SelEpClasseEpisodio  { get; set; } = new List<string>();
 [Display(Name = "Id Tipo Episodio", ShortName="", Description = "Codice del tipo di contatto", Prompt="")]
 [ErpDogField("EP_ID_TIPO_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Te1Icode", SqlFieldProperties="prop() xref(TIPO_EPISODIO.TE__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoEpisodio", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoEpisodio", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdTipoEpisodio  { get; set; } = new List<string>();
 
@@ -82,7 +82,7 @@ public List<string> SelEpStatoEpisodio  { get; set; } = new List<string>();
 [Display(Name = "Id Unita Ingresso", ShortName="", Description = "Identificativo dell'unità di assistenza che ha avviato il contatto", Prompt="")]
 [ErpDogField("EP_ID_UNITA_INGRESSO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdUnitaIngresso  { get; set; } = new List<string>();
 
@@ -120,14 +120,14 @@ public string? SelEpCartellaPs  { get; set; }
 [Display(Name = "Id Corsia", ShortName="", Description = "Codice dell'ultima (o attuale) unità in cui è ubicato il paziente", Prompt="")]
 [ErpDogField("EP_ID_CORSIA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdCorsia  { get; set; } = new List<string>();
 
 [Display(Name = "Id Reparto", ShortName="", Description = "Codice dell'unità responsabile del paziente", Prompt="")]
 [ErpDogField("EP_ID_REPARTO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup(EPISODIO.EP_ID_CORSIA[EP__ICODE] {EP_ID_REPARTO=' '}) multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdReparto  { get; set; } = new List<string>();
 
@@ -144,14 +144,14 @@ public string? SelEpStanza  { get; set; }
 [Display(Name = "Id Diagnosi Ammissione", ShortName="", Description = "Codice della diagnosi di ammissione", Prompt="")]
 [ErpDogField("EP_ID_DIAGNOSI_AMMISSIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Dg1Icode", SqlFieldProperties="prop() xref(DIAGNOSI.DG__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdDiagnosiAmmissione  { get; set; } = new List<string>();
 
 [Display(Name = "Id Diagnosi Dimissione", ShortName="", Description = "Codice della diagnosi di dimissione", Prompt="")]
 [ErpDogField("EP_ID_DIAGNOSI_DIMISSIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Dg1Icode", SqlFieldProperties="prop() xref(DIAGNOSI.DG__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdDiagnosiDimissione  { get; set; } = new List<string>();
 
@@ -183,7 +183,7 @@ public TimeOnly? SelEpOraInizioLa  { get; set; }
 [Display(Name = "Id Reparto La", ShortName="", Description = "Identificativo dell'unità di assistenza responsabile del periodo di lista d'attesa", Prompt="")]
 [ErpDogField("EP_ID_REPARTO_LA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdRepartoLa  { get; set; } = new List<string>();
 
@@ -203,7 +203,7 @@ public TimeOnly? SelEpOraInizioPreh  { get; set; }
 [Display(Name = "Id Reparto Preh", ShortName="", Description = "Identificativo dell'unità di assistenza responsabile del periodo di preospedalizzazione", Prompt="")]
 [ErpDogField("EP_ID_REPARTO_PREH", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public List<string> SelEpIdRepartoPreh  { get; set; } = new List<string>();
 

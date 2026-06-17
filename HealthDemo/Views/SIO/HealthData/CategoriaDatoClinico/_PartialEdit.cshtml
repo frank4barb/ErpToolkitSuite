@@ -211,6 +211,7 @@
                         <erp-table asp-for="XrefTcIdCategoriaDatoClinico" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="TcCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TcClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="TcDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="TcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="TcUnitaDiMisura"     label="UnitaDiMisura" sort="none" sortType="autocomplete" filter="true" />
@@ -225,6 +226,12 @@
                                     <div class="form-group" data-prop="TcCodice">
                                         <input asp-for='XrefTcIdCategoriaDatoClinico["0"].TcCodice' class="form-control" />
                                         <span asp-validation-for='XrefTcIdCategoriaDatoClinico["0"].TcCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TcClasse">
+                                    <div class="form-group" data-prop="TcClasse">
+                                        <input asp-for='XrefTcIdCategoriaDatoClinico["0"].TcClasse' class="form-control" data-mandatory="true" />
+                                        <span asp-validation-for='XrefTcIdCategoriaDatoClinico["0"].TcClasse' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="TcDescrizione">

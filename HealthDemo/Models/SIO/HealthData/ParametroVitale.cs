@@ -151,7 +151,7 @@ public HealthDemo.Models.SIO.Patient.Paziente? PvIdPazienteObj  { get; set; }
 
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto a cui si riferisce il Dato Sanitario", Prompt="")]
 [ErpDogField("PV_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"EP_ID_PAZIENTE IN ({DogManager.addParam(f0(\"PvIdPaziente\"), ref parameters)})", ExtraFields: "PvIdPaziente")]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 1, ExtraFilter:"{In(\"EP_ID_PAZIENTE\", \"PvIdPaziente\")}", ExtraFields: "PvIdPaziente")]
 [DataType(DataType.Text)]
 public string? PvIdEpisodio  { get; set; }
 public HealthDemo.Models.SIO.Patient.Episodio? PvIdEpisodioObj  { get; set; }
@@ -159,14 +159,14 @@ public HealthDemo.Models.SIO.Patient.Episodio? PvIdEpisodioObj  { get; set; }
 [Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
 [ErpDogField("PV_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"TC_CLASSE\", \"1\")}")]
 [DataType(DataType.Text)]
 public string? PvIdTipoDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.TipoDatoClinico? PvIdTipoDatoClinicoObj  { get; set; }
 
 [Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Classe del tipo di dati sanitari", Prompt="")]
 [ErpDogField("PV_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[PARAMETRO_VITALE.PV_ID_TIPO_DATO_CLINICO]) multbxref()")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1)]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PvIdGruppoDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.CategoriaDatoClinico? PvIdGruppoDatoClinicoObj  { get; set; }

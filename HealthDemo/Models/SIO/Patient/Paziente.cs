@@ -211,21 +211,21 @@ public TimeOnly? PaOraNascita  { get; set; }
 
 [Display(Name = "Id Comune Nascita", ShortName="", Description = "Codice del comune di nascita", Prompt="")]
 [ErpDogField("PA_ID_COMUNE_NASCITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdComuneNascita  { get; set; }
 public HealthDemo.Models.SIO.Patient.Comune? PaIdComuneNascitaObj  { get; set; }
 
 [Display(Name = "Id Nazione Nascita", ShortName="", Description = "Codice del paese di nascita", Prompt="")]
 [ErpDogField("PA_ID_NAZIONE_NASCITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdNazioneNascita  { get; set; }
 public HealthDemo.Models.SIO.Patient.Nazione? PaIdNazioneNascitaObj  { get; set; }
 
 [Display(Name = "Id Cittadinanza", ShortName="", Description = "Codice del paese di cittadinanza", Prompt="")]
 [ErpDogField("PA_ID_CITTADINANZA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdCittadinanza  { get; set; }
 public HealthDemo.Models.SIO.Patient.Nazione? PaIdCittadinanzaObj  { get; set; }
@@ -253,21 +253,21 @@ public string? PaCapRes  { get; set; }
 
 [Display(Name = "Id Comune Res", ShortName="", Description = "Indirizzo legale: codice del comune", Prompt="")]
 [ErpDogField("PA_ID_COMUNE_RES", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdComuneRes  { get; set; }
 public HealthDemo.Models.SIO.Patient.Comune? PaIdComuneResObj  { get; set; }
 
 [Display(Name = "Id Distretto Res", ShortName="", Description = "Indirizzo legale : Codice di distretto", Prompt="")]
 [ErpDogField("PA_ID_DISTRETTO_RES", SqlFieldNameExt="", SqlFieldOptions="", Xref="Di1Icode", SqlFieldProperties="prop() xref(DISTRETTO.DI__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Distretto", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Distretto", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdDistrettoRes  { get; set; }
 public HealthDemo.Models.SIO.Patient.Distretto? PaIdDistrettoResObj  { get; set; }
 
 [Display(Name = "Id Nazione Dom", ShortName="", Description = "Codice del paese in cui il paziente risiede", Prompt="")]
 [ErpDogField("PA_ID_NAZIONE_DOM", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdNazioneDom  { get; set; }
 public HealthDemo.Models.SIO.Patient.Nazione? PaIdNazioneDomObj  { get; set; }
@@ -302,7 +302,7 @@ public string? PaCapDom  { get; set; }
 
 [Display(Name = "Id Comune Dom", ShortName="", Description = "Indirizzo di residenza: codice del comune", Prompt="")]
 [ErpDogField("PA_ID_COMUNE_DOM", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdComuneDom  { get; set; }
 public HealthDemo.Models.SIO.Patient.Comune? PaIdComuneDomObj  { get; set; }
@@ -323,7 +323,7 @@ public string? PaCellulare  { get; set; }
 
 [Display(Name = "Id Distretto Dom", ShortName="", Description = "Indirizzo di residenza : Codice di distretto", Prompt="")]
 [ErpDogField("PA_ID_DISTRETTO_DOM", SqlFieldNameExt="", SqlFieldOptions="", Xref="Di1Icode", SqlFieldProperties="prop() xref(DISTRETTO.DI__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Distretto", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Distretto", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdDistrettoDom  { get; set; }
 public HealthDemo.Models.SIO.Patient.Distretto? PaIdDistrettoDomObj  { get; set; }
@@ -351,7 +351,7 @@ public TimeOnly? PaOraDecesso  { get; set; }
 
 [Display(Name = "Id Nazione Res", ShortName="", Description = "Codice del comune di residenza del paziente", Prompt="")]
 [ErpDogField("PA_ID_NAZIONE_RES", SqlFieldNameExt="", SqlFieldOptions="", Xref="Nz1Icode", SqlFieldProperties="prop() xref(NAZIONE.NZ__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Nazione", "AutocompleteGetAll", 1)]
+[AutocompleteClient("Nazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? PaIdNazioneRes  { get; set; }
 public HealthDemo.Models.SIO.Patient.Nazione? PaIdNazioneResObj  { get; set; }

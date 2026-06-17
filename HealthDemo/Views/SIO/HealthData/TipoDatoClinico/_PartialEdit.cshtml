@@ -29,6 +29,11 @@
                         <span asp-validation-for="TcCodice" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                        <label asp-for="TcClasse" class="control-label"></label>
+                        <input asp-for="TcClasse" class="form-control"  data-mandatory="true" />
+                        <span asp-validation-for="TcClasse" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
                         <label asp-for="TcDescrizione" class="control-label"></label>
                         <input asp-for="TcDescrizione" class="form-control" />
                         <span asp-validation-for="TcDescrizione" class="text-danger"></span>
@@ -201,6 +206,7 @@
                         <erp-table asp-for="XrefTcIdGruppo" allow-add="true" allow-edit="true" allow-delete="true" allow-undelete="true" maxLine="10" editFilter="true">
                             <erp-table-columns>
                                 <erp-table-col for="TcCodice"     label="Codice" sort="none" sortType="autocomplete" filter="true" />
+                                <erp-table-col for="TcClasse"     label="Classe" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="TcDescrizione"     label="Descrizione" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="TcNote"     label="Note" sort="none" sortType="autocomplete" filter="true" />
                                 <erp-table-col for="TcIdCategoriaDatoClinico"     label="IdCategoriaDatoClinico" sort="none" sortType="autocomplete" filter="true" />
@@ -215,6 +221,12 @@
                                     <div class="form-group" data-prop="TcCodice">
                                         <input asp-for='XrefTcIdGruppo["0"].TcCodice' class="form-control" />
                                         <span asp-validation-for='XrefTcIdGruppo["0"].TcCodice' class="text-danger"></span>
+                                    </div>
+                                </erp-table-edit-col>
+                                <erp-table-edit-col for="TcClasse">
+                                    <div class="form-group" data-prop="TcClasse">
+                                        <input asp-for='XrefTcIdGruppo["0"].TcClasse' class="form-control" data-mandatory="true" />
+                                        <span asp-validation-for='XrefTcIdGruppo["0"].TcClasse' class="text-danger"></span>
                                     </div>
                                 </erp-table-edit-col>
                                 <erp-table-edit-col for="TcDescrizione">

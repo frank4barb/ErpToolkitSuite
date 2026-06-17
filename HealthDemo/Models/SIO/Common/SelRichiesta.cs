@@ -36,28 +36,28 @@ public override string labelHtml() { return $""; }
 [Display(Name = "Id Unita Richiedente", ShortName="", Description = "Codice dell'unità che ha originato la comunicazione", Prompt="")]
 [ErpDogField("RI_ID_UNITA_RICHIEDENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdUnitaRichiedente  { get; set; } = new List<string>();
 
 [Display(Name = "Id Postazione Richiedente", ShortName="", Description = "Codice del punto di servizio che ha originato la comunicazione", Prompt="")]
 [ErpDogField("RI_ID_POSTAZIONE_RICHIEDENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdPostazioneRichiedente  { get; set; } = new List<string>();
 
 [Display(Name = "Id Istituto Richiedente", ShortName="", Description = "Codice dell'organizzazione che ha originato la comunicazione", Prompt="")]
 [ErpDogField("RI_ID_ISTITUTO_RICHIEDENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"0\")}")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdIstitutoRichiedente  { get; set; } = new List<string>();
 
 [Display(Name = "Id Operatore Richiedente", ShortName="", Description = "Codice (se disponibile) dell'agente che ha effettivamente inserito la comunicazione", Prompt="")]
 [ErpDogField("RI_ID_OPERATORE_RICHIEDENTE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10)]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"3\")}")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdOperatoreRichiedente  { get; set; } = new List<string>();
 
@@ -101,7 +101,7 @@ public List<string> SelRiClasseRichiesta  { get; set; } = new List<string>();
 [Display(Name = "Id Tipo Richiesta", ShortName="", Description = "Codice del tipo specifico di comunicazione", Prompt="")]
 [ErpDogField("RI_ID_TIPO_RICHIESTA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ti1Icode", SqlFieldProperties="prop() xref(TIPO_RICHIESTA.TI__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoRichiesta", "AutocompleteGetAll", 10)]
+[AutocompleteClient("TipoRichiesta", "AutocompleteGetAll", 10, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdTipoRichiesta  { get; set; } = new List<string>();
 
@@ -115,7 +115,7 @@ public List<string> SelRiIdPaziente  { get; set; } = new List<string>();
 [Display(Name = "Id Episodio", ShortName="", Description = "Codice del contatto del paziente principale a cui si riferisce la comunicazione (se presente)", Prompt="")]
 [ErpDogField("RI_ID_EPISODIO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ep1Icode", SqlFieldProperties="prop() xref(EPISODIO.EP__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"EP_ID_PAZIENTE IN ({string.Join(\", \", DogManager.addListParam(f(\"SelRiIdPaziente\"), ref parameters))})", ExtraFields: "SelRiIdPaziente")]
+[AutocompleteServer("Episodio", "AutocompleteGetSelect", "AutocompletePreLoad", 10, ExtraFilter:"{In(\"EP_ID_PAZIENTE\", \"SelRiIdPaziente\")}", ExtraFields: "SelRiIdPaziente")]
 [DataType(DataType.Text)]
 public List<string> SelRiIdEpisodio  { get; set; } = new List<string>();
 

@@ -157,6 +157,14 @@ public string? Tc1Extatt { get; set; }
 [DataType(DataType.Text)]
 public string? TcCodice  { get; set; }
 
+[Display(Name = "Classe", ShortName="", Description = "Partizionamento interno (per scopi di ottimizzazione e prestazioni) 1: parametri vitali 2: risultati degli esami, 3: condizioni di salute 4: altri", Prompt="")]
+[ErpDogField("TC_CLASSE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
+[Required(ErrorMessage = "Inserire un valore nel campo")]
+[DefaultValue(" ")]
+[StringLength(1, ErrorMessage = "Inserire massimo 1 caratteri")]
+[MultipleChoices(new[] { "1", "2", "3", "4" }, LabelChoices = null, MaxSelections=1, LabelClassName="")]
+public string? TcClasse  { get; set; }
+
 [Display(Name = "Descrizione", ShortName="", Description = "Descrizione estesa", Prompt="")]
 [ErpDogField("TC_DESCRIZIONE", SqlFieldNameExt="", SqlFieldOptions="[LABEL]", Xref="", SqlFieldProperties="prop() xref() xdup() multbxref()")]
 [DefaultValue(" ")]
@@ -173,7 +181,7 @@ public string? TcNote  { get; set; }
 
 [Display(Name = "Id Categoria Dato Clinico", ShortName="", Description = "Codice della classe dell'elemento del record sanitario", Prompt="")]
 [ErpDogField("TC_ID_CATEGORIA_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup() multbxref()")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1)]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? TcIdCategoriaDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.CategoriaDatoClinico? TcIdCategoriaDatoClinicoObj  { get; set; }
@@ -187,7 +195,7 @@ public string? TcUnitaDiMisura  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del tipo aggregato di HRI di cui questo elemento fa parte", Prompt="")]
 [ErpDogField("TC_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
-[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1)]
+[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"")]
 [DataType(DataType.Text)]
 public string? TcIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.HealthData.TipoDatoClinico? TcIdGruppoObj  { get; set; }

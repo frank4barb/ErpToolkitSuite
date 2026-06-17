@@ -965,8 +965,13 @@ namespace ErpToolkit.Helpers.Db
             //---------
 
             //--- NUOVO: legge ExtraFilter da AutocompleteServerAttribute
-            var autocompleteAttr = property.GetCustomAttribute<AutocompleteServerAttribute>();
-            fld.AutocompleteExtraFilter = autocompleteAttr?.ExtraFilter;
+            var autocompleteServerAttr = property.GetCustomAttribute<AutocompleteServerAttribute>();
+            fld.AutocompleteExtraFilter = autocompleteServerAttr?.ExtraFilter;
+            if (string.IsNullOrWhiteSpace(fld.AutocompleteExtraFilter))
+            {
+                var autocompleteClientAttr = property.GetCustomAttribute<AutocompleteClientAttribute>();
+                fld.AutocompleteExtraFilter = autocompleteClientAttr?.ExtraFilter;
+            }
             //---
 
             //---------
@@ -1487,10 +1492,10 @@ namespace ErpToolkit.Helpers.Db
             return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompletePreLoad"), "PreLoad", values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         
-        public List<Choice> AutocompleteGetAll<T>(string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
+        public List<Choice> AutocompleteGetAll<T>(string? modelPropertyName = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {
             //return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
-            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetAll"), "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
+            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetAll"), "GetAll", modelPropertyName: modelPropertyName, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         public List<Choice> AutocompleteGetSelect<T>(string term, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {
