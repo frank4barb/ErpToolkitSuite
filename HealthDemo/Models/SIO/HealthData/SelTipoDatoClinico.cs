@@ -62,7 +62,7 @@ public string? SelTcNote  { get; set; }
 [Display(Name = "Id Categoria Dato Clinico", ShortName="", Description = "Codice della classe dell'elemento del record sanitario", Prompt="")]
 [ErpDogField("TC_ID_CATEGORIA_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelTcIdCategoriaDatoClinico  { get; set; } = new List<string>();
 
@@ -74,7 +74,7 @@ public string? SelTcUnitaDiMisura  { get; set; }
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del tipo aggregato di HRI di cui questo elemento fa parte", Prompt="")]
 [ErpDogField("TC_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelTcIdGruppo  { get; set; } = new List<string>();
 

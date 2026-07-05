@@ -52,7 +52,7 @@ public string? SelMtDescrizione  { get; set; }
 [Display(Name = "Id Tipo Risorsa", ShortName="", Description = "Codice del tipo di materiale, secondo la classificazione operativa definita in A_TYRESOUR con radice #SIO#MATER", Prompt="")]
 [ErpDogField("MT_ID_TIPO_RISORSA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelMtIdTipoRisorsa  { get; set; } = new List<string>();
 

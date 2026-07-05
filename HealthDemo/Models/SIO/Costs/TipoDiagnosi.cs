@@ -161,7 +161,7 @@ public string? TdNote  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Superclasse che raggruppa la classificazione corrente", Prompt="")]
 [ErpDogField("TD_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Td1Icode", SqlFieldProperties="prop() xref(TIPO_DIAGNOSI.TD__ICODE) xdup() multbxref()")]
-[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? TdIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Costs.TipoDiagnosi? TdIdGruppoObj  { get; set; }

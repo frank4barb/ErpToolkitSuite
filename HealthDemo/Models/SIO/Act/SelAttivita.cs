@@ -69,7 +69,7 @@ public double? SelAvCostoMedio  { get; set; }
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice dell'attività di cui questa è una sotto-attività", Prompt="")]
 [ErpDogField("AV_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Av1Icode", SqlFieldProperties="prop() xref(ATTIVITA.AV__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Attivita", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("Attivita", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelAvIdGruppo  { get; set; } = new List<string>();
 
@@ -100,7 +100,7 @@ public List<string> SelAvInEvidenza  { get; set; } = new List<string>();
 [Display(Name = "Id Tipo Attivita", ShortName="", Description = "Codice della classe generale di attività predefinita", Prompt="")]
 [ErpDogField("AV_ID_TIPO_ATTIVITA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelAvIdTipoAttivita  { get; set; } = new List<string>();
 

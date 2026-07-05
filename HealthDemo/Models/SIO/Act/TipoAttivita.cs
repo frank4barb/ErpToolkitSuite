@@ -165,7 +165,7 @@ public string? TaNote  { get; set; }
 
 [Display(Name = "Id Gruppo", ShortName="", Description = "Superclasse che raggruppa la classificazione corrente", Prompt="")]
 [ErpDogField("TA_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
-[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? TaIdGruppo  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoAttivita? TaIdGruppoObj  { get; set; }

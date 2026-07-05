@@ -162,7 +162,7 @@ public string? PcNote  { get; set; }
 
 [Display(Name = "Id Tipo Campione", ShortName="", Description = "Tipo di campione", Prompt="")]
 [ErpDogField("PC_ID_TIPO_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup(CAMPIONE.CP_ID_TIPO_CAMPIONE[REL_PRESTAZIONE_CAMPIONE.PC_ID_CAMPIONE] {PC_ID_TIPO_CAMPIONE=' '}) multbxref()")]
-[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? PcIdTipoCampione  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoCampione? PcIdTipoCampioneObj  { get; set; }

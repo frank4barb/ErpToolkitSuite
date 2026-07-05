@@ -137,7 +137,7 @@ public string? Cp1Extatt { get; set; }
 [Display(Name = "Id Tipo Campione", ShortName="", Description = "Codice del tipo di campione", Prompt="")]
 [ErpDogField("CP_ID_TIPO_CAMPIONE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tp1Icode", SqlFieldProperties="prop() xref(TIPO_CAMPIONE.TP__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("TipoCampione", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? CpIdTipoCampione  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoCampione? CpIdTipoCampioneObj  { get; set; }
@@ -208,7 +208,7 @@ public string? CpStatoCampione  { get; set; }
 
 [Display(Name = "Id Posizione Attuale", ShortName="", Description = "Posizione del campione nell'organizzazione", Prompt="")]
 [ErpDogField("CP_ID_POSIZIONE_ATTUALE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}")]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? CpIdPosizioneAttuale  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? CpIdPosizioneAttualeObj  { get; set; }

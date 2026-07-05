@@ -2,6 +2,7 @@ using Amazon.SecurityToken.Model;
 using DnsClient.Protocol;
 using ErpToolkit.Models;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -288,6 +289,7 @@ namespace ErpToolkit.Helpers.Db
             public DogField fldXdatum = null; //ref campo di sistema. se presente può essere solo uno per tabella.
             //--
             public DogField fldGetFirstByOption(string token) => this.fields.FirstOrDefault(f => !string.IsNullOrEmpty(f?.SqlFieldOptions) && f.SqlFieldOptions.Contains(token, StringComparison.OrdinalIgnoreCase));
+            public DogField fldByName(string name) => this.fields.FirstOrDefault(f => !string.IsNullOrEmpty(f?.fieldName) && f.fieldName.Equals(name));
         }
         public class DogField
         {
@@ -363,20 +365,20 @@ namespace ErpToolkit.Helpers.Db
             public object? GetValue(ModelDog model)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));
-                if (_getter == null) throw new InvalidOperationException("_getter = null");
-                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (_getter == null) throw new InvalidOperationException("DogManager.GetValue: _getter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"DogManager.GetValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
                 return _getter!(model);
             }
             public void SetValue(ModelDog model, object? value)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));
-                if (_setter == null) throw new InvalidOperationException("_setter = null");
-                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (_setter == null) throw new InvalidOperationException("DogManager.SetValue: _setter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"DogManager.SetValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
                 System.Type targetType = Nullable.GetUnderlyingType(this.fieldTyp) ?? this.fieldTyp;
                 if (value == null)
                 {
                     if (!this.fieldTyp.IsValueType || Nullable.GetUnderlyingType(this.fieldTyp) != null) { _setter!(model, null); } // Se il tipo è nullable, possiamo assegnare null
-                    else { throw new Exception($"Tipo non nullable nel ModelDog ({model.GetType().FullName}.{this.fieldName})"); }
+                    else { throw new Exception($"DogManager.SetValue: Tipo non nullable nel ModelDog ({model.GetType().FullName}.{this.fieldName})"); }
                 }
                 else
                 {
@@ -386,14 +388,14 @@ namespace ErpToolkit.Helpers.Db
                         if (targetType.IsAssignableFrom(value.GetType())) { _setter!(model, value); }
                         else { object convertedValue = Convert.ChangeType(value, targetType); _setter!(model, convertedValue); } // Proviamo a convertire dinamicamente
                     }
-                    catch (Exception ex) { throw new Exception($"Tipo {value.GetType().Name} non assegnabile nel ModelErp ({model.GetType().FullName}.{this.fieldName})", ex); }
+                    catch (Exception ex) { throw new Exception($"DogManager.SetValue: Tipo {value.GetType().Name} non assegnabile nel ModelErp ({model.GetType().FullName}.{this.fieldName})", ex); }
                 }
             }
             public void CopyValue(ModelErp model, object? value)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));
-                if (_setter == null) throw new InvalidOperationException("_setter = null");
-                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (_setter == null) throw new InvalidOperationException("DogManager.CopyValue: _setter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"DogManager.CopyValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
                 if (value == null) { _setter!(model, null); }
                 else
                 {
@@ -445,7 +447,7 @@ namespace ErpToolkit.Helpers.Db
                     else
                     {
                         //non sono consentite altre tipologie di proprietà nei ModelErp
-                        throw new Exception($"Tipo {type.Name} non consentito nel ModelErp ({model.GetType().FullName}.{this.fieldName})");
+                        throw new Exception($"DogManager.CopyValue: Tipo {type.Name} non consentito nel ModelErp ({model.GetType().FullName}.{this.fieldName})");
                     }
                 }
             }
@@ -455,22 +457,22 @@ namespace ErpToolkit.Helpers.Db
             public object? GetObjValue(ModelDog model)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));
-                if (_objGetter == null) throw new InvalidOperationException("_objGetter = null");
-                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
-                if (!this.optXREF || this.fieldObjTyp == null) throw new Exception($"Tipo non Object nel ModelDog ({model.GetType().FullName}.{this.fieldName})");
+                if (_objGetter == null) throw new InvalidOperationException("DogManager.GetObjValue: _objGetter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"DogManager.GetObjValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (!this.optXREF || this.fieldObjTyp == null) throw new Exception($"DogManager.GetObjValue: Tipo non Object nel ModelDog ({model.GetType().FullName}.{this.fieldName})");
                 return _objGetter!(model);
             }
             public void SetObjValue(ModelDog model, object? value)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));
-                if (_objSetter == null) throw new InvalidOperationException("_objSetter = null");
-                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
-                if (!this.optXREF || this.fieldObjTyp == null) throw new Exception($"Tipo non Object nel ModelDog ({model.GetType().FullName}.{this.fieldName})");
+                if (_objSetter == null) throw new InvalidOperationException("DogManager.SetObjValue: _objSetter = null");
+                if (this.table.tableTpy != model.GetType()) throw new InvalidOperationException($"DogManager.SetObjValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.table.tableTpy.FullName}]");
+                if (!this.optXREF || this.fieldObjTyp == null) throw new Exception($"DogManager.SetObjValue: Tipo non Object nel ModelDog ({model.GetType().FullName}.{this.fieldName})");
                 System.Type targetType = Nullable.GetUnderlyingType(this.fieldObjTyp) ?? this.fieldObjTyp;
                 if (value == null)
                 {
                     if (!this.fieldObjTyp.IsValueType || Nullable.GetUnderlyingType(this.fieldObjTyp) != null) { _objSetter!(model, null); } // Se il tipo è nullable, possiamo assegnare null
-                    else { throw new Exception($"Tipo non nullable nel ModelDog ({model.GetType().FullName}.{this.fieldName}Obj)"); }
+                    else { throw new Exception($"DogManager.SetObjValue: Tipo non nullable nel ModelDog ({model.GetType().FullName}.{this.fieldName}Obj)"); }
                 }
                 else
                 {
@@ -480,7 +482,7 @@ namespace ErpToolkit.Helpers.Db
                         if (targetType.IsAssignableFrom(value.GetType())) { _objSetter!(model, value); }
                         else { object convertedValue = Convert.ChangeType(value, targetType); _objSetter!(model, convertedValue); } // Proviamo a convertire dinamicamente
                     }
-                    catch (Exception ex) { throw new Exception($"Tipo {value.GetType().Name} non assegnabile nel ModelDog ({model.GetType().FullName}.{this.fieldName}Obj)", ex); }
+                    catch (Exception ex) { throw new Exception($"DogManager.SetObjValue: Tipo {value.GetType().Name} non assegnabile nel ModelDog ({model.GetType().FullName}.{this.fieldName}Obj)", ex); }
                 }
             }
             // List Getter e Setter
@@ -489,17 +491,17 @@ namespace ErpToolkit.Helpers.Db
             public object? GetListXrefValue(ModelDog model)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
-                if (_listXrefGetter == null) throw new InvalidOperationException("_listXrefGetter = null");
-                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
-                if (!this.optXREFlist || this.fieldXrefListTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                if (_listXrefGetter == null) throw new InvalidOperationException("DogManager.GetListXrefValue: _listXrefGetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"DogManager.GetListXrefValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFlist || this.fieldXrefListTyp == null) throw new Exception($"DogManager.GetListXrefValue: Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
                 return _listXrefGetter!(model);
             }
             public void SetListXrefValue(ModelDog model, object? value)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
-                if (_listXrefSetter == null) throw new InvalidOperationException("_listXrefSetter = null");
-                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
-                if (!this.optXREFlist || this.fieldXrefListTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                if (_listXrefSetter == null) throw new InvalidOperationException("DogManager.SetListXrefValue: _listXrefSetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"DogManager.SetListXrefValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFlist || this.fieldXrefListTyp == null) throw new Exception($"DogManager.SetListXrefValue: Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
                 try
                 {
                     // Se il valore è già compatibile, lo assegniamo direttamente
@@ -514,24 +516,24 @@ namespace ErpToolkit.Helpers.Db
             public object? GetDictXrefValue(ModelDog model)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
-                if (_dictXrefGetter == null) throw new InvalidOperationException("_dictXrefGetter = null");
-                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
-                if (!this.optXREFdict || this.fieldXrefDictTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                if (_dictXrefGetter == null) throw new InvalidOperationException("DogManager.GetDictXrefValue: _dictXrefGetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"DogManager.GetDictXrefValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFdict || this.fieldXrefDictTyp == null) throw new Exception($"DogManager.GetDictXrefValue: Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
                 return _dictXrefGetter!(model);
             }
             public void SetDictXrefValue(ModelDog model, object? value)
             {
                 if (model == null) throw new ArgumentNullException(nameof(model));  // model deve essere di tipo this.fieldObjTyp  
-                if (_dictXrefSetter == null) throw new InvalidOperationException("_dictXrefSetter = null");
-                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
-                if (!this.optXREFdict || this.fieldXrefDictTyp == null) throw new Exception($"Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
+                if (_dictXrefSetter == null) throw new InvalidOperationException("DogManager.SetDictXrefValue: _dictXrefSetter = null");
+                if (this.fieldObjTyp != model.GetType()) throw new InvalidOperationException($"DogManager.SetDictXrefValue: Wrong model type [{model.GetType().FullName}]. Expected [{this.fieldObjTyp.FullName}]");
+                if (!this.optXREFdict || this.fieldXrefDictTyp == null) throw new Exception($"DogManager.SetDictXrefValue: Proprietà Xref{this.fieldName} non definita nel ModelDog {model.GetType().FullName} per il campo {this.table.tableTpy.FullName}.{this.fieldName}");
                 try
                 {
                     // Se il valore è già compatibile, lo assegniamo direttamente
                     if (value == null || this.fieldXrefDictTyp.IsAssignableFrom(value.GetType())) { _dictXrefSetter!(model, value); }
                     else { object convertedValue = Convert.ChangeType(value, this.fieldXrefDictTyp); _dictXrefSetter!(model, convertedValue); } // Proviamo a convertire dinamicamente
                 }
-                catch (Exception ex) { throw new Exception($"Tipo {value?.GetType().Name ?? "null"} non assegnabile alla proprietà {model.GetType().FullName}.Xref{this.fieldName} ", ex); }
+                catch (Exception ex) { throw new Exception($"DogManager.SetDictXrefValue: Tipo {value?.GetType().Name ?? "null"} non assegnabile alla proprietà {model.GetType().FullName}.Xref{this.fieldName} ", ex); }
             }
 
         }
@@ -1476,10 +1478,11 @@ namespace ErpToolkit.Helpers.Db
         //*** AUTOCOMPLETE
         //***************************************************************************************************************************************************
 
-        internal List<Choice> AutocompleteGetAll(string modelName, string? extraWhere = null, string? transactionId = null, int maxRecords = -1)  
+        internal List<Choice> AutocompleteGetAll(string modelName, string? modelPropertyName = null, [FromQuery] List<string> extraFieldNames = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1)  
         {
             //return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
-            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompleteGetAll"), "GetAll", extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
+            Dictionary<string, List<string>> extraFields = extraFieldNames?.ToDictionary(key => key, value => (List<string>)null);
+            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompleteGetAll"), "GetAll", modelPropertyName: modelPropertyName, extraFields: extraFields, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         internal List<Choice> AutocompleteGetSelect(string modelName, string term, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) 
         {
@@ -1492,10 +1495,11 @@ namespace ErpToolkit.Helpers.Db
             return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(modelName, "AutocompletePreLoad"), "PreLoad", values: values, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         
-        public List<Choice> AutocompleteGetAll<T>(string? modelPropertyName = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
+        public List<Choice> AutocompleteGetAll<T>(string? modelPropertyName = null, [FromQuery] List<string> extraFieldNames = null, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {
             //return DogManagerQuery.AutocompleteGetAll<T>(this, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
-            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetAll"), "GetAll", modelPropertyName: modelPropertyName, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
+            Dictionary<string, List<string>> extraFields = extraFieldNames?.ToDictionary(key => key, value => (List<string>)null);
+            return DogManagerQuery.Autocomplete_Int(this, _getDogTableException(typeof(T), "AutocompleteGetAll"), "GetAll", modelPropertyName: modelPropertyName, extraFields: extraFields, extraWhere: extraWhere, transactionId: transactionId, maxRecords: maxRecords);
         }
         public List<Choice> AutocompleteGetSelect<T>(string term, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null, bool caseInsensitive = true, string? extraWhere = null, string? transactionId = null, int maxRecords = -1) where T : ModelErp, new()
         {

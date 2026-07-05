@@ -55,14 +55,14 @@ public List<string> SelPvIdEpisodio  { get; set; } = new List<string>();
 [Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
 [ErpDogField("PV_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"TC_CLASSE\", \"1\")}")]
+[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"TC_CLASSE\", \"1\")}", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelPvIdTipoDatoClinico  { get; set; } = new List<string>();
 
 [Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Classe del tipo di dati sanitari", Prompt="")]
 [ErpDogField("PV_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[PARAMETRO_VITALE.PV_ID_TIPO_DATO_CLINICO]) multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelPvIdGruppoDatoClinico  { get; set; } = new List<string>();
 

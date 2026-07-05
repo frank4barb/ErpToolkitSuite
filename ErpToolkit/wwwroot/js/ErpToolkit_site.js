@@ -1033,6 +1033,7 @@ function etkAutocompletePreSelect(inputDOM, valuesArray) {
     //---Blocco iniziale
     input.attr('asp-loaded', 'Y');   // <<<<<<<------- per il momrnto non lego il check del caricamento della pagina a un controllo richiamato da js
     input.prop("disabled", "disabled"); //disabilita input per caricamento
+    input.addClass('etk-loading');   // <- avvia animazione shimmer
     //---
 
     input.data('pre-selected', { preSelected: valuesArray });  // !!! devo sempre lavorare con un elemento jQuery quando modifico gli attributi di input
@@ -1081,14 +1082,66 @@ function etkAutocompleteInitialize(inputDOM) {
 
     resultsDiv.hide();
 
+    // Filtra lato client l'array di scelte in base ai valori attualmente
+    // selezionati nel form per ciascun campo in ExtraFields.
+    // Confronta item.extraFields[propName] (valorizzato dal server) con i
+    // valori selezionati nel form per quel campo.
+    function applyClientExtraFilter(items, inputEl) {
+        var prefixAttr = inputEl.data('prefix');
+        var extraFieldsAttr = inputEl.data('extra-fields');
+        if (!extraFieldsAttr) return items;
+
+        var fieldNames = [];
+        try { fieldNames = JSON.parse(extraFieldsAttr); } catch { }
+        if (!Array.isArray(fieldNames) || fieldNames.length === 0) return items;
+
+        return items.filter(function (item) {
+            return fieldNames.every(function (propName) {
+                var baseId = prefixAttr ? prefixAttr + '_' + propName : propName;
+                var filterValues = getSelectedValues(baseId); // array di valori selezionati nel form
+                if (filterValues.length === 0) return true;  // nessun filtro attivo: non escludere
+
+                // Legge il valore dal dizionario extraFieldValues dell'item (popolato dal server)
+                var itemVal = (item.extraFieldValues && item.extraFieldValues[propName] != null)
+                    ? String(item.extraFieldValues[propName])
+                    : '';
+                return filterValues.includes(itemVal);
+            });
+        });
+    }
+
+
     function loadChoices(callback) {
         if (mode === 'autocompleteClient') {
             var controller = input.data('controller');
             var action = input.data('action');
             var modelPropertyName = input.data('property-name');
 
-            var params = { modelPropertyName: modelPropertyName };
-            $.get('/' + controller + '/' + action, params, function (data) {
+            //var params = { modelPropertyName: modelPropertyName };
+            //$.get('/' + controller + '/' + action, params, function (data) {
+            //    if (data.error) {
+            //        showValidationMessage(input.data('name'), data.error);
+            //    } else {
+            //        allChoices = data;
+            //        console.log('All choices loaded:', allChoices);
+            //        callback();
+            //    }
+            //});
+
+            // Passa la lista dei nomi dei campi extra: il server li usa per
+            // popolare Choice.extraFields con le proprietà richieste.
+            var extraFieldsAttr = input.data('extra-fields');
+            var extraFieldNames = [];
+            try { extraFieldNames = extraFieldsAttr ? JSON.parse(extraFieldsAttr) : []; } catch { }
+
+            var qs = new URLSearchParams();
+            qs.append('modelPropertyName', modelPropertyName);
+            // extraFieldNames[0]=IdReparto &extraFieldNames[1]=... (binding array ASP.NET Core)
+            extraFieldNames.forEach(function (name, idx) {
+                qs.append('extraFieldNames[' + idx + ']', name);
+            });
+
+            $.get('/' + controller + '/' + action + '?' + qs.toString(), function (data) {
                 if (data.error) {
                     showValidationMessage(input.data('name'), data.error);
                 } else {
@@ -1097,7 +1150,6 @@ function etkAutocompleteInitialize(inputDOM) {
                     callback();
                 }
             });
-
 
         } else {
             callback();
@@ -1112,6 +1164,7 @@ function etkAutocompleteInitialize(inputDOM) {
 
         // Fine gestione loaded, considero qui il TagHelper caricato
         input.attr('asp-loaded', 'Y');
+        input.removeClass('etk-loading'); // <- ferma animazione shimmer
         input.prop("disabled", false); //riabilita input quando caricato
         console.log("Campo", input.data('name'), "caricato");
         //---
@@ -1201,8 +1254,14 @@ function etkAutocompleteInitialize(inputDOM) {
         resultsDiv.empty();
         if (term.length >= minChars) {
             if (mode === 'autocompleteClient') {
+                //var filtered = allChoices.filter(c => c.label && (' ' + c.label.toUpperCase() + ' ').includes(term));
+                //showResults(filtered);
+
+                //--- NUOVO: raccoglie i valori dei campi filtro aggiuntivi dal form
                 var filtered = allChoices.filter(c => c.label && (' ' + c.label.toUpperCase() + ' ').includes(term));
+                filtered = applyClientExtraFilter(filtered, input);
                 showResults(filtered);
+
             } else if (mode === 'autocompleteServer') {
                 //if (cache[term]) {
                 //    showResults(cache[term]);
@@ -1283,7 +1342,9 @@ function etkAutocompleteInitialize(inputDOM) {
                     //    }
                     //});
                     var qs = buildQueryString({ term: term, modelPropertyName: modelPropertyName }, extraFields);
+                    input.addClass('etk-loading');           // <- avvia shimmer
                     $.get('/' + controller + '/' + action + '?' + qs, function (data) {
+                        input.removeClass('etk-loading');    // <- ferma shimmer
                         if (data.error) {
                             showValidationMessage(input.data('name'), data.error);
                         } else {
@@ -1307,7 +1368,11 @@ function etkAutocompleteInitialize(inputDOM) {
             resultsDiv.hide();
         } else {
             if (mode === 'autocompleteClient') {
-                showResults(allChoices);
+                //showResults(allChoices);
+
+                //--- NUOVO: raccoglie i valori dei campi filtro aggiuntivi dal form anche al click dell'icona
+                showResults(applyClientExtraFilter(allChoices, input));
+
             } else if (mode === 'autocompleteServer') {
                 //var controller = input.data('controller');
                 //var action = input.data('action'); var term = '%';
@@ -1376,7 +1441,9 @@ function etkAutocompleteInitialize(inputDOM) {
                 //    }
                 //});
                 var qs = buildQueryString({ term: term, modelPropertyName: modelPropertyName }, extraFields);
+                input.addClass('etk-loading');           // <- avvia shimmer
                 $.get('/' + controller + '/' + action + '?' + qs, function (data) {
+                    input.removeClass('etk-loading');    // <- ferma shimmer
                     if (data.error) {
                         showValidationMessage(input.data('name'), data.error);
                     } else {

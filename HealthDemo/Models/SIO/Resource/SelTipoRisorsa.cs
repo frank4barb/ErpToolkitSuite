@@ -55,7 +55,7 @@ public List<string> SelTsClasseRisorsa  { get; set; } = new List<string>();
 [Display(Name = "Id Gruppo", ShortName="", Description = "Codice del super-tipo di risorsa (cioè l'aggregazione nella gerarchia), se presente", Prompt="")]
 [ErpDogField("TS_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ts1Icode", SqlFieldProperties="prop() xref(TIPO_RISORSA.TS__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoRisorsa", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelTsIdGruppo  { get; set; } = new List<string>();
 

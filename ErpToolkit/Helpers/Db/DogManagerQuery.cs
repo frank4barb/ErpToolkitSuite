@@ -6,10 +6,6 @@ using System.Collections;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
-using System.Threading.Tasks.Dataflow;
-using System.Collections.Generic;
-using static ErpToolkit.Helpers.Db.ExtraFilterCompiler;
-using System.Linq;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -71,6 +67,7 @@ namespace ErpToolkit.Helpers.Db
             ////////////////////////////}
             ////////////////////////////string varsHtml = string.Join("+", variabili);
 
+
             // Estraggo la lista delle proprietà della classe T presenti nelle variabili interpolate ie: {NomeVariabile}
             var fieldNames = new HashSet<string>(StringComparer.Ordinal);
             //////////////////////////foreach (var fld in tab.fields) if (labelHtml.Contains(fld.fieldName)) fieldNames.Add(fld.fieldName);
@@ -80,29 +77,36 @@ namespace ErpToolkit.Helpers.Db
             // Costruisci la SELECT solo con i campi rilevati
             IDictionary<string, object> parameters = new Dictionary<string, object>();
 
-            StringBuilder sb = new StringBuilder($@"SELECT ");
-            sb.Append(string.Join(", ", fieldNames.Select(f => $@"{dogMng.tabProperties[f].SqlFieldName} as {f}")));
+            StringBuilder sbSelect = new StringBuilder($@"SELECT ");
+            sbSelect.Append(string.Join(", ", fieldNames.Select(f => $@"{dogMng.tabProperties[f].SqlFieldName} as {f}")));
             if (!fieldNames.Contains(tab.fldIcode.fieldName))
             {
-                if (fieldNames.Count() > 0) sb.Append($@",");  
-                sb.Append($@" {tab.fldIcode.SqlFieldName} as {tab.fldIcode.fieldName} ");  // devo aggiungere anche icode, se non presente
+                if (fieldNames.Count() > 0) sbSelect.Append($@",");
+                sbSelect.Append($@" {tab.fldIcode.SqlFieldName} as {tab.fldIcode.fieldName} ");  // devo aggiungere anche icode, se non presente
             }
-            if (tab.fldDeleted == null) { sb.Append($@" FROM {tab.SqlTableName} WHERE 1=1 "); }
-            else { sb.Append($@" FROM {tab.SqlTableName} WHERE {tab.fldDeleted.SqlFieldName} = {DogManager.addParam("N", ref parameters)} "); }
+            StringBuilder sbFromWhere = new StringBuilder("");
+            if (tab.fldDeleted == null) { sbFromWhere.Append($@" FROM {tab.SqlTableName} WHERE 1=1 "); }
+            else { sbFromWhere.Append($@" FROM {tab.SqlTableName} WHERE {tab.fldDeleted.SqlFieldName} = {DogManager.addParam("N", ref parameters)} "); }
 
-            string sql = "";
+            string sql = ""; IDictionary<string, string> extraAutocompleteFieldNames = null;
             if (tpy == "GetAll")
             {
-                //---- CALCOLO EXTRA FILTER: nel caso di autocompleteClient ho sempre extraFields = null
-                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, modelPropertyName, extraFields);
+                //---- CALCOLO EXTRA FILTER: nel caso di autocompleteClient leggo sempre tutti i campi e applico il filtro lato client: extraFields = null
+                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, modelPropertyName, null);
+                if (extraAutocompleteFieldNames != null && extraAutocompleteFieldNames.Count() > 0)
+                {
+                    // aggiungo i campi extra alla select
+                    if (sbSelect.Length > 0) sbSelect.Append($@", ");
+                    sbSelect.Append(string.Join(", ", extraAutocompleteFieldNames.Select(f => $@"{f.Value} as {f.Key}___{f.Value}")));
+                }
                 if (!String.IsNullOrWhiteSpace(extraFilter))
                 {
-                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" {extraFilter}");
-                    else sb.Append($@" AND ({extraFilter})");
+                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sbFromWhere.Append($@" {extraFilter}");
+                    else sbFromWhere.Append($@" AND ({extraFilter})");
                 }
                 //filtro per extra Where
-                if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
-                sql = sb.ToString();
+                if (!String.IsNullOrWhiteSpace(extraWhere)) sbFromWhere.Append($@" AND {extraWhere}");
+                sql = sbSelect.ToString() + sbFromWhere.ToString();
             }
             else if (tpy == "GetSelect")
             {
@@ -148,17 +152,17 @@ namespace ErpToolkit.Helpers.Db
                 //}
 
                 //---- CALCOLO EXTRA FILTER
-                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, modelPropertyName, extraFields);
+                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, modelPropertyName, extraFields);
                 if (!String.IsNullOrWhiteSpace(extraFilter))
                 {
-                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sb.Append($@" {extraFilter}");
-                    else sb.Append($@" AND ({extraFilter})");
+                    if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sbFromWhere.Append($@" {extraFilter}");
+                    else sbFromWhere.Append($@" AND ({extraFilter})");
                 }
                 //filtro per extra Where
-                if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
+                if (!String.IsNullOrWhiteSpace(extraWhere)) sbFromWhere.Append($@" AND {extraWhere}");
                 //----
 
-                string sqlInitial = sb.ToString();
+                string sqlInitial = sbSelect.ToString() + sbFromWhere.ToString();
 
                 //filtro per term OTTIMIZZATO CON UNION
                 caseInsensitive = false; // forzo case sensitive per migliorare performance su DBMS che non indicizzano ricerche case insensitive
@@ -186,17 +190,17 @@ namespace ErpToolkit.Helpers.Db
                 {
                     //filtro per list values
                     string searchCodes = string.Join(",", DogManager.addListParam(filteredValues.ToList<object>(), ref parameters));
-                    sb.Append($@" AND {tab.fldIcode.SqlFieldName} in ({searchCodes})");
+                    sbFromWhere.Append($@" AND {tab.fldIcode.SqlFieldName} in ({searchCodes})");
                 }
                 else
                 {
                     // Nessun valore valido, quindi nessun risultato
-                    sb.Append($@" AND {DogManager.addParam("1", ref parameters)}={DogManager.addParam("0", ref parameters)}"); // Condizione sempre falsa
+                    sbFromWhere.Append($@" AND {DogManager.addParam("1", ref parameters)}={DogManager.addParam("0", ref parameters)}"); // Condizione sempre falsa
                 }
                 //filtro per extra Where
-                if (!String.IsNullOrWhiteSpace(extraWhere)) sb.Append($@" AND {extraWhere}");
+                if (!String.IsNullOrWhiteSpace(extraWhere)) sbFromWhere.Append($@" AND {extraWhere}");
 
-                sql = sb.ToString();
+                sql = sbSelect.ToString() + sbFromWhere.ToString();
             }
             else
             {
@@ -208,8 +212,63 @@ namespace ErpToolkit.Helpers.Db
             Dictionary<object, ModelErp> listModel = dogMng.ExecuteQuery(null, tab.tableTpy, sql, parameters, transactionId, maxRecords);
 
             // Applica la formattazione dinamica
-            //xxx//var result = listModel.Select(p => { return new Choice { value = p.getIcode().ToString(), label = p.ToHtml() }; }).ToList<Choice>();
-            var result = listModel.Select(p => { return new Choice { value = p.Value?.getIcode()?.ToString() ?? "", label = p.Value?.ToHtml() ?? "" }; }).ToList<Choice>();
+
+
+            ////var result = listModel.Select(p => { return new Choice { value = p.Value?.getIcode()?.ToString() ?? "", label = p.Value?.ToHtml() ?? "" }; }).ToList<Choice>();
+            //calcolo lista dei dbFields
+            ////////////////////////////List<DogField>? extraDogFieldNames = null;
+            ////////////////////////////if (extraFields != null && extraFields.Count() > 0)
+            ////////////////////////////{
+            ////////////////////////////    extraDogFieldNames = new List<DogField>();
+            ////////////////////////////    foreach (var f in extraFields.Keys)
+            ////////////////////////////    {
+            ////////////////////////////        if (string.IsNullOrWhiteSpace(f)) continue;
+            ////////////////////////////        DogField dogField = dogMng.getDbDogField(dogMng.getDogField(f));
+            ////////////////////////////        if (dogField == null) continue;
+            ////////////////////////////        extraDogFieldNames.Add(dogField);
+            ////////////////////////////    }
+            ////////////////////////////}
+            ////////////////////////////var result = listModel.Select(p => new Choice
+            ////////////////////////////{
+            ////////////////////////////    value = p.Value?.getIcode()?.ToString() ?? "",
+            ////////////////////////////    label = p.Value?.ToHtml() ?? "", 
+            ////////////////////////////    extraFieldValues = extraDogFieldNames?
+            ////////////////////////////       .ToDictionary(
+            ////////////////////////////           f => f.fieldName,
+            ////////////////////////////           f => f.GetValue(p.Value)?.ToString()      //     GetPropertyValue(p, f)   // helper che legge la proprietà per nome
+            ////////////////////////////       )
+            ////////////////////////////}).ToList();
+
+            List<DogField>? extraDogFieldNames = null;
+            if (extraAutocompleteFieldNames != null && extraAutocompleteFieldNames.Count() > 0)
+            {
+                extraDogFieldNames = new List<DogField>();
+                foreach (var f in extraAutocompleteFieldNames.Keys)
+                {
+                    if (string.IsNullOrWhiteSpace(f)) continue;
+                    DogField dogField = tab.fields.FirstOrDefault(d => d.SqlFieldName == f, null);
+                    if (dogField == null) continue;
+                    extraDogFieldNames.Add(dogField);
+                }
+            }
+            var result = listModel.Select(p => new Choice
+            {
+                value = p.Value?.getIcode()?.ToString() ?? "",
+                label = p.Value?.ToHtml() ?? "",
+                extraFieldValues = extraDogFieldNames?
+                   .ToDictionary(
+                       f => f.fieldName,
+                       f => f.GetValue(p.Value)?.ToString()      //     GetPropertyValue(p, f)   // helper che legge la proprietà per nome
+                   )
+            }).ToList();
+
+
+
+
+            
+
+
+
             return result;
         }
 

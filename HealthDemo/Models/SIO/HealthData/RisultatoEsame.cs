@@ -151,7 +151,7 @@ public HealthDemo.Models.SIO.Patient.Paziente? ReIdPazienteObj  { get; set; }
 
 [Display(Name = "Id Gruppo Dato Clinico", ShortName="", Description = "Classe del tipo di dato sanitario", Prompt="")]
 [ErpDogField("RE_ID_GRUPPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cc1Icode", SqlFieldProperties="prop() xref(CATEGORIA_DATO_CLINICO.CC__ICODE) xdup(TIPO_DATO_CLINICO.TC_ID_CATEGORIA_DATO_CLINICO[RISULTATO_ESAME.RE_ID_TIPO_DATO_CLINICO]) multbxref()")]
-[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("CategoriaDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? ReIdGruppoDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.CategoriaDatoClinico? ReIdGruppoDatoClinicoObj  { get; set; }
@@ -166,7 +166,7 @@ public HealthDemo.Models.SIO.Patient.Episodio? ReIdEpisodioObj  { get; set; }
 [Display(Name = "Id Tipo Dato Clinico", ShortName="", Description = "Codice del tipo di Dato Sanitario", Prompt="")]
 [ErpDogField("RE_ID_TIPO_DATO_CLINICO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tc1Icode", SqlFieldProperties="prop() xref(TIPO_DATO_CLINICO.TC__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"TC_CLASSE\", \"2\")}")]
+[AutocompleteClient("TipoDatoClinico", "AutocompleteGetAll", 1, ExtraFilter:"{EqVal(\"TC_CLASSE\", \"2\")}", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? ReIdTipoDatoClinico  { get; set; }
 public HealthDemo.Models.SIO.HealthData.TipoDatoClinico? ReIdTipoDatoClinicoObj  { get; set; }

@@ -30,6 +30,8 @@ namespace ErpToolkit.Helpers
     {
         public string label { get; set; }
         public string value { get; set; }
+
+        public Dictionary<string, string> extraFieldValues { get; set; } // Opzionale: valori extra da includere nella risposta (es. per mostrare info aggiuntive nell'autocomplete, oppure per filtri lato client)
     }
 
 
@@ -299,13 +301,14 @@ namespace ErpToolkit.Helpers
         public string Action { get; }
         public int MaxSelections { get; set; } = 0;
         public string ExtraFilter { get; } = ""; // Opzionale: filtro extra da passare al server per limitare i risultati (es. in base ad altri campi del modello)
-
-        public AutocompleteClientAttribute(string controller, string action, int maxSelections = 0, string ExtraFilter = "")
+        public string[] ExtraFields { get; } = Array.Empty<string>(); // Opzionale: campi extra per filtro lato client
+        public AutocompleteClientAttribute(string controller, string action, int maxSelections = 0, string ExtraFilter = "", params string[] ExtraFields)
         {
             Controller = controller;
             Action = action;
             MaxSelections = maxSelections;
             this.ExtraFilter = ExtraFilter ?? "";
+            this.ExtraFields = ExtraFields ?? Array.Empty<string>();
         }
     }
 
@@ -717,6 +720,14 @@ namespace ErpToolkit.Helpers
 
 
                 var selectedItemsDiv = $@"<div id='{divId}' class='selected-items'></div>";
+
+                //--
+                var extraFieldsJson = (attributeClient.ExtraFields != null && attributeClient.ExtraFields.Length > 0)
+                    ? JsonConvert.SerializeObject(attributeClient.ExtraFields)
+                    : "[]";
+                output.Attributes.SetAttribute("data-extra-fields", extraFieldsJson);
+                output.Attributes.SetAttribute("data-prefix", prefix);
+                //--
 
                 output.Attributes.SetAttribute("class", "autocomplete-input form-control");
                 output.Attributes.SetAttribute("autocomplete", "off");

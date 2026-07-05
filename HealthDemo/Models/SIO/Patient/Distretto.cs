@@ -161,7 +161,7 @@ public string? DiNote  { get; set; }
 
 [Display(Name = "Id Comune", ShortName="", Description = "Città in cui si trova il distretto", Prompt="")]
 [ErpDogField("DI_ID_COMUNE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Cm1Icode", SqlFieldProperties="prop() xref(COMUNE.CM__ICODE) xdup() multbxref()")]
-[AutocompleteClient("Comune", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("Comune", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? DiIdComune  { get; set; }
 public HealthDemo.Models.SIO.Patient.Comune? DiIdComuneObj  { get; set; }

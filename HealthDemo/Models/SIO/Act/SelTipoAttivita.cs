@@ -53,7 +53,7 @@ public string? SelTaNote  { get; set; }
 [Display(Name = "Id Gruppo", ShortName="", Description = "Superclasse che raggruppa la classificazione corrente", Prompt="")]
 [ErpDogField("TA_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Ta1Icode", SqlFieldProperties="prop() xref(TIPO_ATTIVITA.TA__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoAttivita", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelTaIdGruppo  { get; set; } = new List<string>();
 

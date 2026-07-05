@@ -133,7 +133,7 @@ public string? Oo1Extatt { get; set; }
 [Display(Name = "Id Organizzazione Padre", ShortName="", Description = "Codice del primo agente correlato all'altro", Prompt="")]
 [ErpDogField("OO_ID_ORGANIZZAZIONE_PADRE", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? OoIdOrganizzazionePadre  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? OoIdOrganizzazionePadreObj  { get; set; }
@@ -141,7 +141,7 @@ public HealthDemo.Models.SIO.Common.Organizzazione? OoIdOrganizzazionePadreObj  
 [Display(Name = "Id Organizzazione Figlio", ShortName="", Description = "Codice del secondo agente correlato al primo", Prompt="")]
 [ErpDogField("OO_ID_ORGANIZZAZIONE_FIGLIO", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [Required(ErrorMessage = "Inserire un valore nel campo")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? OoIdOrganizzazioneFiglio  { get; set; }
 public HealthDemo.Models.SIO.Common.Organizzazione? OoIdOrganizzazioneFiglioObj  { get; set; }

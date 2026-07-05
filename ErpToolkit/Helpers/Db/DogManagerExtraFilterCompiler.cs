@@ -6,6 +6,7 @@ using static ErpToolkit.Helpers.Db.DogManager;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -22,13 +23,17 @@ namespace ErpToolkit.Helpers.Db
         //******************************************************************************************************************
 
 
-        public static string ResolveExtraFilterCondition(DogManager dogMng, DogTable tab, string tpy, ref IDictionary<string, object> parameters, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null)
+        public static string ResolveExtraFilterCondition(DogManager dogMng, DogTable tab, string tpy, ref IDictionary<string, object> parameters, ref IDictionary<string,string> extraAutocompleteFieldNames, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null)
         {
+            extraAutocompleteFieldNames = null; // resetta la lista per questa chiamata (sarà popolata dai template che usano campi extra)
             // 1. Costruisci il contesto globale per i template di filtro dinamico, includendo eventuali campi extra specificati, informazioni sull'applicazione, l'utente e la data odierna.
             Dictionary<string, List<object>> extraFieldsObj = ConvertExtraFields(dogMng, extraFields);
             var globals = new ExtraFilterGlobals
             {
+                dogMng = dogMng,
+                tab = tab,
                 parameters = parameters,
+                autocompleteType = tpy,
                 extraFields = extraFieldsObj,
                 //app = new ExtraFilterAppContext
                 //{
@@ -57,6 +62,7 @@ namespace ErpToolkit.Helpers.Db
                 _logger.Warn($"ExtraFilter validation failed: {result.ValidationError}");
                 throw new InvalidOperationException(result.ValidationError);
             }
+            extraAutocompleteFieldNames = globals.extraAutocompleteFieldNames; // restituisci la lista dei campi per l'autocompleteClient
             return result.Filter ?? "";
         }
         public static Dictionary<string, List<object>> ConvertExtraFields(DogManager dogMng, Dictionary<string, List<string>> extraFields)
@@ -110,9 +116,13 @@ namespace ErpToolkit.Helpers.Db
         // ─────────────────────────────────────────────────────────────────
         public class ExtraFilterGlobals
         {
+            public DogManager dogMng { get; set; } = null;
+            public DogTable tab { get; set; } = null;
             //public dynamic model { get; set; }   // model concreto deserializzato (dynamic → late binding)
             public IDictionary<string, object> parameters = new Dictionary<string, object>();
+            public string autocompleteType { get; set; } = "";
             public Dictionary<string, List<object>> extraFields { get; set; } = new();
+            public Dictionary<string, string> extraAutocompleteFieldNames { get; set; } = new();
             public ExtraFilterAppContext app { get; set; } = new();
             public ExtraFilterUserContext user { get; set; } = new();
             public ExtraFilterDateContext today { get; set; } = new();
@@ -156,6 +166,11 @@ namespace ErpToolkit.Helpers.Db
             private bool HasValue(object? v)
                 => v != null && !string.IsNullOrEmpty(v.ToString());
 
+            private string CompareCheck(string op, string sqlColumn, object? v)
+            {
+                if (this.autocompleteType == "GetAll") throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: autocompleteClient non può usare il filtro '{op}' sul campo {sqlColumn}.");
+                return Compare(op, sqlColumn, v);
+            }
             private string Compare(string op, string sqlColumn, object? v)
             {
                 if (!HasValue(v)) return "";
@@ -166,20 +181,20 @@ namespace ErpToolkit.Helpers.Db
             // ── Uguaglianza ────────────────────────────────────────────────────────
             // {Eq("PA__ICODE", "SelCodice")}
             // {EqVal("PA__STATO", "A")}
-            public string Eq(string sqlColumn, string fieldName) => Compare("=", sqlColumn, f0(fieldName));
+            public string Eq(string sqlColumn, string fieldName) => CompareCheck("=", sqlColumn, f0(fieldName));
             public string EqVal(string sqlColumn, object value) => Compare("=", sqlColumn, value);
-            public string Neq(string sqlColumn, string fieldName) => Compare("<>", sqlColumn, f0(fieldName));
+            public string Neq(string sqlColumn, string fieldName) => CompareCheck("<>", sqlColumn, f0(fieldName));
             public string NeqVal(string sqlColumn, object value) => Compare("<>", sqlColumn, value);
 
             // ── Confronti ──────────────────────────────────────────────────────────
             // {Gt("PA__DATA", "SelData")}  {GtVal("PA__ANNO", 2020)}
             // {Like("PA__DESC", "SelDesc")}
             // {LikeVal("PA__DESC", "%rossi%")}        valore letterale
-            public string Gt(string sqlColumn, string fieldName) => Compare(">", sqlColumn, f0(fieldName));
-            public string Gte(string sqlColumn, string fieldName) => Compare(">=", sqlColumn, f0(fieldName));
-            public string Lt(string sqlColumn, string fieldName) => Compare("<", sqlColumn, f0(fieldName));
-            public string Lte(string sqlColumn, string fieldName) => Compare("<=", sqlColumn, f0(fieldName));
-            public string Like(string sqlColumn, string fieldName) => Compare("LIKE", sqlColumn, f0(fieldName));
+            public string Gt(string sqlColumn, string fieldName) => CompareCheck(">", sqlColumn, f0(fieldName));
+            public string Gte(string sqlColumn, string fieldName) => CompareCheck(">=", sqlColumn, f0(fieldName));
+            public string Lt(string sqlColumn, string fieldName) => CompareCheck("<", sqlColumn, f0(fieldName));
+            public string Lte(string sqlColumn, string fieldName) => CompareCheck("<=", sqlColumn, f0(fieldName));
+            public string Like(string sqlColumn, string fieldName) => CompareCheck("LIKE", sqlColumn, f0(fieldName));
             public string GtVal(string sqlColumn, object value) => Compare(">", sqlColumn, value);
             public string GteVal(string sqlColumn, object value) => Compare(">=", sqlColumn, value);
             public string LtVal(string sqlColumn, object value) => Compare("<", sqlColumn, value);
@@ -191,6 +206,12 @@ namespace ErpToolkit.Helpers.Db
             // {InVals("PA__STATO", "A","B","C")}
             public string In(string sqlColumn, string fieldName)
             {
+                if (this.autocompleteType == "GetAll")
+                {
+                    // In modalità autocompleteClient, non filtrare i risultati ma registra il nome della colonna per l'autocomplete
+                    extraAutocompleteFieldNames[fieldName] = sqlColumn; // Aggiungi il nome della colonna alla lista per l'autocompleteClient (posso usare la stessa proprietà{fieldName} per filtrare su diversi campi del DB{sqlColumn})
+                    return "";
+                }
                 var list = f(fieldName)?.Where(v => v != null).ToList();
                 if (list == null || list.Count == 0) return "";
                 var pNames = DogManager.addListParam(list, ref parameters);
@@ -198,6 +219,7 @@ namespace ErpToolkit.Helpers.Db
             }
             public string NotIn(string sqlColumn, string fieldName)
             {
+                if (this.autocompleteType == "GetAll") throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: autocompleteClient non può usare il filtro 'NotIn' sul campo {sqlColumn}.");
                 var list = f(fieldName)?.Where(v => v != null).ToList();
                 if (list == null || list.Count == 0) return "";
                 var pNames = DogManager.addListParam(list, ref parameters);
@@ -223,6 +245,7 @@ namespace ErpToolkit.Helpers.Db
             // {BetweenVals("PA__ANNO", 2020, 2024)}
             public string Between(string sqlColumn, string fieldName)
             {
+                if (this.autocompleteType == "GetAll") throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: autocompleteClient non può usare il filtro 'Between' sul campo {sqlColumn}.");
                 var list = f(fieldName);
                 var start = list?.ElementAtOrDefault(0);
                 var end = list?.ElementAtOrDefault(1);
@@ -255,6 +278,29 @@ namespace ErpToolkit.Helpers.Db
             // {IsNull("PA__NOTE")}
             public string IsNull(string sqlColumn) => $"{sqlColumn} IS NULL";
             public string IsNotNull(string sqlColumn) => $"{sqlColumn} IS NOT NULL";
+
+
+
+            //// ── From tabella relazionata ────────────────────────────────────────────────────────
+            public string From(string sqlColumn, string condition)
+            {
+                if (this.autocompleteType == "GetAll") throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: autocompleteClient non può usare il filtro 'From' sul campo {sqlColumn}.");
+                DogField fld = tab.fldByName(sqlColumn);
+                string joinTableName = fld?.XrefObj?.table?.tableName ?? throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: campo {sqlColumn} non ha una tabella relazionata (XrefObj).");
+                string joinIcodeFieldName = fld?.XrefObj?.table?.fldIcode?.SqlFieldName ?? throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: campo {sqlColumn} non ha 'fldIcode?.SqlFieldName' nella tabella relazionata (XrefObj).");
+
+                return $"{sqlColumn} IN (SELECT {joinIcodeFieldName} FROM {joinTableName} WHERE {condition} )";
+            }
+            public string NotFrom(string sqlColumn, string condition)
+            {
+                if (this.autocompleteType == "GetAll") throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: autocompleteClient non può usare il filtro 'From' sul campo {sqlColumn}.");
+                DogField fld = tab.fldByName(sqlColumn);
+                string joinTableName = fld?.XrefObj?.table?.tableName ?? throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: campo {sqlColumn} non ha una tabella relazionata (XrefObj).");
+                string joinIcodeFieldName = fld?.XrefObj?.table?.fldIcode?.SqlFieldName ?? throw new InvalidOperationException($"ExtraFilterCompiler: Errore di validazione: campo {sqlColumn} non ha 'fldIcode?.SqlFieldName' nella tabella relazionata (XrefObj).");
+
+                return $"{sqlColumn} NOT IN (SELECT {joinIcodeFieldName} FROM {joinTableName} WHERE {condition} )";
+            }
+
 
             // ── Combinatori ────────────────────────────────────────────────────────
             // {And(Eq("PA__GRUPPO","SelGruppo"), In("PA__ICODE","SelCodici"))}

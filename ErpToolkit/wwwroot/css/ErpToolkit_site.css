@@ -83,6 +83,23 @@ body {
     color: #dc3545;
 }
 
+/* Animazione shimmer sull'input durante il caricamento (autocompleteClient) */
+@keyframes etk-shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+
+    100% {
+        background-position: 400px 0;
+    }
+}
+.autocomplete-input.etk-loading {
+    background: linear-gradient( 90deg, #f0f0f0 25%, #e0e8ff 50%, #f0f0f0 75% );
+    background-size: 800px 100%;
+    animation: etk-shimmer 1.4s ease-in-out infinite;
+    color: transparent; /* nasconde il testo placeholder durante il caricamento */
+    pointer-events: none;
+}
 
 /*  end autocomplete  */
 

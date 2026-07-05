@@ -38,7 +38,7 @@ public override string labelHtml() { return $""; }
 [Display(Name = "Tipo Diagnosi", ShortName="", Description = "Codice del tipo di classificazione a cui l'istanza appartiene", Prompt="")]
 [ErpDogField("DG_TIPO_DIAGNOSI", SqlFieldNameExt="", SqlFieldOptions="", Xref="Td1Icode", SqlFieldProperties="prop() xref(TIPO_DIAGNOSI.TD__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoDiagnosi", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelDgTipoDiagnosi  { get; set; } = new List<string>();
 
@@ -65,7 +65,7 @@ public string? SelDgCodice  { get; set; }
 [Display(Name = "Id Gruppo", ShortName="", Description = "Identificatore del codice di aggregazione nella gerarchia (se presente)", Prompt="")]
 [ErpDogField("DG_ID_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Dg1Icode", SqlFieldProperties="prop() xref(DIAGNOSI.DG__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("Diagnosi", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelDgIdGruppo  { get; set; } = new List<string>();
 

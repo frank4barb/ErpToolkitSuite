@@ -161,7 +161,7 @@ public string? TzNote  { get; set; }
 
 [Display(Name = "Gruppo", ShortName="", Description = "Classe di aggregazione (se presente)", Prompt="")]
 [ErpDogField("TZ_GRUPPO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
-[AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 1, ExtraFilter:"")]
+[AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 1, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public string? TzGruppo  { get; set; }
 public HealthDemo.Models.SIO.Act.TipoOrganizzazione? TzGruppoObj  { get; set; }

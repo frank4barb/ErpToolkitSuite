@@ -87,7 +87,7 @@ public string? SelOrEmail  { get; set; }
 [Display(Name = "Tipo Assistenza", ShortName="", Description = "Tipo dell'agente nella classificazione generale", Prompt="")]
 [ErpDogField("OR_TIPO_ASSISTENZA", SqlFieldNameExt="", SqlFieldOptions="[MANDATORY]", Xref="Tz1Icode", SqlFieldProperties="prop() xref(TIPO_ORGANIZZAZIONE.TZ__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("TipoOrganizzazione", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelOrTipoAssistenza  { get; set; } = new List<string>();
 
@@ -99,28 +99,28 @@ public string? SelOrTelefono  { get; set; }
 [Display(Name = "Id Personale", ShortName="", Description = "Codice del membro del personale interno corrispondente, se applicabile (solo per classe = 3)", Prompt="")]
 [ErpDogField("OR_ID_PERSONALE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Pe1Icode", SqlFieldProperties="prop() xref(PERSONALE.PE__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Personale", "AutocompleteGetAll", 10, ExtraFilter:"")]
+[AutocompleteClient("Personale", "AutocompleteGetAll", 10, ExtraFilter:"", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelOrIdPersonale  { get; set; } = new List<string>();
 
 [Display(Name = "Id Istituto", ShortName="", Description = "Codice del centro sanitario (classe = 0) a cui appartiene l'agente (se applicabile)", Prompt="")]
 [ErpDogField("OR_ID_ISTITUTO", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"0\")}")]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"0\")}", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelOrIdIstituto  { get; set; } = new List<string>();
 
 [Display(Name = "Id Unita", ShortName="", Description = "Codice dell'unità (classe = 1) a cui appartiene l'agente (se applicabile)", Prompt="")]
 [ErpDogField("OR_ID_UNITA", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}")]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"1\")}", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelOrIdUnita  { get; set; } = new List<string>();
 
 [Display(Name = "Id Postazione", ShortName="", Description = "Codice del punto di servizio interno (classe = 2) a cui appartiene l'agente (se applicabile)", Prompt="")]
 [ErpDogField("OR_ID_POSTAZIONE", SqlFieldNameExt="", SqlFieldOptions="", Xref="Or1Icode", SqlFieldProperties="prop() xref(ORGANIZZAZIONE.OR__ICODE) xdup() multbxref()")]
 [DefaultValue("")]
-[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}")]
+[AutocompleteClient("Organizzazione", "AutocompleteGetAll", 10, ExtraFilter:"{EqVal(\"OR_CLASSE_ASSISTENZA\", \"2\")}", ExtraFields: "")]
 [DataType(DataType.Text)]
 public List<string> SelOrIdPostazione  { get; set; } = new List<string>();
 

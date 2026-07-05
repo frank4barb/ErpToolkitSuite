@@ -41,11 +41,12 @@ namespace HealthDemo.Controllers.SIO.Resource
         }
 
         [HttpGet]
-        public JsonResult AutocompleteGetAll(string? modelPropertyName = null)
+        public JsonResult AutocompleteGetAll(string? modelPropertyName = null, [FromQuery] List<string> extraFieldNames = null)
         {
             try
             {
-                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetAll<TipoRisorsa>(modelPropertyName: modelPropertyName));
+                extraFieldNames?.Remove("modelPropertyName");   // Rimuovi "modelPropertyName" dai filtri se finiscono nella lista
+                return Json(ErpContext.Instance.DogFactory.GetDog(dogId).AutocompleteGetAll<TipoRisorsa>(modelPropertyName: modelPropertyName, extraFieldNames: extraFieldNames));
             }
             catch (Exception ex) { return Json(new { error = "Problemi in accesso al DB: AutocompleteGetAll TipoRisorsa: " + ex.Message }); }
         }
