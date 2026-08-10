@@ -172,7 +172,8 @@ namespace ErpToolkit.Helpers.Db
 
 
                     //!!!//Dictionary<object, ModelErp> outDict = dogMng.ExecuteQuery(null, objType, objSql, objParameters, transactionId, maxRecords, options: options);
-                    Dictionary<object, ModelErp> outDict = dogMng.ExecuteQueryEx(null, objType, objSql, objParameters, fillXdata, fmtList, transactionId, maxRecords, options: options);
+                    string tablePropertiesOptions = tab?.SqlTableProperties ?? "";  // es: [TIMEOUT_SECONDS=xxx] "[NOLOCK]" o "[READPAST]" o "[READUNCOMMITTED]"
+                    Dictionary<object, ModelErp> outDict = dogMng.ExecuteQueryEx(null, objType, objSql, objParameters, fillXdata, fmtList, transactionId, maxRecords, options: options + " " + tablePropertiesOptions);
                     //!!!//
 
                     foreach (var kv in outDict) { if (UtilHelper.IsNullOrEmptyObject(kv.Key) == false && kv.Value != null) { kv.Value.addDogCache(ref dogCache); dogCache.dbCache[objType][kv.Key] = kv.Value; } } //aggiorna o aggiungi alla cache

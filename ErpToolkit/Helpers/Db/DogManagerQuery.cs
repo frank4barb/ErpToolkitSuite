@@ -6,6 +6,13 @@ using System.Collections;
 using static ErpToolkit.Helpers.Db.DatabaseManager;
 using static ErpToolkit.Helpers.Db.DogManager;
 using ErpToolkit.Models;
+using K4os.Hash.xxHash;
+using MongoDB.Driver;
+using Amazon.SecurityToken.Model;
+using Amazon.Runtime.Internal.Transform;
+using Microsoft.Extensions.Options;
+using Npgsql;
+using Google.Protobuf.WellKnownTypes;
 
 
 namespace ErpToolkit.Helpers.Db
@@ -91,8 +98,13 @@ namespace ErpToolkit.Helpers.Db
             string sql = ""; IDictionary<string, string> extraAutocompleteFieldNames = null;
             if (tpy == "GetAll")
             {
+
+                // recupera il template di filtro dinamico associato alla tabella e alla proprietà specificata (ad esempio, da una configurazione o da attributi sui modelli).
+                string filterTemplate = dogMng.getDogField(modelPropertyName ?? "")?.AutocompleteExtraFilter ?? ""; // Se modelPropertyName è null, restituisce "" (no filtro)
+
+
                 //---- CALCOLO EXTRA FILTER: nel caso di autocompleteClient leggo sempre tutti i campi e applico il filtro lato client: extraFields = null
-                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, modelPropertyName, null);
+                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, filterTemplate, null);
                 if (extraAutocompleteFieldNames != null && extraAutocompleteFieldNames.Count() > 0)
                 {
                     // aggiungo i campi extra alla select
@@ -151,8 +163,12 @@ namespace ErpToolkit.Helpers.Db
 
                 //}
 
+
+                // recupera il template di filtro dinamico associato alla tabella e alla proprietà specificata (ad esempio, da una configurazione o da attributi sui modelli).
+                string filterTemplate = dogMng.getDogField(modelPropertyName ?? "")?.AutocompleteExtraFilter ?? ""; // Se modelPropertyName è null, restituisce "" (no filtro)
+
                 //---- CALCOLO EXTRA FILTER
-                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, modelPropertyName, extraFields);
+                string extraFilter = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, filterTemplate, extraFields);
                 if (!String.IsNullOrWhiteSpace(extraFilter))
                 {
                     if (extraFilter.Trim().StartsWith("AND", StringComparison.OrdinalIgnoreCase)) sbFromWhere.Append($@" {extraFilter}");
@@ -171,13 +187,29 @@ namespace ErpToolkit.Helpers.Db
                 bool firstField = true;
                 foreach (var fldName in fieldNames)
                 {
-
                     if (firstField) { firstField = false; } else { sql += "\n UNION \n"; }
 
                     string startWith = "";
                     if (serchInMiddle) startWith = "%";
-                    if (caseInsensitive) sql += $" {sqlInitial} AND upper({dogMng.tabProperties[fldName].SqlFieldName}) LIKE {DogManager.addParam(startWith + term.ToUpper() + "%", ref parameters)} ";
-                    else sql += $" {sqlInitial} AND {dogMng.tabProperties[fldName].SqlFieldName} LIKE {DogManager.addParam(startWith + term + "%", ref parameters)} ";
+
+                    string filterTemplateCondition = dogMng.tabProperties[fldName]?.CustomCond ?? ""; // legge il campo SqlFieldCustomCond dell'attributo ErpDogField 
+                    extraFields?.Remove("SEARCH_TERM");
+                    if (string.IsNullOrWhiteSpace(filterTemplateCondition))
+                    {
+                        if (caseInsensitive) sql += $" {sqlInitial} AND upper({dogMng.tabProperties[fldName].SqlFieldName}) LIKE {DogManager.addParam(startWith + term.ToUpper() + "%", ref parameters)} ";
+                        else sql += $" {sqlInitial} AND {dogMng.tabProperties[fldName].SqlFieldName} LIKE {DogManager.addParam(startWith + term + "%", ref parameters)} ";
+                    }
+                    else
+                    {
+                        string SEARCH_TERM = term.ToUpper();
+                        extraFields?.Add("SEARCH_TERM", new List<string> { SEARCH_TERM });
+
+                        //---- CALCOLO CUSTOM CONDITION
+                        string customCond = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, tab, tpy, ref parameters, ref extraAutocompleteFieldNames, filterTemplateCondition, extraFields);
+                        if (String.IsNullOrWhiteSpace(customCond)) throw new Exception($"Autocomplete_Int: empty customCond for {dogMng.tabProperties[fldName].SqlFieldName}."); ;
+                        sql += $" {sqlInitial} AND {customCond}";
+                        //---
+                    }
 
                 }
 
@@ -493,6 +525,7 @@ namespace ErpToolkit.Helpers.Db
             DogTable sel = dogMng.selTypes[selModel.GetType()];
             if (sel == null) throw new Exception($"sqlWhereSelection: sel [{selModel.GetType()}] == null.");
             //ciclo sui campi di selezione
+            Dictionary<string, List<string>> extraFields = _getExtraFields(sel, selModel); 
             foreach (var selFld in sel.fields)
             {
                 string propertyName = selFld.fieldName;
@@ -507,26 +540,56 @@ namespace ErpToolkit.Helpers.Db
                     sqlFieldNameExt = (propertyName + "    ").Substring(3).Trim(); // uso il campo delle struttura in caso where per VISTE del tipo: "SELECT * FROM ( ??select?? ) ) AS subquery ??where??
                 }
                 //---
+                string selCustomCond = _getSelCustomCond(dogMng, propertyName);
+                //---
                 if (propertyValue is string str)
                 {
-                    if (selFld.optUID) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(str.TrimEnd(), ref parameters)} and ");   //sb.AppendLine($" {sqlFieldNameExt} = '{str.TrimEnd()}' and ");
-                    else if (selFld.optXID) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(str.TrimEnd(), ref parameters)} and "); //sb.AppendLine($" {sqlFieldNameExt} = '{str.TrimEnd()}' and ");
-                    else sb.AppendLine($" {sqlFieldNameExt} LIKE {DogManager.addParam($"%{str.TrimEnd()}%", ref parameters)} and "); //sb.AppendLine($" {sqlFieldNameExt} LIKE '%{str}%' and ");
+                    if (_checkSelCustomCond(selCustomCond))
+                    {
+                        sb.AppendLine($" {_buildSelCustomCond(dogMng, sel, propertyName, ref parameters, selCustomCond, extraFields)} and ");
+                    }
+                    else
+                    {
+                        if (selFld.optUID) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(str.TrimEnd(), ref parameters)} and ");   //sb.AppendLine($" {sqlFieldNameExt} = '{str.TrimEnd()}' and ");
+                        else if (selFld.optXID) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(str.TrimEnd(), ref parameters)} and "); //sb.AppendLine($" {sqlFieldNameExt} = '{str.TrimEnd()}' and ");
+                        else sb.AppendLine($" {sqlFieldNameExt} LIKE {DogManager.addParam($"%{str.TrimEnd()}%", ref parameters)} and "); //sb.AppendLine($" {sqlFieldNameExt} LIKE '%{str}%' and ");
+                    }
                 }
                 else if (propertyValue is DateTime dattim)  // DateOnly.FromDateTime()
                 {
-                    if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(DateOnly.FromDateTime(dattim), ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dattim.ToString(DogManager.DB_FORMAT_DATE)}' and ");
-                    else if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(TimeOnly.FromDateTime(dattim), ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dattim.ToString(DogManager.DB_FORMAT_TIME)}' and ");
-                    else if (selFld.optDATETIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(dattim, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dattim.ToString(DogManager.DB_FORMAT_DATETIME)}' and ");
-                    else throw new ErpException($"{propertyName}: DateTime fa riferimento ad un campo non data ora");
+                    if (_checkSelCustomCond(selCustomCond))
+                    {
+                        sb.AppendLine($" {_buildSelCustomCond(dogMng, sel, propertyName, ref parameters, selCustomCond, extraFields)} and ");
+                    }
+                    else
+                    {
+                        if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(DateOnly.FromDateTime(dattim), ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dattim.ToString(DogManager.DB_FORMAT_DATE)}' and ");
+                        else if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(TimeOnly.FromDateTime(dattim), ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dattim.ToString(DogManager.DB_FORMAT_TIME)}' and ");
+                        else if (selFld.optDATETIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(dattim, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dattim.ToString(DogManager.DB_FORMAT_DATETIME)}' and ");
+                        else throw new ErpException($"{propertyName}: DateTime fa riferimento ad un campo non data ora");
+                    }
                 }
                 else if (propertyValue is DateOnly dat)
                 {
-                    if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(dat, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dat.ToString(DogManager.DB_FORMAT_DATE)}' and ");
+                    if (_checkSelCustomCond(selCustomCond))
+                    {
+                        sb.AppendLine($" {_buildSelCustomCond(dogMng, sel, propertyName, ref parameters, selCustomCond, extraFields)} and ");
+                    }
+                    else
+                    {
+                        if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(dat, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{dat.ToString(DogManager.DB_FORMAT_DATE)}' and ");
+                    }
                 }
                 else if (propertyValue is TimeOnly tim)
                 {
-                    if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(tim, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{tim.ToString(DogManager.DB_FORMAT_TIME)}' and ");
+                    if (_checkSelCustomCond(selCustomCond))
+                    {
+                        sb.AppendLine($" {_buildSelCustomCond(dogMng, sel, propertyName, ref parameters, selCustomCond, extraFields)} and ");
+                    }
+                    else
+                    {
+                        if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} = {DogManager.addParam(tim, ref parameters)} and ");  //sb.AppendLine($" {sqlFieldNameExt} = '{tim.ToString(DogManager.DB_FORMAT_TIME)}' and ");
+                    }
                 }
                 //>>>TC>>>// else if (propertyValue is List<string> strList) sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(str => str.TrimEnd()).ToList<object>(), ref parameters))).AppendLine($") and");  //sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", strList.Select(str => $"'{str.Trim()}'"))).AppendLine($") and");
                 else if (propertyValue is List<string> strList_all)
@@ -560,26 +623,33 @@ namespace ErpToolkit.Helpers.Db
                 {
                     if (dateRng.StartDate == default && dateRng.EndDate == default) continue;    //>>>> NESSUNA CONDIZIONE APPLICATA <<<<   (entrambe le date sono null)
                     //---
-                    if (dateRng.StartDate == default)
+                    if (_checkSelCustomCond(selCustomCond))
                     {
-                        if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} <= {DogManager.addParam(DateOnly.FromDateTime(dateRng.EndDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} <= '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
-                        else if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} <= {DogManager.addParam(TimeOnly.FromDateTime(dateRng.EndDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} <= '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
-                        else if (selFld.optDATETIME) sb.AppendLine($" {sqlFieldNameExt} <= {DogManager.addParam(dateRng.EndDate, ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} <= '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
-                        else throw new ErpException($"{propertyName}: DateRange fa riferimento ad un campo non data ora (1)");
-                    }
-                    else if (dateRng.EndDate == default)
-                    {
-                        if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} >= {DogManager.addParam(DateOnly.FromDateTime(dateRng.StartDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} >= '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
-                        else if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} >= {DogManager.addParam(TimeOnly.FromDateTime(dateRng.StartDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} >= '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
-                        else if (selFld.optDATETIME) sb.AppendLine($" {sqlFieldNameExt} >= {DogManager.addParam(dateRng.StartDate, ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} >= '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
-                        else throw new ErpException($"{propertyName}: DateRange fa riferimento ad un campo non data ora (2)");
+                        sb.AppendLine($" {_buildSelCustomCond(dogMng, sel, propertyName, ref parameters, selCustomCond, extraFields)} and ");
                     }
                     else
                     {
-                        if (selFld.optDATE) sb.AppendLine($" ({sqlFieldNameExt} BETWEEN {DogManager.addParam(DateOnly.FromDateTime(dateRng.StartDate), ref parameters)} and {DogManager.addParam(DateOnly.FromDateTime(dateRng.EndDate), ref parameters)}) and");  //sb.AppendLine($" ({sqlFieldNameExt} BETWEEN '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}') and");
-                        else if (selFld.optTIME) sb.AppendLine($" ({sqlFieldNameExt} BETWEEN {DogManager.addParam(TimeOnly.FromDateTime(dateRng.StartDate), ref parameters)} and {DogManager.addParam(TimeOnly.FromDateTime(dateRng.EndDate), ref parameters)}) and");  //sb.AppendLine($" ({sqlFieldNameExt} BETWEEN '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}') and");
-                        else if (selFld.optDATETIME) sb.AppendLine($" ({sqlFieldNameExt} BETWEEN {DogManager.addParam(dateRng.StartDate, ref parameters)} and {DogManager.addParam(dateRng.EndDate, ref parameters)}) and");  //sb.AppendLine($" ({sqlFieldNameExt} BETWEEN '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}') and");
-                        else throw new ErpException($"{propertyName}: DateRange fa riferimento ad un campo non data ora (3)");
+                        if (dateRng.StartDate == default)
+                        {
+                            if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} <= {DogManager.addParam(DateOnly.FromDateTime(dateRng.EndDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} <= '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
+                            else if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} <= {DogManager.addParam(TimeOnly.FromDateTime(dateRng.EndDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} <= '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
+                            else if (selFld.optDATETIME) sb.AppendLine($" {sqlFieldNameExt} <= {DogManager.addParam(dateRng.EndDate, ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} <= '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
+                            else throw new ErpException($"{propertyName}: DateRange fa riferimento ad un campo non data ora (1)");
+                        }
+                        else if (dateRng.EndDate == default)
+                        {
+                            if (selFld.optDATE) sb.AppendLine($" {sqlFieldNameExt} >= {DogManager.addParam(DateOnly.FromDateTime(dateRng.StartDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} >= '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
+                            else if (selFld.optTIME) sb.AppendLine($" {sqlFieldNameExt} >= {DogManager.addParam(TimeOnly.FromDateTime(dateRng.StartDate), ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} >= '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
+                            else if (selFld.optDATETIME) sb.AppendLine($" {sqlFieldNameExt} >= {DogManager.addParam(dateRng.StartDate, ref parameters)} and");  //sb.AppendLine($" {sqlFieldNameExt} >= '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and");
+                            else throw new ErpException($"{propertyName}: DateRange fa riferimento ad un campo non data ora (2)");
+                        }
+                        else
+                        {
+                            if (selFld.optDATE) sb.AppendLine($" ({sqlFieldNameExt} BETWEEN {DogManager.addParam(DateOnly.FromDateTime(dateRng.StartDate), ref parameters)} and {DogManager.addParam(DateOnly.FromDateTime(dateRng.EndDate), ref parameters)}) and");  //sb.AppendLine($" ({sqlFieldNameExt} BETWEEN '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}') and");
+                            else if (selFld.optTIME) sb.AppendLine($" ({sqlFieldNameExt} BETWEEN {DogManager.addParam(TimeOnly.FromDateTime(dateRng.StartDate), ref parameters)} and {DogManager.addParam(TimeOnly.FromDateTime(dateRng.EndDate), ref parameters)}) and");  //sb.AppendLine($" ({sqlFieldNameExt} BETWEEN '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}') and");
+                            else if (selFld.optDATETIME) sb.AppendLine($" ({sqlFieldNameExt} BETWEEN {DogManager.addParam(dateRng.StartDate, ref parameters)} and {DogManager.addParam(dateRng.EndDate, ref parameters)}) and");  //sb.AppendLine($" ({sqlFieldNameExt} BETWEEN '{dateRng.StartDate.ToString(DogManager.DB_FORMAT_DATE)}' and '{dateRng.EndDate.ToString(DogManager.DB_FORMAT_DATE)}') and");
+                            else throw new ErpException($"{propertyName}: DateRange fa riferimento ad un campo non data ora (3)");
+                        }
                     }
                 }
                 else continue;
@@ -600,6 +670,103 @@ namespace ErpToolkit.Helpers.Db
             }
             return sb.ToString();
         }
+        private static Dictionary<string, List<string>> _getExtraFields(DogTable sel, ModelErp selModel)
+        {
+            Dictionary<string, List<string>> extraFields = new Dictionary<string, List<string>>(); 
+            foreach (var selFld in sel.fields)
+            {
+                string propertyName = selFld.fieldName;
+                object propertyValue = selFld.GetValue((ModelErp)selModel);    //property.GetValue(selModel);
+                if (propertyValue == null) continue;    //>>>> NESSUNA VARIABILE CARICATA <<<<
+                if (propertyValue is string str)
+                {
+                    List<string> lstValues = (selFld.asOption("[ALLOW_COMMA_STRLIST]")) ? str.Split(",").ToList() : new List<string> { str };
+                    extraFields.Add(propertyName, lstValues);
+                }
+                else if (propertyValue is DateTime dattim)  // DateOnly.FromDateTime()
+                {
+                    if (selFld.optDATE) extraFields.Add(propertyName, new List<string> { DateOnly.FromDateTime(dattim).ToString("yyyy-MM-dd") });
+                    else if (selFld.optTIME) extraFields.Add(propertyName, new List<string> { TimeOnly.FromDateTime(dattim).ToString("HH:mm:ss") });
+                    else if (selFld.optDATETIME) extraFields.Add(propertyName, new List<string> { dattim.ToString("yyyy-MM-dd HH:mm:ss") });
+                }
+                else if (propertyValue is DateOnly dat)
+                {
+                    if (selFld.optDATE) extraFields.Add(propertyName, new List<string> { dat.ToString("yyyy-MM-dd") });
+                }
+                else if (propertyValue is TimeOnly tim)
+                {
+                    if (selFld.optTIME) extraFields.Add(propertyName, new List<string> { tim.ToString("HH:mm:ss") });
+                }
+                //>>>TC>>>// else if (propertyValue is List<string> strList) sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", DogManager.addListParam(strList.Select(str => str.TrimEnd()).ToList<object>(), ref parameters))).AppendLine($") and");  //sb.Append($" {sqlFieldNameExt} in (").Append(string.Join(", ", strList.Select(str => $"'{str.Trim()}'"))).AppendLine($") and");
+                else if (propertyValue is List<string> strList_all)
+                {
+                    List<string> strList = strList_all.Where(item => item != null && !(item is string str && string.IsNullOrWhiteSpace(str))).ToList();  // elimina elementi null e strighe vuote
+                    //---
+                    if (strList.Count() == 0) continue;    //>>>> NESSUNA CONDIZIONE APPLICATA <<<<
+                    //---
+                    if (selFld.optBIGINT)
+                    {
+                        extraFields.Add(propertyName, (List<string>)strList.Select(s => long.Parse(s).ToString()).ToList() );
+                    }
+                    else
+                    {
+                        extraFields.Add(propertyName, (List<string>)strList.Select(str => str.TrimEnd()).ToList());
+                    }
+                }
+                //<<<TC<<<
+                else if (propertyValue is List<long> lngList_all)
+                {
+                    List<long> lngList = lngList_all.Where(item => item != null).ToList();  // elimina elementi null 
+                    //---
+                    if (lngList.Count() == 0) continue;    //>>>> NESSUNA CONDIZIONE APPLICATA <<<<
+                    //---
+                    extraFields.Add(propertyName, (List<string>)lngList.Select(u => u.ToString()).ToList() );
+                }
+                else if (propertyValue is DateRange dateRng)
+                {
+                    if (dateRng.StartDate == default && dateRng.EndDate == default) continue;    //>>>> NESSUNA CONDIZIONE APPLICATA <<<<   (entrambe le date sono null)
+                    //---
+                    if (dateRng.StartDate == default)
+                    {
+                        if (selFld.optDATE) extraFields.Add(propertyName, new List<string> { null, DateOnly.FromDateTime(dateRng.EndDate).ToString("yyyy-MM-dd") });
+                        else if (selFld.optTIME) extraFields.Add(propertyName, new List<string> { null, TimeOnly.FromDateTime(dateRng.EndDate).ToString("HH:mm:ss") });
+                        else if (selFld.optDATETIME) extraFields.Add(propertyName, new List<string> { null, dateRng.EndDate.ToString("yyyy-MM-dd HH:mm:ss") });
+                    }
+                    else if (dateRng.EndDate == default)
+                    {
+                        if (selFld.optDATE) extraFields.Add(propertyName, new List<string> { DateOnly.FromDateTime(dateRng.StartDate).ToString("yyyy-MM-dd"), null });
+                        else if (selFld.optTIME) extraFields.Add(propertyName, new List<string> { TimeOnly.FromDateTime(dateRng.StartDate).ToString("HH:mm:ss"), null });
+                        else if (selFld.optDATETIME) extraFields.Add(propertyName, new List<string> { dateRng.StartDate.ToString("yyyy-MM-dd HH:mm:ss"), null });
+                    }
+                    else
+                    {
+                        if (selFld.optDATE) extraFields.Add(propertyName, new List<string> { DateOnly.FromDateTime(dateRng.StartDate).ToString("yyyy-MM-dd"), DateOnly.FromDateTime(dateRng.EndDate).ToString("yyyy-MM-dd") });
+                        else if (selFld.optTIME) extraFields.Add(propertyName, new List<string> { TimeOnly.FromDateTime(dateRng.StartDate).ToString("HH:mm:ss"), TimeOnly.FromDateTime(dateRng.EndDate).ToString("HH:mm:ss") });
+                        else if (selFld.optDATETIME) extraFields.Add(propertyName, new List<string> { dateRng.StartDate.ToString("yyyy-MM-dd HH:mm:ss"), dateRng.EndDate.ToString("yyyy-MM-dd HH:mm:ss") });
+                    }
+                }
+            }
+            return extraFields;
+        }
+        private static string _getSelCustomCond(DogManager dogMng, string selFldName)
+        {
+            string filterTemplateCondition = dogMng.selProperties[selFldName]?.CustomCond ?? ""; // legge il campo SqlFieldCustomCond dell'attributo ErpDogField 
+            return filterTemplateCondition;
+        }
+        private static bool _checkSelCustomCond(string selCustomCond)
+        {
+            return string.IsNullOrWhiteSpace(selCustomCond) == false;
+        }
+        private static string _buildSelCustomCond(DogManager dogMng, DogTable sel, string selFldName, ref IDictionary<string, object> parameters, string filterTemplateCondition, Dictionary<string, List<string>> extraFields = null)
+        {
+            //---- CALCOLO CUSTOM CONDITION
+            IDictionary<string, string> extraAutocompleteFieldNames = new Dictionary<string, string>();  //non serve per il tipo FilterSelect
+            string customCond = ExtraFilterCompiler.ResolveExtraFilterCondition(dogMng, sel, "FilterSelect", ref parameters, ref extraAutocompleteFieldNames, filterTemplateCondition, extraFields);
+            if (String.IsNullOrWhiteSpace(customCond)) throw new Exception($"sqlWhereSelection: empty customCond for {dogMng.selProperties[selFldName].fieldName}."); ;
+            return  customCond;
+            //---
+        }
+
 
         //crea WHERE per l'oggetto del modello 'objModel' in base all'icode
         internal static string sqlWhereListIcodeEx(DogTable tab, List<object> rowIdList, bool isXdata, ref IDictionary<string, object> parameters, string options = "")

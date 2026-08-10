@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using NLog;
 using System.Data.Entity.Infrastructure;
+using System.Reflection;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Transactions;
@@ -177,6 +179,157 @@ namespace ErpToolkit.Controllers
             public string field { get; set; } = "";
             public string message { get; set; } = "";
         }
+
+        //==========================================================================================================
+        //==========================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //////////---------------
+        ////////// GESTIONE SELEZIONE DATABASE MULTIPLI
+        //////////---------------
+
+        [BindProperty]
+        public string SelectedDbKey { get; set; }
+
+
+        // Estrae l'etichetta breve da un riferimento a connection string.
+        // Es: "#connectionStringHsRIS__IRIS__TC__FREE" -> "HsRIS"
+        private static string ExtractLabel(string connStringKey)
+        {
+            const string prefix = "#connectionString";
+            string s = connStringKey.Trim();
+            if (s.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) s = s.Substring(prefix.Length);
+            int idx = s.IndexOf("__", StringComparison.Ordinal);
+            return idx >= 0 ? s.Substring(0, idx) : s;
+        }
+
+        // Legge il valore statico di MULTI_DB_SERV: "" => nessun selettore, altrimenti è la chiave
+        // da usare con ErpContext.Instance.GetString(...) per recuperare la lista multi-db.
+        private static string GetRelTableKey(Type selType)
+        {
+            var field = selType.GetField("MULTI_DB_SERV", BindingFlags.Public | BindingFlags.Static);
+            return field?.GetValue(null) as string;
+        }
+
+        public static bool IsRelTable(Type selType) => !string.IsNullOrEmpty(GetRelTableKey(selType));
+
+        // Dictionary <connectionStringKey, etichettaBreve> letta dinamicamente da ErpContext
+        public static Dictionary<string, string> GetAvailableDbConnections(Type selType)
+        {
+            var result = new Dictionary<string, string>();
+            string relKey = GetRelTableKey(selType);
+            if (string.IsNullOrEmpty(relKey)) return result;
+
+            string dbList = ErpContext.Instance.GetString(relKey); // es: "#connectionStringHsRIS__IRIS__TC__FREE,#connectionStringHsDIGISTAT__IRIS__TC__FREE,..."
+            if (string.IsNullOrWhiteSpace(dbList)) return result;
+
+            foreach (var raw in dbList.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                string connKey = raw.Trim();
+                if (connKey.Length == 0) continue;
+                result[connKey] = ExtractLabel(connKey);
+            }
+            return result;
+        }
+
+        public static void PrepareDbSelector(dynamic viewBag, Type selType, string selectedDbKey)
+        {
+            bool show = IsRelTable(selType);
+            viewBag.ShowDbSelector = show;
+            if (!show) return;
+
+            var dict = GetAvailableDbConnections(selType);
+            string selected = (!string.IsNullOrWhiteSpace(selectedDbKey) && dict.ContainsKey(selectedDbKey))
+                ? selectedDbKey
+                : dict.Keys.FirstOrDefault();
+
+            viewBag.DbConnectionList = new SelectList(dict, "Key", "Value", selected);
+        }
+
+        public static DogId ResolveDogId(Type selType, string selectedDbKey, string secondaryId, DogId defaultDogId)
+        {
+            if (!IsRelTable(selType)) return defaultDogId;
+
+            var dict = GetAvailableDbConnections(selType);
+            string connKey = (!string.IsNullOrWhiteSpace(selectedDbKey) && dict.ContainsKey(selectedDbKey))
+                ? selectedDbKey
+                : dict.Keys.FirstOrDefault();
+
+            // Se per qualche motivo la lista risulta vuota, fallback di sicurezza sul default originale
+            return string.IsNullOrEmpty(connKey) ? defaultDogId : new DogId(connKey, secondaryId);
+        }
+
+        // --- overload generici invariati, forwarding alla versione Type-based ---
+        public static bool IsRelTable<TSel>() => IsRelTable(typeof(TSel));
+        public static void PrepareDbSelector<TSel>(dynamic viewBag, string selectedDbKey) => PrepareDbSelector(viewBag, typeof(TSel), selectedDbKey);
+        public static DogId ResolveDogId<TSel>(string selectedDbKey, string secondaryId, DogId defaultDogId) => ResolveDogId(typeof(TSel), selectedDbKey, secondaryId, defaultDogId);
+
+
+
+        //// Whitelist centralizzata delle credenziali selezionabili in tutta l'applicazione
+        //public static readonly Dictionary<string, string> AvailableDbConnections = new Dictionary<string, string>
+        //{
+        //    { "#connectionStringHSDHE__IRIS__TC__FREE", "IRIS - TC FREE" },
+        //    { "#connectionStringHSDHE__IRIS__TC__TEST", "IRIS - TC TEST" },
+        //    // aggiungi qui le altre credenziali disponibili
+        //};
+        //public const string DefaultDbKey = "#connectionStringHSDHE__IRIS__TC__FREE";
+
+        ///// <summary>Legge IS_RELTABLE dalla classe Sel via reflection (nessuna dipendenza da tipi specifici).</summary>
+        //public static bool IsRelTable<TSel>()
+        //{
+        //    var field = typeof(TSel).GetField("IS_RELTABLE", BindingFlags.Public | BindingFlags.Static);
+        //    return field != null && (string)field.GetValue(null) == "Y";
+        //}
+
+        ///// <summary>Da chiamare in GET e POST: popola ViewBag per la view (flag + eventuale SelectList).</summary>
+        //public static void PrepareDbSelector<TSel>(dynamic viewBag, string selectedDbKey)
+        //{
+        //    bool show = IsRelTable<TSel>();
+        //    viewBag.ShowDbSelector = show;
+        //    if (show)
+        //        viewBag.DbConnectionList = new SelectList(AvailableDbConnections, "Key", "Value", selectedDbKey ?? DefaultDbKey);
+        //}
+
+        ///// <summary>Da chiamare prima della query: restituisce il DogId da usare.</summary>
+        //public static DogId ResolveDogId<TSel>(string selectedDbKey, string secondaryId, DogId defaultDogId)
+        //{
+        //    if (!IsRelTable<TSel>()) return defaultDogId;
+
+        //    string connKey = (!string.IsNullOrWhiteSpace(selectedDbKey) && AvailableDbConnections.ContainsKey(selectedDbKey))
+        //        ? selectedDbKey
+        //        : DefaultDbKey;
+        //    return new DogId(connKey, secondaryId);
+        //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         //==========================================================================================================

@@ -40,10 +40,14 @@ namespace ErpToolkit.Helpers.Db
         }
 
 
+        bool dogTrace = true;
+
+
         //formati interni
         internal const string DB_FORMAT_DATE = "yyyy/MM/dd"; //formato stringa di memorizzazione della data nel DB
         internal const string DB_FORMAT_TIME = "HH:mm:ss"; //formato stringa di memorizzazione dell'ora nel DB
         internal const string DB_FORMAT_DATETIME = "yyyy/MM/dd HH:mm:ss"; //formato stringa di memorizzazione di data e ora nel DB
+        internal const string DB_FORMAT_DATETIMEMS = "yyyy/MM/dd HH:mm:ss.fff"; //formato stringa di memorizzazione di data e ora e millisecondi nel DB
 
         internal const string DB_DATE_MAX = "9999/99/99"; //futuro
         internal const string DB_DATE_MIN = "    /  /  "; //passato
@@ -353,11 +357,15 @@ namespace ErpToolkit.Helpers.Db
             public object? DefaultValue = null;  
             public int? StringLength = null;
 
-            //--- NUOVO: template ExtraFilter letto da AutocompleteServerAttribute al momento
+            //--- NUOVO: template CustomCond e ExtraFilter letto da AutocompleteServerAttribute al momento
             //--- della costruzione del DogField. Null se il campo non ha ExtraFilter.
+            public string? CustomCond { get; internal set; } = null;
             public string? AutocompleteExtraFilter { get; internal set; } = null;
             //---
             //---
+
+            // generic options
+            public bool asOption(string option) { return !string.IsNullOrEmpty(this.SqlFieldOptions) && this.SqlFieldOptions.Contains(option); }
 
             // Getter e Setter
             private Func<ModelDog, object?>? _getter;
@@ -637,18 +645,24 @@ namespace ErpToolkit.Helpers.Db
                             {
 
                                 DogField fld = fillDogField(tab, property, erpDogFieldAttribute);
-                                
+
                                 //---------
+                                if (dogTrace) _logger.Info($"tab.fields.Add:");
                                 tab.fields.Add(fld);
+                                string sqlFieldName = (string.IsNullOrEmpty(tab.tableModelErpObj.ViewQueryFromWhere())) ? fld.SqlFieldName: fld.fieldName;
                                 switch (categNameVal)
                                 {
                                     case "TAB":
-                                        tabProperties.Add(fld.fieldName, fld);  
-                                        tabFields.Add($"{fld.table.SqlTableName}.{fld.SqlFieldName}", fld);   //tabFields.Add(fld.SqlFieldName, fld);
+                                        if (dogTrace) _logger.Info($"TAB: tabProperties.Add: {fld.fieldName ?? "null"}");
+                                        tabProperties.Add(fld.fieldName, fld);
+                                        if (dogTrace) _logger.Info($"TAB: tabFields.Add: {fld.table.SqlTableName ?? "null"}.{sqlFieldName ?? "null"}");
+                                        tabFields.Add($"{fld.table.SqlTableName}.{sqlFieldName}", fld);   //tabFields.Add(fld.SqlFieldName, fld);
                                         break;
                                     case "SEL":
+                                        if (dogTrace) _logger.Info($"SEL: selProperties.Add: {fld.fieldName ?? "null"}");
                                         selProperties.Add(fld.fieldName, fld);
-                                        selFields.Add($"{fld.table.SqlTableName}.{fld.SqlFieldName}", fld);   //selFields.Add(fld.SqlFieldName, fld);
+                                        if (dogTrace) _logger.Info($"SEL: selFields.Add: {fld.table.SqlTableName ?? "null"}.{sqlFieldName ?? "null"}");
+                                        selFields.Add($"{fld.table.SqlTableName}.{sqlFieldName}", fld);   //selFields.Add(fld.SqlFieldName, fld);
                                         break;
                                 }
                             }
@@ -657,13 +671,18 @@ namespace ErpToolkit.Helpers.Db
                         switch (categNameVal)
                         {
                             case "TAB":
+                                if (dogTrace) _logger.Info($"TAB: tables.Add: {tab.SqlTableName ?? "null"}");
                                 tables.Add(tab.SqlTableName, tab);
+                                if (dogTrace) _logger.Info($"TAB: tabTypes.Add: {tab.tableTpy?.FullName ?? "null"}");
                                 tabTypes.Add(tab.tableTpy, tab);
                                 //%%//tabPrefixes.Add(tab.SqlPrefix, tab);
+                                if (dogTrace) _logger.Info($"TAB: tabIntcodes.Add: {tab.INTCODE.ToString() ?? "null"}");
                                 tabIntcodes.Add(tab.INTCODE, tab);
                                 break;
                             case "SEL":
+                                if (dogTrace) _logger.Info($"SEL: selfilters.Add: {tab.SqlTableName ?? "null"}");
                                 selfilters.Add(tab.SqlTableName, tab);
+                                if (dogTrace) _logger.Info($"SEL: selTypes.Add: {tab.tableTpy?.FullName ?? "null"}");
                                 selTypes.Add(tab.tableTpy, tab);
                                 break;
                         }
@@ -910,6 +929,7 @@ namespace ErpToolkit.Helpers.Db
             fld.SqlFieldProperties = erpDogFieldAttribute.SqlFieldProperties?.ToString() ?? "";
             fld.SqlFieldOptions = erpDogFieldAttribute.SqlFieldOptions?.ToString() ?? "";
             fld.SqlFieldNameExt = erpDogFieldAttribute.SqlFieldNameExt?.ToString() ?? sqlFieldNameExt ?? "";
+            fld.CustomCond = erpDogFieldAttribute?.SqlFieldCustomCond?.ToString() ?? "";
             //---------
             fld.optMANDATORY = fld.SqlFieldOptions.Contains("[MANDATORY]");
             //-
@@ -966,7 +986,7 @@ namespace ErpToolkit.Helpers.Db
             }
             //---------
 
-            //--- NUOVO: legge ExtraFilter da AutocompleteServerAttribute
+            //--- NUOVO: legge CustomCond e ExtraFilter da AutocompleteServerAttribute
             var autocompleteServerAttr = property.GetCustomAttribute<AutocompleteServerAttribute>();
             fld.AutocompleteExtraFilter = autocompleteServerAttr?.ExtraFilter;
             if (string.IsNullOrWhiteSpace(fld.AutocompleteExtraFilter))
@@ -1923,24 +1943,26 @@ namespace ErpToolkit.Helpers.Db
                 }
                 if (value.GetType() == typeof(string))
                 {
-                    string strVal = ((string)value).Trim();
+                    string strVal = ((string)value).Trim().Replace("-", "/");
+                    string strValExt = ((string)value).Replace("-","/");
                     if (type == typeof(DateOnly?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optDATE == true))
                     {
                         if (strVal == "" || strVal == "/  /" || strVal == DB_DATE_MIN) return DateOnly.MinValue;
                         if (strVal == DB_DATE_MAX) return DateOnly.MaxValue;
-                        if (DateOnly.TryParseExact((string)value, DB_FORMAT_DATE, null, DateTimeStyles.None, out DateOnly date)) return date;
+                        if (DateOnly.TryParseExact(strValExt, DB_FORMAT_DATE, null, DateTimeStyles.None, out DateOnly date)) return date;
                     }
                     if (type == typeof(TimeOnly?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optTIME == true))
                     {
                         if (strVal == "" || strVal == ":  :" || strVal == DB_TIME_EMPTY) return null;
-                        if (TimeOnly.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out TimeOnly time)) return time;
+                        if (TimeOnly.TryParseExact(strValExt, DB_FORMAT_TIME, null, DateTimeStyles.None, out TimeOnly time)) return time;
                     }
                     if (type == typeof(DateTime?) || (this.tabFields.ContainsKey(tabcolName) && this.tabFields[tabcolName]?.optDATETIME == true))
                     {
                         if (strVal == "" || strVal == "/  /" || strVal == "/  /     :  :") return DateTime.MinValue;
-                        if (this.tabFields[tabcolName]?.optDATE == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATE, null, DateTimeStyles.None, out DateTime datetimeDate)) return datetimeDate;
-                        else if (this.tabFields[tabcolName]?.optTIME == true && DateTime.TryParseExact(value.ToString(), DB_FORMAT_TIME, null, DateTimeStyles.None, out DateTime datetimeTime)) return datetimeTime;
-                        else if (DateTime.TryParseExact(value.ToString(), DB_FORMAT_DATETIME, null, DateTimeStyles.None, out DateTime datetime)) return datetime;
+                        if (this.tabFields[tabcolName]?.optDATE == true && DateTime.TryParseExact(strValExt, DB_FORMAT_DATE, null, DateTimeStyles.None, out DateTime datetimeDate)) return datetimeDate;
+                        else if (this.tabFields[tabcolName]?.optTIME == true && DateTime.TryParseExact(strValExt, DB_FORMAT_TIME, null, DateTimeStyles.None, out DateTime datetimeTime)) return datetimeTime;
+                        else if (DateTime.TryParseExact(strValExt, DB_FORMAT_DATETIME, null, DateTimeStyles.None, out DateTime datetime)) return datetime;
+                        else if (DateTime.TryParseExact(strValExt, DB_FORMAT_DATETIMEMS, null, DateTimeStyles.None, out DateTime datetimems)) return datetimems;
                     }
                 }
                 if (value.GetType() == typeof(System.DateTime) || value.GetType() == typeof(System.DateTime?))
@@ -2060,7 +2082,8 @@ namespace ErpToolkit.Helpers.Db
             //outList = this.ExecuteQuery<T>(sql, parameters, options: options);
 
             //!!!//Dictionary<object, ModelErp> outDict = this.ExecuteQuery(null, objModel.GetType(), sql, parameters, transactionId, maxRecords, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
-            Dictionary<object, ModelErp> outDict = this.ExecuteQueryEx(null, tab.tableTpy, sql, parameters, fillXdata, fmtList, transactionId, maxRecords, options: options);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
+            string tablePropertiesOptions = tab?.SqlTableProperties ?? "";  // es: [TIMEOUT_SECONDS=xxx] "[NOLOCK]" o "[READPAST]" o "[READUNCOMMITTED]"
+            Dictionary<object, ModelErp> outDict = this.ExecuteQueryEx(null, tab.tableTpy, sql, parameters, fillXdata, fmtList, transactionId, maxRecords, options: options + " " + tablePropertiesOptions);  //dict contiene una copia di tutti i record estratti in tutte le sessioni
             //!!!//
 
             outKeyList = DogManagerCache.CacheAddDict(this, ref dogCache, tab.tableTpy, outDict, options: options);
@@ -2091,7 +2114,8 @@ namespace ErpToolkit.Helpers.Db
 
 
                     //!!!//Dictionary<object, ModelErp> outDictFrom = this.ExecuteQuery(null, xrefFromType, xrefFromSql, xrefFromParameters, transactionId, maxRecords, options: options);
-                    Dictionary<object, ModelErp> outDictFrom = this.ExecuteQueryEx(null, fld?.table?.tableTpy, xrefFromSql, xrefFromParameters, fillXdata, fmtList, transactionId, maxRecords, options: options);
+                    string fldTablePropertiesOptions = fld?.table?.SqlTableProperties ?? "";  // es: [TIMEOUT_SECONDS=xxx] "[NOLOCK]" o "[READPAST]" o "[READUNCOMMITTED]"
+                    Dictionary<object, ModelErp> outDictFrom = this.ExecuteQueryEx(null, fld?.table?.tableTpy, xrefFromSql, xrefFromParameters, fillXdata, fmtList, transactionId, maxRecords, options: options + " " + fldTablePropertiesOptions);
                     //!!!//
 
                     //carico nella cache i riferimenti per ogni record della lista

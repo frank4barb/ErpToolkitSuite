@@ -3,6 +3,7 @@ using ErpToolkit.Helpers.Db;
 using ErpToolkit.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using NLog;
 using System.Buffers.Text;
 using System.ComponentModel.DataAnnotations;
@@ -121,6 +122,31 @@ namespace ErpToolkit.Helpers
                 })
                 .Select(p => p.Name) // Estrae il nome della proprietà
                 .ToList();
+        }
+        // Restituisce la lista dei nomi delle proprietà della classe che hanno l'attributo ErpDogFieldAttribute con SqlFieldOptions che contiene l'opzione opt
+        public static List<string> getPropertiesWithSqlFieldOptions(System.Type classType, string opt)
+        {
+            return classType.GetProperties()
+                .Where(p =>
+                {
+                    // Cerca l'attributo ErpDogField sulla proprietà
+                    var attr = p.GetCustomAttribute<ErpDogFieldAttribute>();
+
+                    // Verifica che l'attributo esista e che Xref non sia vuoto
+                    return attr != null && !string.IsNullOrWhiteSpace(attr.SqlFieldOptions) && attr.SqlFieldOptions.Contains(opt);
+                })
+                .Select(p => p.Name) // Estrae il nome della proprietà
+                .ToList();
+        }
+        // retituisce timeout in secondi in base al contenuto delle opzioni SqlFieldOptions delle proprietà della classe che contengono l'opzione "[TIMEOUT_SECONDS=xxx]"
+        public static int getPropertiesTimeoutOptions(string opt, int defaultTmeout)
+        {
+            if (opt != null && opt.Contains("[TIMEOUT_SECONDS=")) 
+            {
+                string ts = opt.Split("[TIMEOUT_SECONDS=")[1].Split("]")[0];
+                if (int.TryParse(ts, out int parsedTimeout)) return parsedTimeout;
+            }
+            return defaultTmeout;
         }
 
         //Cripta & Decripta -- Simple3Des

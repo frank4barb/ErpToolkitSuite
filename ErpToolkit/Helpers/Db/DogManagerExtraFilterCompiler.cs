@@ -23,7 +23,7 @@ namespace ErpToolkit.Helpers.Db
         //******************************************************************************************************************
 
 
-        public static string ResolveExtraFilterCondition(DogManager dogMng, DogTable tab, string tpy, ref IDictionary<string, object> parameters, ref IDictionary<string,string> extraAutocompleteFieldNames, string? modelPropertyName = null, Dictionary<string, List<string>> extraFields = null)
+        public static string ResolveExtraFilterCondition(DogManager dogMng, DogTable tab, string tpy, ref IDictionary<string, object> parameters, ref IDictionary<string,string> extraAutocompleteFieldNames, string filterTemplate, Dictionary<string, List<string>> extraFields = null)
         {
             extraAutocompleteFieldNames = null; // resetta la lista per questa chiamata (sarà popolata dai template che usano campi extra)
             // 1. Costruisci il contesto globale per i template di filtro dinamico, includendo eventuali campi extra specificati, informazioni sull'applicazione, l'utente e la data odierna.
@@ -49,10 +49,6 @@ namespace ErpToolkit.Helpers.Db
                 today = new ExtraFilterDateContext(),
                 valid = new ExtraFilterValid()
             };
-
-            // 2. recupera il template di filtro dinamico associato alla tabella e alla proprietà specificata (ad esempio, da una configurazione o da attributi sui modelli).
-            //!!//string filterTemplate = tab.fields.FirstOrDefault(f => f.fieldName == modelPropertyName)?.AutocompleteExtraFilter ?? ""; // Se modelPropertyName è null, restituisce "" (no filtro)
-            string filterTemplate = dogMng.getDogField(modelPropertyName ?? "")?.AutocompleteExtraFilter ?? ""; // Se modelPropertyName è null, restituisce "" (no filtro)
 
             // 2. Compila ed esegui il template di filtro dinamico, ottenendo la stringa di filtro risultante o eventuali errori di validazione.
             ExtraFilterResult result = ResolveAsync(filterTemplate, extraFieldsObj, globals).GetAwaiter().GetResult();
@@ -240,6 +236,7 @@ namespace ErpToolkit.Helpers.Db
                 return $"{sqlColumn} NOT IN ({string.Join(", ", pNames)})";
             }
 
+
             // ── BETWEEN / date-range ───────────────────────────────────────────────
             // {Between("PA__DATA", "SelDateRange")}    f(field)[0]=start, f(field)[1]=end
             // {BetweenVals("PA__ANNO", 2020, 2024)}
@@ -279,7 +276,52 @@ namespace ErpToolkit.Helpers.Db
             public string IsNull(string sqlColumn) => $"{sqlColumn} IS NULL";
             public string IsNotNull(string sqlColumn) => $"{sqlColumn} IS NOT NULL";
 
+            // ── Exclude condition ──────────────────────────────────────────────
+            // {IsNull("PA__NOTE")}
+            public string ExcludeCond() => "1=0";
 
+            //============================================================================================================================
+
+            // CUSTOM FILTERS CONDITIO: 
+            //---------------
+
+            // schema: <sqlColumn> <op> <funcCond>(<fieldName>)
+            public string CustomIn(string funcColumn, string sqlColumn, string op, string funcCond, string fieldName)
+            {
+                if (string.IsNullOrWhiteSpace(op)) op = "IN";
+                if (this.autocompleteType == "GetAll")
+                {
+                    // In modalità autocompleteClient, non filtrare i risultati ma registra il nome della colonna per l'autocomplete
+                    extraAutocompleteFieldNames[fieldName] = sqlColumn; // Aggiungi il nome della colonna alla lista per l'autocompleteClient (posso usare la stessa proprietà{fieldName} per filtrare su diversi campi del DB{sqlColumn})
+                    return "";
+                }
+                var list = f(fieldName)?.Where(v => v != null).ToList();
+                if (list == null || list.Count == 0) return "";
+                var pNames = DogManager.addListParam(list, ref parameters);
+                return $"{funcColumn}({sqlColumn}) {op} ({funcCond}({string.Join(", ", pNames)}))";
+            }
+            // schema: <sqlColumn> <op> <func>(<value1>, <value2>, ...)
+            public string CustomInVals(string funcColumn, string sqlColumn, string op, string funcCond, params object[] values)
+            {
+                if (string.IsNullOrWhiteSpace(op)) op = "IN";
+                var list = values?.Where(v => v != null).Cast<object>().ToList();
+                if (list == null || list.Count == 0) return "";
+                var pNames = DogManager.addListParam(list, ref parameters);
+                return $"{funcColumn}({sqlColumn}) {op} ({funcCond}({string.Join(", ", pNames)}))";
+            }
+
+
+            // funzioni usabili come funcCond: "SELECT PA__ICODE FROM PA__TAB WHERE PA__GRUPPO = {f("SelGruppo")}" 
+
+            public string FuncSelect(string sqlSelect)
+            {
+                if (string.IsNullOrWhiteSpace(sqlSelect)) return "";
+                return $"{sqlSelect}";
+            }
+
+
+
+            //============================================================================================================================
 
             //// ── From tabella relazionata ────────────────────────────────────────────────────────
             public string From(string sqlColumn, string condition)
@@ -301,6 +343,8 @@ namespace ErpToolkit.Helpers.Db
                 return $"{sqlColumn} NOT IN (SELECT {joinIcodeFieldName} FROM {joinTableName} WHERE {condition} )";
             }
 
+
+            //============================================================================================================================
 
             // ── Combinatori ────────────────────────────────────────────────────────
             // {And(Eq("PA__GRUPPO","SelGruppo"), In("PA__ICODE","SelCodici"))}

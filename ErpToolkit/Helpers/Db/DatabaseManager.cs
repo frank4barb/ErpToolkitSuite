@@ -204,6 +204,7 @@ namespace ErpToolkit.Helpers.Db
 
         public DataTable ExecuteQuery(string sql, IDictionary<string, object> parameters, string? transactionId, int maxRecords, string options)
         {
+            int optionsTimeoutSeconds = UtilHelper.getPropertiesTimeoutOptions(options, TimeoutSeconds);
             if (_transactionId != transactionId) RollBackDefaulTransaction("ExecuteQuery");
             IDbConnection connection = _database.NewConnection(); lock (_dumpLastSql) { _dumpLastSql = ""; }
             //--- Segnaleremo il completamento della query con questo handle
@@ -214,10 +215,10 @@ namespace ErpToolkit.Helpers.Db
             {
                 using (IDbCommand command = _database.NewCommand(sql, connection)) // la transazione viene passata nel NewCommand
                 {
-                    command.CommandTimeout = TimeoutSeconds;
+                    command.CommandTimeout = optionsTimeoutSeconds;
                     string _dumpSql = AddParametersToCommand(command, parameters); lock (_dumpLastSql) { _dumpLastSql = _dumpSql; }
                     //--- Avvia audit cancellabile
-                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, TimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
+                    if (EnableTraceTimeout) StartAuditMonitorIfStillRunning(connection, optionsTimeoutSeconds, _auditBeforeTimeoutSeconds, done, _dumpSql, sql, parameters);
                     //---
                     DataTable result = _database.QueryReader(command, maxRecords); //eseguo senza retry
                     if (result.Rows.Count > maxRecords)
